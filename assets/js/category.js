@@ -30,7 +30,9 @@
   // Cloudflare (unreachable off-origin), this is PROGRESSIVE: the page's curated static grid + range
   // filter stay as the fallback, and the live grid only takes over once the fetch succeeds.
   (function(){
-    var DEFAULT_BASE='https://www.projecttimber.com';
+    // In the WP theme, functions.php injects window.PT_WC_BASE (current site origin) so the API
+    // is same-origin on staging/live; falls back to production for the standalone prototype.
+    var DEFAULT_BASE=(typeof window!=='undefined' && window.PT_WC_BASE) ? window.PT_WC_BASE : 'https://www.projecttimber.com';
     var PROXY_ROUTE='/wp-json/timber/v1/wc';       // key-free read-only proxy → wc/v3
     var DEFAULT_SLUG='garden-offices';              // fallback when no slug is in the URL
 
@@ -191,6 +193,8 @@
 
     // --- which category? ---
     function categorySlug(){
+      // WP theme hands us the exact queried term slug — most reliable, works under any permalink base.
+      if(typeof window!=='undefined' && window.PT_CATEGORY_SLUG) return slugify(window.PT_CATEGORY_SLUG);
       try{ var q=new URLSearchParams(location.search); var s=q.get('slug')||q.get('category')||q.get('cat'); if(s) return slugify(s); }catch(e){}
       var segs=location.pathname.split('/').filter(Boolean);
       var last=segs.length?segs[segs.length-1]:'';

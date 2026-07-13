@@ -1,0 +1,98 @@
+<?php
+/**
+ * Product-category archive — converted from projecttimber-category-page.html.
+ *
+ * A fully custom, API-driven category page (NOT the WooCommerce loop): the
+ * title, description, product grid and filters are rendered live by
+ * assets/js/category.js from the custom category endpoint, keyed on the current
+ * term. functions.php enqueues category.css/category.js on product_cat archives
+ * and injects the term slug + site origin (window.PT_CATEGORY_SLUG / PT_WC_BASE).
+ *
+ * The markup below is a bare skeleton only (no hardcoded products) — identical
+ * to the prototype so the design is unchanged.
+ *
+ * @package pt-theme-2026
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+$pt_term = get_queried_object();
+$pt_name = ( $pt_term && isset( $pt_term->name ) ) ? $pt_term->name : '';
+
+get_header();
+?>
+
+<main class="wrap">
+  <!-- breadcrumb -->
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="<?php echo esc_url( home_url( '/' ) ); ?>">Home</a><span class="sep">/</span><span class="here" aria-current="page"><?php echo esc_html( $pt_name ); ?></span>
+  </nav>
+
+  <!-- intro — title/lede filled live by assets/js/category.js (skeleton until then) -->
+  <div class="cat-intro">
+    <h1><?php echo esc_html( $pt_name ); ?></h1>
+    <p class="cat-skel"><span class="sk"></span><span class="sk"></span><span class="sk"></span></p>
+  </div>
+
+  <!-- toolbar -->
+  <div class="cat-toolbar">
+    <button class="filt-btn" id="openFilters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg> Filters</button>
+    <span class="count"><b id="count">…</b> products</span>
+    <div class="sort">
+      <label for="sort">Sort</label>
+      <select id="sort">
+        <option value="featured">Featured</option>
+        <option value="low">Price: low to high</option>
+        <option value="high">Price: high to low</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- products -->
+  <div class="prod-grid" id="grid">
+    <!-- Bare skeleton only — NO hardcoded products. Real cards are injected by assets/js/category.js
+         once the live category loads; this just prevents a blank/flash on first paint. -->
+    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
+    <!-- Promo banner slot (kept; replace the image with your current promo) -->
+    <a class="promo-card" href="#" aria-label="Current promotion">
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Square.png" alt="Current promotion">
+    </a>
+    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
+    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
+    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
+    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
+    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
+    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
+    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
+    <p class="noresults" id="noresults" hidden>No products match those filters. <a href="#" id="clearFilters" style="color:var(--charcoal);font-weight:700">Clear filters</a></p>
+  </div>
+  <div class="grid-foot">Loading products…</div>
+</main>
+
+<!-- ===================== CATEGORY CONTENT (SEO) — heading + copy filled live from the category description ===================== -->
+<section class="cat-bottom" style="display:none"><div class="wrap">
+  <h2></h2>
+</div></section>
+
+<!-- ===================== FILTER DRAWER (hidden until opened) ===================== -->
+<div class="drawer-backdrop" id="backdrop"></div>
+<aside class="drawer" id="drawer" aria-label="Filters">
+  <div class="drawer-head"><h3>Filters</h3><button class="ptc-x" id="closeFilters" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="drawer-body"><!-- filter groups rendered live from the category's products by assets/js/category.js --></div>
+  <div class="drawer-foot">
+    <button class="reset" id="resetFilters" type="button">Reset</button>
+    <button class="apply" id="applyFilters" type="button">Show results</button>
+  </div>
+</aside>
+
+<!-- trust strip (relocated below the products so it doesn't push the grid down) -->
+<div class="trust-strip"><div class="wrap">
+  <span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.3 12.4l2.6 2.6 4.8-5.2"/></svg> Made in Britain</span>
+  <span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="11" height="9" rx="1"/><path d="M13.5 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.5"/><circle cx="17.5" cy="18" r="1.5"/></svg> Free delivery (selected postcodes)*</span>
+  <span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> Up to 25-year anti-rot guarantee*</span>
+</div></div>
+
+<?php
+get_footer();

@@ -71,6 +71,26 @@ add_action(
 				wp_enqueue_script( 'pt-home', $uri . '/assets/js/home.js', array(), $ver( 'assets/js/home.js' ), true );
 			}
 		}
+
+		// --- Product-category archive (taxonomy-product_cat.php) --------------
+		if ( function_exists( 'is_product_category' ) && is_product_category() ) {
+			if ( file_exists( $dir . '/assets/css/category.css' ) ) {
+				wp_enqueue_style( 'pt-category', $uri . '/assets/css/category.css', array( 'pt-base' ), $ver( 'assets/css/category.css' ) );
+			}
+			if ( file_exists( $dir . '/assets/js/category.js' ) ) {
+				wp_enqueue_script( 'pt-category', $uri . '/assets/js/category.js', array(), $ver( 'assets/js/category.js' ), true );
+				// Hand category.js the exact queried term slug + the site origin so its API
+				// calls are same-origin (staging/live) rather than the hardcoded production URL.
+				$term = get_queried_object();
+				$slug = ( $term && isset( $term->slug ) ) ? $term->slug : '';
+				wp_add_inline_script(
+					'pt-category',
+					'window.PT_WC_BASE=' . wp_json_encode( untrailingslashit( home_url() ) ) . ';'
+					. 'window.PT_CATEGORY_SLUG=' . wp_json_encode( $slug ) . ';',
+					'before'
+				);
+			}
+		}
 	}
 );
 
