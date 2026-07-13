@@ -75,6 +75,23 @@ add_action(
 			}
 		}
 
+		// --- Single product (single-product.php) ------------------------------
+		if ( function_exists( 'is_product' ) && is_product() ) {
+			if ( file_exists( $dir . '/assets/css/product.css' ) ) {
+				wp_enqueue_style( 'pt-product', $uri . '/assets/css/product.css', array( 'pt-base' ), $ver( 'assets/css/product.css' ) );
+			}
+			if ( file_exists( $dir . '/assets/js/product.js' ) ) {
+				wp_enqueue_script( 'pt-product', $uri . '/assets/js/product.js', array(), $ver( 'assets/js/product.js' ), true );
+				// Hand product.js the current product id + site origin (same-origin config/specs API).
+				wp_add_inline_script(
+					'pt-product',
+					'window.PT_WC_BASE=' . wp_json_encode( untrailingslashit( home_url() ) ) . ';'
+					. 'window.PT_PRODUCT_ID=' . wp_json_encode( (string) get_the_ID() ) . ';',
+					'before'
+				);
+			}
+		}
+
 		// --- Product-category archive (taxonomy-product_cat.php) --------------
 		if ( function_exists( 'is_product_category' ) && is_product_category() ) {
 			if ( file_exists( $dir . '/assets/css/category.css' ) ) {

@@ -23,3 +23,8 @@ npm-debug.log*
 # (timber-product-config.php) is deployed to wp-content/mu-plugins/
 # by hand, NOT as part of the theme — see notes.
 scripts-to-migrate/
+
+# Reference copy of the current live theme (parent to copy functionality FROM).
+# Read-only reference — never shipped in the 2026 theme.
+reference-theme/
+old-theme-template/

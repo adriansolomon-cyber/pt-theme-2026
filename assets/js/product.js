@@ -38,11 +38,15 @@
   // The DESIGN is untouched: every card / row / spec cell reuses the page's existing classes.
   (function(){
     // --- config: product id comes from ?product= (also product_id / pid), else the baked default ---
-    var DEFAULT_BASE='https://www.projecttimber.com';
+    // In the WP theme, functions.php injects window.PT_WC_BASE (current site origin) so the API is
+    // same-origin on staging/live; falls back to production for the standalone prototype.
+    var DEFAULT_BASE=(typeof window!=='undefined' && window.PT_WC_BASE) ? window.PT_WC_BASE : 'https://www.projecttimber.com';
     var PROXY_ROUTE='/wp-json/timber/v1/wc';   // key-free read-only proxy → wc/v3 (used for specs + gallery + fallback)
     var DEFAULT_PID='9235';
     var USE_CONFIG_ENDPOINT=true;              // single-request mu-plugin endpoint; falls back to the proxy flow
-    function urlPid(){ try{ var q=new URLSearchParams(location.search); return q.get('product')||q.get('product_id')||q.get('pid')||''; }catch(e){ return ''; } }
+    // WP single-product.php injects window.PT_PRODUCT_ID (the queried product) — most reliable; the
+    // ?product= param is the standalone-prototype fallback.
+    function urlPid(){ if(typeof window!=='undefined' && window.PT_PRODUCT_ID) return String(window.PT_PRODUCT_ID); try{ var q=new URLSearchParams(location.search); return q.get('product')||q.get('product_id')||q.get('pid')||''; }catch(e){ return ''; } }
     function urlSize(){ try{ var q=new URLSearchParams(location.search); return q.get('size')||q.get('size_id')||q.get('sid')||''; }catch(e){ return ''; } }
     var TITLE_KEY={ 'Size':'size','Wall Thickness':'wall','Floor':'floor','Roof Cover':'roof',
       'Guttering':'guttering','Paint Colour':'paint','Colour Trim':'trim','Base':'base' };
