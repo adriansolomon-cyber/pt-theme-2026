@@ -364,11 +364,20 @@
     function cfgRowsList(){ return elRows ? [].slice.call(elRows.querySelectorAll('.cfg-row')) : []; }
     function cfgOpenOnly(row){ cfgRowsList().forEach(function(r){ r.classList.toggle('open', r===row); }); }
     function cfgAdvance(row){
-      // Open/close only — never scroll the page. The chosen value stays in the
-      // collapsed step's header; the next step opens in place.
+      // Collapse this step / open the next, INSTANTLY (no slide), and pin the step you
+      // clicked exactly where it was — so the reflow can't make the browser shift the
+      // viewport (scroll-anchoring, or clamping when near the page bottom).
+      var head=row?row.querySelector('.cfg-head'):null;
+      var before=head?head.getBoundingClientRect().top:null;
+      if(elRows) elRows.classList.add('cfg-advancing');
       var rows=cfgRowsList(), next=rows[rows.indexOf(row)+1];
       if(next){ cfgOpenOnly(next); }
       else if(row){ row.classList.remove('open'); }    // last step → collapse; summary/add is ready
+      if(head && before!=null){
+        var d=head.getBoundingClientRect().top-before;   // any shift the reflow caused
+        if(d){ try{ window.scrollBy({ top:d, left:0, behavior:'instant' }); }catch(e){ window.scrollBy(0,d); } }
+      }
+      if(elRows){ requestAnimationFrame(function(){ if(elRows) elRows.classList.remove('cfg-advancing'); }); }
     }
 
     // delegated clicks: accordion headers + option cards (rows are dynamic)
