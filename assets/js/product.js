@@ -324,7 +324,11 @@
       loadGallery(pid);
       renderSizeRow();
       status((cached?'Ready (cached) · ':'')+Object.keys(scenarios).length+' sizes. Choose a size.');
-      return maybePreselect();
+      var pre=maybePreselect();
+      // No size in the URL → default to the first (smallest) size so every option step
+      // loads immediately (Size stays open as step 1; no auto-advance/scroll on load).
+      if(!pre){ var sizes=sortedSizes(); if(sizes.length) pre=selectSize(sizes[0].id); }
+      return pre;
     }
     function loadViaConfig(pid){
       if(!USE_CONFIG_ENDPOINT) return Promise.reject(new Error('disabled'));
@@ -361,8 +365,8 @@
     function cfgOpenOnly(row){ cfgRowsList().forEach(function(r){ r.classList.toggle('open', r===row); }); }
     function cfgAdvance(row){
       var rows=cfgRowsList(), next=rows[rows.indexOf(row)+1];
-      if(next){ cfgOpenOnly(next); try{ next.scrollIntoView({behavior:'smooth', block:'nearest'}); }catch(e){} }
-      else if(row){ row.classList.remove('open'); }   // last step → collapse; summary/add is ready
+      if(next){ cfgOpenOnly(next); }                   // open the next step in place (no page scroll)
+      else if(row){ row.classList.remove('open'); }    // last step → collapse; summary/add is ready
     }
 
     // delegated clicks: accordion headers + option cards (rows are dynamic)
