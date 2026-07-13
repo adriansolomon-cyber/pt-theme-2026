@@ -1,0 +1,15 @@
+/*
+Theme Name: Project Timber 2026
+Theme URI: https://github.com/adriansolomon-cyber/pt-theme-2026
+Author: Project Timber
+Author URI: https://www.projecttimber.co.uk
+Description: Custom WooCommerce theme for Project Timber (2026). Stage-1 scaffold — the front end currently lives as an HTML/CSS/JS prototype (see the projecttimber-*.html pages and assets/); full WordPress/WooCommerce template conversion is pending. This root style.css exists so WordPress recognises and can activate the theme; the actual styles are enqueued from assets/css/ in functions.php.
+Version: 0.1.0
+Requires at least: 6.0
+Tested up to: 6.5
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: pt-theme-2026
+Tags: woocommerce, custom
+*/
