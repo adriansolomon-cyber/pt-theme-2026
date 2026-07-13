@@ -1,15 +1,15 @@
 <?php
 /**
- * Product-category archive — converted from projecttimber-category-page.html.
+ * Product-category archive — server-rendered (WooCommerce native).
  *
- * A fully custom, API-driven category page (NOT the WooCommerce loop): the
- * title, description, product grid and filters are rendered live by
- * assets/js/category.js from the custom category endpoint, keyed on the current
- * term. functions.php enqueues category.css/category.js on product_cat archives
- * and injects the term slug + site origin (window.PT_CATEGORY_SLUG / PT_WC_BASE).
+ * Converted from projecttimber-category-page.html. The product grid, filters,
+ * count and description are rendered on the server from the current term's
+ * DIRECT products (pt_cat_get_data() → mu-plugin timber_catp_build, or the
+ * native fallback). assets/js/category.js then runs in "server-rendered mode":
+ * it filters/sorts the cards already in the DOM — no fetching, no skeleton.
  *
- * The markup below is a bare skeleton only (no hardcoded products) — identical
- * to the prototype so the design is unchanged.
+ * Design markup is unchanged from the prototype; only the grid/filters are now
+ * PHP loops emitting the same cards category.js used to inject.
  *
  * @package pt-theme-2026
  */
@@ -18,8 +18,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$pt_term = get_queried_object();
-$pt_name = ( $pt_term && isset( $pt_term->name ) ) ? $pt_term->name : '';
+$pt_term     = get_queried_object();
+$pt_data     = pt_cat_get_data( $pt_term );
+$pt_cat      = isset( $pt_data['category'] ) ? $pt_data['category'] : array();
+$pt_products = isset( $pt_data['products'] ) ? $pt_data['products'] : array();
+$pt_name     = isset( $pt_cat['name'] ) ? $pt_cat['name'] : ( isset( $pt_term->name ) ? $pt_term->name : '' );
+$pt_desc     = isset( $pt_cat['description'] ) ? $pt_cat['description'] : '';
+$pt_count    = count( $pt_products );
+$pt_intro    = pt_cat_intro_desc( $pt_desc );
+$pt_desc_html = ( '' !== trim( (string) $pt_desc ) )
+	? ( preg_match( '/<(p|h[1-6]|ul|ol|div|section|br)\b/i', $pt_desc ) ? wp_kses_post( $pt_desc ) : pt_cat_paragraphs_html( $pt_desc ) )
+	: '';
 
 get_header();
 ?>
@@ -30,16 +39,20 @@ get_header();
     <a href="<?php echo esc_url( home_url( '/' ) ); ?>">Home</a><span class="sep">/</span><span class="here" aria-current="page"><?php echo esc_html( $pt_name ); ?></span>
   </nav>
 
-  <!-- intro — title/lede filled live by assets/js/category.js (skeleton until then) -->
+  <!-- intro — title + lede rendered server-side from the category -->
   <div class="cat-intro">
     <h1><?php echo esc_html( $pt_name ); ?></h1>
-    <p class="cat-skel"><span class="sk"></span><span class="sk"></span><span class="sk"></span></p>
+    <?php if ( '' !== $pt_intro ) : ?>
+      <p><?php echo esc_html( $pt_intro ); ?></p>
+    <?php else : ?>
+      <p></p>
+    <?php endif; ?>
   </div>
 
   <!-- toolbar -->
   <div class="cat-toolbar">
     <button class="filt-btn" id="openFilters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg> Filters</button>
-    <span class="count"><b id="count">…</b> products</span>
+    <span class="count"><b id="count"><?php echo (int) $pt_count; ?></b> products</span>
     <div class="sort">
       <label for="sort">Sort</label>
       <select id="sort">
@@ -50,37 +63,44 @@ get_header();
     </div>
   </div>
 
-  <!-- products -->
+  <!-- products — rendered server-side; category.js filters/sorts these in place -->
   <div class="prod-grid" id="grid">
-    <!-- Bare skeleton only — NO hardcoded products. Real cards are injected by assets/js/category.js
-         once the live category loads; this just prevents a blank/flash on first paint. -->
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <!-- Promo banner slot (kept; replace the image with your current promo) -->
-    <a class="promo-card" href="#" aria-label="Current promotion">
-      <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Square.png" alt="Current promotion">
-    </a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <p class="noresults" id="noresults" hidden>No products match those filters. <a href="#" id="clearFilters" style="color:var(--charcoal);font-weight:700">Clear filters</a></p>
+    <?php
+    foreach ( $pt_products as $pt_i => $pt_p ) {
+        echo pt_cat_card_html( $pt_p ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped within helper
+        // Promo banner as the 2nd grid item (matches category.js placePromo()).
+        if ( 0 === $pt_i ) {
+            ?>
+            <a class="promo-card" href="#" aria-label="Current promotion">
+              <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Square.png" alt="Current promotion">
+            </a>
+            <?php
+        }
+    }
+    if ( 0 === $pt_count ) {
+        ?>
+        <a class="promo-card" href="#" aria-label="Current promotion">
+          <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Square.png" alt="Current promotion">
+        </a>
+        <?php
+    }
+    ?>
+    <p class="noresults" id="noresults"<?php echo $pt_count ? ' hidden' : ''; ?>><?php echo $pt_count ? 'No products match those filters. <a href="#" id="clearFilters" style="color:var(--charcoal);font-weight:700">Clear filters</a>' : 'No products found in this category.'; ?></p>
   </div>
-  <div class="grid-foot">Loading products…</div>
+  <div class="grid-foot"><?php echo $pt_count ? 'Showing all <b>' . (int) $pt_count . '</b> product' . ( 1 === $pt_count ? '' : 's' ) : ''; ?></div>
 </main>
 
-<!-- ===================== CATEGORY CONTENT (SEO) — heading + copy filled live from the category description ===================== -->
-<section class="cat-bottom" style="display:none"><div class="wrap">
-  <h2></h2>
+<!-- ===================== CATEGORY CONTENT (SEO) — heading + copy from the category description ===================== -->
+<section class="cat-bottom"<?php echo '' === $pt_desc_html ? ' style="display:none"' : ''; ?>><div class="wrap">
+  <h2><?php echo esc_html( $pt_name ); ?></h2>
+  <?php echo $pt_desc_html; // phpcs:ignore WordPress.Security.EscapeOutput -- wp_kses_post / built from esc_html above ?>
 </div></section>
 
 <!-- ===================== FILTER DRAWER (hidden until opened) ===================== -->
 <div class="drawer-backdrop" id="backdrop"></div>
 <aside class="drawer" id="drawer" aria-label="Filters">
   <div class="drawer-head"><h3>Filters</h3><button class="ptc-x" id="closeFilters" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-  <div class="drawer-body"><!-- filter groups rendered live from the category's products by assets/js/category.js --></div>
+  <div class="drawer-body"><?php echo pt_cat_filters_html( $pt_products ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped within helper ?></div>
   <div class="drawer-foot">
     <button class="reset" id="resetFilters" type="button">Reset</button>
     <button class="apply" id="applyFilters" type="button">Show results</button>

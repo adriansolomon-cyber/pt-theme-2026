@@ -14,6 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
+// Server-side category grid rendering (PHP port of category.js).
+require_once get_stylesheet_directory() . '/inc/category-render.php';
+
 /**
  * Theme supports.
  */

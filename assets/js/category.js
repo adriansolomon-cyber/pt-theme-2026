@@ -243,6 +243,18 @@
     // Repeat visit within the session → render instantly from cache (NO skeleton flash/overlap).
     // First visit → provisional title from the slug + skeletons for the intro copy and grid.
     var pageSlug=categorySlug();
+
+    // SERVER-RENDERED MODE (WP theme): taxonomy-product_cat.php already emitted the real
+    // product cards + filter groups server-side. Skip all fetching — just wire up the
+    // multi-facet filtering, counts and sort over the cards already in the DOM.
+    if(grid.querySelector('.prod:not(.skel)')){
+      total=grid.querySelectorAll('.prod').length;
+      runFilter=applyDynamic;      // server cards carry data-f-* → multi-facet filtering
+      refreshGrid();               // collect cards[] + bind filter-checkbox listeners
+      setCounts(total);
+      return;                      // done — no cache/skeleton/fetch
+    }
+
     var cachedCat=loadCatCache(pageSlug);
     if(cachedCat){
       render(cachedCat.cat, cachedCat.products, cachedCat.prices);
