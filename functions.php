@@ -16,6 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Server-side category grid rendering (PHP port of category.js).
 require_once get_stylesheet_directory() . '/inc/category-render.php';
+// Single-product dynamic helpers (from price, category-line name).
+require_once get_stylesheet_directory() . '/inc/product-render.php';
 
 /**
  * Theme supports.
@@ -86,7 +88,7 @@ add_action(
 				wp_add_inline_script(
 					'pt-product',
 					'window.PT_WC_BASE=' . wp_json_encode( untrailingslashit( home_url() ) ) . ';'
-					. 'window.PT_PRODUCT_ID=' . wp_json_encode( (string) get_the_ID() ) . ';',
+					. 'window.PT_PRODUCT_ID=' . wp_json_encode( (string) get_queried_object_id() ) . ';',
 					'before'
 				);
 			}

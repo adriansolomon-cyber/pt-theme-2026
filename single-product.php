@@ -20,32 +20,48 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// --- Dynamic bits (design-only pass) --------------------------------------
+$pt_pid     = get_queried_object_id();
+$pt_name    = get_the_title( $pt_pid );                       // product title (e.g. "Consort Summerhouse")
+$pt_product = function_exists( 'wc_get_product' ) ? wc_get_product( $pt_pid ) : null;
+$pt_line    = pt_product_line_singular( $pt_pid );            // singular category (e.g. "Summerhouse")
+if ( '' === $pt_line ) {
+	$pt_line = $pt_name;
+}
+$pt_from = $pt_product ? pt_product_from_price_html( $pt_product ) : '';
+if ( '' === $pt_from ) {
+	$pt_from = 'From £—';
+}
+$pt_hero_img = has_post_thumbnail( $pt_pid )
+	? get_the_post_thumbnail_url( $pt_pid, 'large' )
+	: 'https://www.projecttimber.com/wp-content/uploads/2026/06/My_Den_Composite_Garden_Office-scaled.webp';
+
 get_header();
 ?>
 
 <div class="subnav">
-  <span class="brand">My Den Composite Garden Office</span>
+  <span class="brand"><?php echo esc_html( $pt_name ); ?></span>
   <nav class="tabs"><a href="#highlights">Overview</a><a href="#specs">Tech Specs</a><a href="#faq">FAQ</a></nav>
   <button class="buy">Customise &amp; buy</button>
 </div>
 
 <!-- ===================== HERO ===================== -->
 <header class="hero"><div class="wrap">
-  <div class="eyebrow">My Den · Composite · Fully insulated</div>
+  <div class="eyebrow"><?php echo esc_html( $pt_line ); ?> · Composite · Fully insulated</div>
   <h1 class="display">Work happens at the<br><span class="fade">bottom of the </span><span class="swipe">garden.</span></h1>
   <p class="lead">A year-round, fully insulated garden office — composite cladding, pre-insulated panels, delivered and built in days.</p>
   <div class="hero-figure">
-    <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/My_Den_Composite_Garden_Office-scaled.webp" alt="My Den Composite garden office in a landscaped garden">
+    <img src="<?php echo esc_url( $pt_hero_img ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>">
   </div>
   <div class="pricepill">
-    <span class="pl"><b>From £4,461</b></span>
+    <span class="pl"><b><?php echo esc_html( $pt_from ); ?></b></span>
     <button class="go">Customise &amp; buy</button>
   </div>
 </div></header>
 
 <!-- ===================== INLINE CONFIGURATOR (non-popup) ===================== -->
 <section class="configurator" id="configure"><div class="wrap">
-  <div class="sec-head"><h2>Build <span class="fade">your My Den.</span></h2></div>
+  <div class="sec-head"><h2>Build <span class="fade">your <?php echo esc_html( $pt_line ); ?>.</span></h2></div>
   <div class="cfg-grid">
 
     <div class="cfg-preview">
@@ -55,7 +71,7 @@ get_header();
         <button class="cfg-navbtn next" type="button" aria-label="Next image">&rsaquo;</button>
         <div class="cfg-dots" id="cfgDots"></div>
       </div>
-      <div class="pcap"><span class="nm" id="cfgProdName">My Den Composite</span><span class="sz" id="cfgSize">8 × 6</span></div>
+      <div class="pcap"><span class="nm" id="cfgProdName"><?php echo esc_html( $pt_name ); ?></span><span class="sz" id="cfgSize">8 × 6</span></div>
     </div>
 
     <div>
@@ -124,7 +140,7 @@ get_header();
 <section class="included"><div class="wrap">
   <div class="eyebrow">In the box</div>
   <h2>Everything you need, <span class="fade">in one delivery.</span></h2>
-  <p class="lead">No hidden extras and no surprise add-ons. Your My Den Composite arrives complete — every panel, fixing and fitting ready to go.</p>
+  <p class="lead">No hidden extras and no surprise add-ons. Your <?php echo esc_html( $pt_line ); ?> arrives complete — every panel, fixing and fitting ready to go.</p>
   <div class="inc-grid">
     <div class="inc-media"><img src="https://www.projecttimber.com/wp-content/uploads/2024/10/8x8_Evolution_My_Den_Composite_Cladding_Garden_Office_01.jpg" alt="My Den Composite garden office"></div>
     <ul class="inc-list">
@@ -141,12 +157,12 @@ get_header();
       <li><svg class="ck" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B333D"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Easy-to-follow, illustrated instructions</li>
     </ul>
   </div>
-  <a class="btn-primary" href="#configure">Configure your My Den <span class="a">→</span></a>
+  <a class="btn-primary" href="#configure">Configure your <?php echo esc_html( $pt_line ); ?> <span class="a">→</span></a>
 </div></section>
 
 <!-- ===================== WHY CHOOSE ===================== -->
 <section class="why-choose"><div class="wrap">
-  <div class="eyebrow">Why the My Den</div>
+  <div class="eyebrow">Why the <?php echo esc_html( $pt_line ); ?></div>
   <h2>Six reasons it's <span class="fade">built differently.</span></h2>
   <div class="wc-grid">
     <div class="wc-card">
@@ -188,7 +204,7 @@ get_header();
   <div class="copy">
     <div class="eyebrow">Insulation</div>
     <h2>Warm in winter.<br><span class="fade">Cool in summer.</span></h2>
-    <p>The My Den is insulated in the walls, floor and roof with high-performance multi-foil. Its layered design traps heat in the cold months and reflects it in summer — achieving U-values comparable to 120mm of glass wool, in a far slimmer profile that leaves more room inside.</p>
+    <p>The <?php echo esc_html( $pt_line ); ?> is insulated in the walls, floor and roof with high-performance multi-foil. Its layered design traps heat in the cold months and reflects it in summer — achieving U-values comparable to 120mm of glass wool, in a far slimmer profile that leaves more room inside.</p>
     <p>The heavy-duty metal roof adds a 40mm insulated core with a steel outer shell and white-gloss interior — built to shrug off British weather, season after season.</p>
     <div class="statrow">
       <div><div class="n">120<span style="font-size:1rem">mm</span></div><div class="l">Glass-wool U-value equivalent</div></div>
@@ -205,7 +221,7 @@ get_header();
   <div class="panel">
     <div class="eyebrow" style="color:#fff;opacity:.7">Composite cladding</div>
     <h3>The look of timber, without the upkeep.</h3>
-    <p>LP Strongcore composite is wood fibres bonded with high-quality resins — the natural character of wood with the strength and low maintenance of composite. It resists weather, moisture, fungal growth and decay, and gives the My Den its modern anthracite finish.</p>
+    <p>LP Strongcore composite is wood fibres bonded with high-quality resins — the natural character of wood with the strength and low maintenance of composite. It resists weather, moisture, fungal growth and decay, and gives the <?php echo esc_html( $pt_line ); ?> its modern anthracite finish.</p>
   </div>
 </section>
 
@@ -216,7 +232,7 @@ get_header();
     <div class="eyebrow">Built to last · Made in Britain</div>
     <h2>Engineered stronger <span class="fade">where it counts.</span></h2>
     <p>The modular wall panels feature doubled-up timber framing at every join, adding strength exactly where the building works hardest — with an 80mm total wall thickness built to take daily use and weather in its stride.</p>
-    <p>Each My Den is hand-crafted at our Nottinghamshire workshop on the edge of Sherwood Forest, from hand-selected Scandinavian slow-grown timber, and quality-checked before it reaches your garden.</p>
+    <p>Each <?php echo esc_html( $pt_line ); ?> is hand-crafted at our Nottinghamshire workshop on the edge of Sherwood Forest, from hand-selected Scandinavian slow-grown timber, and quality-checked before it reaches your garden.</p>
     <div class="statrow">
       <div><div class="n">80<span style="font-size:1rem">mm</span></div><div class="l">Total wall thickness</div></div>
       <div><div class="n">50+</div><div class="l">Years' experience</div></div>
@@ -231,7 +247,7 @@ get_header();
   <div class="copy">
     <div class="eyebrow">Assembly</div>
     <h2>Most of the build is <span class="fade">already done.</span></h2>
-    <p>Your My Den arrives as pre-assembled, pre-insulated panels — designed to fit through a standard UK doorway and slot together with far fewer parts than a traditional log cabin. A quicker, simpler build, whether you do it yourself or bring in help.</p>
+    <p>Your <?php echo esc_html( $pt_line ); ?> arrives as pre-assembled, pre-insulated panels — designed to fit through a standard UK doorway and slot together with far fewer parts than a traditional log cabin. A quicker, simpler build, whether you do it yourself or bring in help.</p>
     <p>Every building includes clear, step-by-step illustrated instructions. We recommend two people with basic DIY know-how — or add our assembly service at checkout and we'll handle it for you.</p>
     <a class="btn-primary" href="#configure" style="margin-top:6px">Add assembly at checkout <span class="a">→</span></a>
   </div>
@@ -340,7 +356,7 @@ get_header();
 <section class="faq" id="faq"><div class="wrap">
   <h2>Questions, <span class="fade">answered.</span></h2>
   <div class="faq-video" id="faqVideo">
-    <button class="fv-play" type="button" aria-label="Play the My Den FAQ video">
+    <button class="fv-play" type="button" aria-label="Play the <?php echo esc_attr( $pt_line ); ?> FAQ video">
       <img src="https://www.projecttimber.com/wp-content/uploads/2020/04/faq-2.jpg" alt="My Den FAQ video">
       <span class="fv-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
     </button>
@@ -372,7 +388,7 @@ get_header();
 </div></section>
 
 <div class="buybar">
-  <div class="p">From £4,461 <small>FREE DELIVERY*</small></div>
+  <div class="p"><?php echo esc_html( $pt_from ); ?> <small>FREE DELIVERY*</small></div>
   <button class="go">Customise &amp; buy</button>
 </div>
 
