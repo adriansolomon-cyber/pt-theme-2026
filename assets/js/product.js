@@ -364,20 +364,11 @@
     function cfgRowsList(){ return elRows ? [].slice.call(elRows.querySelectorAll('.cfg-row')) : []; }
     function cfgOpenOnly(row){ cfgRowsList().forEach(function(r){ r.classList.toggle('open', r===row); }); }
     function cfgAdvance(row){
+      // Open/close only — never scroll the page. The chosen value stays in the
+      // collapsed step's header; the next step opens in place.
       var rows=cfgRowsList(), next=rows[rows.indexOf(row)+1];
-      if(next){ cfgOpenOnly(next); }                   // open the next step in place
+      if(next){ cfgOpenOnly(next); }
       else if(row){ row.classList.remove('open'); }    // last step → collapse; summary/add is ready
-      // Only when collapsing a step you'd scrolled INTO tucks its header up under the
-      // sticky subnav do we nudge it back into view — otherwise no scrolling at all.
-      if(!row) return;
-      var head=row.querySelector('.cfg-head'); if(!head) return;
-      var subnav=document.querySelector('.subnav');
-      var offset=(subnav ? subnav.offsetHeight : 0)+14;
-      var top=head.getBoundingClientRect().top;
-      if(top < offset){
-        try{ window.scrollTo({ top:Math.max(0, window.pageYOffset + top - offset), behavior:'instant' }); }
-        catch(e){ window.scrollTo(0, Math.max(0, window.pageYOffset + top - offset)); }
-      }
     }
 
     // delegated clicks: accordion headers + option cards (rows are dynamic)
