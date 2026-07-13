@@ -367,20 +367,20 @@
     // chosen value stays visible in the header) and opens the NEXT step to choose.
     function cfgRowsList(){ return elRows ? [].slice.call(elRows.querySelectorAll('.cfg-row')) : []; }
     function cfgOpenOnly(row){ cfgRowsList().forEach(function(r){ r.classList.toggle('open', r===row); }); }
-    function cfgAdvance(row){
-      // Collapse this step / open the next, INSTANTLY (no slide), and pin the step you
-      // clicked exactly where it was — so the reflow can't make the browser shift the
-      // viewport (scroll-anchoring, or clamping when near the page bottom).
-      var head=row?row.querySelector('.cfg-head'):null;
+    // Run an accordion mutation while keeping `anchorRow`'s header pinned exactly where it
+    // was in the viewport — so collapsing an arbitrarily tall step (e.g. the ~2200px Size
+    // row before a size is chosen) can't make the browser drift the page. The mutation is
+    // INSTANT (.cfg-advancing → transition:none) so there is no 300ms slide for a shift to
+    // hide in; we re-correct on the next frame (browser scroll-anchoring) and when any
+    // late-loading images in `imgRow` finish.
+    function cfgPin(anchorRow, mutate, imgRow){
+      var head=anchorRow?anchorRow.querySelector('.cfg-head'):null;
       var before=head?head.getBoundingClientRect().top:null;
       if(elRows) elRows.classList.add('cfg-advancing');
-      var rows=cfgRowsList(), next=rows[rows.indexOf(row)+1];
-      if(next){ cfgOpenOnly(next); }
-      else if(row){ row.classList.remove('open'); }    // last step → collapse; summary/add is ready
-
+      mutate();
       function correct(){
         if(head && before!=null){
-          var d=head.getBoundingClientRect().top-before;   // any shift the reflow caused
+          var d=head.getBoundingClientRect().top-before;
           if(d){ try{ window.scrollBy({ top:d, left:0, behavior:'instant' }); }catch(e){ window.scrollBy(0,d); } }
         }
       }
@@ -389,14 +389,30 @@
         correct();
         if(elRows) elRows.classList.remove('cfg-advancing');
       });
-      // 3) re-correct once any late-loading images in the newly opened step finish
-      if(next){ Array.prototype.forEach.call(next.querySelectorAll('img'), function(img){ if(!img.complete) img.addEventListener('load', correct, { once:true }); }); }
+      // 3) re-correct once any late-loading images in the opened step finish
+      if(imgRow){ Array.prototype.forEach.call(imgRow.querySelectorAll('img'), function(img){ if(!img.complete) img.addEventListener('load', correct, { once:true }); }); }
+    }
+
+    function cfgAdvance(row){
+      var rows=cfgRowsList(), next=rows[rows.indexOf(row)+1];
+      cfgPin(row, function(){
+        if(next){ cfgOpenOnly(next); }
+        else if(row){ row.classList.remove('open'); }    // last step → collapse; summary/add is ready
+      }, next);
     }
 
     // delegated clicks: accordion headers + option cards (rows are dynamic)
     if(elRows) elRows.addEventListener('click',function(e){
-      // header click → open just this step (close the others), or collapse it if already open
-      var head=e.target.closest('.cfg-head'); if(head){ var hrow=head.closest('.cfg-row'); if(hrow.classList.contains('open')) hrow.classList.remove('open'); else cfgOpenOnly(hrow); return; }
+      // header click → open just this step (close the others), or collapse it if already open.
+      // Pin the clicked header: a header click can collapse an arbitrarily tall OTHER row
+      // (e.g. the still-open Size row), which is what caused the big first-click drift.
+      var head=e.target.closest('.cfg-head');
+      if(head){
+        var hrow=head.closest('.cfg-row');
+        var opening=!hrow.classList.contains('open');
+        cfgPin(hrow, function(){ if(opening) cfgOpenOnly(hrow); else hrow.classList.remove('open'); }, opening?hrow:null);
+        return;
+      }
       var card=e.target.closest('.opt-card'); if(!card) return;
       var group=card.dataset.group, optId=+card.dataset.opt;
       // size re-renders the option steps; advance once the (async) render settles
