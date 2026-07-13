@@ -355,16 +355,29 @@
     }
 
     // ====================== events ======================
+    // Single-open accordion helpers: selecting an option collapses that step (its
+    // chosen value stays visible in the header) and opens the NEXT step to choose.
+    function cfgRowsList(){ return elRows ? [].slice.call(elRows.querySelectorAll('.cfg-row')) : []; }
+    function cfgOpenOnly(row){ cfgRowsList().forEach(function(r){ r.classList.toggle('open', r===row); }); }
+    function cfgAdvance(row){
+      var rows=cfgRowsList(), next=rows[rows.indexOf(row)+1];
+      if(next){ cfgOpenOnly(next); try{ next.scrollIntoView({behavior:'smooth', block:'nearest'}); }catch(e){} }
+      else if(row){ row.classList.remove('open'); }   // last step → collapse; summary/add is ready
+    }
+
     // delegated clicks: accordion headers + option cards (rows are dynamic)
     if(elRows) elRows.addEventListener('click',function(e){
-      var head=e.target.closest('.cfg-head'); if(head){ head.closest('.cfg-row').classList.toggle('open'); return; }
+      // header click → open just this step (close the others), or collapse it if already open
+      var head=e.target.closest('.cfg-head'); if(head){ var hrow=head.closest('.cfg-row'); if(hrow.classList.contains('open')) hrow.classList.remove('open'); else cfgOpenOnly(hrow); return; }
       var card=e.target.closest('.opt-card'); if(!card) return;
       var group=card.dataset.group, optId=+card.dataset.opt;
-      if(group===sizeCid){ selectSize(optId); return; }
+      // size re-renders the option steps; advance once the (async) render settles
+      if(group===sizeCid){ var p=selectSize(optId); var go=function(){ cfgAdvance(cfgRowsList()[0]); }; if(p&&p.then){ p.then(go); } else { go(); } return; }
       sel[group]=optId; markSelected(group,optId);
       var comp=components.filter(function(c){ return c.id===group; })[0];
       var m=meta[optId]; if(comp) setSelLabel('sel-'+comp.key, m?m.name:('#'+optId));
       recalc();
+      cfgAdvance(card.closest('.cfg-row'));   // collapse this step, open the next
     });
     // add to basket → native composite add-to-cart URL
     if(elAdd) elAdd.addEventListener('click',function(){ var u=cartUrl(); if(u) window.location.href=u; });
