@@ -88,6 +88,8 @@
   .cfg-row.open .cfg-body{ grid-template-rows:1fr; }
   /* during an auto-advance the open/close is instant so the viewport can be pinned (no scroll jump) */
   .cfg-rows.cfg-advancing .cfg-body{ transition:none; }
+  /* while the first render is still in flight, don't let a click fire against a half-built accordion */
+  .cfg-rows.cfg-loading{ pointer-events:none; }
   .cfg-body > div{ overflow:hidden; }
   .cfg-inner{ padding:2px 16px 18px; }
   .cfg-note{ font-size:.78rem; font-weight:300; color:var(--txt-soft); margin-bottom:12px; }

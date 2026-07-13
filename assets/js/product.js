@@ -328,6 +328,9 @@
       // No size in the URL → default to the first (smallest) size so every option step
       // loads immediately (Size stays open as step 1; no auto-advance/scroll on load).
       if(!pre){ var sizes=sortedSizes(); if(sizes.length) pre=selectSize(sizes[0].id); }
+      // Accordion is ready → re-enable interaction (guarded during the async first render).
+      var ready=function(){ if(elRows) elRows.classList.remove('cfg-loading'); };
+      if(pre&&pre.then){ pre.then(ready,ready); } else { ready(); }
       return pre;
     }
     function loadViaConfig(pid){
@@ -351,6 +354,7 @@
       var pid=parseInt(urlPid()||DEFAULT_PID,10);
       if(!pid){ status('No product configured.',true); return; }
       curPid=pid; pendingSize=urlSize();
+      if(elRows) elRows.classList.add('cfg-loading');   // block step-advances until the first render settles
       var cached=loadCache(pid);
       if(cached){ product=cached.product; components=cached.components; scenarios=cached.scenarios; sizeCid=cached.sizeCid; meta=cached.meta||{}; sel={}; sizeId=null; afterParse(pid,true); return; }
       status('Loading…',false,true); if(elAdd) elAdd.disabled=true; showSkeleton();
@@ -373,11 +377,20 @@
       var rows=cfgRowsList(), next=rows[rows.indexOf(row)+1];
       if(next){ cfgOpenOnly(next); }
       else if(row){ row.classList.remove('open'); }    // last step → collapse; summary/add is ready
-      if(head && before!=null){
-        var d=head.getBoundingClientRect().top-before;   // any shift the reflow caused
-        if(d){ try{ window.scrollBy({ top:d, left:0, behavior:'instant' }); }catch(e){ window.scrollBy(0,d); } }
+
+      function correct(){
+        if(head && before!=null){
+          var d=head.getBoundingClientRect().top-before;   // any shift the reflow caused
+          if(d){ try{ window.scrollBy({ top:d, left:0, behavior:'instant' }); }catch(e){ window.scrollBy(0,d); } }
+        }
       }
-      if(elRows){ requestAnimationFrame(function(){ if(elRows) elRows.classList.remove('cfg-advancing'); }); }
+      correct();                                          // 1) synchronous
+      requestAnimationFrame(function(){                   // 2) after layout + browser scroll-anchoring settle
+        correct();
+        if(elRows) elRows.classList.remove('cfg-advancing');
+      });
+      // 3) re-correct once any late-loading images in the newly opened step finish
+      if(next){ Array.prototype.forEach.call(next.querySelectorAll('img'), function(img){ if(!img.complete) img.addEventListener('load', correct, { once:true }); }); }
     }
 
     // delegated clicks: accordion headers + option cards (rows are dynamic)
