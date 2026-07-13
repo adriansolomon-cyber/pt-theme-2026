@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Basket — Project Timber (cart redesign)</title>
+
+<!-- ============================================================
+     PROJECT TIMBER · Cart / basket drawer redesign (new design system).
+     Standalone preview showing BOTH states — with an item & empty —
+     toggled by the control bar at top (preview-only, not part of the UI).
+     Phone numbers: Phone_Numbers.md. Accent yellow = CTA only.
+     ============================================================ -->
+
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/cart.css">
+</head>
+<body>
+
+<!-- preview-only control -->
+<div class="preview">
+  <span class="lbl">Preview:</span>
+  <button id="bFilled" class="on" type="button">With item</button>
+  <button id="bEmpty" type="button">Empty</button>
+</div>
+
+<div class="scrim"></div>
+
+<aside class="drawer" aria-label="Basket">
+
+  <!-- ============ STATE: WITH ITEM ============ -->
+  <div id="filled" style="display:flex;flex-direction:column;min-height:0;flex:1">
+    <div class="ch">
+      <h2>Your basket <span class="ct" id="cartCount"></span></h2>
+      <button class="x" aria-label="Close basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+
+    <div class="cb">
+      <!-- Skeleton placeholder only — NO hardcoded data. Real items are injected by JS once
+           the live cart arrives; this just prevents a blank/flash on first paint. -->
+      <div id="cartItems">
+        <div class="line skel" aria-hidden="true">
+          <div class="item">
+            <div class="thumb sk"></div>
+            <div class="it">
+              <span class="sk sk-rng"></span>
+              <span class="sk sk-title"></span>
+              <span class="sk sk-price"></span>
+            </div>
+          </div>
+          <div class="sk sk-cfg"></div>
+        </div>
+      </div><!-- /#cartItems -->
+
+      <div class="promo-row">
+        <input type="text" id="couponInput" placeholder="Promo code (e.g. GM10)" aria-label="Promo code">
+        <button type="button" id="couponApply">Apply</button>
+      </div>
+      <div id="couponMsg" class="promo-msg" hidden></div>
+      <div id="couponList" class="coupons"></div>
+
+      <div class="assure">
+        <div class="a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> Secure checkout · pay by card, Apple Pay or PayPal</div>
+        <div class="a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg> Free delivery on selected postcodes</div>
+      </div>
+    </div>
+
+    <div class="cf">
+      <div class="ln"><span>Subtotal</span><span id="cartSubtotal"><span class="sk sk-amt"></span></span></div>
+      <div class="ln" id="cartDiscountLn" hidden><span>Discount</span><span id="cartDiscount"></span></div>
+      <div class="ln"><span>Delivery</span><span>Calculated at checkout</span></div>
+      <div class="tot"><span class="l">Total</span><span class="v" id="cartTotal"><span class="sk sk-amt"></span></span></div>
+      <div class="vat" id="cartVat"></div>
+      <a class="btn-primary" href="projecttimber-checkout.html" style="text-decoration:none">Proceed to checkout <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <button class="cont" type="button">Continue shopping</button>
+    </div>
+  </div>
+
+  <!-- ============ STATE: EMPTY ============ -->
+  <div id="empty" class="hidden" style="flex-direction:column;min-height:0;flex:1">
+    <div class="ch">
+      <h2>Your basket</h2>
+      <button class="x" aria-label="Close basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="empty">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h2l2.2 11.4a1.5 1.5 0 0 0 1.5 1.2h8.1a1.5 1.5 0 0 0 1.5-1.2L22 8H7"/><circle cx="10" cy="20.5" r="1.2"/><circle cx="18" cy="20.5" r="1.2"/></svg></div>
+      <h3>Your basket is empty</h3>
+      <p>Once you've configured a garden building, it'll appear here ready for checkout.</p>
+      <div class="ranges">
+        <span class="lab">Popular ranges</span>
+        <a href="projecttimber-garden-offices.html">Garden Offices <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+        <a href="https://www.projecttimber.com/summerhouses/">Summerhouses <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+        <a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- transient confirmation toast (removals etc.) -->
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+    <span class="msg"></span>
+  </div>
+
+</aside>
+
+
+<script src="assets/js/include.js" data-page="assets/js/cart.js"></script>
+</body>
+</html>

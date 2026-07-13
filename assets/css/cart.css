@@ -1,0 +1,134 @@
+/* Project Timber — cart page styles (loaded after base.css). */
+:root{
+    --ink:#211E24; --charcoal:#3B333D; --slate:#5A5560; --graphite:#6E6A74;
+    --clay:#B7997F; --sand:#E6D9C7; --stone:#CFC0AC;
+    --paper:#F5F5F5; --mist:#F5F5F5; --white:#FFFFFF;
+    --accent:#FFFF00; --danger:#a3402c; --ok:#2a8f57;
+    --txt:#211E24; --txt-soft:#6E6A74;
+    --r:26px; --r-sm:16px;
+    --ease:cubic-bezier(.2,.7,.3,1);
+    --e1:0 1px 2px rgba(33,30,36,.06), 0 6px 16px rgba(33,30,36,.06);
+    --e2:0 2px 6px rgba(33,30,36,.08), 0 18px 40px rgba(33,30,36,.10);
+    --e3:0 14px 36px rgba(33,30,36,.18), 0 40px 90px rgba(33,30,36,.22);
+    --font:"F37 Jagger","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  }
+  
+  body{ margin:0; font-family:var(--font); color:var(--txt); font-weight:400; line-height:1.55;
+        background:#cfcabb url("https://www.projecttimber.com/wp-content/uploads/2024/10/8x6_Evolution_My_Den_Composite_Cladding_Garden_Office_01.jpg") center/cover fixed no-repeat;
+        -webkit-font-smoothing:antialiased; min-height:100vh; }
+  h1,h2,h3,h4{ font-weight:700; line-height:1.1; letter-spacing:-.02em; margin:0; }
+  
+
+  /* preview control bar (not part of the design) */
+  .preview{ position:fixed; top:16px; left:16px; z-index:10; display:flex; align-items:center; gap:10px; background:rgba(33,30,36,.9); color:#fff; border-radius:999px; padding:7px 8px 7px 16px; box-shadow:var(--e2); font-size:.82rem; backdrop-filter:blur(8px); }
+  .preview .lbl{ opacity:.7; letter-spacing:.04em; }
+  .preview button{ font-family:var(--font); border:none; cursor:pointer; border-radius:999px; padding:8px 16px; font-weight:700; font-size:.82rem; background:transparent; color:#fff; }
+  .preview button.on{ background:#fff; color:var(--ink); }
+
+  /* scrim + drawer */
+  .scrim{ position:fixed; inset:0; background:rgba(33,30,36,.42); backdrop-filter:blur(2px); z-index:20; }
+  .drawer{ position:fixed; top:0; right:0; height:100dvh; width:440px; max-width:100vw; z-index:30;
+    background:var(--white); box-shadow:var(--e3); display:flex; flex-direction:column;
+    border-top-left-radius:24px; border-bottom-left-radius:24px; overflow:hidden; }
+  @media(max-width:480px){ .drawer{ width:100vw; border-radius:0; } }
+
+  /* head */
+  .ch{ display:flex; align-items:center; justify-content:space-between; padding:20px 22px 16px; border-bottom:1px solid rgba(33,30,36,.08); }
+  .ch h2{ font-size:1.18rem; display:flex; align-items:baseline; gap:9px; } .ch h2 .ct{ font-size:.8rem; font-weight:400; color:var(--txt-soft); }
+  .ch .x{ width:38px; height:38px; border-radius:50%; border:none; background:var(--mist); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--ink); } .ch .x svg{ width:18px; height:18px; }
+  @media(hover:hover){ .ch .x:hover{ background:#ececec; } }
+
+  /* body (scroll) */
+  .cb{ flex:1; overflow-y:auto; padding:18px 22px; }
+
+  /* item */
+  .item{ display:flex; gap:14px; }
+  .item .thumb{ width:96px; height:96px; flex:0 0 auto; border-radius:14px; overflow:hidden; background:var(--mist); }
+  .item .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .item .it{ min-width:0; flex:1; }
+  .item .it h3{ font-size:1rem; margin-bottom:3px; }
+  .item .it .rng{ font-size:.76rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--clay); margin-bottom:7px; }
+  .item .it .pr{ font-size:1.12rem; font-weight:700; }
+  .item .it .rm{ margin-top:7px; display:inline-flex; align-items:center; gap:5px; background:none; border:none; padding:0; cursor:pointer; font-family:var(--font); color:var(--txt-soft); font-size:.8rem; text-decoration:underline; text-underline-offset:2px; } .item .it .rm svg{ width:13px; height:13px; }
+  @media(hover:hover){ .item .it .rm:hover{ color:var(--danger); } }
+  /* one .line per cart product (item + its configuration); separate multiple products */
+  .line + .line{ margin-top:22px; padding-top:22px; border-top:1px solid rgba(33,30,36,.12); }
+  /* loading skeleton (shipped in the HTML so nothing real-looking flashes before the fetch) */
+  .sk{ display:block; border-radius:8px; background:linear-gradient(90deg,var(--mist) 25%,#ececec 37%,var(--mist) 63%); background-size:400% 100%; animation:sk 1.4s ease infinite; }
+  @keyframes sk{ 0%{ background-position:100% 0; } 100%{ background-position:0 0; } }
+  .line.skel .thumb.sk{ width:96px; height:96px; border-radius:14px; }
+  .line.skel .it{ display:flex; flex-direction:column; gap:9px; padding-top:6px; flex:1; }
+  .sk-rng{ width:64px; height:11px; } .sk-title{ width:78%; height:17px; } .sk-price{ width:90px; height:20px; margin-top:6px; }
+  .sk-cfg{ height:46px; border-radius:var(--r-sm); margin-top:18px; }
+  .sk-amt{ display:inline-block; width:84px; height:14px; vertical-align:middle; }
+  @media(prefers-reduced-motion:reduce){ .sk{ animation:none; } }
+
+  /* configuration */
+  .cfg{ margin-top:18px; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); overflow:hidden; }
+  .cfg summary{ list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; padding:13px 16px; font-weight:700; font-size:.9rem; background:var(--mist); }
+  .cfg summary::-webkit-details-marker{ display:none; }
+  .cfg summary .chev{ width:16px; height:16px; transition:transform .3s var(--ease); color:var(--txt-soft); } .cfg[open] summary .chev{ transform:rotate(180deg); }
+  .cfg .rows{ padding:6px 16px 10px; }
+  .crow{ display:grid; grid-template-columns:1fr auto; gap:4px 12px; padding:9px 0; border-bottom:1px solid rgba(33,30,36,.06); }
+  .crow:last-child{ border-bottom:none; }
+  .crow .k{ font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--txt-soft); font-weight:700; }
+  .crow .v{ font-size:.88rem; font-weight:400; grid-column:1; }
+  .crow .p{ grid-row:1 / span 2; align-self:center; font-size:.86rem; font-weight:700; white-space:nowrap; }
+  .crow .p.free{ color:var(--txt-soft); font-weight:400; }
+
+  /* promo */
+  .promo-row{ margin-top:16px; display:flex; gap:8px; }
+  .promo-row input{ flex:1; font-family:var(--font); font-size:.9rem; padding:12px 14px; border:1px solid rgba(33,30,36,.18); border-radius:11px; background:#fff; }
+  .promo-row input:focus{ outline:none; border-color:var(--charcoal); }
+  .promo-row button{ font-family:var(--font); font-weight:700; font-size:.85rem; border:1.5px solid rgba(33,30,36,.22); background:#fff; border-radius:11px; padding:0 18px; cursor:pointer; color:var(--ink); }
+  @media(hover:hover){ .promo-row button:hover{ border-color:var(--charcoal); } }
+  .promo-row button:disabled{ opacity:.5; cursor:default; }
+  .promo-msg{ margin-top:8px; font-size:.8rem; font-weight:300; color:var(--txt-soft); }
+  .promo-msg.err{ color:var(--danger); }
+  .coupons{ margin-top:10px; display:grid; gap:8px; }
+  .coupon{ display:flex; align-items:center; gap:10px; padding:9px 12px; background:var(--mist); border-radius:11px; font-size:.85rem; }
+  .coupon .code{ font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+  .coupon .cd{ color:var(--ok); font-weight:700; }
+  .coupon .cx{ margin-left:auto; border:none; background:none; cursor:pointer; color:var(--txt-soft); font-size:1rem; line-height:1; padding:2px 4px; font-family:var(--font); }
+  @media(hover:hover){ .coupon .cx:hover{ color:var(--danger); } }
+
+  /* reassurance */
+  .assure{ margin-top:16px; display:grid; gap:9px; }
+  .assure .a{ display:flex; align-items:center; gap:9px; font-size:.82rem; color:var(--txt-soft); font-weight:300; } .assure .a svg{ width:16px; height:16px; flex:0 0 auto; color:var(--ok); }
+
+  /* footer */
+  .cf{ border-top:1px solid rgba(33,30,36,.1); padding:16px 22px 20px; background:var(--white); }
+  .cf .ln{ display:flex; justify-content:space-between; font-size:.86rem; font-weight:300; color:var(--txt-soft); margin-bottom:5px; }
+  .cf .tot{ display:flex; align-items:baseline; justify-content:space-between; margin:8px 0 3px; } .cf .tot .l{ font-size:1rem; font-weight:700; } .cf .tot .v{ font-size:1.5rem; font-weight:700; }
+  .cf .vat{ font-size:.74rem; color:var(--txt-soft); font-weight:300; margin-bottom:14px; }
+  .btn-primary{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1rem; padding:16px; border-radius:14px; }
+  .btn-primary svg{ width:17px; height:17px; }
+  .btn-primary:active{ transform:scale(.99); }
+  .cf .cont{ display:block; text-align:center; margin-top:11px; background:none; border:none; width:100%; font-family:var(--font); font-size:.86rem; color:var(--txt-soft); cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
+
+  /* empty state */
+  .empty{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:30px 30px 50px; }
+  .empty .ico{ width:84px; height:84px; border-radius:50%; background:var(--mist); display:flex; align-items:center; justify-content:center; color:var(--slate); margin-bottom:20px; } .empty .ico svg{ width:38px; height:38px; }
+  .empty h3{ font-size:1.3rem; margin-bottom:8px; }
+  .empty p{ font-size:.92rem; font-weight:300; color:var(--txt-soft); max-width:30ch; margin-bottom:22px; }
+  .empty .btn-primary{ width:auto; padding:14px 28px; border-radius:999px; }
+  .empty .ranges{ margin-top:26px; width:100%; display:grid; gap:9px; }
+  .empty .ranges .lab{ font-size:.7rem; text-transform:uppercase; letter-spacing:.12em; color:var(--txt-soft); font-weight:700; }
+  .empty .ranges a{ display:flex; align-items:center; justify-content:space-between; padding:13px 16px; border:1px solid rgba(33,30,36,.1); border-radius:12px; text-decoration:none; color:var(--ink); font-weight:700; font-size:.9rem; }
+  .empty .ranges a svg{ width:16px; height:16px; color:var(--txt-soft); }
+  @media(hover:hover){ .empty .ranges a:hover{ border-color:var(--charcoal); } }
+
+  .hidden{ display:none !important; }
+
+  /* toast — transient confirmation (e.g. after removing an item).
+     position:fixed so overflow:hidden on the drawer can't clip it and it survives a re-render. */
+  .toast{ position:fixed; left:50%; bottom:26px; transform:translate(-50%,12px); z-index:2147483000;
+    display:flex; align-items:center; gap:8px; max-width:calc(100vw - 44px);
+    background:var(--ink); color:#fff; font-size:.84rem; font-weight:400;
+    padding:11px 16px; border-radius:999px; box-shadow:var(--e2);
+    opacity:0; pointer-events:none; transition:opacity .25s var(--ease), transform .25s var(--ease); }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+  .toast svg{ width:15px; height:15px; flex:0 0 auto; color:var(--ok); }
+  .toast .msg{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }

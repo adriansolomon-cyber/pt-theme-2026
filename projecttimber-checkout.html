@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Checkout — Project Timber</title>
+
+<!-- ============================================================
+     PROJECT TIMBER · Checkout (new design system).
+     2-column: form (contact, billing, delivery, payment) + sticky
+     order summary with collapsible full configuration breakdown.
+     Accent yellow = CTA only. Phone: Phone_Numbers.md (553392).
+     NOTE: payment fields are placeholder UI only (mockup).
+     ============================================================ -->
+
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/checkout.css">
+</head>
+<body>
+
+<div data-include="partials/header-checkout.html"></div>
+
+<div class="wrap">
+  <div class="co-head">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="projecttimber-garden-offices.html">Basket</a><span class="sep">/</span><span class="here">Checkout</span></nav>
+    <h1>Checkout</h1>
+  </div>
+
+  <form class="co-grid" onsubmit="return false">
+
+    <!-- ========== FORM COLUMN ========== -->
+    <div class="co-form">
+
+      <div class="co-sec">
+        <h2>Contact</h2>
+        <p class="hint">We'll use this to send your order confirmation and delivery updates.</p>
+        <div class="co-row"><div class="fld"><label>Email address <span class="req">*</span></label><input type="email" value="etelka.zakarias@projecttimber.co.uk"></div></div>
+        <div class="co-row two">
+          <div class="fld"><label>Phone <span class="req">*</span></label><input type="tel" value="0743481009"></div>
+          <div class="fld"><label>Phone 2 <span class="opt">(optional)</span></label><input type="tel" placeholder="Additional phone number"></div>
+        </div>
+        <label class="co-check"><input type="checkbox" checked> Sign me up to receive email updates and news <span style="color:var(--txt-soft)">(optional)</span></label>
+        <label class="co-check"><input type="checkbox" checked> Sign me up to receive SMS updates and news <span style="color:var(--txt-soft)">(optional)</span></label>
+        <p class="co-consent" id="consent">By checking this box and entering your phone number above, you consent to receive marketing text messages (such as promotion codes and cart reminders)<span class="rest"> from Project Timber at the number provided. Consent is not a condition of purchase. Message and data rates may apply. Message frequency varies. You can unsubscribe at any time by replying STOP.</span> <span class="more" id="consentMore">Read more</span></p>
+      </div>
+
+      <div class="co-sec">
+        <h2>Billing details</h2>
+        <div class="co-row two">
+          <div class="fld"><label>First name <span class="req">*</span></label><input value="Etelka"></div>
+          <div class="fld"><label>Last name <span class="req">*</span></label><input value="Test"></div>
+        </div>
+        <div class="co-row"><div class="fld"><label>Country / Region <span class="req">*</span></label><select><option>United Kingdom (UK)</option></select></div></div>
+        <div class="co-row"><div class="fld"><label>Address line 1 <span class="req">*</span></label><input value="Parry Works, Grassthorpe Road"></div></div>
+        <div class="co-row"><div class="fld"><label>Apartment, suite, unit, etc. <span class="opt">(optional)</span></label><input></div></div>
+        <div class="co-row two">
+          <div class="fld"><label>Town / City <span class="req">*</span></label><input value="Newark"></div>
+          <div class="fld"><label>County <span class="opt">(optional)</span></label><input placeholder="County"></div>
+        </div>
+        <div class="co-row two">
+          <div class="fld"><label>Postcode <span class="req">*</span></label><input value="NG23 6QX"></div>
+          <div class="fld"></div>
+        </div>
+
+        <details class="co-altaddr">
+          <summary><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Deliver to a different address?</summary>
+          <div class="inner">
+            <div class="co-row two">
+              <div class="fld"><label>First name <span class="req">*</span></label><input></div>
+              <div class="fld"><label>Last name <span class="req">*</span></label><input></div>
+            </div>
+            <div class="co-row"><div class="fld"><label>Address line 1 <span class="req">*</span></label><input></div></div>
+            <div class="co-row two">
+              <div class="fld"><label>Town / City <span class="req">*</span></label><input></div>
+              <div class="fld"><label>Postcode <span class="req">*</span></label><input></div>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="co-sec">
+        <h2>Delivery</h2>
+        <p class="hint">Pick a preferred date — we'll confirm the final delivery window with you.</p>
+        <div class="co-row"><div class="fld"><label>Preferred delivery date <span class="req">*</span></label><input type="date"></div></div>
+        <div class="co-row"><div class="fld"><label>Special instructions <span class="opt">(optional)</span></label><textarea placeholder="Curbside access notes — e.g. parking, narrow road, or where to set down the delivery…"></textarea></div></div>
+        <div class="co-delnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span><b>Delivery cost is calculated from your delivery postcode.</b> It's free to selected areas near our Nottinghamshire workshop; more distant locations may carry a delivery charge, and a small number of remote areas we're unfortunately unable to reach. We'll always confirm the final cost and date with you before dispatch.</span></div>
+      </div>
+
+      <div class="co-sec">
+        <h2>Payment</h2>
+        <p class="hint">All transactions are secure and encrypted.</p>
+
+        <div class="pay-opt sel" data-pay>
+          <label class="top"><input type="radio" name="pay" checked> <span class="nm">Pay by card</span><span class="badges"><span class="chip">Visa</span><span class="chip">Mastercard</span><span class="chip">Amex</span></span></label>
+          <div class="pay-card">
+            <div class="co-row"><div class="fld"><label>Card number</label><input inputmode="numeric" placeholder="1234 5678 9012 3456" autocomplete="off"></div></div>
+            <div class="co-row two">
+              <div class="fld"><label>Expiry (MM/YY)</label><input placeholder="MM/YY" autocomplete="off"></div>
+              <div class="fld"><label>CVV</label><input placeholder="123" autocomplete="off"></div>
+            </div>
+            <div class="co-row"><div class="fld"><label>Cardholder name</label><input placeholder="Name on card" autocomplete="off"></div></div>
+          </div>
+        </div>
+
+        <div class="pay-opt" data-pay>
+          <label class="top"><input type="radio" name="pay"> <span class="nm">Google Pay</span><span class="badges"><span class="chip">G Pay</span></span></label>
+        </div>
+        <div class="pay-opt" data-pay>
+          <label class="top"><input type="radio" name="pay"> <span class="nm">Revolut Pay</span><span class="badges"><span class="chip">Revolut</span></span></label>
+        </div>
+        <div class="pay-opt" data-pay>
+          <label class="top"><input type="radio" name="pay"> <span class="nm">PayPal</span><span class="badges"><span class="chip">PayPal</span></span></label>
+        </div>
+
+        <p class="co-consent" style="margin-top:14px">Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our privacy policy.</p>
+
+        <label class="co-check co-terms"><input type="checkbox"> I have read and agree to the website <a href="#" style="color:var(--charcoal);font-weight:700">terms and conditions</a> <span class="req">*</span></label>
+
+        <button class="btn-primary" type="submit">Place order · £4,009.00 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <div class="co-secure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> Secure 256-bit SSL encrypted payment</div>
+      </div>
+    </div>
+
+    <!-- ========== ORDER SUMMARY ========== -->
+    <aside class="co-summary">
+      <div class="summary-card">
+        <h2>Order summary <a class="ed" href="projecttimber-garden-offices.html">Edit basket</a></h2>
+
+        <div class="sum-item">
+          <div class="thumb"><img src="https://www.projecttimber.com/wp-content/uploads/2024/10/8x6_Evolution_My_Den_Composite_Cladding_Garden_Office_01.jpg" alt="My Den Insulated Garden Office"><span class="qty">1</span></div>
+          <div class="si">
+            <div class="rng">My Den</div>
+            <h3>My Den Insulated Garden Office</h3>
+            <div class="pr">£4,009.00</div>
+            <div class="si-actions"><div class="qstep"><button class="q-dec" type="button" aria-label="Decrease quantity">&minus;</button><span class="q-n">1</span><button class="q-inc" type="button" aria-label="Increase quantity">+</button></div><button class="rm" type="button">Remove</button></div>
+          </div>
+        </div>
+
+        <details class="cfg" open>
+          <summary>Your configuration <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="rows">
+            <div class="crow"><span class="k">Size</span><span class="v">8 × 6</span><span class="p">£3,972.00</span><span class="sub">Includes sealant tube ×1 · sealant gun ×1</span></div>
+            <div class="crow"><span class="k">UPVC door &amp; position</span><span class="v">White UPVC — Left front door</span><span class="p free">Included</span></div>
+            <div class="crow"><span class="k">Windows</span><span class="v">Timber — side opening, left</span><span class="p free">Included</span></div>
+            <div class="crow"><span class="k">Floor</span><span class="v">11mm T&amp;G with foil insulation — 55mm</span><span class="p free">Included</span></div>
+            <div class="crow"><span class="k">Laminate floor</span><span class="v">None</span><span class="p free">—</span></div>
+            <div class="crow"><span class="k">Paint colour</span><span class="v">None</span><span class="p free">—</span></div>
+            <div class="crow"><span class="k">Colour trim</span><span class="v">Swan White</span><span class="p">£37.00</span></div>
+            <div class="crow"><span class="k">Assembly service</span><span class="v">None</span><span class="p free">—</span></div>
+          </div>
+        </details>
+
+        <div class="co-promo">
+          <input type="text" placeholder="Promo code (e.g. GM10)" aria-label="Promo code">
+          <button type="button">Apply</button>
+        </div>
+
+        <div class="sum-tot">
+          <div class="ln"><span>Subtotal</span><b>£4,009.00</b></div>
+          <div class="ln"><span>Shipping</span><b>Free delivery*</b></div>
+          <div class="grand"><span class="l">Total</span><span class="v">£4,009.00</span></div>
+          <div class="vat">Includes £668.17 VAT</div>
+          <div class="ship-note">Delivery is free to selected postcodes; other areas are calculated from your delivery postcode.*</div>
+        </div>
+
+        <div class="sum-assure">
+          <div class="a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> Made in Britain · up to 25-year anti-rot guarantee*</div>
+        </div>
+      </div>
+    </aside>
+
+  </form>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<!-- support widget -->
+<div data-include="partials/support.html"></div>
+
+
+
+<script src="assets/js/partials-data.js"></script>
+<script src="assets/js/include.js" data-page="assets/js/checkout.js"></script>
+</body>
+</html>
