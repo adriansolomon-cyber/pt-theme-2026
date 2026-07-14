@@ -22,6 +22,16 @@ require_once get_stylesheet_directory() . '/inc/product-render.php';
 // ── Back-office migration from the old theme (verbatim; loaded in phases) ──
 require_once get_stylesheet_directory() . '/inc/order-statuses.php';   // custom WC order statuses
 
+// Phase 2 — shared helper includes (verbatim from the old theme's includes/).
+require_once get_stylesheet_directory() . '/includes/woocommerce-filters.php';
+require_once get_stylesheet_directory() . '/includes/custom-functions.php';
+require_once get_stylesheet_directory() . '/includes/wc-custom-checkout-functions.php';
+require_once get_stylesheet_directory() . '/includes/woo-google-tracking-events-datalayer.php';
+require_once get_stylesheet_directory() . '/includes/woo-google-ads-tracking.php';
+require_once get_stylesheet_directory() . '/includes/woocommerce-my-account.php';
+require_once get_stylesheet_directory() . '/includes/integrations/optimo/optimo-integrations-functions.php';
+require_once get_stylesheet_directory() . '/includes/woo-lead-time-calculator-control.php';
+
 /**
  * Theme supports.
  */
