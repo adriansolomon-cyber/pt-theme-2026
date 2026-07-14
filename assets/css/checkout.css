@@ -136,3 +136,71 @@
    
 
   :focus-visible{ outline:2px solid var(--charcoal); outline-offset:2px; border-radius:6px; }
+
+/* ============================================================
+   WooCommerce checkout (WP) — styles WC's REAL checkout markup to the Project
+   Timber design. Layout (.co-grid/.co-form/.co-summary/.summary-card) comes
+   from form-checkout.php + the rules above; these target WC's own field /
+   review / payment markup. First pass — refine against staging render.
+   ============================================================ */
+.co-form .woocommerce-billing-fields,
+.co-form .woocommerce-shipping-fields,
+.co-form .woocommerce-additional-fields{ margin-bottom:34px; }
+.co-form .woocommerce-billing-fields > h3,
+.co-form .woocommerce-shipping-fields h3,
+.co-form .woocommerce-additional-fields h3{ font-size:1.15rem; margin:0 0 16px; font-weight:700; }
+.co-form #ship-to-different-address{ font-size:1.15rem; margin:0 0 12px; }
+.co-form #ship-to-different-address label{ display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:700; }
+.co-form #ship-to-different-address input{ width:18px; height:18px; accent-color:var(--charcoal); }
+
+.co-form .form-row{ margin:0 0 14px; }
+.co-form .form-row label{ display:block; font-size:.8rem; font-weight:700; margin-bottom:6px; }
+.co-form .form-row label .required{ color:var(--danger); text-decoration:none; border:0; }
+.co-form .form-row label .optional{ font-weight:300; color:var(--txt-soft); }
+.co-form .input-text,
+.co-form .form-row textarea,
+.co-form .form-row select,
+.co-form .select2-container .select2-selection{ width:100%; font-family:var(--font); font-size:.92rem; padding:12px 14px; border:1px solid rgba(33,30,36,.18); border-radius:11px; background:#fff; color:var(--ink); box-sizing:border-box; }
+.co-form .form-row textarea{ min-height:84px; resize:vertical; }
+.co-form .input-text:focus,
+.co-form .form-row textarea:focus,
+.co-form .form-row select:focus{ outline:none; border-color:var(--charcoal); }
+.co-form .select2-container .select2-selection--single{ height:46px; display:flex; align-items:center; }
+.co-form .select2-container--default .select2-selection--single .select2-selection__arrow{ height:44px; }
+
+@media(min-width:560px){
+  .co-form .form-row-first{ width:48%; float:left; margin-right:4%; }
+  .co-form .form-row-last{ width:48%; float:right; }
+  .co-form .woocommerce-billing-fields__field-wrapper::after,
+  .co-form .woocommerce-shipping-fields__field-wrapper::after{ content:""; display:table; clear:both; }
+}
+
+.co-summary .woocommerce-checkout-review-order-table{ width:100%; border-collapse:collapse; font-size:.9rem; }
+.co-summary .woocommerce-checkout-review-order-table th,
+.co-summary .woocommerce-checkout-review-order-table td{ padding:9px 0; text-align:left; font-weight:300; color:var(--txt-soft); vertical-align:top; }
+.co-summary .woocommerce-checkout-review-order-table td.product-total,
+.co-summary .woocommerce-checkout-review-order-table .amount{ text-align:right; color:var(--ink); font-weight:700; white-space:nowrap; }
+.co-summary .woocommerce-checkout-review-order-table .cart_item td{ border-bottom:1px solid rgba(33,30,36,.08); }
+.co-summary .woocommerce-checkout-review-order-table .product-name{ font-weight:700; color:var(--ink); }
+.co-summary .woocommerce-checkout-review-order-table tfoot th{ font-weight:300; color:var(--txt-soft); padding-top:12px; }
+.co-summary .woocommerce-checkout-review-order-table tfoot .order-total th,
+.co-summary .woocommerce-checkout-review-order-table tfoot .order-total td{ font-size:1.15rem; font-weight:700; color:var(--ink); border-top:1px solid rgba(33,30,36,.12); padding-top:14px; }
+
+#payment_col .co-payment-title{ font-size:1.15rem; margin:0 0 16px; }
+#payment.woocommerce-checkout-payment{ background:transparent; border-radius:0; }
+#payment ul.payment_methods{ list-style:none; margin:0; padding:0; border:0; }
+#payment ul.payment_methods li{ border:1px solid rgba(33,30,36,.16); border-radius:12px; margin-bottom:10px; padding:14px 16px; }
+#payment ul.payment_methods li input[type=radio]{ width:18px; height:18px; accent-color:var(--charcoal); margin-right:10px; }
+#payment ul.payment_methods li label{ font-weight:700; font-size:.92rem; display:inline; cursor:pointer; }
+#payment ul.payment_methods li img{ max-height:24px; margin-left:8px; vertical-align:middle; }
+#payment .payment_box{ background:var(--mist); border-radius:10px; padding:14px; margin-top:12px; font-size:.86rem; font-weight:300; color:var(--txt-soft); }
+#payment .payment_box::before{ display:none; }
+#payment .woocommerce-terms-and-conditions-wrapper{ margin:16px 0; font-size:.88rem; font-weight:300; }
+#payment .woocommerce-privacy-policy-text{ font-size:.8rem; color:var(--txt-soft); font-weight:300; }
+#payment .form-row.place-order{ margin-top:16px; padding:0; }
+#payment #place_order{ width:100%; display:flex; align-items:center; justify-content:center; gap:9px; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1.05rem; padding:17px; border-radius:14px; float:none; }
+#payment #place_order:active{ transform:scale(.99); }
+
+.woocommerce-form-coupon-toggle{ margin-bottom:20px; }
+.checkout_coupon .form-row{ margin-bottom:10px; }
+.checkout_coupon .button{ font-family:var(--font); font-weight:700; background:var(--charcoal); color:#fff; border:0; border-radius:11px; padding:12px 18px; cursor:pointer; }

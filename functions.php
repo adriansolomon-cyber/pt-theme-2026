@@ -152,6 +152,13 @@ add_action(
 			}
 		}
 
+		// --- Checkout (page.php + woocommerce/checkout/form-checkout.php) -----
+		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+			if ( file_exists( $dir . '/assets/css/checkout.css' ) ) {
+				wp_enqueue_style( 'pt-checkout', $uri . '/assets/css/checkout.css', array( 'pt-base' ), $ver( 'assets/css/checkout.css' ) );
+			}
+		}
+
 		// --- Product-category archive (taxonomy-product_cat.php) --------------
 		if ( function_exists( 'is_product_category' ) && is_product_category() ) {
 			if ( file_exists( $dir . '/assets/css/category.css' ) ) {
