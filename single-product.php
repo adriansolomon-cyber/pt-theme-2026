@@ -36,6 +36,15 @@ $pt_hero_img = has_post_thumbnail( $pt_pid )
 	? get_the_post_thumbnail_url( $pt_pid, 'large' )
 	: 'https://www.projecttimber.com/wp-content/uploads/2026/06/My_Den_Composite_Garden_Office-scaled.webp';
 
+// Product structured data (JSON-LD). This custom template fires none of WooCommerce's
+// single-product hooks, so WC never generates it — trigger it here. WooCommerce outputs
+// the assembled markup on wp_footer (footer.php calls wp_footer), and the migrated
+// fix_composite_product_price_schema filter (legacy-functions.php) applies during generation.
+if ( $pt_product && function_exists( 'WC' ) && WC()->structured_data ) {
+	$GLOBALS['product'] = $pt_product;                 // WC generator reads the global $product
+	WC()->structured_data->generate_product_data();
+}
+
 get_header();
 ?>
 
