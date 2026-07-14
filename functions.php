@@ -231,3 +231,24 @@ add_action(
 	},
 	20
 );
+
+/**
+ * Checkout notices: hide informational notices on page load, keep errors.
+ *
+ * On the checkout the carried-over "added to basket" (success) and WooCommerce's
+ * admin "Customer matched zone" shipping-debug (notice) messages showed on load.
+ * Strip those two types right before WooCommerce outputs them, but KEEP 'error'
+ * notices so validation problems still appear after the customer submits.
+ */
+add_action(
+	'woocommerce_before_checkout_form',
+	function () {
+		if ( ! function_exists( 'wc_get_notices' ) || ! function_exists( 'wc_set_notices' ) || ! WC()->session ) {
+			return;
+		}
+		$notices = wc_get_notices();                       // grouped by type
+		unset( $notices['success'], $notices['notice'] );  // drop info/success, keep 'error'
+		wc_set_notices( $notices );
+	},
+	5   // before woocommerce_output_all_notices (priority 10)
+);
