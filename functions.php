@@ -19,6 +19,9 @@ require_once get_stylesheet_directory() . '/inc/category-render.php';
 // Single-product dynamic helpers (from price, category-line name).
 require_once get_stylesheet_directory() . '/inc/product-render.php';
 
+// ── Back-office migration from the old theme (verbatim; loaded in phases) ──
+require_once get_stylesheet_directory() . '/inc/order-statuses.php';   // custom WC order statuses
+
 /**
  * Theme supports.
  */
