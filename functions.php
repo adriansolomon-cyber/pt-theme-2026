@@ -208,3 +208,26 @@ if ( ! function_exists( 'pt_checkout_url' ) ) {
 		return home_url( '/checkout/' );
 	}
 }
+
+/**
+ * Tidy the address bar after the configurator's composite add-to-cart.
+ *
+ * product.js builds …/checkout/?add-to-cart=ID&wccp_component_selection[..]=..&…
+ * WooCommerce processes that request on wp_loaded, so by template_redirect the
+ * configured building is already in the basket. We then redirect to the SAME URL
+ * minus the long query string, leaving a clean address bar. (The param is gone on
+ * the redirected request, so this can't loop or re-add.)
+ */
+add_action(
+	'template_redirect',
+	function () {
+		if ( wp_doing_ajax() || is_admin() ) {
+			return;
+		}
+		if ( ! empty( $_GET['add-to-cart'] ) && isset( $_GET['wccp_component_selection'] ) ) {
+			wp_safe_redirect( esc_url_raw( remove_query_arg( array_keys( $_GET ) ) ) );
+			exit;
+		}
+	},
+	20
+);
