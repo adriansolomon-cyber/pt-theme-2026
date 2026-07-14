@@ -47,7 +47,14 @@
     // WP single-product.php injects window.PT_PRODUCT_ID (the queried product) — most reliable; the
     // ?product= param is the standalone-prototype fallback.
     function urlPid(){ if(typeof window!=='undefined' && window.PT_PRODUCT_ID) return String(window.PT_PRODUCT_ID); try{ var q=new URLSearchParams(location.search); return q.get('product')||q.get('product_id')||q.get('pid')||''; }catch(e){ return ''; } }
-    function urlSize(){ try{ var q=new URLSearchParams(location.search); return q.get('size')||q.get('size_id')||q.get('sid')||''; }catch(e){ return ''; } }
+    function urlSize(){
+      if(typeof window!=='undefined' && window.PT_PRODUCT_SIZE) return String(window.PT_PRODUCT_SIZE);
+      try{ var q=new URLSearchParams(location.search); var s=q.get('size')||q.get('size_id')||q.get('sid'); if(s) return s; }catch(e){}
+      // Size as a dedicated path segment, e.g. /summerhouses/12-x-8/<product>/ or /summerhouses/f/12-x-8/<product>/.
+      // Match a WHOLE segment only, so a size-like token inside the product slug can't false-match.
+      try{ var segs=location.pathname.split('/'); for(var i=0;i<segs.length;i++){ var m=segs[i].match(/^(\d+(?:\.\d+)?)-x-(\d+(?:\.\d+)?)$/i); if(m) return m[1]+'x'+m[2]; } }catch(e){}
+      return '';
+    }
     var TITLE_KEY={ 'Size':'size','Wall Thickness':'wall','Floor':'floor','Roof Cover':'roof',
       'Guttering':'guttering','Paint Colour':'paint','Colour Trim':'trim','Base':'base' };
 
@@ -253,7 +260,8 @@
       if(!pendingSize) return null;
       var want=pendingSize; pendingSize=null;
       var id=scenarios[want]?+want:null;
-      if(id==null){ var norm=function(s){ return String(s).toLowerCase().replace(/\s+/g,''); }; Object.keys(scenarios).forEach(function(k){ if(id==null && norm(scenarios[k].name)===norm(want)) id=+k; }); }
+      // Normalise to just digits + 'x' so "12-x-8" / "12 x 8" / "12×8" / "12x8" all match.
+      if(id==null){ var norm=function(s){ return String(s).toLowerCase().replace(/×/g,'x').replace(/[^0-9x]/g,''); }; Object.keys(scenarios).forEach(function(k){ if(id==null && norm(scenarios[k].name)===norm(want)) id=+k; }); }
       return id!=null ? selectSize(id) : null;
     }
 
