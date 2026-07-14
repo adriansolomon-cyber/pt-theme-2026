@@ -19,8 +19,8 @@ function dear_system_authorization($url, $method, $fields = '') {
           CURLOPT_CUSTOMREQUEST => $method,
           CURLOPT_POSTFIELDS => $fields,
           CURLOPT_HTTPHEADER => array(
-            "api-auth-accountid: 4cd885bc-f1ee-41ca-9a22-e192599d5920",
-            "api-auth-applicationkey: eb149c74-a32a-764c-84e8-ce42b719c02c",
+            "api-auth-accountid: " . ( defined('PT_DEAR_ACCOUNT_ID') ? PT_DEAR_ACCOUNT_ID : '' ) . "",
+            "api-auth-applicationkey: " . ( defined('PT_DEAR_APP_KEY') ? PT_DEAR_APP_KEY : '' ) . "",
             "cache-control: no-cache",
             "content-type: application/json"
           ),
@@ -35,8 +35,8 @@ function dear_system_authorization($url, $method, $fields = '') {
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => $method,
           CURLOPT_HTTPHEADER => array(
-            "api-auth-accountid: 4cd885bc-f1ee-41ca-9a22-e192599d5920",
-            "api-auth-applicationkey: eb149c74-a32a-764c-84e8-ce42b719c02c",
+            "api-auth-accountid: " . ( defined('PT_DEAR_ACCOUNT_ID') ? PT_DEAR_ACCOUNT_ID : '' ) . "",
+            "api-auth-applicationkey: " . ( defined('PT_DEAR_APP_KEY') ? PT_DEAR_APP_KEY : '' ) . "",
             "cache-control: no-cache",
             "content-type: application/json"
           ),

@@ -5,7 +5,7 @@
 * ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===
 */
 
-define( 'OPTIMO_API_KEY', '4adc39095df78a53e5bfaea0812d02b6oP92hRhRGEA' );
+define( 'OPTIMO_API_KEY', defined( 'PT_OPTIMO_API_KEY' ) ? PT_OPTIMO_API_KEY : '' );
 define( 'OPTIMO_BASE_URL', 'https://api.optimoroute.com/v1' );
 
 /**

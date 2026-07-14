@@ -32,6 +32,10 @@ require_once get_stylesheet_directory() . '/includes/woocommerce-my-account.php'
 require_once get_stylesheet_directory() . '/includes/integrations/optimo/optimo-integrations-functions.php';
 require_once get_stylesheet_directory() . '/includes/woo-lead-time-calculator-control.php';
 
+// Phase 3 — remaining back-office, migrated verbatim. Root-level file so its
+// __DIR__-relative includes (inc/*-email.php etc.) resolve as in the old theme.
+require_once get_stylesheet_directory() . '/legacy-functions.php';
+
 /**
  * Theme supports.
  */
