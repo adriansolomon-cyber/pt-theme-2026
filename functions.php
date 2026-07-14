@@ -33,6 +33,47 @@ add_action(
 );
 
 /**
+ * Disable WordPress's emoji rewriting. Its detection script converts characters like
+ * "▶" (U+25B6, used for the play badges on the product page) into a coloured twemoji
+ * image, which broke the design's white play triangles. The static prototype has no
+ * such script, so removing it makes the glyphs render natively as designed.
+ */
+add_action(
+	'init',
+	function () {
+		remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+		remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
+		remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		remove_action( 'admin_print_styles', 'print_emoji_styles' );
+		remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
+		remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
+		remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
+		add_filter(
+			'tiny_mce_plugins',
+			function ( $plugins ) {
+				return is_array( $plugins ) ? array_diff( $plugins, array( 'wpemoji' ) ) : $plugins;
+			}
+		);
+		add_filter(
+			'wp_resource_hints',
+			function ( $urls, $relation_type ) {
+				if ( 'dns-prefetch' === $relation_type ) {
+					$urls = array_filter(
+						$urls,
+						function ( $url ) {
+							return false === strpos( is_array( $url ) ? ( $url['href'] ?? '' ) : $url, 's.w.org' );
+						}
+					);
+				}
+				return $urls;
+			},
+			10,
+			2
+		);
+	}
+);
+
+/**
  * Enqueue styles & scripts.
  *
  * base.css + the mini-cart are site-wide chrome; home.css/home.js load only on
