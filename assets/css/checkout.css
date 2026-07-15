@@ -175,16 +175,22 @@
   .co-form .woocommerce-shipping-fields__field-wrapper::after{ content:""; display:table; clear:both; }
 }
 
-.co-summary .woocommerce-checkout-review-order-table{ width:100%; border-collapse:collapse; font-size:.9rem; }
-.co-summary .woocommerce-checkout-review-order-table th,
-.co-summary .woocommerce-checkout-review-order-table td{ padding:9px 0; text-align:left; font-weight:300; color:var(--txt-soft); vertical-align:top; }
-.co-summary .woocommerce-checkout-review-order-table td.product-total,
-.co-summary .woocommerce-checkout-review-order-table .amount{ text-align:right; color:var(--ink); font-weight:700; white-space:nowrap; }
-.co-summary .woocommerce-checkout-review-order-table .cart_item td{ border-bottom:1px solid rgba(33,30,36,.08); }
-.co-summary .woocommerce-checkout-review-order-table .product-name{ font-weight:700; color:var(--ink); }
-.co-summary .woocommerce-checkout-review-order-table tfoot th{ font-weight:300; color:var(--txt-soft); padding-top:12px; }
-.co-summary .woocommerce-checkout-review-order-table tfoot .order-total th,
-.co-summary .woocommerce-checkout-review-order-table tfoot .order-total td{ font-size:1.15rem; font-weight:700; color:var(--ink); border-top:1px solid rgba(33,30,36,.12); padding-top:14px; }
+/* Order summary now uses the design's own markup (woocommerce/checkout/review-order.php:
+   .sum-item / .cfg / .co-promo / .sum-tot / .sum-assure), styled by the "order summary"
+   block near the top of this file. Only the WC-specific tweaks live here. */
+
+/* WC gives each cart-item image a srcset <img>; pin it into the fixed thumb box. */
+.co-summary .sum-item .thumb img{ width:100%; height:100%; object-fit:cover; display:block; max-width:none; }
+
+/* Promo is a real WooCommerce coupon form (form.checkout_coupon) — keep it laid out
+   as the design's inline field+button and override WC's block button styling. */
+.co-summary form.co-promo{ display:flex; gap:8px; margin-top:16px; }
+.co-summary form.co-promo .input-text{ flex:1; width:auto; margin:0; }
+.co-summary form.co-promo .button{ flex:0 0 auto; margin:0; }
+
+/* Configuration breakdown: WC add-on/composite values may arrive as inline markup. */
+.co-summary .cfg .crow .v p{ margin:0; }
+.co-summary .cfg .crow .v{ overflow-wrap:anywhere; }
 
 #payment_col .co-payment-title{ font-size:1.15rem; margin:0 0 16px; }
 #payment.woocommerce-checkout-payment{ background:transparent; border-radius:0; }

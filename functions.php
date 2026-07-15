@@ -254,6 +254,19 @@ add_action(
 );
 
 /**
+ * Remove WooCommerce's default "Have a coupon? Click here to enter your code"
+ * toggle above the checkout form. The redesign puts the promo field inside the
+ * order-summary card (woocommerce/checkout/review-order.php), so the toggle is a
+ * redundant second coupon UI. Runs on init, after WC registers its template hooks.
+ */
+add_action(
+	'init',
+	function () {
+		remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10 );
+	}
+);
+
+/**
  * Enqueue the WooCommerce notice auto-hide handler on checkout + cart.
  * (Hides info/success notices on load, auto-dismisses later ones, keeps errors.)
  */
