@@ -252,3 +252,28 @@ add_action(
 	},
 	5   // before woocommerce_output_all_notices (priority 10)
 );
+
+/**
+ * Enqueue the WooCommerce notice auto-hide handler on checkout + cart.
+ * (Hides info/success notices on load, auto-dismisses later ones, keeps errors.)
+ */
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		if ( ! function_exists( 'is_checkout' ) || ! ( is_checkout() || is_cart() ) ) {
+			return;
+		}
+		$dir = get_stylesheet_directory();
+		$file = $dir . '/assets/js/wc-notices.js';
+		if ( file_exists( $file ) ) {
+			wp_enqueue_script(
+				'pt-wc-notices',
+				get_stylesheet_directory_uri() . '/assets/js/wc-notices.js',
+				array(),
+				wp_get_theme()->get( 'Version' ) . '.' . filemtime( $file ),
+				true
+			);
+		}
+	},
+	20
+);
