@@ -142,18 +142,10 @@ add_action(
 			}
 			if ( file_exists( $dir . '/assets/js/product.js' ) ) {
 				wp_enqueue_script( 'pt-product', $uri . '/assets/js/product.js', array(), $ver( 'assets/js/product.js' ), true );
-				/*
-				 * TEMPORARY: staging has no WooCommerce data yet, so force the
-				 * configurator's read-only data API (config / specs) at the LIVE
-				 * production site instead of the current origin. Kinsta staging is a
-				 * clone of live, so the queried product ID matches the live product.
-				 * Revert PT_WC_BASE to untrailingslashit( home_url() ) once WooCommerce
-				 * is on staging. Filterable so it can be changed without editing code.
-				 */
-				$pt_api_base = apply_filters( 'pt_product_api_base', 'https://www.projecttimber.com' );
+				// Hand product.js the current product id + site origin (same-origin config/specs API).
 				wp_add_inline_script(
 					'pt-product',
-					'window.PT_WC_BASE=' . wp_json_encode( untrailingslashit( $pt_api_base ) ) . ';'
+					'window.PT_WC_BASE=' . wp_json_encode( untrailingslashit( home_url() ) ) . ';'
 					. 'window.PT_PRODUCT_ID=' . wp_json_encode( (string) get_queried_object_id() ) . ';',
 					'before'
 				);
