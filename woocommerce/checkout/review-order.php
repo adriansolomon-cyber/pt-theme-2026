@@ -26,10 +26,46 @@ if ( ! $pt_cart ) {
 }
 ?>
 
+<?php
+$pt_cart_items = $pt_cart->get_cart();
+
+/*
+ * Bundle / composite children are SEPARATE cart line items linked to a parent
+ * container (Product Bundles → 'bundled_by', Composites → 'composite_parent',
+ * Mix-and-Match → 'mnm_container'). Like the mini-cart, we render only the parent
+ * as a product card and fold its children into the "Your configuration" list —
+ * otherwise every bundled option (Size, Wall Thickness, Floor…) shows as its own
+ * £0.00 card. Index children by their parent cart key first.
+ */
+$pt_children = array();
+foreach ( $pt_cart_items as $pt_ck => $pt_ci ) {
+	$pt_pk = '';
+	foreach ( array( 'bundled_by', 'composite_parent', 'mnm_container' ) as $pt_rel ) {
+		if ( ! empty( $pt_ci[ $pt_rel ] ) ) {
+			$pt_pk = $pt_ci[ $pt_rel ];
+			break;
+		}
+	}
+	if ( $pt_pk ) {
+		$pt_children[ $pt_pk ][ $pt_ck ] = $pt_ci;
+	}
+}
+
+/** Normalise a dimension like "8 x 8" / "8x8" → "8 × 8" for display. */
+$pt_norm_dims = function ( $s ) {
+	return preg_replace( '/(\d)\s*[x×]\s*(\d)/u', '$1 × $2', (string) $s );
+};
+?>
+
 <?php do_action( 'woocommerce_review_order_before_cart_contents' ); ?>
 
-<?php foreach ( $pt_cart->get_cart() as $cart_item_key => $cart_item ) : ?>
+<?php foreach ( $pt_cart_items as $cart_item_key => $cart_item ) : ?>
 	<?php
+	// Skip children — they're listed under their parent, never as their own card.
+	if ( ! empty( $cart_item['bundled_by'] ) || ! empty( $cart_item['composite_parent'] ) || ! empty( $cart_item['mnm_container'] ) ) {
+		continue;
+	}
+
 	$_product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 
 	if ( ! $_product || ! $_product->exists() || $cart_item['quantity'] <= 0 || ! apply_filters( 'woocommerce_checkout_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
@@ -42,8 +78,43 @@ if ( ! $pt_cart ) {
 	$line_total   = apply_filters( 'woocommerce_cart_item_subtotal', $pt_cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key );
 	$range        = function_exists( 'pt_product_line_name' ) ? pt_product_line_name( $product_id ) : '';
 
-	// Configuration rows: composite / variation / add-on selections shown under the name.
-	$item_data = apply_filters( 'woocommerce_get_item_data', array(), $cart_item );
+	// Build the configuration rows. Prefer this item's bundled/composite children
+	// (title → selection); fall back to variation / add-on item-data for plain items.
+	$cfg_rows = array();
+	$children = isset( $pt_children[ $cart_item_key ] ) ? $pt_children[ $cart_item_key ] : array();
+
+	if ( $children ) {
+		foreach ( $children as $child ) {
+			$child_product = isset( $child['data'] ) ? $child['data'] : null;
+			if ( ! $child_product ) {
+				continue;
+			}
+			$label = '';
+			// Product Bundles: the container product resolves the bundled-item title.
+			if ( ! empty( $child['bundled_item_id'] ) && is_callable( array( $_product, 'get_bundled_item' ) ) ) {
+				$bi = $_product->get_bundled_item( $child['bundled_item_id'] );
+				if ( $bi && is_callable( array( $bi, 'get_title' ) ) ) {
+					$label = $bi->get_title();
+				}
+			}
+			$value = $pt_norm_dims( $child_product->get_name() );
+			$qty   = isset( $child['quantity'] ) ? (int) $child['quantity'] : 1;
+			if ( $qty > 1 ) {
+				$value .= ' × ' . $qty;
+			}
+			$cfg_rows[] = array( 'k' => esc_html( $label ), 'v' => esc_html( $value ) );
+		}
+	} else {
+		$item_data = apply_filters( 'woocommerce_get_item_data', array(), $cart_item );
+		foreach ( $item_data as $data ) {
+			$key = isset( $data['key'] ) ? $data['key'] : '';
+			$val = ( isset( $data['display'] ) && '' !== $data['display'] ) ? $data['display'] : ( isset( $data['value'] ) ? $data['value'] : '' );
+			if ( '' === trim( wp_strip_all_tags( (string) $key ) ) && '' === trim( wp_strip_all_tags( (string) $val ) ) ) {
+				continue;
+			}
+			$cfg_rows[] = array( 'k' => wp_kses_post( $key ), 'v' => wp_kses_post( $val ) );
+		}
+	}
 	?>
 	<div class="sum-item">
 		<div class="thumb">
@@ -59,21 +130,14 @@ if ( ! $pt_cart ) {
 		</div>
 	</div>
 
-	<?php if ( ! empty( $item_data ) ) : ?>
+	<?php if ( ! empty( $cfg_rows ) ) : ?>
 		<details class="cfg" open>
 			<summary><?php esc_html_e( 'Your configuration', 'woocommerce' ); ?> <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
 			<div class="rows">
-				<?php foreach ( $item_data as $data ) : ?>
-					<?php
-					$key = isset( $data['key'] ) ? $data['key'] : '';
-					$val = isset( $data['display'] ) && '' !== $data['display'] ? $data['display'] : ( isset( $data['value'] ) ? $data['value'] : '' );
-					if ( '' === trim( wp_strip_all_tags( (string) $key ) ) && '' === trim( wp_strip_all_tags( (string) $val ) ) ) {
-						continue;
-					}
-					?>
+				<?php foreach ( $cfg_rows as $row ) : ?>
 					<div class="crow">
-						<span class="k"><?php echo wp_kses_post( $key ); ?></span>
-						<span class="v"><?php echo wp_kses_post( $val ); ?></span>
+						<span class="k"><?php echo $row['k']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped above. ?></span>
+						<span class="v"><?php echo $row['v']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped above. ?></span>
 					</div>
 				<?php endforeach; ?>
 			</div>
