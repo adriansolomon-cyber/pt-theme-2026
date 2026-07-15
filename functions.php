@@ -267,6 +267,64 @@ add_action(
 );
 
 /**
+ * Match the "Deliver to a different address" (shipping) fields to the checkout
+ * mockup structure (projecttimber-checkout.html): First | Last, Address line 1,
+ * Town/City | Postcode. Runs at priority 20 — AFTER the old theme's
+ * ensure_shipping_fields_exist() (priority 10) — so it re-lays-out those fields.
+ *
+ * Fields not in the design (Country, Apartment, County, Phone, Email, Company) are
+ * hidden via a class, not removed, so form submission / validation is unchanged.
+ * Country is defaulted to the store base country and kept (hidden) so shipping still
+ * resolves. Billing is untouched.
+ */
+add_filter(
+	'woocommerce_checkout_fields',
+	function ( $fields ) {
+		if ( empty( $fields['shipping'] ) || ! is_array( $fields['shipping'] ) ) {
+			return $fields;
+		}
+
+		$shipping = &$fields['shipping'];
+
+		$set = function ( &$group, $key, $class, $priority, $clear, $label = null ) {
+			if ( ! isset( $group[ $key ] ) ) {
+				return;
+			}
+			$group[ $key ]['class']    = (array) $class;
+			$group[ $key ]['priority'] = $priority;
+			$group[ $key ]['clear']    = (bool) $clear;
+			if ( null !== $label ) {
+				$group[ $key ]['label'] = $label;
+			}
+		};
+
+		// Visible fields — laid out to match the mockup grid.
+		$set( $shipping, 'shipping_first_name', array( 'form-row-first' ), 10, false, __( 'First name', 'woocommerce' ) );
+		$set( $shipping, 'shipping_last_name', array( 'form-row-last' ), 20, true, __( 'Last name', 'woocommerce' ) );
+		$set( $shipping, 'shipping_address_1', array( 'form-row-wide' ), 40, true, __( 'Address line 1', 'woocommerce' ) );
+		$set( $shipping, 'shipping_city', array( 'form-row-first' ), 60, false, __( 'Town / City', 'woocommerce' ) );
+		$set( $shipping, 'shipping_postcode', array( 'form-row-last' ), 70, true, __( 'Postcode', 'woocommerce' ) );
+
+		// Keep the base country on the (hidden) country field so shipping still resolves.
+		if ( isset( $shipping['shipping_country'] ) ) {
+			$base = function_exists( 'wc_get_base_location' ) ? wc_get_base_location() : array();
+			$shipping['shipping_country']['default'] = ( is_array( $base ) && ! empty( $base['country'] ) ) ? $base['country'] : 'GB';
+		}
+
+		// Fields not in the design — hidden (kept in the form so nothing breaks).
+		foreach ( array( 'shipping_country', 'shipping_address_2', 'shipping_state', 'shipping_phone', 'shipping_email', 'shipping_company' ) as $k ) {
+			if ( isset( $shipping[ $k ] ) ) {
+				$existing              = isset( $shipping[ $k ]['class'] ) ? (array) $shipping[ $k ]['class'] : array();
+				$shipping[ $k ]['class'] = array_merge( $existing, array( 'pt-ship-hidden' ) );
+			}
+		}
+
+		return $fields;
+	},
+	20
+);
+
+/**
  * Enqueue the WooCommerce notice auto-hide handler on checkout + cart.
  * (Hides info/success notices on load, auto-dismisses later ones, keeps errors.)
  */

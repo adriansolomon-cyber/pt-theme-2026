@@ -165,6 +165,9 @@
 /* Fields hidden until the box is ticked; WooCommerce core's checkout.js slide-toggles
    .shipping_address (sets inline display) on the #ship-to-different-address checkbox. */
 .co-form .shipping_address{ display:none; padding:6px 0 14px; }
+/* Shipping fields not in the mockup (Country, Apartment, County, Phone, Email,
+   Company) — kept in the form for submission but hidden, per functions.php. */
+.co-form .pt-ship-hidden{ display:none !important; }
 
 /* old theme's copy-from-billing button (added via woocommerce_before_checkout_shipping_form)
    carries inline blue styling — restyle it to the design's secondary button. */
