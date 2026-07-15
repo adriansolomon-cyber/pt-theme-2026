@@ -13,6 +13,10 @@ body{ margin:0; background:var(--white); color:var(--txt); font-family:var(--fon
 p{ margin:0; }
 a{ color:inherit; }
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+/* Accessibility skip link (header.php) — site-wide chrome, so it lives here (not
+   home.css). Hidden off-screen until keyboard-focused. */
+.skip{ position:absolute; left:-9999px; top:0; z-index:300; background:var(--ink); color:#fff; padding:12px 18px; border-radius:0 0 10px 0; font-weight:700; text-decoration:none; }
+.skip:focus{ left:0; }
 .promo{ background:var(--ink); color:var(--on-dark); text-align:center; font-size:.74rem; letter-spacing:.05em; padding:8px 14px; }
 .promo b{ color:#fff; }
 .mainhead .menu{ display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:none; background:none; cursor:pointer; color:var(--ink); padding:0; }

@@ -55,7 +55,7 @@ get_header();
 </div>
 
 <!-- ===================== HERO ===================== -->
-<header class="hero"><div class="wrap">
+<header class="hero" id="main" tabindex="-1"><div class="wrap">
   <div class="eyebrow"><?php echo esc_html( $pt_line ); ?> · Composite · Fully insulated</div>
   <h1 class="display">Work happens at the<br><span class="fade">bottom of the </span><span class="swipe">garden.</span></h1>
   <p class="lead">A year-round, fully insulated garden office — composite cladding, pre-insulated panels, delivered and built in days.</p>

@@ -24,7 +24,7 @@ get_header();
 $pt_is_wc_page = function_exists( 'is_cart' ) && ( is_cart() || is_checkout() || is_account_page() );
 ?>
 
-<main class="wrap pt-page">
+<main class="wrap pt-page" id="main" tabindex="-1">
 	<?php
 	while ( have_posts() ) :
 		the_post();

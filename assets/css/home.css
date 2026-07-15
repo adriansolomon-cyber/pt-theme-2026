@@ -38,8 +38,7 @@
   .btn-ghost:active{ transform:scale(.98); }
 
   /* promo + header */
-  .skip{ position:absolute; left:-9999px; top:0; z-index:300; background:var(--ink); color:#fff; padding:12px 18px; border-radius:0 0 10px 0; font-weight:700; text-decoration:none; }
-  .skip:focus{ left:0; }
+  /* .skip moved to base.css — it's site-wide chrome (the header loads on every page). */
   :focus-visible{ outline:2px solid var(--charcoal); outline-offset:2px; border-radius:6px; }
   
   

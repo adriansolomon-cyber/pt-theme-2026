@@ -33,7 +33,7 @@ $pt_desc_html = ( '' !== trim( (string) $pt_desc ) )
 get_header();
 ?>
 
-<main class="wrap">
+<main class="wrap" id="main" tabindex="-1">
   <!-- breadcrumb -->
   <nav class="crumbs" aria-label="Breadcrumb">
     <a href="<?php echo esc_url( home_url( '/' ) ); ?>">Home</a><span class="sep">/</span><span class="here" aria-current="page"><?php echo esc_html( $pt_name ); ?></span>
