@@ -213,6 +213,12 @@
 /* single-allowed-country renders as static text — size it like a value, not a heading */
 .woocommerce-checkout .co-form .woocommerce-input-wrapper > strong{ font-weight:400; font-size:.95rem; }
 
+/* The old-theme email validator (wc-custom-checkout-functions.php) reserves an
+   always-on 18px error line under #billing_email. When the email is valid the line
+   is empty but still adds ~23px of dead space above the shipping toggle — collapse
+   it while empty so the section spacing matches the design. */
+.woocommerce-checkout .co-form .wc-email-inline-error:empty{ min-height:0; margin-top:0; }
+
 /* Delivery section — the lead-time datepicker field (#order_pickup_date_field, from
    woo-lead-time-calculator-control.php) and the order-notes field share WooCommerce's
    .woocommerce-additional-fields wrapper. Match the mockup: heading + hint, then the
