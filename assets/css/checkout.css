@@ -213,6 +213,19 @@
 /* single-allowed-country renders as static text — size it like a value, not a heading */
 .woocommerce-checkout .co-form .woocommerce-input-wrapper > strong{ font-weight:400; font-size:.95rem; }
 
+/* Delivery section — the lead-time datepicker field (#order_pickup_date_field, from
+   woo-lead-time-calculator-control.php) and the order-notes field share WooCommerce's
+   .woocommerce-additional-fields wrapper. Match the mockup: heading + hint, then the
+   date field, then "Special instructions". The datepicker fires AFTER the notes field
+   (woocommerce_after_order_notes), so reorder with flex to put the date first. */
+.co-form .woocommerce-additional-fields{ display:flex; flex-direction:column; }
+.co-form #order_pickup_date_field{ order:1; }
+.co-form .woocommerce-additional-fields__field-wrapper{ order:2; }
+.co-form #order_pickup_date_field > h3{ font-size:1.15rem; margin:0 0 4px; font-weight:700; }
+.co-form .pt-delivery-hint{ font-size:.84rem; font-weight:300; color:var(--txt-soft); margin:0 0 16px; }
+/* Calendar affordance on the (readonly, jQuery-UI) date input, echoing the mockup's native picker. */
+.woocommerce-checkout .co-form #datepicker{ cursor:pointer; padding-right:42px; background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%236E6A74'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Crect%20x='3'%20y='4'%20width='18'%20height='18'%20rx='2'/%3E%3Cpath%20d='M16%202v4M8%202v4M3%2010h18'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; background-size:18px 18px; }
+
 @media(min-width:560px){
   .co-form .form-row-first{ width:48%; float:left; margin-right:4%; }
   .co-form .form-row-last{ width:48%; float:right; }

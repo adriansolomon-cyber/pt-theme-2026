@@ -305,11 +305,13 @@ function pt_render_pickup_date_field($checkout) {
     $holidays_js  = wp_json_encode($disabled_dates);
     
     echo '<div id="order_pickup_date_field">';
-    echo '<h3>Delivery Info <span class="required">*</span></h3>';
+    echo '<h3>' . esc_html__( 'Delivery', 'woocommerce' ) . '</h3>';
+    echo '<p class="pt-delivery-hint">' . esc_html__( "Pick a preferred date — we'll confirm the final delivery window with you.", 'woocommerce' ) . '</p>';
 
     woocommerce_form_field('order_pickup_date', [
         'type'        => 'text',
         'required'    => true,
+        'label'       => __( 'Preferred delivery date', 'woocommerce' ),
         'class'       => ['form-row-wide'],
         'id'          => 'datepicker',
         'autocomplete'=> 'off',

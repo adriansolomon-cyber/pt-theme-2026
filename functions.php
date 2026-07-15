@@ -335,6 +335,12 @@ add_filter(
 			unset( $shipping );
 		}
 
+		// ── Order notes → the mockup's "Special instructions" field. ──
+		if ( ! empty( $fields['order']['order_comments'] ) ) {
+			$fields['order']['order_comments']['label']       = __( 'Special instructions', 'woocommerce' );
+			$fields['order']['order_comments']['placeholder'] = __( 'Curbside access notes — e.g. parking, narrow road, or where to set down the delivery…', 'woocommerce' );
+		}
+
 		return $fields;
 	},
 	20
