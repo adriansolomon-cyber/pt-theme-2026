@@ -144,14 +144,32 @@
    review / payment markup. First pass — refine against staging render.
    ============================================================ */
 .co-form .woocommerce-billing-fields,
-.co-form .woocommerce-shipping-fields,
 .co-form .woocommerce-additional-fields{ margin-bottom:34px; }
 .co-form .woocommerce-billing-fields > h3,
-.co-form .woocommerce-shipping-fields h3,
 .co-form .woocommerce-additional-fields h3{ font-size:1.15rem; margin:0 0 16px; font-weight:700; }
-.co-form #ship-to-different-address{ font-size:1.15rem; margin:0 0 12px; }
-.co-form #ship-to-different-address label{ display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:700; }
-.co-form #ship-to-different-address input{ width:18px; height:18px; accent-color:var(--charcoal); }
+
+/* "Deliver to a different address?" — WooCommerce shipping toggle (form-shipping.php)
+   styled like the design's .co-altaddr (bordered box + custom checkbox). The
+   two-class selector overrides the old theme's inline .woocommerce-shipping-fields
+   { display:none } (injected in wp_footer), which would otherwise hide the whole
+   toggle. The #ship-to-different-address-checkbox input is kept so WC core toggles
+   the address fields and the old theme's copy-billing / clear-on-uncheck JS works. */
+.co-form .woocommerce-shipping-fields{ display:block; border:1px solid rgba(33,30,36,.12); border-radius:var(--r-sm); padding:4px 16px; margin:0 0 34px; }
+.co-form #ship-to-different-address{ margin:0; font-size:.92rem; }
+.co-form #ship-to-different-address label{ display:flex; align-items:center; gap:11px; padding:13px 0; margin:0; cursor:pointer; font-weight:700; }
+.co-form #ship-to-different-address-checkbox{ position:absolute; opacity:0; width:0; height:0; }
+.co-form #ship-to-different-address .altaddr-box{ width:18px; height:18px; border:1.5px solid rgba(33,30,36,.3); border-radius:5px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; }
+.co-form #ship-to-different-address .altaddr-box svg{ width:13px; height:13px; opacity:0; color:#fff; }
+.co-form #ship-to-different-address-checkbox:checked + .altaddr-box{ background:var(--charcoal); border-color:var(--charcoal); }
+.co-form #ship-to-different-address-checkbox:checked + .altaddr-box svg{ opacity:1; }
+/* Fields hidden until the box is ticked; WooCommerce core's checkout.js slide-toggles
+   .shipping_address (sets inline display) on the #ship-to-different-address checkbox. */
+.co-form .shipping_address{ display:none; padding:6px 0 14px; }
+
+/* old theme's copy-from-billing button (added via woocommerce_before_checkout_shipping_form)
+   carries inline blue styling — restyle it to the design's secondary button. */
+.co-form .copy-billing-wrapper{ display:block; padding:0 0 6px; margin:0; }
+.co-form .copy-billing-button{ font-family:var(--font) !important; font-weight:700 !important; font-size:.82rem !important; background:#fff !important; color:var(--ink) !important; border:1.5px solid rgba(33,30,36,.22) !important; border-radius:11px !important; padding:9px 14px !important; box-shadow:none !important; transform:none !important; }
 
 .co-form .form-row{ margin:0 0 14px; }
 .co-form .form-row label{ display:block; font-size:.8rem; font-weight:700; margin-bottom:6px; }
