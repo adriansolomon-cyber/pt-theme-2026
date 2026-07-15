@@ -47,14 +47,7 @@
     // WP single-product.php injects window.PT_PRODUCT_ID (the queried product) — most reliable; the
     // ?product= param is the standalone-prototype fallback.
     function urlPid(){ if(typeof window!=='undefined' && window.PT_PRODUCT_ID) return String(window.PT_PRODUCT_ID); try{ var q=new URLSearchParams(location.search); return q.get('product')||q.get('product_id')||q.get('pid')||''; }catch(e){ return ''; } }
-    function urlSize(){
-      if(typeof window!=='undefined' && window.PT_PRODUCT_SIZE) return String(window.PT_PRODUCT_SIZE);
-      try{ var q=new URLSearchParams(location.search); var s=q.get('size')||q.get('size_id')||q.get('sid'); if(s) return s; }catch(e){}
-      // Size as a dedicated path segment, e.g. /summerhouses/12-x-8/<product>/ or /summerhouses/f/12-x-8/<product>/.
-      // Match a WHOLE segment only, so a size-like token inside the product slug can't false-match.
-      try{ var segs=location.pathname.split('/'); for(var i=0;i<segs.length;i++){ var m=segs[i].match(/^(\d+(?:\.\d+)?)-x-(\d+(?:\.\d+)?)$/i); if(m) return m[1]+'x'+m[2]; } }catch(e){}
-      return '';
-    }
+    function urlSize(){ try{ var q=new URLSearchParams(location.search); return q.get('size')||q.get('size_id')||q.get('sid')||''; }catch(e){ return ''; } }
     var TITLE_KEY={ 'Size':'size','Wall Thickness':'wall','Floor':'floor','Roof Cover':'roof',
       'Guttering':'guttering','Paint Colour':'paint','Colour Trim':'trim','Base':'base' };
 
@@ -175,7 +168,7 @@
     function renderSpecSeg(){
       if(!specSeg) return;
       var sizes=sortedSizes();
-      specSeg.innerHTML=sizes.map(function(s){ return '<button data-size-id="'+s.id+'"'+(s.id===sizeId?' class="on"':'')+'>'+esc(s.name)+'</button>'; }).join('');
+      specSeg.innerHTML=sizes.map(function(s){ return '<button data-size-id="'+s.id+'"'+(s.id===sizeId?' class="on"':'')+'>'+esc(sizeDisplay(s.name))+'</button>'; }).join('');
     }
     function markSpecSeg(id){ if(!specSeg) return; specSeg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', +b.dataset.sizeId===+id); }); }
     if(specSeg){ specSeg.addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; selectSize(+b.dataset.sizeId); }); }
@@ -222,11 +215,15 @@
     }
 
     // ====================== rendering (reuses the page's card/row design) ======================
+    // Size option names from the live store carry finish/door text
+    // (e.g. "20 x 8 - UPVC - Graphite"); the configurator shows ONLY the dimension.
+    function sizeDisplay(name){ var m=String(name==null?'':name).match(/(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)/i); return m ? (m[1]+' × '+m[2]) : String(name==null?'':name); }
     function cardHTML(group,opt,selected){
-      var img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(opt.name)+'"></div>':'<div class="im ph"></div>';
+      var label=(group===sizeCid)?sizeDisplay(opt.name):opt.name;
+      var img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'"></div>':'<div class="im ph"></div>';
       var price=(opt.price==null)?'<span class="pr-sk skel-box"></span>':fmt(opt.price);
       return '<div class="opt-card'+(selected?' sel':'')+'" data-group="'+esc(group)+'" data-opt="'+opt.id+'">'+img+
-        '<div class="nm">'+esc(opt.name)+'</div><div class="pr">'+price+'</div>'+
+        '<div class="nm">'+esc(label)+'</div><div class="pr">'+price+'</div>'+
         '<div class="selbtn">'+(selected?'Selected':'Select')+'</div></div>';
     }
     function rowHTML(idx,label,selId,group,mode,cardsHTML){
@@ -260,8 +257,7 @@
       if(!pendingSize) return null;
       var want=pendingSize; pendingSize=null;
       var id=scenarios[want]?+want:null;
-      // Normalise to just digits + 'x' so "12-x-8" / "12 x 8" / "12×8" / "12x8" all match.
-      if(id==null){ var norm=function(s){ return String(s).toLowerCase().replace(/×/g,'x').replace(/[^0-9x]/g,''); }; Object.keys(scenarios).forEach(function(k){ if(id==null && norm(scenarios[k].name)===norm(want)) id=+k; }); }
+      if(id==null){ var norm=function(s){ return String(s).toLowerCase().replace(/\s+/g,''); }; Object.keys(scenarios).forEach(function(k){ if(id==null && norm(scenarios[k].name)===norm(want)) id=+k; }); }
       return id!=null ? selectSize(id) : null;
     }
 
@@ -271,9 +267,9 @@
       var sm=meta[id];
       loadSpecs(id); markSpecSeg(id);
       if(specImg && sm && sm.img){ specImg.src=sm.img; specImg.alt=(product?product.name:'Product')+' '+sc.name+' preview'; }
-      if(elSize) elSize.textContent=sc.name;
+      if(elSize) elSize.textContent=sizeDisplay(sc.name);
       setGallery(galleryFor((sm&&sm.img) || (product&&product.images&&product.images[0]&&product.images[0].src)));
-      markSelected(sizeCid,id); setSelLabel('sel-size',sc.name);
+      markSelected(sizeCid,id); setSelLabel('sel-size',sizeDisplay(sc.name));
       var need=[]; components.forEach(function(c){ if(c.id===sizeCid) return; (sc.config[c.id]||[]).forEach(function(x){ need.push(x); }); });
       var haveAll=need.every(function(x){ return meta[x]; });
       if(haveAll){ renderOptionRows(sc); status('Configured for '+sc.name+'.'); return Promise.resolve(); }
@@ -332,14 +328,7 @@
       loadGallery(pid);
       renderSizeRow();
       status((cached?'Ready (cached) · ':'')+Object.keys(scenarios).length+' sizes. Choose a size.');
-      var pre=maybePreselect();
-      // No size in the URL → default to the first (smallest) size so every option step
-      // loads immediately (Size stays open as step 1; no auto-advance/scroll on load).
-      if(!pre){ var sizes=sortedSizes(); if(sizes.length) pre=selectSize(sizes[0].id); }
-      // Accordion is ready → re-enable interaction (guarded during the async first render).
-      var ready=function(){ if(elRows) elRows.classList.remove('cfg-loading'); };
-      if(pre&&pre.then){ pre.then(ready,ready); } else { ready(); }
-      return pre;
+      return maybePreselect();
     }
     function loadViaConfig(pid){
       if(!USE_CONFIG_ENDPOINT) return Promise.reject(new Error('disabled'));
@@ -362,7 +351,6 @@
       var pid=parseInt(urlPid()||DEFAULT_PID,10);
       if(!pid){ status('No product configured.',true); return; }
       curPid=pid; pendingSize=urlSize();
-      if(elRows) elRows.classList.add('cfg-loading');   // block step-advances until the first render settles
       var cached=loadCache(pid);
       if(cached){ product=cached.product; components=cached.components; scenarios=cached.scenarios; sizeCid=cached.sizeCid; meta=cached.meta||{}; sel={}; sizeId=null; afterParse(pid,true); return; }
       status('Loading…',false,true); if(elAdd) elAdd.disabled=true; showSkeleton();
@@ -371,65 +359,16 @@
     }
 
     // ====================== events ======================
-    // Single-open accordion helpers: selecting an option collapses that step (its
-    // chosen value stays visible in the header) and opens the NEXT step to choose.
-    function cfgRowsList(){ return elRows ? [].slice.call(elRows.querySelectorAll('.cfg-row')) : []; }
-    function cfgOpenOnly(row){ cfgRowsList().forEach(function(r){ r.classList.toggle('open', r===row); }); }
-    // Run an accordion mutation while keeping `anchorRow`'s header pinned exactly where it
-    // was in the viewport — so collapsing an arbitrarily tall step (e.g. the ~2200px Size
-    // row before a size is chosen) can't make the browser drift the page. The mutation is
-    // INSTANT (.cfg-advancing → transition:none) so there is no 300ms slide for a shift to
-    // hide in; we re-correct on the next frame (browser scroll-anchoring) and when any
-    // late-loading images in `imgRow` finish.
-    function cfgPin(anchorRow, mutate, imgRow){
-      var head=anchorRow?anchorRow.querySelector('.cfg-head'):null;
-      var before=head?head.getBoundingClientRect().top:null;
-      if(elRows) elRows.classList.add('cfg-advancing');
-      mutate();
-      function correct(){
-        if(head && before!=null){
-          var d=head.getBoundingClientRect().top-before;
-          if(d){ try{ window.scrollBy({ top:d, left:0, behavior:'instant' }); }catch(e){ window.scrollBy(0,d); } }
-        }
-      }
-      correct();                                          // 1) synchronous
-      requestAnimationFrame(function(){                   // 2) after layout + browser scroll-anchoring settle
-        correct();
-        if(elRows) elRows.classList.remove('cfg-advancing');
-      });
-      // 3) re-correct once any late-loading images in the opened step finish
-      if(imgRow){ Array.prototype.forEach.call(imgRow.querySelectorAll('img'), function(img){ if(!img.complete) img.addEventListener('load', correct, { once:true }); }); }
-    }
-
-    function cfgAdvance(row){
-      var rows=cfgRowsList(), next=rows[rows.indexOf(row)+1];
-      cfgPin(row, function(){
-        if(next){ cfgOpenOnly(next); }
-        else if(row){ row.classList.remove('open'); }    // last step → collapse; summary/add is ready
-      }, next);
-    }
-
     // delegated clicks: accordion headers + option cards (rows are dynamic)
     if(elRows) elRows.addEventListener('click',function(e){
-      // header click → open just this step (close the others), or collapse it if already open.
-      // Pin the clicked header: a header click can collapse an arbitrarily tall OTHER row
-      // (e.g. the still-open Size row), which is what caused the big first-click drift.
-      var head=e.target.closest('.cfg-head');
-      if(head){
-        var hrow=head.closest('.cfg-row');
-        var opening=!hrow.classList.contains('open');
-        cfgPin(hrow, function(){ if(opening) cfgOpenOnly(hrow); else hrow.classList.remove('open'); }, opening?hrow:null);
-        return;
-      }
+      var head=e.target.closest('.cfg-head'); if(head){ head.closest('.cfg-row').classList.toggle('open'); return; }
       var card=e.target.closest('.opt-card'); if(!card) return;
       var group=card.dataset.group, optId=+card.dataset.opt;
-      // size re-renders the option steps; advance once the (async) render settles
-      if(group===sizeCid){ var p=selectSize(optId); var go=function(){ cfgAdvance(cfgRowsList()[0]); }; if(p&&p.then){ p.then(go); } else { go(); } return; }
+      if(group===sizeCid){ selectSize(optId); return; }
       sel[group]=optId; markSelected(group,optId);
       var comp=components.filter(function(c){ return c.id===group; })[0];
       var m=meta[optId]; if(comp) setSelLabel('sel-'+comp.key, m?m.name:('#'+optId));
       recalc();
-      cfgAdvance(card.closest('.cfg-row'));   // collapse this step, open the next
     });
     // add to basket → native composite add-to-cart URL
     if(elAdd) elAdd.addEventListener('click',function(){ var u=cartUrl(); if(u) window.location.href=u; });
