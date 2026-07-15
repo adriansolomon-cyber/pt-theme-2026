@@ -14,6 +14,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
+/**
+ * Silence WordPress 6.7's "_load_textdomain_just_in_time was called incorrectly"
+ * notices. Several third-party WooCommerce extensions (cost-of-goods,
+ * order-status-manager, PIP, sequential-order-numbers-pro, …) load their text
+ * domains before the `init` hook, which WP 6.7+ flags. It's plugin-side and not
+ * fixable from the theme, so suppress just this one doing_it_wrong check — every
+ * other doing_it_wrong warning still fires. Registered here (before the includes
+ * below) so it is in place as early as the theme can hook it.
+ */
+add_filter(
+	'doing_it_wrong_trigger_error',
+	function ( $trigger, $function_name = '' ) {
+		return ( '_load_textdomain_just_in_time' === $function_name ) ? false : $trigger;
+	},
+	10,
+	2
+);
+
 // Server-side category grid rendering (PHP port of category.js).
 require_once get_stylesheet_directory() . '/inc/category-render.php';
 // Single-product dynamic helpers (from price, category-line name).
