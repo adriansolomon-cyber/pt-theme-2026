@@ -204,3 +204,16 @@
 .woocommerce-form-coupon-toggle{ margin-bottom:20px; }
 .checkout_coupon .form-row{ margin-bottom:10px; }
 .checkout_coupon .button{ font-family:var(--font); font-weight:700; background:var(--charcoal); color:#fff; border:0; border-radius:11px; padding:12px 18px; cursor:pointer; }
+
+/* --- checkout validation notices: keep the 2-column grid intact ---
+   WooCommerce's checkout JS prepends .woocommerce-NoticeGroup INTO the form
+   (.co-grid). As a grid child it would take a column and shove Billing into the
+   narrow right column — force it (and any stray notice) to span both columns. */
+.co-grid > .woocommerce-NoticeGroup,
+.co-grid > .woocommerce-error,
+.co-grid > .woocommerce-message,
+.co-grid > .woocommerce-info{ grid-column:1 / -1; margin:0 0 22px; }
+
+/* single-allowed-country renders as plain text — keep it field-sized, not a heading */
+.co-form #billing_country_field strong,
+.co-form #shipping_country_field strong{ font-weight:400; font-size:.95rem; }
