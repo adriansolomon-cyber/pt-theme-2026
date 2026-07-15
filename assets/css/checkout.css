@@ -182,6 +182,10 @@
 /* WC gives each cart-item image a srcset <img>; pin it into the fixed thumb box. */
 .co-summary .sum-item .thumb img{ width:100%; height:100%; object-fit:cover; display:block; max-width:none; }
 
+/* Separate multiple products: every product card after the first (the .cfg block
+   may sit between two .sum-item siblings, so use the general-sibling combinator). */
+.co-summary .sum-item ~ .sum-item{ margin-top:22px; padding-top:22px; border-top:1px solid rgba(33,30,36,.1); }
+
 /* Promo is a real WooCommerce coupon form (form.checkout_coupon) — keep it laid out
    as the design's inline field+button and override WC's block button styling. */
 .co-summary form.co-promo{ display:flex; gap:8px; margin-top:16px; }
