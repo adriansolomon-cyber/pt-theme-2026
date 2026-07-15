@@ -189,6 +189,30 @@
 .co-form .select2-container .select2-selection--single{ height:46px; display:flex; align-items:center; }
 .co-form .select2-container--default .select2-selection--single .select2-selection__arrow{ height:44px; }
 
+/* Beat WooCommerce core's own field styles. Its selectors (e.g.
+   `.woocommerce form .form-row input.input-text`, specificity 0,3,2) out-specify a
+   plain `.co-form .input-text` (0,2,0), so the design was losing the cascade. The
+   page <body> carries `.woocommerce-checkout`; prefixing with it lifts these rules
+   to 0,4,1 — enough to win — without an !important arms race. */
+.woocommerce-checkout .co-form .form-row input.input-text,
+.woocommerce-checkout .co-form .form-row textarea,
+.woocommerce-checkout .co-form .form-row select,
+.woocommerce-checkout .co-form .select2-container--default .select2-selection--single{
+  width:100%; font-family:var(--font); font-size:.92rem; padding:12px 14px;
+  border:1px solid rgba(33,30,36,.18); border-radius:11px; background:#fff;
+  color:var(--ink); box-sizing:border-box; box-shadow:none; min-height:46px; line-height:1.4;
+}
+.woocommerce-checkout .co-form .form-row textarea{ min-height:84px; }
+.woocommerce-checkout .co-form .form-row input.input-text:focus,
+.woocommerce-checkout .co-form .form-row textarea:focus,
+.woocommerce-checkout .co-form .form-row select:focus{ outline:none; border-color:var(--charcoal); box-shadow:none; }
+/* select2 country/state dropdown → look like the design's fields */
+.woocommerce-checkout .co-form .select2-container--default .select2-selection--single{ display:flex; align-items:center; }
+.woocommerce-checkout .co-form .select2-container--default .select2-selection--single .select2-selection__rendered{ padding:0; line-height:normal; color:var(--ink); }
+.woocommerce-checkout .co-form .select2-container--default .select2-selection--single .select2-selection__arrow{ height:44px; top:0; right:10px; }
+/* single-allowed-country renders as static text — size it like a value, not a heading */
+.woocommerce-checkout .co-form .woocommerce-input-wrapper > strong{ font-weight:400; font-size:.95rem; }
+
 @media(min-width:560px){
   .co-form .form-row-first{ width:48%; float:left; margin-right:4%; }
   .co-form .form-row-last{ width:48%; float:right; }

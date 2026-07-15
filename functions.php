@@ -267,24 +267,22 @@ add_action(
 );
 
 /**
- * Match the "Deliver to a different address" (shipping) fields to the checkout
- * mockup structure (projecttimber-checkout.html): First | Last, Address line 1,
- * Town/City | Postcode. Runs at priority 20 — AFTER the old theme's
- * ensure_shipping_fields_exist() (priority 10) — so it re-lays-out those fields.
+ * Match the checkout fields to the mockup (projecttimber-checkout.html):
  *
- * Fields not in the design (Country, Apartment, County, Phone, Email, Company) are
- * hidden via a class, not removed, so form submission / validation is unchanged.
- * Country is defaulted to the store base country and kept (hidden) so shipping still
- * resolves. Billing is untouched.
+ *  Billing  → First | Last, Country / Region, Address line 1, Apartment,
+ *             Town/City | County, Postcode. (Email/Phone kept at their default
+ *             position; they are required and not part of the address block.)
+ *  Shipping → First | Last, Address line 1, Town/City | Postcode. Country kept
+ *             (hidden, base-country default) so shipping still resolves; the other
+ *             non-design fields are hidden but left in the form.
+ *
+ * Runs at priority 20 — AFTER the old theme's ensure_shipping_fields_exist()
+ * (priority 10) — so it re-lays-out those fields. Only class / priority / clear /
+ * label are changed; nothing is removed, so submission and validation are unchanged.
  */
 add_filter(
 	'woocommerce_checkout_fields',
 	function ( $fields ) {
-		if ( empty( $fields['shipping'] ) || ! is_array( $fields['shipping'] ) ) {
-			return $fields;
-		}
-
-		$shipping = &$fields['shipping'];
 
 		$set = function ( &$group, $key, $class, $priority, $clear, $label = null ) {
 			if ( ! isset( $group[ $key ] ) ) {
@@ -298,25 +296,43 @@ add_filter(
 			}
 		};
 
-		// Visible fields — laid out to match the mockup grid.
-		$set( $shipping, 'shipping_first_name', array( 'form-row-first' ), 10, false, __( 'First name', 'woocommerce' ) );
-		$set( $shipping, 'shipping_last_name', array( 'form-row-last' ), 20, true, __( 'Last name', 'woocommerce' ) );
-		$set( $shipping, 'shipping_address_1', array( 'form-row-wide' ), 40, true, __( 'Address line 1', 'woocommerce' ) );
-		$set( $shipping, 'shipping_city', array( 'form-row-first' ), 60, false, __( 'Town / City', 'woocommerce' ) );
-		$set( $shipping, 'shipping_postcode', array( 'form-row-last' ), 70, true, __( 'Postcode', 'woocommerce' ) );
-
-		// Keep the base country on the (hidden) country field so shipping still resolves.
-		if ( isset( $shipping['shipping_country'] ) ) {
-			$base = function_exists( 'wc_get_base_location' ) ? wc_get_base_location() : array();
-			$shipping['shipping_country']['default'] = ( is_array( $base ) && ! empty( $base['country'] ) ) ? $base['country'] : 'GB';
+		// ── Billing — lay out the address block to the mockup grid. ──
+		if ( ! empty( $fields['billing'] ) && is_array( $fields['billing'] ) ) {
+			$billing = &$fields['billing'];
+			$set( $billing, 'billing_first_name', array( 'form-row-first' ), 10, false, __( 'First name', 'woocommerce' ) );
+			$set( $billing, 'billing_last_name', array( 'form-row-last' ), 20, true, __( 'Last name', 'woocommerce' ) );
+			$set( $billing, 'billing_country', array( 'form-row-wide' ), 30, true, __( 'Country / Region', 'woocommerce' ) );
+			$set( $billing, 'billing_address_1', array( 'form-row-wide' ), 40, true, __( 'Address line 1', 'woocommerce' ) );
+			$set( $billing, 'billing_address_2', array( 'form-row-wide' ), 50, true, __( 'Apartment, suite, unit, etc.', 'woocommerce' ) );
+			$set( $billing, 'billing_city', array( 'form-row-first' ), 60, false, __( 'Town / City', 'woocommerce' ) );
+			$set( $billing, 'billing_state', array( 'form-row-last' ), 70, true, __( 'County', 'woocommerce' ) );
+			$set( $billing, 'billing_postcode', array( 'form-row-first' ), 80, true, __( 'Postcode', 'woocommerce' ) );
+			unset( $billing );
 		}
 
-		// Fields not in the design — hidden (kept in the form so nothing breaks).
-		foreach ( array( 'shipping_country', 'shipping_address_2', 'shipping_state', 'shipping_phone', 'shipping_email', 'shipping_company' ) as $k ) {
-			if ( isset( $shipping[ $k ] ) ) {
-				$existing              = isset( $shipping[ $k ]['class'] ) ? (array) $shipping[ $k ]['class'] : array();
-				$shipping[ $k ]['class'] = array_merge( $existing, array( 'pt-ship-hidden' ) );
+		// ── Shipping (Deliver to a different address). ──
+		if ( ! empty( $fields['shipping'] ) && is_array( $fields['shipping'] ) ) {
+			$shipping = &$fields['shipping'];
+			$set( $shipping, 'shipping_first_name', array( 'form-row-first' ), 10, false, __( 'First name', 'woocommerce' ) );
+			$set( $shipping, 'shipping_last_name', array( 'form-row-last' ), 20, true, __( 'Last name', 'woocommerce' ) );
+			$set( $shipping, 'shipping_address_1', array( 'form-row-wide' ), 40, true, __( 'Address line 1', 'woocommerce' ) );
+			$set( $shipping, 'shipping_city', array( 'form-row-first' ), 60, false, __( 'Town / City', 'woocommerce' ) );
+			$set( $shipping, 'shipping_postcode', array( 'form-row-last' ), 70, true, __( 'Postcode', 'woocommerce' ) );
+
+			// Keep the base country on the (hidden) country field so shipping still resolves.
+			if ( isset( $shipping['shipping_country'] ) ) {
+				$base = function_exists( 'wc_get_base_location' ) ? wc_get_base_location() : array();
+				$shipping['shipping_country']['default'] = ( is_array( $base ) && ! empty( $base['country'] ) ) ? $base['country'] : 'GB';
 			}
+
+			// Fields not in the design — hidden (kept in the form so nothing breaks).
+			foreach ( array( 'shipping_country', 'shipping_address_2', 'shipping_state', 'shipping_phone', 'shipping_email', 'shipping_company' ) as $k ) {
+				if ( isset( $shipping[ $k ] ) ) {
+					$existing                = isset( $shipping[ $k ]['class'] ) ? (array) $shipping[ $k ]['class'] : array();
+					$shipping[ $k ]['class'] = array_merge( $existing, array( 'pt-ship-hidden' ) );
+				}
+			}
+			unset( $shipping );
 		}
 
 		return $fields;
