@@ -262,7 +262,7 @@
 
 #payment_col .co-payment-title{ font-size:1.15rem; margin:0 0 16px; }
 #payment.woocommerce-checkout-payment{ background:transparent; border-radius:0; }
-#payment ul.payment_methods{ list-style:none; margin:0; padding:0; border:0; }
+#payment ul.payment_methods{ list-style:none; margin:0; padding:0; border:0; display:flex; flex-direction:column; }
 #payment ul.payment_methods li{ border:1px solid rgba(33,30,36,.16); border-radius:12px; margin-bottom:10px; padding:14px 16px; }
 #payment ul.payment_methods li input[type=radio]{ width:18px; height:18px; accent-color:var(--charcoal); margin-right:10px; }
 #payment ul.payment_methods li label{ font-weight:700; font-size:.92rem; display:inline; cursor:pointer; }
