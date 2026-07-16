@@ -32,9 +32,30 @@ $pt_from = $pt_product ? pt_product_from_price_html( $pt_product ) : '';
 if ( '' === $pt_from ) {
 	$pt_from = 'From £—';
 }
-$pt_hero_img = has_post_thumbnail( $pt_pid )
-	? get_the_post_thumbnail_url( $pt_pid, 'large' )
-	: 'https://www.projecttimber.com/wp-content/uploads/2026/06/My_Den_Composite_Garden_Office-scaled.webp';
+// --- Editable content (ACF field group "Product Page Content") -------------
+// pt_f() returns an ACF field value, or the supplied static fallback when the
+// field is empty / ACF is inactive — so a product with no content filled still
+// renders exactly the original design. pt_has_rows() guards repeater loops.
+$pt_f = function ( $name, $fallback = '' ) use ( $pt_pid ) {
+	if ( ! function_exists( 'get_field' ) ) {
+		return $fallback;
+	}
+	$v = get_field( $name, $pt_pid );
+	if ( null === $v || '' === $v || false === $v || array() === $v ) {
+		return $fallback;
+	}
+	return $v;
+};
+$pt_has_rows = function ( $name ) use ( $pt_pid ) {
+	return function_exists( 'have_rows' ) && have_rows( $name, $pt_pid );
+};
+
+$pt_hero_img = $pt_f(
+	'hero_image',
+	has_post_thumbnail( $pt_pid )
+		? get_the_post_thumbnail_url( $pt_pid, 'large' )
+		: 'https://www.projecttimber.com/wp-content/uploads/2026/06/My_Den_Composite_Garden_Office-scaled.webp'
+);
 
 // Product structured data (JSON-LD). This custom template fires none of WooCommerce's
 // single-product hooks, so WC never generates it — trigger it here. WooCommerce outputs
@@ -56,9 +77,14 @@ get_header();
 
 <!-- ===================== HERO ===================== -->
 <header class="hero" id="main" tabindex="-1"><div class="wrap">
-  <div class="eyebrow"><?php echo esc_html( $pt_line ); ?> · Composite · Fully insulated</div>
-  <h1 class="display">Work happens at the<br><span class="fade">bottom of the </span><span class="swipe">garden.</span></h1>
-  <p class="lead">A year-round, fully insulated garden office — composite cladding, pre-insulated panels, delivered and built in days.</p>
+  <div class="eyebrow"><?php echo esc_html( $pt_line ); ?> · <?php echo esc_html( $pt_f( 'hero_eyebrow', 'Composite · Fully insulated' ) ); ?></div>
+  <?php $pt_hero_heading = get_field( 'hero_heading', $pt_pid ); ?>
+  <?php if ( $pt_hero_heading ) : ?>
+    <h1 class="display"><?php echo wp_kses_post( $pt_hero_heading ); ?></h1>
+  <?php else : ?>
+    <h1 class="display">Work happens at the<br><span class="fade">bottom of the </span><span class="swipe">garden.</span></h1>
+  <?php endif; ?>
+  <p class="lead"><?php echo esc_html( $pt_f( 'hero_lead', 'A year-round, fully insulated garden office — composite cladding, pre-insulated panels, delivered and built in days.' ) ); ?></p>
   <div class="hero-figure">
     <img src="<?php echo esc_url( $pt_hero_img ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>">
   </div>
@@ -108,9 +134,25 @@ get_header();
 <!-- ===================== HIGHLIGHTS ===================== -->
 <section id="highlights"><div class="wrap">
   <div class="sec-head">
-    <h2>Get the <span class="fade">highlights.</span></h2>
-    <a class="filmlink" href="https://www.youtube.com/watch?v=1AidYysfFB4&amp;t=7s" target="_blank" rel="noopener"><span class="pp">▶</span> Watch the showcase</a>
+    <?php $pt_hl_heading = get_field( 'highlights_heading', $pt_pid ); ?>
+    <?php if ( $pt_hl_heading ) : ?>
+      <h2><?php echo esc_html( $pt_hl_heading ); ?></h2>
+    <?php else : ?>
+      <h2>Get the <span class="fade">highlights.</span></h2>
+    <?php endif; ?>
+    <a class="filmlink" href="<?php echo esc_url( $pt_f( 'showcase_video_url', 'https://www.youtube.com/watch?v=1AidYysfFB4&t=7s' ) ); ?>" target="_blank" rel="noopener"><span class="pp">▶</span> Watch the showcase</a>
   </div>
+  <?php if ( $pt_has_rows( 'highlights' ) ) : ?>
+  <div class="rail">
+    <?php while ( have_rows( 'highlights', $pt_pid ) ) : the_row(); ?>
+      <div class="card photo">
+        <img src="<?php echo esc_url( get_sub_field( 'image' ) ); ?>" alt="<?php echo esc_attr( get_sub_field( 'title' ) ); ?>">
+        <div class="scrim"></div>
+        <div class="ctxt"><h3><?php echo esc_html( get_sub_field( 'title' ) ); ?></h3><p class="sub"><?php echo esc_html( get_sub_field( 'subtitle' ) ); ?></p></div>
+      </div>
+    <?php endwhile; ?>
+  </div>
+  <?php else : ?>
   <div class="rail">
     <div class="card photo c-big">
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/composite_cladding.webp" alt="Composite cladding">
@@ -143,16 +185,29 @@ get_header();
       <div class="ctxt"><h3>Easy self-assembly</h3><p class="sub">Pre-insulated, pre-assembled panels</p></div>
     </div>
   </div>
+  <?php endif; ?>
 </div></section>
 
 <!-- ===================== WHAT'S INCLUDED ===================== -->
 <section class="included"><div class="wrap">
-  <div class="eyebrow">In the box</div>
-  <h2>Everything you need, <span class="fade">in one delivery.</span></h2>
-  <p class="lead">No hidden extras and no surprise add-ons. Your <?php echo esc_html( $pt_line ); ?> arrives complete — every panel, fixing and fitting ready to go.</p>
+  <div class="eyebrow"><?php echo esc_html( $pt_f( 'included_eyebrow', 'In the box' ) ); ?></div>
+  <?php $pt_inc_heading = get_field( 'included_heading', $pt_pid ); ?>
+  <?php if ( $pt_inc_heading ) : ?>
+    <h2><?php echo esc_html( $pt_inc_heading ); ?></h2>
+  <?php else : ?>
+    <h2>Everything you need, <span class="fade">in one delivery.</span></h2>
+  <?php endif; ?>
+  <?php $pt_inc_lead = get_field( 'included_lead', $pt_pid ); ?>
+  <p class="lead"><?php echo $pt_inc_lead ? esc_html( $pt_inc_lead ) : 'No hidden extras and no surprise add-ons. Your ' . esc_html( $pt_line ) . ' arrives complete — every panel, fixing and fitting ready to go.'; ?></p>
   <div class="inc-grid">
-    <div class="inc-media"><img src="https://www.projecttimber.com/wp-content/uploads/2024/10/8x8_Evolution_My_Den_Composite_Cladding_Garden_Office_01.jpg" alt="My Den Composite garden office"></div>
+    <div class="inc-media"><img src="<?php echo esc_url( $pt_f( 'included_image', 'https://www.projecttimber.com/wp-content/uploads/2024/10/8x8_Evolution_My_Den_Composite_Cladding_Garden_Office_01.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
     <ul class="inc-list">
+      <?php $pt_ck = '<svg class="ck" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B333D"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; ?>
+      <?php if ( $pt_has_rows( 'included_items' ) ) : ?>
+        <?php while ( have_rows( 'included_items', $pt_pid ) ) : the_row(); ?>
+          <li><?php echo $pt_ck; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static SVG. ?> <?php echo esc_html( get_sub_field( 'item' ) ); ?></li>
+        <?php endwhile; ?>
+      <?php else : ?>
       <li><svg class="ck" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B333D"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Pre-assembled, pre-insulated wall panels</li>
       <li><svg class="ck" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B333D"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Pre-fitted multi-foil insulation &amp; primed internal cladding</li>
       <li><svg class="ck" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B333D"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Weather-resistant LP Strongcore composite cladding</li>
@@ -164,6 +219,7 @@ get_header();
       <li><svg class="ck" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B333D"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Guttering</li>
       <li><svg class="ck" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B333D"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> All fixings and fittings</li>
       <li><svg class="ck" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B333D"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Easy-to-follow, illustrated instructions</li>
+      <?php endif; ?>
     </ul>
   </div>
   <a class="btn-primary" href="#configure">Configure your <?php echo esc_html( $pt_line ); ?> <span class="a">→</span></a>
@@ -171,9 +227,24 @@ get_header();
 
 <!-- ===================== WHY CHOOSE ===================== -->
 <section class="why-choose"><div class="wrap">
-  <div class="eyebrow">Why the <?php echo esc_html( $pt_line ); ?></div>
-  <h2>Six reasons it's <span class="fade">built differently.</span></h2>
+  <?php $pt_why_eyebrow = get_field( 'why_eyebrow', $pt_pid ); ?>
+  <div class="eyebrow"><?php echo $pt_why_eyebrow ? esc_html( $pt_why_eyebrow ) : 'Why the ' . esc_html( $pt_line ); ?></div>
+  <?php $pt_why_heading = get_field( 'why_heading', $pt_pid ); ?>
+  <?php if ( $pt_why_heading ) : ?>
+    <h2><?php echo esc_html( $pt_why_heading ); ?></h2>
+  <?php else : ?>
+    <h2>Six reasons it's <span class="fade">built differently.</span></h2>
+  <?php endif; ?>
   <div class="wc-grid">
+    <?php if ( $pt_has_rows( 'why_reasons' ) ) : ?>
+      <?php while ( have_rows( 'why_reasons', $pt_pid ) ) : the_row(); ?>
+        <div class="wc-card">
+          <div class="ic"><img src="<?php echo esc_url( get_sub_field( 'icon' ) ); ?>" alt=""></div>
+          <h3><?php echo esc_html( get_sub_field( 'title' ) ); ?></h3>
+          <p><?php echo esc_html( get_sub_field( 'text' ) ); ?></p>
+        </div>
+      <?php endwhile; ?>
+    <?php else : ?>
     <div class="wc-card">
       <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2020/04/Fully-Insulated.png" alt=""></div>
       <h3>Fully insulated as standard</h3>
@@ -204,20 +275,37 @@ get_header();
       <h3>15-year anti-rot guarantee*</h3>
       <p>Backed for the long term on composite.</p>
     </div>
+    <?php endif; ?>
   </div>
 </div></section>
 
 <!-- ===================== INSULATION (3 + 4) ===================== -->
 <section class="split" style="background:var(--mist)"><div class="wrap"><div class="grid">
-  <div class="media"><img src="https://projecttimber.com/wp-content/uploads/2018/09/main_img4th.jpg" alt="The insulated interior of a My Den Composite"></div>
+  <div class="media"><img src="<?php echo esc_url( $pt_f( 'insulation_image', 'https://projecttimber.com/wp-content/uploads/2018/09/main_img4th.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
   <div class="copy">
     <div class="eyebrow">Insulation</div>
-    <h2>Warm in winter.<br><span class="fade">Cool in summer.</span></h2>
-    <p>The <?php echo esc_html( $pt_line ); ?> is insulated in the walls, floor and roof with high-performance multi-foil. Its layered design traps heat in the cold months and reflects it in summer — achieving U-values comparable to 120mm of glass wool, in a far slimmer profile that leaves more room inside.</p>
-    <p>The heavy-duty metal roof adds a 40mm insulated core with a steel outer shell and white-gloss interior — built to shrug off British weather, season after season.</p>
+    <?php $pt_ins_heading = get_field( 'insulation_heading', $pt_pid ); ?>
+    <?php if ( $pt_ins_heading ) : ?>
+      <h2><?php echo esc_html( $pt_ins_heading ); ?></h2>
+    <?php else : ?>
+      <h2>Warm in winter.<br><span class="fade">Cool in summer.</span></h2>
+    <?php endif; ?>
+    <?php $pt_ins_body = get_field( 'insulation_body', $pt_pid ); ?>
+    <?php if ( $pt_ins_body ) : ?>
+      <?php echo wp_kses_post( $pt_ins_body ); ?>
+    <?php else : ?>
+      <p>The <?php echo esc_html( $pt_line ); ?> is insulated in the walls, floor and roof with high-performance multi-foil. Its layered design traps heat in the cold months and reflects it in summer — achieving U-values comparable to 120mm of glass wool, in a far slimmer profile that leaves more room inside.</p>
+      <p>The heavy-duty metal roof adds a 40mm insulated core with a steel outer shell and white-gloss interior — built to shrug off British weather, season after season.</p>
+    <?php endif; ?>
     <div class="statrow">
-      <div><div class="n">120<span style="font-size:1rem">mm</span></div><div class="l">Glass-wool U-value equivalent</div></div>
-      <div><div class="n">40<span style="font-size:1rem">mm</span></div><div class="l">Insulated metal roof core</div></div>
+      <?php if ( $pt_has_rows( 'insulation_stats' ) ) : ?>
+        <?php while ( have_rows( 'insulation_stats', $pt_pid ) ) : the_row(); ?>
+          <div><div class="n"><?php echo esc_html( get_sub_field( 'number' ) ); ?><span style="font-size:1rem"><?php echo esc_html( get_sub_field( 'unit' ) ); ?></span></div><div class="l"><?php echo esc_html( get_sub_field( 'label' ) ); ?></div></div>
+        <?php endwhile; ?>
+      <?php else : ?>
+        <div><div class="n">120<span style="font-size:1rem">mm</span></div><div class="l">Glass-wool U-value equivalent</div></div>
+        <div><div class="n">40<span style="font-size:1rem">mm</span></div><div class="l">Insulated metal roof core</div></div>
+      <?php endif; ?>
     </div>
   </div>
 </div></div></section>
@@ -225,65 +313,112 @@ get_header();
 <!-- ===================== COMPOSITE CLADDING (5) ===================== -->
 <section class="immerse">
   <video class="clad-video" muted playsinline preload="auto">
-    <source src="https://www.projecttimber.com/wp-content/uploads/2026/06/Composite_Cladding_Final.mp4" type="video/mp4">
+    <source src="<?php echo esc_url( $pt_f( 'cladding_video_url', 'https://www.projecttimber.com/wp-content/uploads/2026/06/Composite_Cladding_Final.mp4' ) ); ?>" type="video/mp4">
   </video>
   <div class="panel">
     <div class="eyebrow" style="color:#fff;opacity:.7">Composite cladding</div>
-    <h3>The look of timber, without the upkeep.</h3>
-    <p>LP Strongcore composite is wood fibres bonded with high-quality resins — the natural character of wood with the strength and low maintenance of composite. It resists weather, moisture, fungal growth and decay, and gives the <?php echo esc_html( $pt_line ); ?> its modern anthracite finish.</p>
+    <h3><?php echo esc_html( $pt_f( 'cladding_heading', 'The look of timber, without the upkeep.' ) ); ?></h3>
+    <?php $pt_clad_body = get_field( 'cladding_body', $pt_pid ); ?>
+    <p><?php echo $pt_clad_body ? esc_html( $pt_clad_body ) : 'LP Strongcore composite is wood fibres bonded with high-quality resins — the natural character of wood with the strength and low maintenance of composite. It resists weather, moisture, fungal growth and decay, and gives the ' . esc_html( $pt_line ) . ' its modern anthracite finish.'; ?></p>
   </div>
 </section>
 
 <!-- ===================== BUILT TO LAST (6) ===================== -->
 <section class="split"><div class="wrap"><div class="grid">
-  <div class="media"><img src="https://www.projecttimber.com/wp-content/uploads/2024/10/Hand-crafted-SQ.jpg" alt="Hand-crafted in Project Timber's Nottinghamshire workshop"></div>
+  <div class="media"><img src="<?php echo esc_url( $pt_f( 'built_image', 'https://www.projecttimber.com/wp-content/uploads/2024/10/Hand-crafted-SQ.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
   <div class="copy">
     <div class="eyebrow">Built to last · Made in Britain</div>
-    <h2>Engineered stronger <span class="fade">where it counts.</span></h2>
-    <p>The modular wall panels feature doubled-up timber framing at every join, adding strength exactly where the building works hardest — with an 80mm total wall thickness built to take daily use and weather in its stride.</p>
-    <p>Each <?php echo esc_html( $pt_line ); ?> is hand-crafted at our Nottinghamshire workshop on the edge of Sherwood Forest, from hand-selected Scandinavian slow-grown timber, and quality-checked before it reaches your garden.</p>
+    <?php $pt_built_heading = get_field( 'built_heading', $pt_pid ); ?>
+    <?php if ( $pt_built_heading ) : ?>
+      <h2><?php echo esc_html( $pt_built_heading ); ?></h2>
+    <?php else : ?>
+      <h2>Engineered stronger <span class="fade">where it counts.</span></h2>
+    <?php endif; ?>
+    <?php $pt_built_body = get_field( 'built_body', $pt_pid ); ?>
+    <?php if ( $pt_built_body ) : ?>
+      <?php echo wp_kses_post( $pt_built_body ); ?>
+    <?php else : ?>
+      <p>The modular wall panels feature doubled-up timber framing at every join, adding strength exactly where the building works hardest — with an 80mm total wall thickness built to take daily use and weather in its stride.</p>
+      <p>Each <?php echo esc_html( $pt_line ); ?> is hand-crafted at our Nottinghamshire workshop on the edge of Sherwood Forest, from hand-selected Scandinavian slow-grown timber, and quality-checked before it reaches your garden.</p>
+    <?php endif; ?>
     <div class="statrow">
-      <div><div class="n">80<span style="font-size:1rem">mm</span></div><div class="l">Total wall thickness</div></div>
-      <div><div class="n">50+</div><div class="l">Years' experience</div></div>
-      <div><div class="n">UK</div><div class="l">Designed &amp; made</div></div>
+      <?php if ( $pt_has_rows( 'built_stats' ) ) : ?>
+        <?php while ( have_rows( 'built_stats', $pt_pid ) ) : the_row(); ?>
+          <div><div class="n"><?php echo esc_html( get_sub_field( 'number' ) ); ?><span style="font-size:1rem"><?php echo esc_html( get_sub_field( 'unit' ) ); ?></span></div><div class="l"><?php echo esc_html( get_sub_field( 'label' ) ); ?></div></div>
+        <?php endwhile; ?>
+      <?php else : ?>
+        <div><div class="n">80<span style="font-size:1rem">mm</span></div><div class="l">Total wall thickness</div></div>
+        <div><div class="n">50+</div><div class="l">Years' experience</div></div>
+        <div><div class="n">UK</div><div class="l">Designed &amp; made</div></div>
+      <?php endif; ?>
     </div>
   </div>
 </div></div></section>
 
 <!-- ===================== WE DO THE HARD WORK (7) ===================== -->
 <section class="split rev" style="background:var(--paper)"><div class="wrap"><div class="grid">
-  <div class="media"><img src="https://www.projecttimber.com/wp-content/uploads/2024/10/My-Den-Composite-Animated-building.gif" alt="My Den Composite assembly animation"></div>
+  <div class="media"><img src="<?php echo esc_url( $pt_f( 'assembly_image', 'https://www.projecttimber.com/wp-content/uploads/2024/10/My-Den-Composite-Animated-building.gif' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
   <div class="copy">
     <div class="eyebrow">Assembly</div>
-    <h2>Most of the build is <span class="fade">already done.</span></h2>
-    <p>Your <?php echo esc_html( $pt_line ); ?> arrives as pre-assembled, pre-insulated panels — designed to fit through a standard UK doorway and slot together with far fewer parts than a traditional log cabin. A quicker, simpler build, whether you do it yourself or bring in help.</p>
-    <p>Every building includes clear, step-by-step illustrated instructions. We recommend two people with basic DIY know-how — or add our assembly service at checkout and we'll handle it for you.</p>
+    <?php $pt_asm_heading = get_field( 'assembly_heading', $pt_pid ); ?>
+    <?php if ( $pt_asm_heading ) : ?>
+      <h2><?php echo esc_html( $pt_asm_heading ); ?></h2>
+    <?php else : ?>
+      <h2>Most of the build is <span class="fade">already done.</span></h2>
+    <?php endif; ?>
+    <?php $pt_asm_body = get_field( 'assembly_body', $pt_pid ); ?>
+    <?php if ( $pt_asm_body ) : ?>
+      <?php echo wp_kses_post( $pt_asm_body ); ?>
+    <?php else : ?>
+      <p>Your <?php echo esc_html( $pt_line ); ?> arrives as pre-assembled, pre-insulated panels — designed to fit through a standard UK doorway and slot together with far fewer parts than a traditional log cabin. A quicker, simpler build, whether you do it yourself or bring in help.</p>
+      <p>Every building includes clear, step-by-step illustrated instructions. We recommend two people with basic DIY know-how — or add our assembly service at checkout and we'll handle it for you.</p>
+    <?php endif; ?>
     <a class="btn-primary" href="#configure" style="margin-top:6px">Add assembly at checkout <span class="a">→</span></a>
   </div>
 </div></div></section>
 
 <!-- ===================== MAKE IT YOURS (8) ===================== -->
 <section class="why-choose" style="background:var(--mist)"><div class="wrap">
-  <div class="eyebrow">Make it yours</div>
-  <h2>Configure it around <span class="fade">how you'll use it.</span></h2>
+  <div class="eyebrow"><?php echo esc_html( $pt_f( 'mk_eyebrow', 'Make it yours' ) ); ?></div>
+  <?php $pt_mk_heading = get_field( 'mk_heading', $pt_pid ); ?>
+  <?php if ( $pt_mk_heading ) : ?>
+    <h2><?php echo esc_html( $pt_mk_heading ); ?></h2>
+  <?php else : ?>
+    <h2>Configure it around <span class="fade">how you'll use it.</span></h2>
+  <?php endif; ?>
   <div class="mk-grid">
+    <?php if ( $pt_has_rows( 'mk_options' ) ) : ?>
+      <?php
+      while ( have_rows( 'mk_options', $pt_pid ) ) :
+        the_row();
+        $pt_mk_link = get_sub_field( 'link' );
+        ?>
+        <?php if ( $pt_mk_link ) : ?>
+          <a class="mk-card" href="<?php echo esc_url( $pt_mk_link ); ?>" target="_blank" rel="noopener"><img src="<?php echo esc_url( get_sub_field( 'image' ) ); ?>" alt="<?php echo esc_attr( get_sub_field( 'title' ) ); ?>"><span class="play">▶</span><div class="txt"><h3><?php echo esc_html( get_sub_field( 'title' ) ); ?></h3><p><?php echo esc_html( get_sub_field( 'text' ) ); ?></p></div></a>
+        <?php else : ?>
+          <div class="mk-card"><img src="<?php echo esc_url( get_sub_field( 'image' ) ); ?>" alt="<?php echo esc_attr( get_sub_field( 'title' ) ); ?>"><div class="txt"><h3><?php echo esc_html( get_sub_field( 'title' ) ); ?></h3><p><?php echo esc_html( get_sub_field( 'text' ) ); ?></p></div></div>
+        <?php endif; ?>
+      <?php endwhile; ?>
+    <?php else : ?>
     <div class="mk-card"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Tongue-and-groove-Timber-Floor.png" alt="Tongue and groove timber floor"><div class="txt"><h3>Floor</h3><p>Upgrade to 19mm tongue-and-groove for extra support underfoot.</p></div></div>
     <div class="mk-card"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Laminate-flooring.webp" alt="Laminate flooring"><div class="txt"><h3>Laminate flooring</h3><p>Trend Oak Grey or Summer Oak Brown for a finished, home-like feel.</p></div></div>
     <div class="mk-card"><img class="img1" src="https://www.projecttimber.com/wp-content/uploads/2026/06/My-Den-Composite-upvc-white-window.png" alt="UPVC white window"><img class="img2" src="https://www.projecttimber.com/wp-content/uploads/2026/06/My-Den-Composite-upvc-graphite-window.png" alt="UPVC graphite window"><div class="txt"><h3>Windows</h3><p>Double-glazed UPVC — choose white or graphite.</p></div></div>
     <div class="mk-card"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/UPVC_Door_options-1.webp" alt="UPVC door options"><div class="txt"><h3>Door</h3><p>UPVC single door — choose your colour and positioning.</p></div></div>
     <a class="mk-card" href="https://www.youtube.com/watch?v=37ugD8sF6qs" target="_blank" rel="noopener"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/DSC04911-scaled.jpg" alt="Paint and trim colour options"><span class="play">▶</span><div class="txt"><h3>Paint &amp; trim</h3><p>A range of colours — watch the colour options.</p></div></a>
     <div class="mk-card"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/assembly_myden_composite.webp" alt="Building assembly service"><div class="txt"><h3>Assembly service</h3><p>Prefer not to build it? Let our team do it for you.</p></div></div>
+    <?php endif; ?>
   </div>
   <a class="btn-primary" href="#configure" style="margin-top:30px">Build &amp; price yours <span class="a">→</span></a>
 </div></section>
 
 <!-- ===================== WORK FROM HOME (9) ===================== -->
 <section class="immerse">
-  <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/10x8_My_Den_Composite_Garden_Office_04.jpg" alt="Working from a My Den garden office">
+  <img src="<?php echo esc_url( $pt_f( 'wfh_image', 'https://www.projecttimber.com/wp-content/uploads/2026/06/10x8_My_Den_Composite_Garden_Office_04.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>">
   <div class="panel">
     <div class="eyebrow" style="color:#fff;opacity:.7">Work from home</div>
-    <h3>Your commute is now the garden path.</h3>
-    <p>Turn the bottom of your garden into a private, professional workspace — quiet, insulated and distraction-free. Just as at home as a gym, studio, hobby room or therapy space.</p>
+    <h3><?php echo esc_html( $pt_f( 'wfh_heading', 'Your commute is now the garden path.' ) ); ?></h3>
+    <?php $pt_wfh_body = get_field( 'wfh_body', $pt_pid ); ?>
+    <p><?php echo $pt_wfh_body ? esc_html( $pt_wfh_body ) : 'Turn the bottom of your garden into a private, professional workspace — quiet, insulated and distraction-free. Just as at home as a gym, studio, hobby room or therapy space.'; ?></p>
   </div>
 </section>
 
@@ -366,33 +501,62 @@ get_header();
   <h2>Questions, <span class="fade">answered.</span></h2>
   <div class="faq-video" id="faqVideo">
     <button class="fv-play" type="button" aria-label="Play the <?php echo esc_attr( $pt_line ); ?> FAQ video">
-      <img src="https://www.projecttimber.com/wp-content/uploads/2020/04/faq-2.jpg" alt="My Den FAQ video">
+      <img src="<?php echo esc_url( $pt_f( 'faq_video_image', 'https://www.projecttimber.com/wp-content/uploads/2020/04/faq-2.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?> FAQ video">
       <span class="fv-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
     </button>
   </div>
 
+  <?php if ( $pt_has_rows( 'faqs' ) ) : ?>
+    <?php while ( have_rows( 'faqs', $pt_pid ) ) : the_row(); ?>
+      <details class="faq-item"><summary><?php echo esc_html( get_sub_field( 'question' ) ); ?></summary><div class="ans"><?php echo wp_kses_post( get_sub_field( 'answer' ) ); ?></div></details>
+    <?php endwhile; ?>
+  <?php else : ?>
   <details class="faq-item"><summary>Do I need planning permission?</summary><div class="ans">Usually not. Our buildings are designed to stay under 2.5m in height and fall under "permitted development," so planning permission typically isn't required. Always check with your local authority if you're in a conservation area, national park or listed building, and note the building shouldn't be used as self-contained accommodation. We don't offer legal advice — please confirm with your local planning authority before ordering.</div></details>
   <details class="faq-item"><summary>Do I need a base?</summary><div class="ans">Yes — all garden buildings must be assembled on a solid, level foundation. Our purpose-made Eze Base provides a solid, level foundation with minimal groundwork; ask us to add it to your order. Assembling on an unsuitable foundation may invalidate your warranty.</div></details>
   <details class="faq-item"><summary>Is it difficult to assemble?</summary><div class="ans">No. The panels arrive pre-assembled and pre-insulated and fit through a standard doorway. We recommend two people with basic DIY tools, and every building comes with clear, illustrated instructions. Prefer not to build it? Add our assembly service at checkout.</div></details>
   <details class="faq-item"><summary>Will it stay warm enough to use in winter?</summary><div class="ans">Yes. The walls, floor and roof are fully insulated with multi-foil (U-value comparable to 120mm glass wool), and double glazing comes as standard — so it stays comfortable year-round.</div></details>
   <details class="faq-item"><summary>How is it delivered?</summary><div class="ans">Kerbside, by lorry or van. You choose a preferred delivery date at checkout and we do our best to meet it — at busier times we may need to agree an alternative date with you, and we'll keep you informed throughout. Please ensure there's clear access in front of your property on the delivery date.</div></details>
+  <?php endif; ?>
 </div></section>
 
 <!-- ===================== TRUST ===================== -->
 <section class="trust" id="trust"><div class="wrap">
-  <span class="g">★ 15-year anti-rot guarantee</span>
-  <h2>Bought with <span class="swipe">confidence.</span></h2>
-  <p class="lead" style="max-width:48ch;margin:8px auto 0">Free delivery to selected postcodes, and Made in Britain.</p>
+  <span class="g">★ <?php echo esc_html( $pt_f( 'trust_guarantee', '15-year anti-rot guarantee' ) ); ?></span>
+  <?php $pt_trust_heading = get_field( 'trust_heading', $pt_pid ); ?>
+  <?php if ( $pt_trust_heading ) : ?>
+    <h2><?php echo esc_html( $pt_trust_heading ); ?></h2>
+  <?php else : ?>
+    <h2>Bought with <span class="swipe">confidence.</span></h2>
+  <?php endif; ?>
+  <p class="lead" style="max-width:48ch;margin:8px auto 0"><?php echo esc_html( $pt_f( 'trust_lead', 'Free delivery to selected postcodes, and Made in Britain.' ) ); ?></p>
   <div class="reviews">
+    <?php if ( $pt_has_rows( 'reviews' ) ) : ?>
+      <?php
+      while ( have_rows( 'reviews', $pt_pid ) ) :
+        the_row();
+        $pt_rating = (int) get_sub_field( 'rating' );
+        if ( $pt_rating < 1 || $pt_rating > 5 ) {
+          $pt_rating = 5;
+        }
+        ?>
+        <div class="review"><div class="stars"><?php echo str_repeat( '★', $pt_rating ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — literal glyph. ?></div><p><?php echo esc_html( get_sub_field( 'quote' ) ); ?></p><div class="by">— <?php echo esc_html( get_sub_field( 'author' ) ? get_sub_field( 'author' ) : 'Verified buyer' ); ?></div></div>
+      <?php endwhile; ?>
+    <?php else : ?>
     <div class="review"><div class="stars">★★★★★</div><p>"Genuinely warm in winter — I work in here every day now. Build quality is excellent."</p><div class="by">— Verified buyer</div></div>
     <div class="review"><div class="stars">★★★★★</div><p>"Panels went together far faster than I expected. The composite finish looks premium."</p><div class="by">— Verified buyer</div></div>
     <div class="review"><div class="stars">★★★★★</div><p>"From order to install was seamless. The team kept me informed the whole way."</p><div class="by">— Verified buyer</div></div>
+    <?php endif; ?>
   </div>
 </div></section>
 
 <!-- ===================== FINAL CTA ===================== -->
 <section class="final"><div class="wrap">
-  <h2>Your office is<br>ready when you are.</h2>
+  <?php $pt_final_heading = get_field( 'final_heading', $pt_pid ); ?>
+  <?php if ( $pt_final_heading ) : ?>
+    <h2><?php echo wp_kses_post( $pt_final_heading ); ?></h2>
+  <?php else : ?>
+    <h2>Your office is<br>ready when you are.</h2>
+  <?php endif; ?>
   <button class="go">Customise &amp; buy →</button>
 </div></section>
 
