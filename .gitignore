@@ -19,10 +19,14 @@ node_modules/
 npm-debug.log*
 
 # ── Not part of the shipped theme ─────────────────────────
-# Migration source files + the custom mu-plugin. The mu-plugin
-# (timber-product-config.php) is deployed to wp-content/mu-plugins/
-# by hand, NOT as part of the theme — see notes.
+# Migration source files + the custom mu-plugins. The mu-plugins
+# (timber-product-config.php, pt-silence-textdomain-notices.php) are deployed to
+# wp-content/mu-plugins/ by hand, NOT as part of the theme — see notes.
 scripts-to-migrate/
+
+# mu-plugin SOURCE kept here for version reference; upload by hand to
+# wp-content/mu-plugins/. Never shipped inside the theme.
+mu-plugins/
 
 # Reference copy of the current live theme (parent to copy functionality FROM).
 # Read-only reference — never shipped in the 2026 theme.
