@@ -1,626 +1,1602 @@
 {
-	"key": "group_pt_product_content",
-	"title": "Product Page Content",
-	"fields": [
-		{
-			"key": "field_pt_tab_hero",
-			"label": "Hero",
-			"name": "",
-			"type": "tab",
-			"instructions": "Top of the product page. The category line (e.g. \"Summerhouse\") and \"from\" price are derived automatically — these fields are the surrounding copy.",
-			"placement": "top",
-			"endpoint": 0
-		},
-		{
-			"key": "field_pt_hero_eyebrow",
-			"label": "Hero eyebrow",
-			"name": "hero_eyebrow",
-			"type": "text",
-			"instructions": "Small label above the headline, e.g. \"Composite · Fully insulated\". The category name is prepended automatically.",
-			"default_value": "",
-			"placeholder": "Composite · Fully insulated"
-		},
-		{
-			"key": "field_pt_hero_heading",
-			"label": "Hero heading",
-			"name": "hero_heading",
-			"type": "textarea",
-			"instructions": "Main headline. Line breaks are preserved.",
-			"rows": 2,
-			"new_lines": "br",
-			"placeholder": "Work happens at the bottom of the garden."
-		},
-		{
-			"key": "field_pt_hero_lead",
-			"label": "Hero lead paragraph",
-			"name": "hero_lead",
-			"type": "textarea",
-			"instructions": "One-sentence intro under the headline.",
-			"rows": 3,
-			"new_lines": ""
-		},
-		{
-			"key": "field_pt_hero_image",
-			"label": "Hero image",
-			"name": "hero_image",
-			"type": "image",
-			"instructions": "Falls back to the product's featured image if left empty.",
-			"return_format": "url",
-			"preview_size": "medium",
-			"library": "all",
-			"required": 0
-		},
-
-		{
-			"key": "field_pt_tab_highlights",
-			"label": "Highlights",
-			"name": "",
-			"type": "tab",
-			"placement": "top",
-			"endpoint": 0
-		},
-		{
-			"key": "field_pt_highlights_heading",
-			"label": "Highlights heading",
-			"name": "highlights_heading",
-			"type": "text",
-			"default_value": "Get the highlights."
-		},
-		{
-			"key": "field_pt_showcase_video_url",
-			"label": "Showcase video URL",
-			"name": "showcase_video_url",
-			"type": "url",
-			"instructions": "\"Watch the showcase\" link (YouTube, etc.)."
-		},
-		{
-			"key": "field_pt_highlights",
-			"label": "Highlight cards",
-			"name": "highlights",
-			"type": "repeater",
-			"instructions": "The image rail. Add each highlight card.",
-			"layout": "block",
-			"button_label": "Add highlight",
-			"min": 0,
-			"sub_fields": [
-				{
-					"key": "field_pt_highlight_image",
-					"label": "Image",
-					"name": "image",
-					"type": "image",
-					"return_format": "url",
-					"preview_size": "medium",
-					"library": "all"
-				},
-				{
-					"key": "field_pt_highlight_title",
-					"label": "Title",
-					"name": "title",
-					"type": "text"
-				},
-				{
-					"key": "field_pt_highlight_subtitle",
-					"label": "Subtitle",
-					"name": "subtitle",
-					"type": "text"
-				}
-			]
-		},
-
-		{
-			"key": "field_pt_tab_included",
-			"label": "What's included",
-			"name": "",
-			"type": "tab",
-			"placement": "top",
-			"endpoint": 0
-		},
-		{
-			"key": "field_pt_included_eyebrow",
-			"label": "Eyebrow",
-			"name": "included_eyebrow",
-			"type": "text",
-			"default_value": "In the box"
-		},
-		{
-			"key": "field_pt_included_heading",
-			"label": "Heading",
-			"name": "included_heading",
-			"type": "text",
-			"default_value": "Everything you need, in one delivery."
-		},
-		{
-			"key": "field_pt_included_lead",
-			"label": "Lead paragraph",
-			"name": "included_lead",
-			"type": "textarea",
-			"rows": 3,
-			"new_lines": ""
-		},
-		{
-			"key": "field_pt_included_image",
-			"label": "Image",
-			"name": "included_image",
-			"type": "image",
-			"return_format": "url",
-			"preview_size": "medium",
-			"library": "all"
-		},
-		{
-			"key": "field_pt_included_items",
-			"label": "Included items",
-			"name": "included_items",
-			"type": "repeater",
-			"instructions": "Each ticked line in the \"what's included\" list.",
-			"layout": "table",
-			"button_label": "Add item",
-			"sub_fields": [
-				{
-					"key": "field_pt_included_item",
-					"label": "Item",
-					"name": "item",
-					"type": "text"
-				}
-			]
-		},
-
-		{
-			"key": "field_pt_tab_why",
-			"label": "Why choose",
-			"name": "",
-			"type": "tab",
-			"placement": "top",
-			"endpoint": 0
-		},
-		{
-			"key": "field_pt_why_eyebrow",
-			"label": "Eyebrow",
-			"name": "why_eyebrow",
-			"type": "text",
-			"instructions": "e.g. \"Why the Summerhouse\" — category name appended automatically if left as \"Why the\"."
-		},
-		{
-			"key": "field_pt_why_heading",
-			"label": "Heading",
-			"name": "why_heading",
-			"type": "text",
-			"default_value": "Six reasons it's built differently."
-		},
-		{
-			"key": "field_pt_why_reasons",
-			"label": "Reasons",
-			"name": "why_reasons",
-			"type": "repeater",
-			"layout": "block",
-			"button_label": "Add reason",
-			"sub_fields": [
-				{
-					"key": "field_pt_why_icon",
-					"label": "Icon",
-					"name": "icon",
-					"type": "image",
-					"return_format": "url",
-					"preview_size": "thumbnail",
-					"library": "all"
-				},
-				{
-					"key": "field_pt_why_title",
-					"label": "Title",
-					"name": "title",
-					"type": "text"
-				},
-				{
-					"key": "field_pt_why_text",
-					"label": "Text",
-					"name": "text",
-					"type": "textarea",
-					"rows": 2,
-					"new_lines": ""
-				}
-			]
-		},
-
-		{
-			"key": "field_pt_tab_feature_sections",
-			"label": "Feature sections",
-			"name": "",
-			"type": "tab",
-			"instructions": "The alternating image / copy sections (Insulation, Cladding, Built to last, Assembly, Work from home).",
-			"placement": "top",
-			"endpoint": 0
-		},
-		{
-			"key": "field_pt_insulation_image",
-			"label": "Insulation — image",
-			"name": "insulation_image",
-			"type": "image",
-			"return_format": "url",
-			"preview_size": "medium",
-			"library": "all"
-		},
-		{
-			"key": "field_pt_insulation_heading",
-			"label": "Insulation — heading",
-			"name": "insulation_heading",
-			"type": "text"
-		},
-		{
-			"key": "field_pt_insulation_body",
-			"label": "Insulation — body",
-			"name": "insulation_body",
-			"type": "wysiwyg",
-			"tabs": "all",
-			"toolbar": "basic",
-			"media_upload": 0
-		},
-		{
-			"key": "field_pt_insulation_stats",
-			"label": "Insulation — stats",
-			"name": "insulation_stats",
-			"type": "repeater",
-			"layout": "table",
-			"button_label": "Add stat",
-			"sub_fields": [
-				{
-					"key": "field_pt_ins_stat_number",
-					"label": "Number",
-					"name": "number",
-					"type": "text"
-				},
-				{
-					"key": "field_pt_ins_stat_unit",
-					"label": "Unit",
-					"name": "unit",
-					"type": "text"
-				},
-				{
-					"key": "field_pt_ins_stat_label",
-					"label": "Label",
-					"name": "label",
-					"type": "text"
-				}
-			]
-		},
-		{
-			"key": "field_pt_cladding_video_url",
-			"label": "Cladding — video URL",
-			"name": "cladding_video_url",
-			"type": "url",
-			"instructions": "Background video (.mp4) for the immersive cladding section."
-		},
-		{
-			"key": "field_pt_cladding_heading",
-			"label": "Cladding — heading",
-			"name": "cladding_heading",
-			"type": "text"
-		},
-		{
-			"key": "field_pt_cladding_body",
-			"label": "Cladding — body",
-			"name": "cladding_body",
-			"type": "textarea",
-			"rows": 3,
-			"new_lines": ""
-		},
-		{
-			"key": "field_pt_built_image",
-			"label": "Built to last — image",
-			"name": "built_image",
-			"type": "image",
-			"return_format": "url",
-			"preview_size": "medium",
-			"library": "all"
-		},
-		{
-			"key": "field_pt_built_heading",
-			"label": "Built to last — heading",
-			"name": "built_heading",
-			"type": "text"
-		},
-		{
-			"key": "field_pt_built_body",
-			"label": "Built to last — body",
-			"name": "built_body",
-			"type": "wysiwyg",
-			"tabs": "all",
-			"toolbar": "basic",
-			"media_upload": 0
-		},
-		{
-			"key": "field_pt_built_stats",
-			"label": "Built to last — stats",
-			"name": "built_stats",
-			"type": "repeater",
-			"layout": "table",
-			"button_label": "Add stat",
-			"sub_fields": [
-				{
-					"key": "field_pt_built_stat_number",
-					"label": "Number",
-					"name": "number",
-					"type": "text"
-				},
-				{
-					"key": "field_pt_built_stat_unit",
-					"label": "Unit",
-					"name": "unit",
-					"type": "text"
-				},
-				{
-					"key": "field_pt_built_stat_label",
-					"label": "Label",
-					"name": "label",
-					"type": "text"
-				}
-			]
-		},
-		{
-			"key": "field_pt_assembly_image",
-			"label": "Assembly — image",
-			"name": "assembly_image",
-			"type": "image",
-			"return_format": "url",
-			"preview_size": "medium",
-			"library": "all"
-		},
-		{
-			"key": "field_pt_assembly_heading",
-			"label": "Assembly — heading",
-			"name": "assembly_heading",
-			"type": "text"
-		},
-		{
-			"key": "field_pt_assembly_body",
-			"label": "Assembly — body",
-			"name": "assembly_body",
-			"type": "wysiwyg",
-			"tabs": "all",
-			"toolbar": "basic",
-			"media_upload": 0
-		},
-		{
-			"key": "field_pt_wfh_image",
-			"label": "Work from home — image",
-			"name": "wfh_image",
-			"type": "image",
-			"return_format": "url",
-			"preview_size": "medium",
-			"library": "all"
-		},
-		{
-			"key": "field_pt_wfh_heading",
-			"label": "Work from home — heading",
-			"name": "wfh_heading",
-			"type": "text"
-		},
-		{
-			"key": "field_pt_wfh_body",
-			"label": "Work from home — body",
-			"name": "wfh_body",
-			"type": "textarea",
-			"rows": 3,
-			"new_lines": ""
-		},
-
-		{
-			"key": "field_pt_tab_make_it_yours",
-			"label": "Make it yours",
-			"name": "",
-			"type": "tab",
-			"placement": "top",
-			"endpoint": 0
-		},
-		{
-			"key": "field_pt_mk_eyebrow",
-			"label": "Eyebrow",
-			"name": "mk_eyebrow",
-			"type": "text",
-			"default_value": "Make it yours"
-		},
-		{
-			"key": "field_pt_mk_heading",
-			"label": "Heading",
-			"name": "mk_heading",
-			"type": "text",
-			"default_value": "Configure it around how you'll use it."
-		},
-		{
-			"key": "field_pt_mk_options",
-			"label": "Options",
-			"name": "mk_options",
-			"type": "repeater",
-			"layout": "block",
-			"button_label": "Add option",
-			"sub_fields": [
-				{
-					"key": "field_pt_mk_image",
-					"label": "Image",
-					"name": "image",
-					"type": "image",
-					"return_format": "url",
-					"preview_size": "medium",
-					"library": "all"
-				},
-				{
-					"key": "field_pt_mk_title",
-					"label": "Title",
-					"name": "title",
-					"type": "text"
-				},
-				{
-					"key": "field_pt_mk_text",
-					"label": "Text",
-					"name": "text",
-					"type": "textarea",
-					"rows": 2,
-					"new_lines": ""
-				},
-				{
-					"key": "field_pt_mk_link",
-					"label": "Link (optional)",
-					"name": "link",
-					"type": "url",
-					"instructions": "e.g. a colour-options video. Leave empty for a plain card."
-				}
-			]
-		},
-
-		{
-			"key": "field_pt_tab_faq",
-			"label": "FAQ",
-			"name": "",
-			"type": "tab",
-			"placement": "top",
-			"endpoint": 0
-		},
-		{
-			"key": "field_pt_faq_video_image",
-			"label": "FAQ video poster image",
-			"name": "faq_video_image",
-			"type": "image",
-			"return_format": "url",
-			"preview_size": "medium",
-			"library": "all"
-		},
-		{
-			"key": "field_pt_faq_video_url",
-			"label": "FAQ video URL",
-			"name": "faq_video_url",
-			"type": "url"
-		},
-		{
-			"key": "field_pt_faqs",
-			"label": "FAQs",
-			"name": "faqs",
-			"type": "repeater",
-			"layout": "block",
-			"button_label": "Add question",
-			"sub_fields": [
-				{
-					"key": "field_pt_faq_question",
-					"label": "Question",
-					"name": "question",
-					"type": "text"
-				},
-				{
-					"key": "field_pt_faq_answer",
-					"label": "Answer",
-					"name": "answer",
-					"type": "textarea",
-					"rows": 4,
-					"new_lines": "wpautop"
-				}
-			]
-		},
-
-		{
-			"key": "field_pt_tab_trust",
-			"label": "Trust & reviews",
-			"name": "",
-			"type": "tab",
-			"placement": "top",
-			"endpoint": 0
-		},
-		{
-			"key": "field_pt_trust_guarantee",
-			"label": "Guarantee badge text",
-			"name": "trust_guarantee",
-			"type": "text",
-			"default_value": "15-year anti-rot guarantee"
-		},
-		{
-			"key": "field_pt_trust_heading",
-			"label": "Heading",
-			"name": "trust_heading",
-			"type": "text",
-			"default_value": "Bought with confidence."
-		},
-		{
-			"key": "field_pt_trust_lead",
-			"label": "Lead paragraph",
-			"name": "trust_lead",
-			"type": "textarea",
-			"rows": 2,
-			"new_lines": ""
-		},
-		{
-			"key": "field_pt_reviews",
-			"label": "Reviews",
-			"name": "reviews",
-			"type": "repeater",
-			"layout": "block",
-			"button_label": "Add review",
-			"sub_fields": [
-				{
-					"key": "field_pt_review_quote",
-					"label": "Quote",
-					"name": "quote",
-					"type": "textarea",
-					"rows": 3,
-					"new_lines": ""
-				},
-				{
-					"key": "field_pt_review_author",
-					"label": "Author",
-					"name": "author",
-					"type": "text",
-					"default_value": "Verified buyer"
-				},
-				{
-					"key": "field_pt_review_rating",
-					"label": "Rating (1–5)",
-					"name": "rating",
-					"type": "number",
-					"default_value": 5,
-					"min": 1,
-					"max": 5
-				}
-			]
-		},
-
-		{
-			"key": "field_pt_tab_final_cta",
-			"label": "Final CTA",
-			"name": "",
-			"type": "tab",
-			"placement": "top",
-			"endpoint": 0
-		},
-		{
-			"key": "field_pt_final_heading",
-			"label": "Final CTA heading",
-			"name": "final_heading",
-			"type": "textarea",
-			"rows": 2,
-			"new_lines": "br",
-			"default_value": "Your office is\nready when you are."
-		},
-		{
-			"key": "field_pt_cta_button_label",
-			"label": "Buy-button label",
-			"name": "cta_button_label",
-			"type": "text",
-			"instructions": "Text on the \"Customise & buy\" buttons.",
-			"default_value": "Customise & buy"
-		}
-	],
-	"location": [
-		[
-			{
-				"param": "post_type",
-				"operator": "==",
-				"value": "product"
-			}
-		]
-	],
-	"menu_order": 0,
-	"position": "normal",
-	"style": "default",
-	"label_placement": "top",
-	"instruction_placement": "label",
-	"hide_on_screen": "",
-	"active": true,
-	"description": "Editable marketing content for the single-product (PDP) template. The configurator, price, sizes and spec values remain API-driven; these fields fill the surrounding copy, images and sections.",
-	"show_in_rest": 0,
-	"modified": 1784275200
+    "key": "group_pt_product_content",
+    "title": "Product Page Content",
+    "fields": [
+        {
+            "key": "field_pt_tab_hero",
+            "label": "Hero",
+            "name": "",
+            "type": "tab",
+            "instructions": "Top of the product page. The category line (e.g. \"Summerhouse\") and \"from\" price are derived automatically — these fields are the surrounding copy.",
+            "placement": "top",
+            "endpoint": 0,
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_hero_eyebrow",
+            "label": "Hero eyebrow",
+            "name": "hero_eyebrow",
+            "type": "text",
+            "instructions": "Small label above the headline, e.g. \"Composite · Fully insulated\". The category name is prepended automatically.",
+            "default_value": "",
+            "placeholder": "Composite · Fully insulated",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_hero_heading",
+            "label": "Hero heading",
+            "name": "hero_heading",
+            "type": "textarea",
+            "instructions": "Main headline. Line breaks are preserved.",
+            "rows": 2,
+            "new_lines": "br",
+            "placeholder": "Work happens at the bottom of the garden.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_pt_hero_lead",
+            "label": "Hero lead paragraph",
+            "name": "hero_lead",
+            "type": "textarea",
+            "instructions": "One-sentence intro under the headline.",
+            "rows": 3,
+            "new_lines": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_hero_image",
+            "label": "Hero image",
+            "name": "hero_image",
+            "type": "image",
+            "instructions": "Falls back to the product's featured image if left empty.",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_tab_highlights",
+            "label": "Highlights",
+            "name": "",
+            "type": "tab",
+            "placement": "top",
+            "endpoint": 0,
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_highlights_heading",
+            "label": "Highlights heading",
+            "name": "highlights_heading",
+            "type": "text",
+            "default_value": "Get the highlights.",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_showcase_video_url",
+            "label": "Showcase video URL",
+            "name": "showcase_video_url",
+            "type": "url",
+            "instructions": "\"Watch the showcase\" link (YouTube, etc.).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_highlights",
+            "label": "Highlight cards",
+            "name": "highlights",
+            "type": "repeater",
+            "instructions": "The image rail. Add each highlight card.",
+            "layout": "block",
+            "button_label": "Add highlight",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_highlight_image",
+                    "label": "Image",
+                    "name": "image",
+                    "type": "image",
+                    "return_format": "url",
+                    "preview_size": "medium",
+                    "library": "all",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_highlights"
+                },
+                {
+                    "key": "field_pt_highlight_title",
+                    "label": "Title",
+                    "name": "title",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_highlights"
+                },
+                {
+                    "key": "field_pt_highlight_subtitle",
+                    "label": "Subtitle",
+                    "name": "subtitle",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_highlights"
+                }
+            ],
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tab_included",
+            "label": "What's included",
+            "name": "",
+            "type": "tab",
+            "placement": "top",
+            "endpoint": 0,
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_included_eyebrow",
+            "label": "Eyebrow",
+            "name": "included_eyebrow",
+            "type": "text",
+            "default_value": "In the box",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_included_heading",
+            "label": "Heading",
+            "name": "included_heading",
+            "type": "text",
+            "default_value": "Everything you need, in one delivery.",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_included_lead",
+            "label": "Lead paragraph",
+            "name": "included_lead",
+            "type": "textarea",
+            "rows": 3,
+            "new_lines": "",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_included_image",
+            "label": "Image",
+            "name": "included_image",
+            "type": "image",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_included_items",
+            "label": "Included items",
+            "name": "included_items",
+            "type": "repeater",
+            "instructions": "Each ticked line in the \"what's included\" list.",
+            "layout": "table",
+            "button_label": "Add item",
+            "sub_fields": [
+                {
+                    "key": "field_pt_included_item",
+                    "label": "Item",
+                    "name": "item",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_included_items"
+                }
+            ],
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tab_why",
+            "label": "Why choose",
+            "name": "",
+            "type": "tab",
+            "placement": "top",
+            "endpoint": 0,
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_why_eyebrow",
+            "label": "Eyebrow",
+            "name": "why_eyebrow",
+            "type": "text",
+            "instructions": "e.g. \"Why the Summerhouse\" — category name appended automatically if left as \"Why the\".",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_why_heading",
+            "label": "Heading",
+            "name": "why_heading",
+            "type": "text",
+            "default_value": "Six reasons it's built differently.",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_why_reasons",
+            "label": "Reasons",
+            "name": "why_reasons",
+            "type": "repeater",
+            "layout": "block",
+            "button_label": "Add reason",
+            "sub_fields": [
+                {
+                    "key": "field_pt_why_icon",
+                    "label": "Icon",
+                    "name": "icon",
+                    "type": "image",
+                    "return_format": "url",
+                    "preview_size": "thumbnail",
+                    "library": "all",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_why_reasons"
+                },
+                {
+                    "key": "field_pt_why_title",
+                    "label": "Title",
+                    "name": "title",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_why_reasons"
+                },
+                {
+                    "key": "field_pt_why_text",
+                    "label": "Text",
+                    "name": "text",
+                    "type": "textarea",
+                    "rows": 2,
+                    "new_lines": "",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_pt_why_reasons"
+                }
+            ],
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tab_feature_sections",
+            "label": "Feature sections",
+            "name": "",
+            "type": "tab",
+            "instructions": "The alternating image / copy sections (Insulation, Cladding, Built to last, Assembly, Work from home).",
+            "placement": "top",
+            "endpoint": 0,
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_insulation_image",
+            "label": "Insulation — image",
+            "name": "insulation_image",
+            "type": "image",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_insulation_heading",
+            "label": "Insulation — heading",
+            "name": "insulation_heading",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_insulation_body",
+            "label": "Insulation — body",
+            "name": "insulation_body",
+            "type": "wysiwyg",
+            "tabs": "all",
+            "toolbar": "basic",
+            "media_upload": 0,
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "delay": 0
+        },
+        {
+            "key": "field_pt_insulation_stats",
+            "label": "Insulation — stats",
+            "name": "insulation_stats",
+            "type": "repeater",
+            "layout": "table",
+            "button_label": "Add stat",
+            "sub_fields": [
+                {
+                    "key": "field_pt_ins_stat_number",
+                    "label": "Number",
+                    "name": "number",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_insulation_stats"
+                },
+                {
+                    "key": "field_pt_ins_stat_unit",
+                    "label": "Unit",
+                    "name": "unit",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_insulation_stats"
+                },
+                {
+                    "key": "field_pt_ins_stat_label",
+                    "label": "Label",
+                    "name": "label",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_insulation_stats"
+                }
+            ],
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_cladding_video_url",
+            "label": "Cladding — video URL",
+            "name": "cladding_video_url",
+            "type": "url",
+            "instructions": "Background video (.mp4) for the immersive cladding section.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_cladding_heading",
+            "label": "Cladding — heading",
+            "name": "cladding_heading",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_cladding_body",
+            "label": "Cladding — body",
+            "name": "cladding_body",
+            "type": "textarea",
+            "rows": 3,
+            "new_lines": "",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_built_image",
+            "label": "Built to last — image",
+            "name": "built_image",
+            "type": "image",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_built_heading",
+            "label": "Built to last — heading",
+            "name": "built_heading",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_built_body",
+            "label": "Built to last — body",
+            "name": "built_body",
+            "type": "wysiwyg",
+            "tabs": "all",
+            "toolbar": "basic",
+            "media_upload": 0,
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "delay": 0
+        },
+        {
+            "key": "field_pt_built_stats",
+            "label": "Built to last — stats",
+            "name": "built_stats",
+            "type": "repeater",
+            "layout": "table",
+            "button_label": "Add stat",
+            "sub_fields": [
+                {
+                    "key": "field_pt_built_stat_number",
+                    "label": "Number",
+                    "name": "number",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_built_stats"
+                },
+                {
+                    "key": "field_pt_built_stat_unit",
+                    "label": "Unit",
+                    "name": "unit",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_built_stats"
+                },
+                {
+                    "key": "field_pt_built_stat_label",
+                    "label": "Label",
+                    "name": "label",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_built_stats"
+                }
+            ],
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_assembly_image",
+            "label": "Assembly — image",
+            "name": "assembly_image",
+            "type": "image",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_assembly_heading",
+            "label": "Assembly — heading",
+            "name": "assembly_heading",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_assembly_body",
+            "label": "Assembly — body",
+            "name": "assembly_body",
+            "type": "wysiwyg",
+            "tabs": "all",
+            "toolbar": "basic",
+            "media_upload": 0,
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "delay": 0
+        },
+        {
+            "key": "field_pt_wfh_image",
+            "label": "Work from home — image",
+            "name": "wfh_image",
+            "type": "image",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_wfh_heading",
+            "label": "Work from home — heading",
+            "name": "wfh_heading",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_wfh_body",
+            "label": "Work from home — body",
+            "name": "wfh_body",
+            "type": "textarea",
+            "rows": 3,
+            "new_lines": "",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_tab_make_it_yours",
+            "label": "Make it yours",
+            "name": "",
+            "type": "tab",
+            "placement": "top",
+            "endpoint": 0,
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_mk_eyebrow",
+            "label": "Eyebrow",
+            "name": "mk_eyebrow",
+            "type": "text",
+            "default_value": "Make it yours",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_mk_heading",
+            "label": "Heading",
+            "name": "mk_heading",
+            "type": "text",
+            "default_value": "Configure it around how you'll use it.",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_mk_options",
+            "label": "Options",
+            "name": "mk_options",
+            "type": "repeater",
+            "layout": "block",
+            "button_label": "Add option",
+            "sub_fields": [
+                {
+                    "key": "field_pt_mk_image",
+                    "label": "Image",
+                    "name": "image",
+                    "type": "image",
+                    "return_format": "url",
+                    "preview_size": "medium",
+                    "library": "all",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_mk_options"
+                },
+                {
+                    "key": "field_pt_mk_title",
+                    "label": "Title",
+                    "name": "title",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_mk_options"
+                },
+                {
+                    "key": "field_pt_mk_text",
+                    "label": "Text",
+                    "name": "text",
+                    "type": "textarea",
+                    "rows": 2,
+                    "new_lines": "",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_pt_mk_options"
+                },
+                {
+                    "key": "field_pt_mk_link",
+                    "label": "Link (optional)",
+                    "name": "link",
+                    "type": "url",
+                    "instructions": "e.g. a colour-options video. Leave empty for a plain card.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_pt_mk_options"
+                }
+            ],
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tab_faq",
+            "label": "FAQ",
+            "name": "",
+            "type": "tab",
+            "placement": "top",
+            "endpoint": 0,
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_faq_video_image",
+            "label": "FAQ video poster image",
+            "name": "faq_video_image",
+            "type": "image",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_faq_video_url",
+            "label": "FAQ video URL",
+            "name": "faq_video_url",
+            "type": "url",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_faqs",
+            "label": "FAQs",
+            "name": "faqs",
+            "type": "repeater",
+            "layout": "block",
+            "button_label": "Add question",
+            "sub_fields": [
+                {
+                    "key": "field_pt_faq_question",
+                    "label": "Question",
+                    "name": "question",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_faqs"
+                },
+                {
+                    "key": "field_pt_faq_answer",
+                    "label": "Answer",
+                    "name": "answer",
+                    "type": "textarea",
+                    "rows": 4,
+                    "new_lines": "wpautop",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_pt_faqs"
+                }
+            ],
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tab_trust",
+            "label": "Trust & reviews",
+            "name": "",
+            "type": "tab",
+            "placement": "top",
+            "endpoint": 0,
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_trust_guarantee",
+            "label": "Guarantee badge text",
+            "name": "trust_guarantee",
+            "type": "text",
+            "default_value": "15-year anti-rot guarantee",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_trust_heading",
+            "label": "Heading",
+            "name": "trust_heading",
+            "type": "text",
+            "default_value": "Bought with confidence.",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_trust_lead",
+            "label": "Lead paragraph",
+            "name": "trust_lead",
+            "type": "textarea",
+            "rows": 2,
+            "new_lines": "",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_reviews",
+            "label": "Reviews",
+            "name": "reviews",
+            "type": "repeater",
+            "layout": "block",
+            "button_label": "Add review",
+            "sub_fields": [
+                {
+                    "key": "field_pt_review_quote",
+                    "label": "Quote",
+                    "name": "quote",
+                    "type": "textarea",
+                    "rows": 3,
+                    "new_lines": "",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_pt_reviews"
+                },
+                {
+                    "key": "field_pt_review_author",
+                    "label": "Author",
+                    "name": "author",
+                    "type": "text",
+                    "default_value": "Verified buyer",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_reviews"
+                },
+                {
+                    "key": "field_pt_review_rating",
+                    "label": "Rating (1–5)",
+                    "name": "rating",
+                    "type": "number",
+                    "default_value": 5,
+                    "min": 1,
+                    "max": 5,
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "step": "",
+                    "parent_repeater": "field_pt_reviews"
+                }
+            ],
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tab_final_cta",
+            "label": "Final CTA",
+            "name": "",
+            "type": "tab",
+            "placement": "top",
+            "endpoint": 0,
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_final_heading",
+            "label": "Final CTA heading",
+            "name": "final_heading",
+            "type": "textarea",
+            "rows": 2,
+            "new_lines": "br",
+            "default_value": "Your office is\nready when you are.",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_cta_button_label",
+            "label": "Buy-button label",
+            "name": "cta_button_label",
+            "type": "text",
+            "instructions": "Text on the \"Customise & buy\" buttons.",
+            "default_value": "Customise & buy",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "product"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Editable marketing content for the single-product (PDP) template. The configurator, price, sizes and spec values remain API-driven; these fields fill the surrounding copy, images and sections.",
+    "show_in_rest": 0,
+    "display_title": "",
+    "modified": 1784275200
 }
