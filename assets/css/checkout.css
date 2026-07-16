@@ -148,6 +148,13 @@
 .co-form .woocommerce-billing-fields > h3,
 .co-form .woocommerce-additional-fields h3{ font-size:1.15rem; margin:0 0 16px; font-weight:700; }
 
+/* form-billing.php splits the billing group into a "Contact" block (email/phone) then
+   "Billing details", per the mockup — style the two sub-headings + the contact hint. */
+.co-form .pt-contact-title,
+.co-form .pt-billing-title{ font-size:1.15rem; margin:0 0 6px; font-weight:700; }
+.co-form .pt-contact-hint{ font-size:.84rem; font-weight:300; color:var(--txt-soft); margin:0 0 16px; }
+.co-form .pt-billing-title{ margin-top:26px; }
+
 /* "Deliver to a different address?" — WooCommerce shipping toggle (form-shipping.php)
    styled like the design's .co-altaddr (bordered box + custom checkbox). The
    two-class selector overrides the old theme's inline .woocommerce-shipping-fields
