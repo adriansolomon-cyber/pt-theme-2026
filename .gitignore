@@ -28,6 +28,10 @@ scripts-to-migrate/
 # wp-content/mu-plugins/. Never shipped inside the theme.
 mu-plugins/
 
+# Third-party plugin copies pulled in only to debug/patch them locally.
+# Never shipped inside the theme.
+plugins-to-debug/
+
 # Reference copy of the current live theme (parent to copy functionality FROM).
 # Read-only reference — never shipped in the 2026 theme.
 reference-theme/
