@@ -272,6 +272,28 @@ add_action(
 );
 
 /**
+ * Hide the "Customer matched zone …" shipping-debug notice from shoppers.
+ *
+ * That line is emitted only when WooCommerce's Shipping "debug mode" is enabled
+ * (WooCommerce → Settings → Shipping → Shipping options → Enable debug mode). It's an
+ * admin diagnostic and shows on EVERY calculation (cart, checkout, AJAX recalcs), which
+ * is why type-stripping alone didn't catch it. Force debug mode off on the front end so
+ * the notice is never generated — while leaving it untouched in wp-admin so you can
+ * still debug there. The genuine "no delivery available for your area" message is a
+ * separate, non-debug message and still shows when an address matches no shippable zone.
+ */
+add_filter(
+	'option_woocommerce_shipping_debug_mode',
+	function ( $value ) {
+		// Keep the real setting inside wp-admin (non-AJAX); silence it everywhere shoppers see it.
+		if ( is_admin() && ! wp_doing_ajax() ) {
+			return $value;
+		}
+		return 'no';
+	}
+);
+
+/**
  * Remove WooCommerce's default "Have a coupon? Click here to enter your code"
  * toggle above the checkout form. The redesign puts the promo field inside the
  * order-summary card (woocommerce/checkout/review-order.php), so the toggle is a
