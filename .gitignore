@@ -32,6 +32,10 @@ mu-plugins/
 # Never shipped inside the theme.
 plugins-to-debug/
 
+# ACF export/import-format copies (array-wrapped) for the Tools > Import uploader.
+# The theme ships the local-JSON version in acf-json/; this is a manual convenience.
+acf-import/
+
 # Reference copy of the current live theme (parent to copy functionality FROM).
 # Read-only reference — never shipped in the 2026 theme.
 reference-theme/
