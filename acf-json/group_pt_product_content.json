@@ -1440,6 +1440,32 @@
             "button_label": "Add review",
             "sub_fields": [
                 {
+                    "key": "field_pt_review_image",
+                    "label": "Customer photo (optional)",
+                    "name": "image",
+                    "type": "image",
+                    "return_format": "url",
+                    "preview_size": "medium",
+                    "library": "all",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_reviews"
+                },
+                {
                     "key": "field_pt_review_quote",
                     "label": "Quote",
                     "name": "quote",

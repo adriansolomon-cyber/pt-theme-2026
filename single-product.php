@@ -238,7 +238,7 @@ get_header();
   <?php if ( $pt_why_heading ) : ?>
     <h2><?php echo esc_html( $pt_why_heading ); ?></h2>
   <?php else : ?>
-    <h2>Six reasons it's <span class="fade">built differently.</span></h2>
+    <h2>Eight reasons it's <span class="fade">built differently.</span></h2>
   <?php endif; ?>
   <div class="wc-grid">
     <?php if ( $pt_has_rows( 'why_reasons' ) ) : ?>
@@ -251,34 +251,44 @@ get_header();
       <?php endwhile; ?>
     <?php else : ?>
     <div class="wc-card">
+      <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2020/02/Composite-Cladding-1.png" alt=""></div>
+      <h3>Superior composite timber</h3>
+      <p>LP Strongcore composite — the look of wood, none of the upkeep.</p>
+    </div>
+    <div class="wc-card">
       <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2020/04/Fully-Insulated.png" alt=""></div>
-      <h3>Fully insulated as standard</h3>
+      <h3>Fully insulated</h3>
       <p>Walls, floor and roof — comfortable in every season.</p>
     </div>
     <div class="wc-card">
-      <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2020/02/Composite-Cladding-1.png" alt=""></div>
-      <h3>LP Strongcore composite cladding</h3>
-      <p>The look of wood, with none of the upkeep.</p>
-    </div>
-    <div class="wc-card">
-      <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2017/10/Double-Glazing-Option.png" alt=""></div>
-      <h3>Toughened double glazing</h3>
-      <p>Warmer, quieter and more secure, all year round.</p>
-    </div>
-    <div class="wc-card">
       <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2020/04/UPVC-Single-Door.png" alt=""></div>
-      <h3>UPVC door as standard</h3>
+      <h3>UPVC door</h3>
       <p>Domestic-standard door with multi-point locking.</p>
     </div>
     <div class="wc-card">
-      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="11" height="5" rx="1.5"/><path d="M15 7.5h3a1.5 1.5 0 0 1 1.5 1.5v1.5a1.5 1.5 0 0 1-1.5 1.5h-6"/><path d="M12 12v3a1.5 1.5 0 0 0 1.5 1.5A1.5 1.5 0 0 1 15 18v2"/></svg></div>
-      <h3>Smooth, primed internal walls</h3>
-      <p>A clean finish that's ready to decorate.</p>
+      <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2020/04/Wall-Thickness.png" alt=""></div>
+      <h3>80mm total wall thickness</h3>
+      <p>Doubled-up framing for strength where it works hardest.</p>
     </div>
     <div class="wc-card">
-      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+      <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2020/04/Insulated-Metal-Roof.png" alt=""></div>
+      <h3>Insulated metal roof</h3>
+      <p>Heavy-duty steel with a 40mm insulated core.</p>
+    </div>
+    <div class="wc-card">
+      <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2017/10/Double-Glazing-Option.png" alt=""></div>
+      <h3>Double glazing</h3>
+      <p>Warmer, quieter and more secure, all year round.</p>
+    </div>
+    <div class="wc-card">
+      <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2020/11/15-Year-Anti-rot-Guarantee.png" alt=""></div>
       <h3>15-year anti-rot guarantee*</h3>
       <p>Backed for the long term on composite.</p>
+    </div>
+    <div class="wc-card">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.2 5.2l-6.2 6.2 2 2 6.2-6.2a4 4 0 0 0 5.2-5.2l-2.4 2.4-2-2z"/></svg></div>
+      <h3>Easy self-assembly</h3>
+      <p>Pre-insulated, pre-assembled panels.</p>
     </div>
     <?php endif; ?>
   </div>
@@ -330,7 +340,7 @@ get_header();
 
 <!-- ===================== BUILT TO LAST (6) ===================== -->
 <section class="split"><div class="wrap"><div class="grid">
-  <div class="media"><img src="<?php echo esc_url( $pt_f( 'built_image', 'https://www.projecttimber.com/wp-content/uploads/2024/10/Hand-crafted-SQ.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
+  <div class="media"><img src="<?php echo esc_url( $pt_f( 'built_image', 'https://www.projecttimber.com/wp-content/uploads/2026/07/factory_worker_insulation.webp' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
   <div class="copy">
     <div class="eyebrow">Built to last · Made in Britain</div>
     <?php $pt_built_heading = get_field( 'built_heading', $pt_pid ); ?>
@@ -544,12 +554,13 @@ get_header();
           $pt_rating = 5;
         }
         ?>
-        <div class="review"><div class="stars"><?php echo str_repeat( '★', $pt_rating ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — literal glyph. ?></div><p><?php echo esc_html( get_sub_field( 'quote' ) ); ?></p><div class="by">— <?php echo esc_html( get_sub_field( 'author' ) ? get_sub_field( 'author' ) : 'Verified buyer' ); ?></div></div>
+        <?php $pt_rev_img = get_sub_field( 'image' ); ?>
+        <div class="review"><?php if ( $pt_rev_img ) : ?><div class="rev-media"><img src="<?php echo esc_url( $pt_rev_img ); ?>" alt="Customer photo"></div><?php endif; ?><div class="stars"><?php echo str_repeat( '★', $pt_rating ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — literal glyph. ?></div><p><?php echo esc_html( get_sub_field( 'quote' ) ); ?></p><div class="by">— <?php echo esc_html( get_sub_field( 'author' ) ? get_sub_field( 'author' ) : 'Verified buyer' ); ?></div></div>
       <?php endwhile; ?>
     <?php else : ?>
-    <div class="review"><div class="stars">★★★★★</div><p>"Genuinely warm in winter — I work in here every day now. Build quality is excellent."</p><div class="by">— Verified buyer</div></div>
-    <div class="review"><div class="stars">★★★★★</div><p>"Panels went together far faster than I expected. The composite finish looks premium."</p><div class="by">— Verified buyer</div></div>
-    <div class="review"><div class="stars">★★★★★</div><p>"From order to install was seamless. The team kept me informed the whole way."</p><div class="by">— Verified buyer</div></div>
+    <div class="review"><div class="rev-media"><img src="https://www.projecttimber.com/wp-content/uploads/2020/04/My-Den-Customer-Image-1.jpg" alt="Customer photo"></div><div class="stars">★★★★★</div><p>"Genuinely warm in winter — I work in here every day now. Build quality is excellent."</p><div class="by">— Verified buyer</div></div>
+    <div class="review"><div class="rev-media"><img src="https://www.projecttimber.com/wp-content/uploads/2020/04/My-Den-Customer-Image-2.jpg" alt="Customer photo"></div><div class="stars">★★★★★</div><p>"Panels went together far faster than I expected. The composite finish looks premium."</p><div class="by">— Verified buyer</div></div>
+    <div class="review"><div class="rev-media"><img src="https://www.projecttimber.com/wp-content/uploads/2020/04/My_den_01-1.jpg" alt="Customer photo"></div><div class="stars">★★★★★</div><p>"From order to install was seamless. The team kept me informed the whole way."</p><div class="by">— Verified buyer</div></div>
     <?php endif; ?>
   </div>
 </div></section>
