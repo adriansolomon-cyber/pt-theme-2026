@@ -49,6 +49,19 @@ $pt_f = function ( $name, $fallback = '' ) use ( $pt_pid ) {
 $pt_has_rows = function ( $name ) use ( $pt_pid ) {
 	return function_exists( 'have_rows' ) && have_rows( $name, $pt_pid );
 };
+// pt_show() controls per-product section visibility (ACF "Section visibility"
+// true_false fields). Defaults to shown when the field is unset / ACF inactive,
+// so existing products keep every section until an editor turns one off.
+$pt_show = function ( $name, $default = true ) use ( $pt_pid ) {
+	if ( ! function_exists( 'get_field' ) ) {
+		return $default;
+	}
+	$v = get_field( $name, $pt_pid );
+	if ( null === $v || '' === $v ) {
+		return $default;
+	}
+	return (bool) $v;
+};
 
 $pt_hero_img = $pt_f(
 	'hero_image',
@@ -71,7 +84,13 @@ get_header();
 
 <div class="subnav">
   <span class="brand"><?php echo esc_html( $pt_name ); ?></span>
-  <nav class="tabs"><a href="#configure">Configure</a><a href="#highlights">Highlights</a><a href="#insulation">Insulation</a><a href="#assembly">Assembly</a><a href="#specs">Specs</a><a href="#faq">FAQ</a></nav>
+  <nav class="tabs"><a href="#configure">Configure</a><?php
+    if ( $pt_show( 'show_highlights' ) ) { echo '<a href="#highlights">Highlights</a>'; }
+    if ( $pt_show( 'show_insulation' ) ) { echo '<a href="#insulation">Insulation</a>'; }
+    if ( $pt_show( 'show_assembly' ) ) { echo '<a href="#assembly">Assembly</a>'; }
+    if ( $pt_show( 'show_specs' ) ) { echo '<a href="#specs">Specs</a>'; }
+    if ( $pt_show( 'show_faq' ) ) { echo '<a href="#faq">FAQ</a>'; }
+  ?></nav>
   <button class="buy">Customise &amp; buy</button>
 </div>
 
@@ -96,7 +115,8 @@ get_header();
 
 <!-- ===================== INLINE CONFIGURATOR (non-popup) ===================== -->
 <section class="configurator" id="configure"><div class="wrap">
-  <div class="sec-head"><h2>Build <span class="fade">your <?php echo esc_html( $pt_line ); ?>.</span></h2></div>
+  <?php $pt_cfg_heading = $pt_f( 'configurator_heading', '' ); ?>
+  <div class="sec-head"><h2><?php if ( $pt_cfg_heading ) : echo esc_html( $pt_cfg_heading ); else : ?>Build <span class="fade">your <?php echo esc_html( $pt_line ); ?>.</span><?php endif; ?></h2></div>
   <div class="cfg-grid">
 
     <div class="cfg-preview">
@@ -137,6 +157,7 @@ get_header();
 </div></section>
 
 <!-- ===================== HIGHLIGHTS ===================== -->
+<?php if ( $pt_show( 'show_highlights' ) ) : ?>
 <section id="highlights"><div class="wrap">
   <div class="sec-head">
     <?php $pt_hl_heading = get_field( 'highlights_heading', $pt_pid ); ?>
@@ -193,7 +214,9 @@ get_header();
   <?php endif; ?>
 </div></section>
 
+<?php endif; ?>
 <!-- ===================== WHAT'S INCLUDED ===================== -->
+<?php if ( $pt_show( 'show_included' ) ) : ?>
 <section class="included"><div class="wrap">
   <div class="eyebrow"><?php echo esc_html( $pt_f( 'included_eyebrow', 'In the box' ) ); ?></div>
   <?php $pt_inc_heading = get_field( 'included_heading', $pt_pid ); ?>
@@ -227,10 +250,13 @@ get_header();
       <?php endif; ?>
     </ul>
   </div>
-  <a class="btn-primary" href="#configure">Configure your <?php echo esc_html( $pt_line ); ?> <span class="a">→</span></a>
+  <?php $pt_cfg_cta = $pt_f( 'configure_cta_label', '' ); ?>
+  <a class="btn-primary" href="#configure"><?php echo $pt_cfg_cta ? esc_html( $pt_cfg_cta ) : 'Configure your ' . esc_html( $pt_line ); ?> <span class="a">→</span></a>
 </div></section>
 
+<?php endif; ?>
 <!-- ===================== WHY CHOOSE ===================== -->
+<?php if ( $pt_show( 'show_why' ) ) : ?>
 <section class="why-choose"><div class="wrap">
   <?php $pt_why_eyebrow = get_field( 'why_eyebrow', $pt_pid ); ?>
   <div class="eyebrow"><?php echo $pt_why_eyebrow ? esc_html( $pt_why_eyebrow ) : 'Why the ' . esc_html( $pt_line ); ?></div>
@@ -294,7 +320,9 @@ get_header();
   </div>
 </div></section>
 
+<?php endif; ?>
 <!-- ===================== INSULATION (3 + 4) ===================== -->
+<?php if ( $pt_show( 'show_insulation' ) ) : ?>
 <section class="split" id="insulation" style="background:var(--mist)"><div class="wrap"><div class="grid">
   <div class="media"><img src="<?php echo esc_url( $pt_f( 'insulation_image', 'https://projecttimber.com/wp-content/uploads/2018/09/main_img4th.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
   <div class="copy">
@@ -325,7 +353,9 @@ get_header();
   </div>
 </div></div></section>
 
+<?php endif; ?>
 <!-- ===================== COMPOSITE CLADDING (5) ===================== -->
+<?php if ( $pt_show( 'show_cladding' ) ) : ?>
 <section class="immerse">
   <video class="clad-video" muted playsinline preload="auto">
     <source src="<?php echo esc_url( $pt_f( 'cladding_video_url', 'https://www.projecttimber.com/wp-content/uploads/2026/06/Composite_Cladding_Final.mp4' ) ); ?>" type="video/mp4">
@@ -338,7 +368,9 @@ get_header();
   </div>
 </section>
 
+<?php endif; ?>
 <!-- ===================== BUILT TO LAST (6) ===================== -->
+<?php if ( $pt_show( 'show_built' ) ) : ?>
 <section class="split"><div class="wrap"><div class="grid">
   <div class="media"><img src="<?php echo esc_url( $pt_f( 'built_image', 'https://www.projecttimber.com/wp-content/uploads/2026/07/factory_worker_insulation.webp' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
   <div class="copy">
@@ -370,7 +402,9 @@ get_header();
   </div>
 </div></div></section>
 
+<?php endif; ?>
 <!-- ===================== WE DO THE HARD WORK (7) ===================== -->
+<?php if ( $pt_show( 'show_assembly' ) ) : ?>
 <section class="split rev" id="assembly" style="background:var(--paper)"><div class="wrap"><div class="grid">
   <div class="media"><img src="<?php echo esc_url( $pt_f( 'assembly_image', 'https://www.projecttimber.com/wp-content/uploads/2024/10/My-Den-Composite-Animated-building.gif' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
   <div class="copy">
@@ -392,7 +426,9 @@ get_header();
   </div>
 </div></div></section>
 
+<?php endif; ?>
 <!-- ===================== MAKE IT YOURS (8) ===================== -->
+<?php if ( $pt_show( 'show_makeityours' ) ) : ?>
 <section class="why-choose" style="background:var(--mist)"><div class="wrap">
   <div class="eyebrow"><?php echo esc_html( $pt_f( 'mk_eyebrow', 'Make it yours' ) ); ?></div>
   <?php $pt_mk_heading = get_field( 'mk_heading', $pt_pid ); ?>
@@ -426,7 +462,9 @@ get_header();
   <a class="btn-primary" href="#configure" style="margin-top:30px">Build &amp; price yours <span class="a">→</span></a>
 </div></section>
 
+<?php endif; ?>
 <!-- ===================== WORK FROM HOME (9) ===================== -->
+<?php if ( $pt_show( 'show_wfh' ) ) : ?>
 <section class="immerse">
   <img src="<?php echo esc_url( $pt_f( 'wfh_image', 'https://www.projecttimber.com/wp-content/uploads/2026/06/10x8_My_Den_Composite_Garden_Office_04.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>">
   <div class="panel">
@@ -437,7 +475,9 @@ get_header();
   </div>
 </section>
 
+<?php endif; ?>
 <!-- ===================== SPEC TABLE ===================== -->
+<?php if ( $pt_show( 'show_specs' ) ) : ?>
 <section class="specs" id="specs"><div class="wrap">
   <div class="sec-head" style="margin-bottom:18px"><h2>Specifications</h2></div>
   <div class="spec-controls">
@@ -512,7 +552,9 @@ get_header();
   <p style="font-weight:300;font-size:.74rem;color:var(--txt-soft);margin-top:20px">Dimensions shown for the 8 × 6; imperial values are converted from metric. 15-year anti-rot guarantee on composite — annual treatment required; terms apply.</p>
 </div></section>
 
+<?php endif; ?>
 <!-- ===================== FAQ (13) ===================== -->
+<?php if ( $pt_show( 'show_faq' ) ) : ?>
 <section class="faq" id="faq"><div class="wrap">
   <h2>Questions, <span class="fade">answered.</span></h2>
   <div class="faq-video" id="faqVideo">
@@ -535,7 +577,9 @@ get_header();
   <?php endif; ?>
 </div></section>
 
+<?php endif; ?>
 <!-- ===================== TRUST ===================== -->
+<?php if ( $pt_show( 'show_trust' ) ) : ?>
 <section class="trust" id="trust"><div class="wrap">
   <span class="g">★ <?php echo esc_html( $pt_f( 'trust_guarantee', '15-year anti-rot guarantee' ) ); ?></span>
   <?php $pt_trust_heading = get_field( 'trust_heading', $pt_pid ); ?>
@@ -566,7 +610,9 @@ get_header();
   </div>
 </div></section>
 
+<?php endif; ?>
 <!-- ===================== FINAL CTA ===================== -->
+<?php if ( $pt_show( 'show_final' ) ) : ?>
 <section class="final"><div class="wrap">
   <?php $pt_final_heading = get_field( 'final_heading', $pt_pid ); ?>
   <?php if ( $pt_final_heading ) : ?>
@@ -577,6 +623,7 @@ get_header();
   <button class="go">Customise &amp; buy →</button>
 </div></section>
 
+<?php endif; ?>
 <div class="buybar">
   <div class="p"><?php echo esc_html( $pt_from ); ?> <small>FREE DELIVERY*</small></div>
   <button class="go">Customise &amp; buy</button>

@@ -3,6 +3,284 @@
     "title": "Product Page Content",
     "fields": [
         {
+            "key": "field_pt_tab_sections",
+            "label": "Section visibility",
+            "name": "",
+            "type": "tab",
+            "instructions": "Turn individual sections on or off for this product. Everything is shown by default. The hero and the buy configurator are always shown.",
+            "placement": "top",
+            "endpoint": 0,
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_show_highlights",
+            "label": "Highlights",
+            "name": "show_highlights",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_show_included",
+            "label": "What's included",
+            "name": "show_included",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_show_why",
+            "label": "Why choose",
+            "name": "show_why",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_show_insulation",
+            "label": "Insulation (feature)",
+            "name": "show_insulation",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_show_cladding",
+            "label": "Composite cladding (feature)",
+            "name": "show_cladding",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_show_built",
+            "label": "Built to last (feature)",
+            "name": "show_built",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_show_assembly",
+            "label": "Assembly (feature)",
+            "name": "show_assembly",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_show_wfh",
+            "label": "Work from home (feature)",
+            "name": "show_wfh",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_show_makeityours",
+            "label": "Make it yours",
+            "name": "show_makeityours",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_show_specs",
+            "label": "Specifications",
+            "name": "show_specs",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_show_faq",
+            "label": "FAQ",
+            "name": "show_faq",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_show_trust",
+            "label": "Trust & reviews",
+            "name": "show_trust",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_show_final",
+            "label": "Final CTA",
+            "name": "show_final",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
             "key": "field_pt_tab_hero",
             "label": "Hero",
             "name": "",
@@ -104,6 +382,64 @@
             "max_height": "",
             "max_size": "",
             "mime_types": ""
+        },
+        {
+            "key": "field_pt_tab_configurator",
+            "label": "Configurator",
+            "name": "",
+            "type": "tab",
+            "instructions": "Copy around the live buy configurator. The options, price and sizes stay API-driven.",
+            "placement": "top",
+            "endpoint": 0,
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_configurator_heading",
+            "label": "Configurator heading",
+            "name": "configurator_heading",
+            "type": "text",
+            "instructions": "Heading above the option steps. Leave blank to auto-use “Build your {category}.”",
+            "default_value": "",
+            "placeholder": "Build your Garden Office",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_configure_cta_label",
+            "label": "“Configure” button label",
+            "name": "configure_cta_label",
+            "type": "text",
+            "instructions": "The button under “What’s included” that jumps to the configurator. Leave blank to auto-use “Configure your {category}”. The → arrow is added automatically.",
+            "default_value": "",
+            "placeholder": "Configure your Garden Office",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
         },
         {
             "key": "field_pt_tab_highlights",
