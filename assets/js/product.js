@@ -51,6 +51,33 @@
     var TITLE_KEY={ 'Size':'size','Wall Thickness':'wall','Floor':'floor','Roof Cover':'roof',
       'Guttering':'guttering','Paint Colour':'paint','Colour Trim':'trim','Base':'base' };
 
+    // Per-step disclaimers / descriptions shown under each configurator step (design:
+    // projecttimber-product-page.html .cfg-note). Prefer the component's own description
+    // from the API when present; otherwise fall back to this generic copy matched by the
+    // component's title keyword. Paint/trim also get the "supplied in tins" colour note.
+    var STEP_NOTE={
+      size:"Sizes are the external footprint in feet (e.g. 8 × 6). Allow a little clearance around the building for delivery, assembly and future maintenance.",
+      door:"Choose your door colour and which side it sits — Left or Right as you look at the building from the garden.",
+      window:"Pick your window material and position. Side-opening windows aid airflow; 'both ends' adds light and ventilation front and back. Timber is standard; UPVC is a low-maintenance upgrade. Positions are as you look at the building from the garden.",
+      floor:"Comes with an insulated tongue-and-groove floor as standard. Upgrade for a more solid feel and heavier loads.",
+      laminate:"An optional laminate finish laid over the floor for a ready-to-use interior — choose a tone, or leave it bare to finish your own way.",
+      paint:"Supplied in tubs of paint — buildings aren't pre-painted on delivery, so painting is done on site. Swatch colours shown are indicative approximations.",
+      assembly:"Prefer not to self-build? Add our assembly service and our team installs the building for you on delivery. Leave as None to build it yourself using the included instructions."
+    };
+    function isColourComp(c){ return /paint|trim/i.test((c&&(c.title||c.key))||''); }
+    function stepNote(c){
+      if(c && c.description) return String(c.description);
+      var t=String((c&&(c.title||c.key))||'').toLowerCase();
+      if(/paint|trim/.test(t)) return STEP_NOTE.paint;
+      if(/window|win\b/.test(t)) return STEP_NOTE.window;
+      if(/door/.test(t)) return STEP_NOTE.door;
+      if(/laminat/.test(t)) return STEP_NOTE.laminate;
+      if(/floor/.test(t)) return STEP_NOTE.floor;
+      if(/assembl/.test(t)) return STEP_NOTE.assembly;
+      if(/size/.test(t)) return STEP_NOTE.size;
+      return '';
+    }
+
     // --- runtime state ---
     var product=null, components=[], sizeCid=null, scenarios={}, meta={}, sel={}, sizeId=null, curPid=null, pendingSize=null;
 
@@ -176,7 +203,7 @@
     // ====================== parsing ======================
     function parseConfig(pid,cfg){
       product={ id:cfg.id, name:cfg.name, permalink:cfg.permalink, images:cfg.img?[{src:cfg.img}]:[] };
-      components=(cfg.components||[]).map(function(c){ var key=c.key||TITLE_KEY[c.title]||String(c.title||'').toLowerCase().replace(/\s+/g,'_'); return { id:String(c.id), title:c.title, key:key, optional:!!c.optional }; });
+      components=(cfg.components||[]).map(function(c){ var key=c.key||TITLE_KEY[c.title]||String(c.title||'').toLowerCase().replace(/\s+/g,'_'); return { id:String(c.id), title:c.title, key:key, optional:!!c.optional, description:c.description||c.desc||'' }; });
       sizeCid=(cfg.sizeCid!=null)?String(cfg.sizeCid):null;
       scenarios={}; meta={}; sel={}; sizeId=null;
       (cfg.sizes||[]).forEach(function(sz){
@@ -189,7 +216,7 @@
     }
     function parseProduct(p){
       product=p; components=[]; scenarios={}; meta={}; sel={}; sizeId=null;
-      p.composite_components.forEach(function(c){ var key=TITLE_KEY[c.title]||String(c.title||'').toLowerCase().replace(/\s+/g,'_'); components.push({ id:String(c.id), title:c.title, key:key, optional:!!c.optional }); if(key==='size') sizeCid=String(c.id); });
+      p.composite_components.forEach(function(c){ var key=TITLE_KEY[c.title]||String(c.title||'').toLowerCase().replace(/\s+/g,'_'); components.push({ id:String(c.id), title:c.title, key:key, optional:!!c.optional, description:c.description||c.desc||'' }); if(key==='size') sizeCid=String(c.id); });
       (p.composite_scenarios||[]).forEach(function(s){
         var cfg={}, sid=null;
         (s.configuration||[]).forEach(function(it){ var cid=String(it.component_id); var ids=(it.component_options||[]).map(Number).filter(function(x){ return x>0; }); cfg[cid]=ids; if(cid===sizeCid && ids.length) sid=ids[0]; });
@@ -218,19 +245,24 @@
     // Size option names from the live store carry finish/door text
     // (e.g. "20 x 8 - UPVC - Graphite"); the configurator shows ONLY the dimension.
     function sizeDisplay(name){ var m=String(name==null?'':name).match(/(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)/i); return m ? (m[1]+' × '+m[2]) : String(name==null?'':name); }
-    function cardHTML(group,opt,selected){
+    function cardHTML(group,opt,selected,colour){
       var label=(group===sizeCid)?sizeDisplay(opt.name):opt.name;
-      var img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'"></div>':'<div class="im ph"></div>';
+      var isNone=/^\s*none\s*$/i.test(opt.name||'');
+      // paint/trim colour swatches carry a "supplied in tins" note; the None card warns to paint within 4 weeks.
+      var tins=(colour&&!isNone)?'<span class="tins">*SUPPLIED IN TINS</span>':'';
+      var img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+'</div>':'<div class="im ph">'+tins+'</div>';
+      var badge4w=(colour&&isNone)?'<span class="badge4w">⚠ Paint within 4 weeks!*</span>':'';
       var price=(opt.price==null)?'<span class="pr-sk skel-box"></span>':fmt(opt.price);
-      return '<div class="opt-card'+(selected?' sel':'')+'" data-group="'+esc(group)+'" data-opt="'+opt.id+'">'+img+
+      return '<div class="opt-card'+(selected?' sel':'')+'" data-group="'+esc(group)+'" data-opt="'+opt.id+'">'+img+badge4w+
         '<div class="nm">'+esc(label)+'</div><div class="pr">'+price+'</div>'+
         '<div class="selbtn">'+(selected?'Selected':'Select')+'</div></div>';
     }
-    function rowHTML(idx,label,selId,group,mode,cardsHTML){
+    function rowHTML(idx,label,selId,group,mode,cardsHTML,note){
+      var noteHTML=note?'<p class="cfg-note">'+esc(note)+'</p>':'';
       return '<div class="cfg-row'+(idx===1?' open':'')+'">'+
         '<div class="cfg-head"><span class="ix">'+idx+'.</span><span class="lab">'+esc(label)+'</span>'+
         '<span class="sel" id="'+selId+'">—</span><span class="chev">▾</span></div>'+
-        '<div class="cfg-body"><div><div class="cfg-inner">'+
+        '<div class="cfg-body"><div><div class="cfg-inner">'+noteHTML+
         '<div class="opt-cards" data-group="'+esc(group)+'"'+(mode?' data-mode="'+mode+'"':'')+'>'+cardsHTML+'</div>'+
         '</div></div></div></div>';
     }
@@ -249,7 +281,8 @@
     function renderSizeRow(){
       var sizes=sortedSizes();
       var cards=sizes.map(function(o){ return cardHTML(sizeCid,o,o.id===sizeId); }).join('');
-      if(elRows) elRows.innerHTML=rowHTML(1,'Size','sel-size',sizeCid,'size',cards);
+      var sizeComp=components.filter(function(c){ return c.id===sizeCid; })[0];
+      if(elRows) elRows.innerHTML=rowHTML(1,'Size','sel-size',sizeCid,'size',cards,stepNote(sizeComp||{key:'size'}));
       renderSpecSeg();
     }
 
@@ -288,8 +321,9 @@
         var opts=ids.map(function(oid){ return meta[oid]||{id:oid,name:'#'+oid,price:0,img:''}; });
         opts.sort(function(a,b){ return (a.price||0)-(b.price||0); });
         var first=opts[0]; sel[c.id]=first.id;
-        var cards=opts.map(function(o,n){ return cardHTML(c.id,o,n===0); }).join('');
-        html+=rowHTML(idx,c.title,'sel-'+c.key,c.id,'',cards);
+        var colour=isColourComp(c);
+        var cards=opts.map(function(o,n){ return cardHTML(c.id,o,n===0,colour); }).join('');
+        html+=rowHTML(idx,c.title,'sel-'+c.key,c.id,'',cards,stepNote(c));
       });
       elRows.insertAdjacentHTML('beforeend',html);
       components.forEach(function(c){ if(c.id===sizeCid) return; if(sel[c.id]!=null){ var m=meta[sel[c.id]]; setSelLabel('sel-'+c.key, m?m.name:('#'+sel[c.id])); } });
@@ -406,5 +440,15 @@
       });
     }, { threshold:0.4 });
     io.observe(v);
+  })();
+
+  // gallery image disclaimer popover — hover shows it (desktop); click/tap toggles; outside-click / Esc closes.
+  (function(){
+    var d=document.getElementById('cfgDisc'); if(!d) return;
+    var b=d.querySelector('.cfg-disc-btn'); if(!b) return;
+    function close(){ d.classList.remove('open'); b.setAttribute('aria-expanded','false'); }
+    b.addEventListener('click', function(e){ e.stopPropagation(); var open=d.classList.toggle('open'); b.setAttribute('aria-expanded', open?'true':'false'); });
+    document.addEventListener('click', function(e){ if(!d.contains(e.target)) close(); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
   })();
 

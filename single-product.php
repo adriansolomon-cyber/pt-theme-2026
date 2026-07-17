@@ -101,7 +101,11 @@ get_header();
 
     <div class="cfg-preview">
       <div class="cfg-gallery" id="cfgGallery">
-        <img id="cfgImg" src="https://www.projecttimber.com/wp-content/uploads/2024/10/8x6_Evolution_My_Den_Composite_Cladding_Garden_Office_09-1.jpg" alt="My Den Composite preview">
+        <img id="cfgImg" src="https://www.projecttimber.com/wp-content/uploads/2024/10/8x6_Evolution_My_Den_Composite_Cladding_Garden_Office_09-1.jpg" alt="<?php echo esc_attr( $pt_name ); ?> preview">
+        <div class="cfg-disc" id="cfgDisc">
+          <button class="cfg-disc-btn" type="button" aria-label="Image disclaimer" aria-expanded="false">i</button>
+          <div class="cfg-disc-panel" role="tooltip"><b>Disclaimer:</b> Painted buildings are shown for illustration only. All buildings are delivered in their standard or pressure-treated colour, which may vary from those shown. Please keep adequate distance between your building and the boundary to allow access for the annual treatment required to comply with the anti-rot guarantee*.</div>
+        </div>
         <button class="cfg-navbtn prev" type="button" aria-label="Previous image">&lsaquo;</button>
         <button class="cfg-navbtn next" type="button" aria-label="Next image">&rsaquo;</button>
         <div class="cfg-dots" id="cfgDots"></div>
@@ -118,13 +122,14 @@ get_header();
 
       <!-- live summary -->
       <div class="cfg-summary">
-        <div class="deliv" id="cfgDeliv">Choose your preferred delivery date at checkout*</div>
+        <div class="deliv" id="cfgDeliv">Free delivery to most mainland UK postcodes* · choose your delivery date at checkout</div>
         <!-- FINANCE HIDDEN (re-enable when a finance provider is in place):
         <div class="ptoggle"><button class="on" data-pay="cash">Cash</button><button data-pay="finance">Finance</button></div>
         -->
         <div class="price" id="cfgPrice">£4,461.00</div>
+        <div class="pvat">inc. VAT</div>
         <button class="addbtn cfgadd" id="cfgAdd" disabled>Add to basket</button>
-        <p class="fineprint">Prices and options are pulled live from our catalogue. Paint/trim swatch colours are indicative approximations.</p>
+        <p class="fineprint">Prices as per the live configurator. Paint/trim swatch colours are indicative approximations.</p>
       </div>
     </div>
 

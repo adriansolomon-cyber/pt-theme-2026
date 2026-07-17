@@ -73,6 +73,14 @@
   .cfg-navbtn:active{ transform:translateY(-50%) scale(.93); }
   @media(hover:hover){ .cfg-navbtn:hover{ background:#fff; } }
   .cfg-dots{ position:absolute; left:0; right:0; bottom:12px; display:flex; gap:6px; justify-content:center; z-index:2; }
+  /* gallery image disclaimer (info button + hover/click popover) */
+  .cfg-disc{ position:absolute; bottom:12px; left:12px; z-index:3; }
+  .cfg-disc-btn{ width:30px; height:30px; border-radius:50%; border:none; background:rgba(33,30,36,.6); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); color:#fff; font-family:var(--font); font-weight:400; font-style:normal; font-size:.92rem; line-height:1; cursor:pointer; box-shadow:var(--e1); display:flex; align-items:center; justify-content:center; }
+  @media(hover:hover){ .cfg-disc-btn:hover{ background:rgba(33,30,36,.82); } }
+  .cfg-disc-panel{ position:absolute; bottom:38px; left:0; width:min(80vw,300px); background:rgba(33,30,36,.95); color:#fff; font-weight:300; font-size:.77rem; line-height:1.5; padding:13px 15px; border-radius:12px; box-shadow:var(--e3); opacity:0; transform:translateY(6px); pointer-events:none; transition:opacity .2s var(--ease), transform .2s var(--ease); }
+  .cfg-disc-panel b{ font-weight:700; }
+  @media(hover:hover){ .cfg-disc:hover .cfg-disc-panel{ opacity:1; transform:none; pointer-events:auto; } }
+  .cfg-disc.open .cfg-disc-panel, .cfg-disc:focus-within .cfg-disc-panel{ opacity:1; transform:none; pointer-events:auto; }
   .cfg-dot{ width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.6); border:none; cursor:pointer; padding:0; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:width .2s var(--ease), background .2s; }
   .cfg-dot.on{ background:#fff; width:18px; border-radius:4px; }
 
@@ -137,6 +145,7 @@
   .cfg-summary .ptoggle button.on{ background:var(--white); color:var(--ink); font-weight:700; box-shadow:var(--e1); }
   .cfg-summary .price{ font-size:2.1rem; font-weight:700; line-height:1; }
   .cfg-summary .price small{ font-size:.78rem; font-weight:300; color:var(--txt-soft); }
+  .cfg-summary .pvat{ font-size:.72rem; font-weight:300; color:var(--txt-soft); margin-top:3px; }
   .cfg-summary .addbtn{ display:block; width:100%; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1rem; padding:15px; border-radius:12px; margin-top:14px; transition:transform .2s var(--ease); }
   .cfg-summary .addbtn:active{ transform:scale(.985); }
   .cfg-summary .fineprint{ font-size:.68rem; font-weight:300; color:var(--txt-soft); margin-top:12px; }
