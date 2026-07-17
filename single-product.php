@@ -463,7 +463,7 @@ get_header();
 </div></section>
 
 <?php endif; ?>
-<!-- ===================== WORK FROM HOME (9) ===================== -->
+<!-- ===================== LARGE IMAGE WITH CARD (9) ===================== -->
 <?php if ( $pt_show( 'show_wfh' ) ) : ?>
 <section class="immerse">
   <img src="<?php echo esc_url( $pt_f( 'wfh_image', 'https://www.projecttimber.com/wp-content/uploads/2026/06/10x8_My_Den_Composite_Garden_Office_04.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>">

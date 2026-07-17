@@ -162,7 +162,7 @@
         },
         {
             "key": "field_pt_show_wfh",
-            "label": "Work from home (feature)",
+            "label": "Large image with card",
             "name": "show_wfh",
             "type": "true_false",
             "instructions": "",
@@ -891,7 +891,7 @@
             "label": "Feature sections",
             "name": "",
             "type": "tab",
-            "instructions": "The alternating image / copy sections (Insulation, Cladding, Built to last, Assembly, Work from home).",
+            "instructions": "The alternating image / copy sections (Insulation, Cladding, Built to last, Assembly, Large image with card).",
             "placement": "top",
             "endpoint": 0,
             "required": 0,
@@ -1332,7 +1332,7 @@
         },
         {
             "key": "field_pt_wfh_image",
-            "label": "Work from home — image",
+            "label": "Large image with card — image",
             "name": "wfh_image",
             "type": "image",
             "return_format": "url",
@@ -1357,7 +1357,7 @@
         },
         {
             "key": "field_pt_wfh_heading",
-            "label": "Work from home — heading",
+            "label": "Large image with card — heading",
             "name": "wfh_heading",
             "type": "text",
             "instructions": "",
@@ -1377,7 +1377,7 @@
         },
         {
             "key": "field_pt_wfh_body",
-            "label": "Work from home — body",
+            "label": "Large image with card — body",
             "name": "wfh_body",
             "type": "textarea",
             "rows": 3,
