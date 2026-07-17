@@ -71,7 +71,7 @@ get_header();
 
 <div class="subnav">
   <span class="brand"><?php echo esc_html( $pt_name ); ?></span>
-  <nav class="tabs"><a href="#highlights">Overview</a><a href="#specs">Tech Specs</a><a href="#faq">FAQ</a></nav>
+  <nav class="tabs"><a href="#configure">Configure</a><a href="#highlights">Highlights</a><a href="#insulation">Insulation</a><a href="#assembly">Assembly</a><a href="#specs">Specs</a><a href="#faq">FAQ</a></nav>
   <button class="buy">Customise &amp; buy</button>
 </div>
 
@@ -295,7 +295,7 @@ get_header();
 </div></section>
 
 <!-- ===================== INSULATION (3 + 4) ===================== -->
-<section class="split" style="background:var(--mist)"><div class="wrap"><div class="grid">
+<section class="split" id="insulation" style="background:var(--mist)"><div class="wrap"><div class="grid">
   <div class="media"><img src="<?php echo esc_url( $pt_f( 'insulation_image', 'https://projecttimber.com/wp-content/uploads/2018/09/main_img4th.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
   <div class="copy">
     <div class="eyebrow">Insulation</div>
@@ -371,7 +371,7 @@ get_header();
 </div></div></section>
 
 <!-- ===================== WE DO THE HARD WORK (7) ===================== -->
-<section class="split rev" style="background:var(--paper)"><div class="wrap"><div class="grid">
+<section class="split rev" id="assembly" style="background:var(--paper)"><div class="wrap"><div class="grid">
   <div class="media"><img src="<?php echo esc_url( $pt_f( 'assembly_image', 'https://www.projecttimber.com/wp-content/uploads/2024/10/My-Den-Composite-Animated-building.gif' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
   <div class="copy">
     <div class="eyebrow">Assembly</div>
