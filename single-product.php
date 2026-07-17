@@ -453,8 +453,9 @@ get_header();
       </div>
     </div>
   </div>
-  <div class="spec-img-wrap">
-    <img id="specImg" src="https://www.projecttimber.com/wp-content/uploads/2024/10/8x6_Evolution_My_Den_Composite_Cladding_Garden_Office_06.jpg" alt="My Den 8 × 6 dimensions diagram">
+  <div class="dim-soon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l5-5 12 12-5 5z"/><path d="M8 8l1.8 1.8M11 5l1.8 1.8M14 8l1.8 1.8M5 11l1.8 1.8"/></svg>
+    <div><b>Interactive measurements coming soon</b><p>A live, unit-aware dimension diagram is on the way. Full specifications are below.</p></div>
   </div>
   <!-- Values carrying data-spec are filled live from GET /products/{sizeId}/specs; data-dim marks a
        dimension cell (stored in cm, converted for the Imperial toggle). Cells without data-spec keep

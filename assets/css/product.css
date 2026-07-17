@@ -232,6 +232,10 @@
   .spec-card td:last-child{ text-align:right; font-weight:400; }
   .spec-img-wrap{ margin:28px 0 32px; border-radius:var(--r); overflow:hidden; box-shadow:var(--e2); }
   .spec-img-wrap img{ width:100%; display:block; }
+  /* "dimension diagram coming soon" notice (replaces the per-size spec image for now) */
+  .dim-soon{ display:flex; align-items:center; gap:16px; background:var(--mist); border:1px dashed rgba(33,30,36,.18); border-radius:var(--r); padding:24px 26px; margin:26px 0 28px; color:var(--txt-soft); }
+  .dim-soon svg{ width:32px; height:32px; color:var(--charcoal); flex:0 0 auto; }
+  .dim-soon b{ color:var(--ink); font-size:1.02rem; } .dim-soon p{ font-weight:300; font-size:.88rem; margin:3px 0 0; }
   .spec-card td .q{ font-weight:300; color:var(--txt-soft); font-size:.78rem; }
 
   /* ---------------- TRUST ---------------- */
