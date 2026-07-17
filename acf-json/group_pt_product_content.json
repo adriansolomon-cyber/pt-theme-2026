@@ -384,6 +384,74 @@
             "mime_types": ""
         },
         {
+            "key": "field_pt_tab_product_image",
+            "label": "Product image",
+            "name": "",
+            "type": "tab",
+            "instructions": "Extra product images for this page.",
+            "placement": "top",
+            "endpoint": 0,
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_product_image_1",
+            "label": "Product image 1",
+            "name": "product_image_1",
+            "type": "image",
+            "instructions": "",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_product_image_2",
+            "label": "Product image 2",
+            "name": "product_image_2",
+            "type": "image",
+            "instructions": "",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
             "key": "field_pt_tab_configurator",
             "label": "Configurator",
             "name": "",
