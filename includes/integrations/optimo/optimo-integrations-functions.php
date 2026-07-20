@@ -321,19 +321,8 @@ function optimo_curl_post_json( $url, array $payload ) {
 
             if ( empty( $_POST[ '_final_delivery_date' ] ) || !is_user_logged_in() ) return;
 
-            global $wpdb;
-            $order_id  = ( int ) $_POST[ 'post_ID' ];
-            $order     = new WC_Order( $order_id );
-            $orderNo   = $order->get_order_number();
-            $dataToken = $wpdb->get_results( 'SELECT * FROM wp_nexus_token' )[ 0 ] ?? null;
-            $tokenid   = $dataToken->bearerToken ?? '';
-
-            // Nexus guard
-            $orderNexStatus = search_consigment_order( $orderNo, $tokenid );
-            if ( !empty( $orderNexStatus->itemCount ) && $orderNexStatus->itemCount >= 1 ) {
-                $order->add_order_note( 'Order not added to OptimoRoute because it already exists in Nexus.', 0, false );
-                return;
-            }
+            $order_id = ( int ) $_POST[ 'post_ID' ];
+            $order    = new WC_Order( $order_id );
 
             $date = date_format( date_create( sanitize_text_field( $_POST[ '_final_delivery_date' ] ) ), 'Y-m-d' );
 
