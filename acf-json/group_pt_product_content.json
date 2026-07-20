@@ -998,6 +998,26 @@
             "mime_types": ""
         },
         {
+            "key": "field_pt_insulation_eyebrow",
+            "label": "Feature: image & text (2 col) — eyebrow",
+            "name": "insulation_eyebrow",
+            "type": "text",
+            "instructions": "Small label above the heading. Leave blank to use “Insulation”.",
+            "default_value": "",
+            "placeholder": "Insulation",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
             "key": "field_pt_insulation_heading",
             "label": "Feature: image & text (2 col) — heading",
             "name": "insulation_heading",

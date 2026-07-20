@@ -326,7 +326,7 @@ get_header();
 <section class="split" id="insulation" style="background:var(--mist)"><div class="wrap"><div class="grid">
   <div class="media"><img src="<?php echo esc_url( $pt_f( 'insulation_image', 'https://projecttimber.com/wp-content/uploads/2018/09/main_img4th.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
   <div class="copy">
-    <div class="eyebrow">Insulation</div>
+    <div class="eyebrow"><?php echo esc_html( $pt_f( 'insulation_eyebrow', 'Insulation' ) ); ?></div>
     <?php $pt_ins_heading = get_field( 'insulation_heading', $pt_pid ); ?>
     <?php if ( $pt_ins_heading ) : ?>
       <h2><?php echo esc_html( $pt_ins_heading ); ?></h2>
