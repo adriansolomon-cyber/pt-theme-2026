@@ -52,6 +52,23 @@
   .co-consent .more{ font-weight:700; color:var(--charcoal); cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
   .co-consent .rest{ display:none; } .co-consent.open .rest{ display:inline; }
 
+  /* Klaviyo marketing opt-ins, relocated into the Contact block (see form-billing.php).
+     The plugin renders WC checkbox fields + an unstyled SMS consent block; style them to
+     match the design's .co-check / .co-consent, with a CSS-only "Read more" toggle. */
+  .co-form .kl_newsletter_checkbox_field,
+  .co-form .kl_sms_consent_checkbox_field{ margin:11px 0; padding:0; }
+  .co-form .kl_newsletter_checkbox_field label.checkbox,
+  .co-form .kl_sms_consent_checkbox_field label.checkbox{ display:flex; gap:11px; align-items:flex-start; margin:0; font-size:.88rem; font-weight:300; cursor:pointer; color:var(--txt); }
+  .co-form .kl_newsletter_checkbox_field input,
+  .co-form .kl_sms_consent_checkbox_field input{ width:18px; height:18px; margin:1px 0 0; accent-color:var(--charcoal); flex:0 0 auto; }
+  .co-form .klaviyo-consent-wrapper{ font-size:.78rem; color:var(--txt-soft); font-weight:300; line-height:1.5; margin:6px 0 0; }
+  .co-form #klaviyo-toggle-1{ display:none; }
+  .co-form #klaviyo-toggle-1:not(:checked) ~ .klaviyo-consent-wrapper{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .co-form .read-more-label{ display:inline-block; margin-top:2px; font-size:.78rem; font-weight:700; color:var(--charcoal); cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
+  .co-form .read-more-label .show-less{ display:none; }
+  .co-form #klaviyo-toggle-1:checked ~ .read-more-label .show-more{ display:none; }
+  .co-form #klaviyo-toggle-1:checked ~ .read-more-label .show-less{ display:inline; }
+
   .co-altaddr{ border:1px solid rgba(33,30,36,.12); border-radius:var(--r-sm); padding:4px 16px; margin-top:8px; }
   .co-altaddr summary{ list-style:none; cursor:pointer; display:flex; align-items:center; gap:11px; padding:13px 0; font-weight:700; font-size:.92rem; } .co-altaddr summary::-webkit-details-marker{ display:none; }
   .co-altaddr summary .box{ width:18px; height:18px; border:1.5px solid rgba(33,30,36,.3); border-radius:5px; display:inline-flex; align-items:center; justify-content:center; } .co-altaddr summary .box svg{ width:13px; height:13px; opacity:0; } .co-altaddr[open] summary .box{ background:var(--charcoal); border-color:var(--charcoal); } .co-altaddr[open] summary .box svg{ opacity:1; color:#fff; }

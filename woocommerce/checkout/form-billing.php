@@ -16,6 +16,10 @@ defined( 'ABSPATH' ) || exit;
 
 $pt_fields       = $checkout->get_checkout_fields( 'billing' );
 $pt_contact_keys = array( 'billing_email', 'billing_phone' );
+// Klaviyo marketing opt-ins (added to the billing group by the Klaviyo plugin at priority
+// 11). We render them in the Contact block to match the design instead of letting them fall
+// into "Billing details". Present only when the plugin + its checkout checkboxes are enabled.
+$pt_kl_keys = array( 'kl_newsletter_checkbox', 'kl_sms_consent_checkbox' );
 
 $pt_has_contact = false;
 foreach ( $pt_contact_keys as $pt_k ) {
@@ -41,13 +45,25 @@ foreach ( $pt_contact_keys as $pt_k ) {
 					woocommerce_form_field( $pt_k, $pt_fields[ $pt_k ], $checkout->get_value( $pt_k ) );
 				}
 			}
+
+			// Klaviyo email/SMS opt-in checkboxes, then the SMS consent disclosure
+			// (kl_sms_compliance_text() is normally hooked to the bottom of the billing
+			// form; functions.php removes that placement so it renders here instead).
+			foreach ( $pt_kl_keys as $pt_k ) {
+				if ( isset( $pt_fields[ $pt_k ] ) ) {
+					woocommerce_form_field( $pt_k, $pt_fields[ $pt_k ], $checkout->get_value( $pt_k ) );
+				}
+			}
+			if ( isset( $pt_fields['kl_sms_consent_checkbox'] ) && function_exists( 'kl_sms_compliance_text' ) ) {
+				kl_sms_compliance_text();
+			}
 			?>
 		<?php endif; ?>
 
 		<h3 class="pt-billing-title"><?php esc_html_e( 'Billing details', 'woocommerce' ); ?></h3>
 		<?php
 		foreach ( $pt_fields as $pt_key => $pt_field ) {
-			if ( in_array( $pt_key, $pt_contact_keys, true ) ) {
+			if ( in_array( $pt_key, $pt_contact_keys, true ) || in_array( $pt_key, $pt_kl_keys, true ) ) {
 				continue; // rendered in the Contact block above.
 			}
 			woocommerce_form_field( $pt_key, $pt_field, $checkout->get_value( $pt_key ) );

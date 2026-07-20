@@ -387,6 +387,19 @@ add_filter(
 );
 
 /**
+ * Klaviyo renders its SMS consent disclosure at the bottom of the billing form
+ * (woocommerce_after_checkout_billing_form). Our form-billing.php moves it up into the
+ * Contact block instead, so drop the default placement to avoid it showing twice.
+ * No-op when the Klaviyo plugin isn't active.
+ */
+add_action(
+	'woocommerce_checkout_before_customer_details',
+	function () {
+		remove_filter( 'woocommerce_after_checkout_billing_form', 'kl_sms_compliance_text' );
+	}
+);
+
+/**
  * Enqueue the WooCommerce notice auto-hide handler on checkout + cart.
  * (Hides info/success notices on load, auto-dismisses later ones, keeps errors.)
  */
