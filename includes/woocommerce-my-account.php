@@ -190,7 +190,6 @@ function pt_custom_dashboard_with_saved_carts() {
     } else {
         echo '<p>No saved carts found.</p>';
     }
-echo do_shortcode('[hubspot_latest_ticket style="minimal"]');
 }
 
 

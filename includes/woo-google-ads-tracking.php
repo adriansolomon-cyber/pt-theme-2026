@@ -54,42 +54,6 @@ function tracking_add_to_order_meta( $order ) {
 }
 add_action( 'woocommerce_checkout_create_order', 'tracking_add_to_order_meta', 10, 1 );
 
-// 3. Save tracking params to user meta after checkout so HubSpot field mapping can see them
-function tracking_save_to_user_meta( $order_id ) {
-    $order = wc_get_order( $order_id );
-
-    if ( ! $order ) {
-        return;
-    }
-
-    $user_id = $order->get_user_id();
-
-    // Skip guest orders
-    if ( empty( $user_id ) ) {
-        return;
-    }
-
-    $tracking_params = array(
-        'gclid',
-        'gbraid',
-        'wbraid',
-        'fbclid',
-        'utm_source',
-        'utm_medium',
-        'utm_campaign',
-        'utm_term',
-    );
-
-    foreach ( $tracking_params as $param ) {
-        $value = $order->get_meta( '_' . $param );
-
-        if ( ! empty( $value ) ) {
-            update_user_meta( $user_id, $param, $value );
-        }
-    }
-}
-add_action( 'woocommerce_checkout_order_processed', 'tracking_save_to_user_meta', 20, 1 );
-
 // 4. Display tracking params in WooCommerce Admin Order Page
 function tracking_display_in_admin_order_meta( $order ) {
     $display_params = array(
