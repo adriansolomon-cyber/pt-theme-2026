@@ -15,6 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $pt_offices = esc_url( home_url( '/garden-offices/' ) );
+// The "Shop Evolution" tier card links to the My Den Composite product page in the
+// mockup. Set this to that product's permalink once known; defaults to the garden
+// offices archive so the link is never broken.
+$pt_myden = esc_url( home_url( '/garden-offices/' ) );
 
 get_header();
 ?>
@@ -79,19 +83,26 @@ get_header();
 <section><div class="wrap">
   <div class="sec-head"><div class="eyebrow">Why Project Timber</div><h2>Built better, <span class="fade">where it matters.</span></h2></div>
   <div class="whyb-grid">
-    <!-- A: flat-pack hero (replace .ph with <img src="…" alt="…"> when the photo is ready) -->
     <div class="whyb-cell whyb-photo whyb-a">
-      <div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 20"/></svg><span class="cap">Image: two people slotting a wall panel together</span></div>
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/modular_panels_2.webp" alt="Modular timber panels being slotted together" loading="lazy">
       <div class="in"><div class="lab">Fast &amp; DIY-friendly</div><h3>Goes together like flat-pack</h3><p>Modular panels, fewer parts, clear step-by-step instructions.</p></div>
     </div>
-    <div class="whyb-cell whyb-dark whyb-b"><div class="big">Fewer parts.<br>Less time.</div><p style="margin-top:8px">Designed to go up over a weekend — or add assembly on the insulated range.</p></div>
-    <!-- C: insulation cutaway (replace .ph with <img> when ready) -->
+    <div class="whyb-cell whyb-dark whyb-b">
+      <span class="wb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9.5V13l2.5 1.8"/><path d="M9 2h6"/></svg></span>
+      <div class="wb-txt"><div class="lab">Build Time</div><div class="big">Fewer parts.<br>Less time.</div><p>Designed to go up over a weekend — or add assembly on the insulated range.</p></div>
+    </div>
     <div class="whyb-cell whyb-photo whyb-c">
-      <div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 20"/></svg><span class="cap">Image: insulated panel cutaway</span></div>
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/insulated_wall.webp" alt="Cutaway of an insulated wall panel" loading="lazy">
       <div class="in"><div class="lab">All-season</div><h3>Insulation built in</h3><p>Warm walls, floor &amp; roof, year-round.</p></div>
     </div>
-    <div class="whyb-cell whyb-light"><h3>Pressure-treated</h3><p>Protected against rot, as standard.</p></div>
-    <div class="whyb-cell whyb-light whyb-accent"><h3>Doubled-up framing</h3><p>Extra strength at every joint.</p></div>
+    <div class="whyb-cell whyb-light whyb-feat">
+      <span class="wb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z"/><path d="M12 8l2.3 3.4H9.7zM12 10.8l1.7 2.6h-3.4zM12 13.8v1.6"/></svg></span>
+      <div class="wb-txt"><div class="lab">Durability</div><h3>Pressure-treated</h3><p>Protected against rot, as standard.</p></div>
+    </div>
+    <div class="whyb-cell whyb-light whyb-feat">
+      <span class="wb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l8-5 8 5v11"/><path d="M4 20h16M8 20v-6.5M12 20v-8.5M16 20v-6.5"/></svg></span>
+      <div class="wb-txt"><div class="lab">Strength</div><h3>Doubled-up framing</h3><p>Extra strength at every joint.</p></div>
+    </div>
   </div>
 </div></section>
 
@@ -109,7 +120,7 @@ get_header();
   <!-- OFFICE -->
   <div class="exp-panel" id="panel-office" role="tabpanel" aria-labelledby="tab-office">
     <section class="immerse" style="padding:0">
-      <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/10x8_My_Den_Composite_Garden_Office_04.jpg" alt="The insulated My Den Composite garden office" loading="lazy">
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/garden-office-fullwidth3.webp" alt="The insulated My Den Composite garden office interior" loading="lazy">
       <div class="panel">
         <div class="eyebrow" style="color:#fff;opacity:.7">Fully insulated · all year round</div>
         <h2>A garden office you'll actually use in January.</h2>
@@ -120,12 +131,12 @@ get_header();
     <section class="uses"><div class="wrap">
       <div class="sec-head"><div class="eyebrow">A garden office, your way</div><h2>What will <span class="fade">yours be?</span></h2></div>
       <div class="use-grid">
-        <a class="use-tile" href="<?php echo $pt_offices; ?>"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="11" rx="1"/><path d="M8 20h8M12 16v4"/></svg> Home office</h3><p>Quiet, insulated and distraction-free.</p></a>
-        <a class="use-tile" href="<?php echo $pt_offices; ?>"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6M20 9v6M7 7v10M17 7v10M7 12h10"/></svg> Gym</h3><p>Train, steps from the house.</p></a>
-        <a class="use-tile" href="<?php echo $pt_offices; ?>"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.9 1-1.7-.6-1 .1-2.3 1.3-2.3H17a4 4 0 0 0 4-4c0-5-4-8-9-8z"/><circle cx="8" cy="10" r="1" fill="#3B333D" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="#3B333D" stroke="none"/><circle cx="16" cy="10" r="1" fill="#3B333D" stroke="none"/></svg> Studio</h3><p>Create or practise in peace.</p></a>
-        <a class="use-tile" href="<?php echo $pt_offices; ?>"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 12c0 4.5-7 9-7 9z"/></svg> Hobby room</h3><p>A dedicated space for what you love.</p></a>
-        <a class="use-tile" href="<?php echo $pt_offices; ?>"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l10-2v13"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="16" r="2"/></svg> Music room</h3><p>Space to play without the neighbours.</p></a>
-        <a class="use-tile" href="<?php echo $pt_offices; ?>"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></svg> Garden retreat</h3><p>Somewhere to simply switch off.</p></a>
+        <a class="use-tile" href="<?php echo $pt_offices; ?>"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/my-den-composite-office.webp" alt="A My Den garden office used as a home office" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="11" rx="1"/><path d="M8 20h8M12 16v4"/></svg> Home office</h3><p>Quiet, insulated and distraction-free.</p></a>
+        <a class="use-tile" href="<?php echo $pt_offices; ?>"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/my-den-composite-gym.webp" alt="A My Den garden office used as a gym" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6M20 9v6M7 7v10M17 7v10M7 12h10"/></svg> Gym</h3><p>Train, steps from the house.</p></a>
+        <a class="use-tile" href="<?php echo $pt_offices; ?>"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/my-den-composite-studio.webp" alt="A My Den garden office used as a studio" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.9 1-1.7-.6-1 .1-2.3 1.3-2.3H17a4 4 0 0 0 4-4c0-5-4-8-9-8z"/><circle cx="8" cy="10" r="1" fill="#3B333D" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="#3B333D" stroke="none"/><circle cx="16" cy="10" r="1" fill="#3B333D" stroke="none"/></svg> Studio</h3><p>Create or practise in peace.</p></a>
+        <a class="use-tile" href="<?php echo $pt_offices; ?>"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/my-den-composite-salon.webp" alt="A My Den garden office used as a hobby room" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 12c0 4.5-7 9-7 9z"/></svg> Hobby room</h3><p>A dedicated space for what you love.</p></a>
+        <a class="use-tile" href="<?php echo $pt_offices; ?>"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/my-den-composite-music-room-ai-2.webp" alt="A My Den garden office used as a music room" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l10-2v13"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="16" r="2"/></svg> Music room</h3><p>Space to play without the neighbours.</p></a>
+        <a class="use-tile" href="<?php echo $pt_offices; ?>"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/my-den-composite-retreat.webp" alt="A My Den garden office used as a garden retreat" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></svg> Garden retreat</h3><p>Somewhere to simply switch off.</p></a>
       </div>
     </div></section>
   </div>
@@ -157,7 +168,7 @@ get_header();
   <!-- WORKSHOP -->
   <div class="exp-panel" id="panel-workshop" role="tabpanel" aria-labelledby="tab-workshop" hidden>
     <section class="immerse" style="padding:0">
-      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/GM_Pent_Workshop_Interior.webp" alt="A Grandmaster Pent garden workshop" loading="lazy">
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/workshop_2_1.webp" alt="Inside a Grandmaster garden workshop" loading="lazy">
       <div class="panel">
         <div class="eyebrow" style="color:#fff;opacity:.7">Grandmaster · heavy-duty</div>
         <h2>Room to build, fix and make.</h2>
@@ -168,12 +179,12 @@ get_header();
     <section class="uses"><div class="wrap">
       <div class="sec-head"><div class="eyebrow">A workshop, your way</div><h2>What will <span class="fade">yours build?</span></h2></div>
       <div class="use-grid">
-        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l4 4-9 9-4 1 1-4z"/><path d="M14 6l3-3 4 4-3 3"/></svg> Woodworking</h3><p>A proper bench and room for the tools.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a3.5 3.5 0 0 0-4.6 4.6l-6 6 1.7 1.7 6-6a3.5 3.5 0 0 0 4.6-4.6l-2.1 2.1-1.7-1.7z"/></svg> DIY &amp; repairs</h3><p>Somewhere to fix, tinker and get it done.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="1.5"/><path d="M8 7V5h8v2M9 12h6"/></svg> Tool &amp; bike store</h3><p>Secure, dry and easy to get to.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.9 1-1.7-.6-1 .1-2.3 1.3-2.3H17a4 4 0 0 0 4-4c0-5-4-8-9-8z"/><circle cx="8" cy="10" r="1" fill="#3B333D" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="#3B333D" stroke="none"/><circle cx="16" cy="10" r="1" fill="#3B333D" stroke="none"/></svg> Hobby making</h3><p>Model-making, crafts, restoration and more.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Home business</h3><p>Trade base, studio or workshop from home.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M17.7 6.3l-1.4 1.4M7.7 16.3l-1.4 1.4"/></svg> Garden machinery</h3><p>Mowers, trimmers and kit, kept sheltered.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/woodworking_1_1x.webp" alt="A garden workshop set up for woodworking" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l4 4-9 9-4 1 1-4z"/><path d="M14 6l3-3 4 4-3 3"/></svg> Woodworking</h3><p>A proper bench and room for the tools.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/diy_and_repairs_1_1x.webp" alt="A garden workshop used for DIY and repairs" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a3.5 3.5 0 0 0-4.6 4.6l-6 6 1.7 1.7 6-6a3.5 3.5 0 0 0 4.6-4.6l-2.1 2.1-1.7-1.7z"/></svg> DIY &amp; repairs</h3><p>Somewhere to fix, tinker and get it done.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/tool_and_bike_store_1_1x.webp" alt="A garden workshop used as a tool and bike store" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="1.5"/><path d="M8 7V5h8v2M9 12h6"/></svg> Tool &amp; bike store</h3><p>Secure, dry and easy to get to.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/hobby_making_1_1x.webp" alt="A garden workshop used for hobby making" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.9 1-1.7-.6-1 .1-2.3 1.3-2.3H17a4 4 0 0 0 4-4c0-5-4-8-9-8z"/><circle cx="8" cy="10" r="1" fill="#3B333D" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="#3B333D" stroke="none"/><circle cx="16" cy="10" r="1" fill="#3B333D" stroke="none"/></svg> Hobby making</h3><p>Model-making, crafts, restoration and more.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/GM_Pent_Workshop_Interior.webp" alt="A garden workshop used as a home business base" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Home business</h3><p>Trade base, studio or workshop from home.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/garden_machinery_1_1x.webp" alt="A garden workshop used to store garden machinery" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M17.7 6.3l-1.4 1.4M7.7 16.3l-1.4 1.4"/></svg> Garden machinery</h3><p>Mowers, trimmers and kit, kept sheltered.</p></a>
       </div>
     </div></section>
   </div>
@@ -181,23 +192,23 @@ get_header();
   <!-- STORAGE -->
   <div class="exp-panel" id="panel-storage" role="tabpanel" aria-labelledby="tab-storage" hidden>
     <section class="immerse" style="padding:0">
-      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/shed_1x.webp" alt="A Hobbyist garden shed" loading="lazy">
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/garden-shed-2.webp" alt="A Hobbyist garden shed" loading="lazy">
       <div class="panel">
         <div class="eyebrow" style="color:#fff;opacity:.7">Hobbyist · dependable</div>
         <h2>Room for everything else.</h2>
-        <p>Tough, secure garden sheds to keep tools, bikes, mowers and furniture dry and out of the way — pressure-treated timber with a 25-year anti-rot guarantee.*</p>
+        <p>Tough garden sheds to keep tools, toys, furniture and everything else dry and out of the way — pressure-treated timber with a 25-year anti-rot guarantee.*</p>
         <a class="btn-primary" href="https://www.projecttimber.com/garden-sheds/">Explore sheds <span class="a">→</span></a>
       </div>
     </section>
     <section class="uses"><div class="wrap">
       <div class="sec-head"><div class="eyebrow">Sorted &amp; stored</div><h2>What will <span class="fade">yours hold?</span></h2></div>
       <div class="use-grid">
-        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a3.5 3.5 0 0 0-4.6 4.6l-6 6 1.7 1.7 6-6a3.5 3.5 0 0 0 4.6-4.6l-2.1 2.1-1.7-1.7z"/></svg> Garden tools</h3><p>Spades, forks and everything in between.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17l4-7h5l3 7M10 10l2-4h3"/></svg> Bikes &amp; mowers</h3><p>Big kit kept dry and secure.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M3 11h18M9 7V5h6v2"/></svg> Seasonal storage</h3><p>Furniture and decorations, out of season.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l8-4 8 4v10H4z"/><path d="M8 19v-6h8v6"/></svg> Bin &amp; log store</h3><p>Tidy the bins, keep the logs dry.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="6" rx="2"/><path d="M5 11V9a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2M6 17v2M18 17v2"/></svg> Furniture store</h3><p>Room for the things without a home.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="1.5"/><path d="M8 7V5h8v2M9 12h6"/></svg> Overflow storage</h3><p>Free up the garage and the loft.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/gardening-tools.webp" alt="A garden shed storing gardening tools" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a3.5 3.5 0 0 0-4.6 4.6l-6 6 1.7 1.7 6-6a3.5 3.5 0 0 0 4.6-4.6l-2.1 2.1-1.7-1.7z"/></svg> Garden tools</h3><p>Spades, forks and everything in between.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/outdoor-toys.webp" alt="A garden shed storing outdoor toys" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18M3 12h18"/></svg> Outdoor toys</h3><p>Scooters, sandpit toys and garden games, tidied away out of the rain.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/seasonal-storage.webp" alt="A garden shed used for seasonal storage" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M3 11h18M9 7V5h6v2"/></svg> Seasonal storage</h3><p>Furniture and decorations, out of season.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/binandlogstore.webp" alt="A bin and log store" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l8-4 8 4v10H4z"/><path d="M8 19v-6h8v6"/></svg> Bin &amp; log store</h3><p>Tidy the bins, keep the logs dry.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/furniture-store.webp" alt="A garden shed storing furniture" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="6" rx="2"/><path d="M5 11V9a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2M6 17v2M18 17v2"/></svg> Furniture store</h3><p>Room for the things without a home.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/overflow-storage.webp" alt="A garden shed used for overflow storage" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="1.5"/><path d="M8 7V5h8v2M9 12h6"/></svg> Overflow storage</h3><p>Free up the garage and the loft.</p></a>
       </div>
     </div></section>
   </div>
@@ -215,7 +226,7 @@ get_header();
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/hobbyistrange.webp" alt="Hobbyist range" loading="lazy">
       <div class="rb-in"><span class="tag">Entry</span><h3>Hobbyist</h3><p>Quality sheds, summerhouses &amp; greenhouses at accessible prices.</p><div class="rfoot"><span class="rprice">From £668</span><span class="shop">Shop Hobbyist <span class="a">→</span></span></div></div>
     </a>
-    <a class="rb-card" href="https://www.projecttimber.com/insulated-garden-buildings/">
+    <a class="rb-card" href="<?php echo $pt_myden; ?>">
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/Insulated-garden-buildings.webp" alt="Evolution range" loading="lazy">
       <div class="rb-in"><span class="tag">Insulated</span><h3>Evolution · My Den</h3><p>Fully-insulated, all-season garden offices &amp; rooms.</p><div class="rfoot"><span class="rprice">From £3,972</span><span class="shop">Shop Evolution <span class="a">→</span></span></div></div>
     </a>
@@ -224,7 +235,7 @@ get_header();
 
 <!-- ===================== MADE IN BRITAIN ===================== -->
 <section class="split rev" style="background:var(--paper)"><div class="wrap"><div class="grid">
-  <div class="media"><img src="https://www.projecttimber.com/wp-content/uploads/2024/10/Hand-crafted-SQ.jpg" alt="Hand-crafted in Project Timber's Nottinghamshire workshop" loading="lazy"></div>
+  <div class="media"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/factory_worker_insulation.webp" alt="A worker fitting insulation in Project Timber's Nottinghamshire workshop" loading="lazy"></div>
   <div class="copy">
     <div class="eyebrow">Designed &amp; made in the UK</div>
     <h2>Hand-crafted on the edge of <span class="fade">Sherwood Forest.</span></h2>
@@ -241,9 +252,9 @@ get_header();
 <section class="showsite"><div class="wrap">
   <div class="ss-grid">
     <div class="ss-media">
-      <div class="ss-ph ss-ph-a"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/Showsite_Buildings.webp" alt="Project Timber showsite display buildings" loading="lazy"></div>
+      <div class="ss-ph ss-ph-a"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/showsite-buildings-2.webp" alt="Project Timber showsite display buildings" loading="lazy"></div>
       <div class="ss-ph ss-ph-b"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/Showsite_Interior-scaled.webp" alt="Inside a Project Timber display building" loading="lazy"></div>
-      <div class="ss-ph ss-ph-c"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/Showsite_Closeup-scaled.webp" alt="Close-up of a Project Timber building's finish" loading="lazy"></div>
+      <div class="ss-ph ss-ph-c"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/showsite_evo_cedar.webp" alt="An Evolution cedar garden building at the showsite" loading="lazy"></div>
     </div>
     <div class="ss-copy">
       <div class="eyebrow">Visit us</div>

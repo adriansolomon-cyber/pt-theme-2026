@@ -13,14 +13,489 @@
      Phone numbers — single source of truth: Phone_Numbers.md (website = 553392).
      ============================================================ -->
 
-<link rel="stylesheet" href="assets/css/base.css">
-<link rel="stylesheet" href="assets/css/home.css">
+<style>
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerbold.otf") format("opentype"); font-weight:700; font-display:swap; }
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerregular.otf") format("opentype"); font-weight:400; font-display:swap; }
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerlight.otf") format("opentype"); font-weight:300; font-display:swap; }
+
+  :root{
+    --ink:#211E24; --charcoal:#3B333D; --slate:#5A5560; --graphite:#6E6A74;
+    --clay:#B7997F; --sand:#E6D9C7; --stone:#CFC0AC;
+    --paper:#F5F5F5; --mist:#F5F5F5; --white:#FFFFFF;
+    --accent:#FFFF00;
+    --txt:#211E24; --txt-soft:#6E6A74; --on-dark:#F7F4EF; --on-dark-soft:#B7B2BB;
+    --r:26px; --r-sm:16px; --maxw:1180px;
+    --ease:cubic-bezier(.2,.7,.3,1);
+    --e1:0 1px 2px rgba(33,30,36,.06), 0 6px 16px rgba(33,30,36,.06);
+    --e2:0 2px 6px rgba(33,30,36,.08), 0 18px 40px rgba(33,30,36,.10);
+    --e3:0 10px 30px rgba(33,30,36,.14), 0 30px 70px rgba(33,30,36,.16);
+    --font:"F37 Jagger","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html{ scroll-behavior:smooth; }
+  body{ margin:0; background:var(--white); color:var(--txt); font-family:var(--font); font-weight:400; line-height:1.55; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,h4{ font-weight:700; line-height:1.02; letter-spacing:-.02em; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+  .eyebrow{ font-weight:400; text-transform:uppercase; letter-spacing:.22em; font-size:.7rem; color:var(--txt-soft); }
+  .lead{ font-weight:300; font-size:1.18rem; color:var(--txt-soft); line-height:1.5; }
+  @media(min-width:860px){ .lead{ font-size:1.4rem; } }
+  section{ padding:64px 0; }
+  .sec-head{ margin-bottom:30px; }
+  .sec-head h2{ font-size:clamp(2rem,5vw,3rem); }
+  .fade{ background:linear-gradient(100deg,var(--charcoal) 35%,#767181); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .swipe{ position:relative; white-space:nowrap; }
+  .swipe::after{ content:""; position:absolute; left:-.06em; right:-.06em; bottom:.08em; height:.30em; background:rgba(255,255,0,.3); z-index:-1; transform:rotate(-1.5deg); }
+
+  /* buttons */
+  .btn-primary{ display:inline-flex; align-items:center; gap:8px; border:none; cursor:pointer; text-decoration:none; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1rem; padding:15px 28px; border-radius:999px; box-shadow:var(--e1); transition:transform .2s var(--ease), box-shadow .2s var(--ease); }
+  .btn-primary:active{ transform:scale(.98); }
+  @media(hover:hover){ .btn-primary:hover{ transform:translateY(-2px); box-shadow:var(--e2); } .btn-primary:hover .a{ transform:translateX(4px); } }
+  .btn-primary .a{ transition:transform .25s var(--ease); }
+  .btn-ghost{ display:inline-flex; align-items:center; gap:8px; border:1.5px solid currentColor; cursor:pointer; text-decoration:none; font-family:var(--font); font-weight:700; background:transparent; color:inherit; font-size:1rem; padding:13.5px 26px; border-radius:999px; transition:transform .2s var(--ease); }
+  .btn-ghost:active{ transform:scale(.98); }
+
+  /* promo + header */
+  .skip{ position:absolute; left:-9999px; top:0; z-index:300; background:var(--ink); color:#fff; padding:12px 18px; border-radius:0 0 10px 0; font-weight:700; text-decoration:none; }
+  .skip:focus{ left:0; }
+  :focus-visible{ outline:2px solid var(--charcoal); outline-offset:2px; border-radius:6px; }
+  .promo{ background:var(--ink); color:var(--on-dark); text-align:center; font-size:.74rem; letter-spacing:.05em; padding:8px 14px; }
+  .promo b{ color:#fff; }
+  .mainhead{ display:flex; align-items:center; gap:14px; padding:10px 20px; border-bottom:1px solid rgba(33,30,36,.07); position:sticky; top:0; z-index:50; background:rgba(255,255,255,.82); backdrop-filter:saturate(160%) blur(18px); -webkit-backdrop-filter:saturate(160%) blur(18px); }
+  .mainhead .menu{ display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:none; background:none; cursor:pointer; color:var(--ink); padding:0; }
+  .mainhead .menu svg{ width:24px; height:24px; }
+  @media(min-width:860px){ .mainhead .menu{ display:none; } }
+  .mainhead .logo{ display:inline-flex; } .mainhead .logo img{ height:44px; width:auto; display:block; }
+  .mainhead .search{ margin-left:auto; flex:0 1 360px; display:none; align-items:center; gap:9px; border:1px solid rgba(33,30,36,.15); border-radius:999px; padding:11px 16px; color:var(--txt-soft); font-size:.85rem; font-family:inherit; text-align:left; cursor:pointer; }
+  .mainhead .search svg{ width:16px; height:16px; }
+  @media(min-width:860px){ .mainhead .search{ display:flex; } }
+  .mainhead .icons{ margin-left:auto; display:flex; gap:2px; align-items:center; }
+  @media(min-width:860px){ .mainhead .icons{ margin-left:18px; } }
+  /* header search bar (opens under the nav) */
+  .hsearch{ background:#fff; border-bottom:1px solid rgba(33,30,36,.08); }
+  .hsearch[hidden]{ display:none; }
+  .hsearch .wrap{ padding:10px 20px; }
+  .hsearch input{ width:100%; font-family:var(--font); font-size:.95rem; padding:12px 16px; border:1px solid rgba(33,30,36,.18); border-radius:999px; color:var(--ink); }
+  .hsearch input:focus{ outline:none; border-color:var(--charcoal); }
+  /* mobile header: logo centred · cart+account left · search+burger right · chat hidden */
+  @media(max-width:859px){
+    .mainhead{ position:relative; gap:6px; }
+    .mainhead .icons{ display:contents; }
+    .mainhead .logo{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+    .mainhead .menu{ order:1; }
+    .mainhead .searchic{ order:2; }
+    .mainhead .icons .supporttrigger{ display:none; order:8; }
+    .mainhead a.ic[aria-label="My account"]{ order:8; margin-left:auto; }
+    .mainhead .cartopen{ order:9; }
+  }
+  .mainhead .ic{ position:relative; cursor:pointer; color:var(--ink); display:inline-flex; align-items:center; justify-content:center; min-width:40px; min-height:40px; border:none; background:none; padding:0; }
+  .mainhead .ic svg{ width:22px; height:22px; } .mainhead .ic img{ width:22px; height:22px; display:block; }
+  .mainhead .ic .badge{ position:absolute; top:-2px; right:-2px; background:var(--accent); color:var(--ink); font-size:.6rem; font-weight:700; border-radius:999px; padding:1px 5px; }
+  @media(min-width:860px){ .mainhead .icons .searchic{ display:none; } }
+  .primnav{ border-bottom:1px solid rgba(33,30,36,.07); }
+  .primnav ul{ list-style:none; margin:0; padding:9px 20px; display:flex; gap:26px; justify-content:center; font-size:.9rem; font-weight:400; }
+  .primnav a{ color:var(--ink); text-decoration:none; white-space:nowrap; }
+  @media(hover:hover){ .primnav a:hover{ color:#000; } }
+  @media(max-width:860px){ .primnav{ display:none; } .primnav.open{ display:block; } .primnav ul{ flex-direction:column; align-items:flex-start; gap:0; padding:6px 20px 12px; } .primnav li{ width:100%; padding:11px 0; border-bottom:1px solid rgba(33,30,36,.06); } }
+
+  /* hero */
+  .hero{ position:relative; min-height:clamp(520px,78vh,760px); display:flex; align-items:flex-end; overflow:hidden; color:#fff; }
+  .hero img, .hero video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .hero .hero-vtoggle{ position:absolute; right:16px; bottom:16px; z-index:3; width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,.5); background:rgba(0,0,0,.35); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .hero .hero-vtoggle svg{ width:18px; height:18px; }
+  .hero .hero-vtoggle .ipl{ display:none; }
+  .hero .hero-vtoggle.paused .ip{ display:none; } .hero .hero-vtoggle.paused .ipl{ display:block; }
+  .hero .scrim{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.12) 0%,rgba(0,0,0,.18) 45%,rgba(0,0,0,.66)); }
+  .hero .inner{ position:relative; padding:0 20px 56px; max-width:var(--maxw); margin:0 auto; width:100%; }
+  .hero .eyebrow{ color:#fff; opacity:.85; }
+  .hero h1{ font-size:clamp(2.4rem,6.5vw,4.6rem); letter-spacing:-.035em; line-height:1; margin:14px 0 16px; max-width:16ch; text-shadow:0 2px 30px rgba(0,0,0,.25); }
+  .hero .sub{ font-weight:300; font-size:clamp(1.05rem,2.4vw,1.4rem); max-width:54ch; color:#f3f1ee; }
+  .hero .cta-row{ display:flex; gap:12px; flex-wrap:wrap; margin-top:26px; }
+
+  /* trust bar */
+  .trustbar{ background:var(--charcoal); color:var(--on-dark); padding:20px 0; }
+  .trustbar .wrap{ display:flex; flex-wrap:wrap; gap:12px 26px; justify-content:center; align-items:center; }
+  .trustbar .ti{ display:inline-flex; align-items:center; gap:9px; font-size:.84rem; font-weight:400; }
+  .trustbar .ti svg{ width:16px; height:16px; flex:0 0 auto; color:var(--accent); }
+
+  /* shop by range */
+  .ranges{ background:var(--paper); }
+  .range-grid{ display:grid; gap:14px; grid-template-columns:repeat(2,1fr); }
+  @media(min-width:680px){ .range-grid{ gap:16px; } }
+  @media(min-width:1000px){ .range-grid{ grid-template-columns:repeat(3,1fr); } }
+  .range-card{ position:relative; display:block; border-radius:var(--r-sm); overflow:hidden; text-decoration:none; color:#fff; box-shadow:var(--e1); aspect-ratio:5/4; transition:transform .25s var(--ease), box-shadow .25s var(--ease); }
+  .range-card:active{ transform:scale(.99); }
+  @media(hover:hover){ .range-card:hover{ transform:translateY(-4px); box-shadow:var(--e2); } }
+  .range-card img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; transition:transform .6s var(--ease); }
+  @media(hover:hover){ .range-card:hover img{ transform:scale(1.06); } }
+  .range-card::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,0) 38%,rgba(0,0,0,.62)); pointer-events:none; }
+  .range-card .glass{ position:absolute; left:12px; right:12px; bottom:12px; z-index:1; padding:14px 16px; border-radius:14px; background:rgba(255,255,255,.16); backdrop-filter:blur(16px) saturate(150%); -webkit-backdrop-filter:blur(16px) saturate(150%); border:1px solid rgba(255,255,255,.3); box-shadow:0 8px 24px rgba(0,0,0,.16); }
+  .rfoot{ margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .rfoot .rprice{ font-weight:700; color:#fff; font-size:.9rem; white-space:nowrap; }
+  .range-card .rfoot .more, .rb-in .rfoot .shop{ margin-top:0; }
+  .range-card h3{ font-size:1.08rem; color:#fff; text-shadow:0 1px 10px rgba(0,0,0,.3); }
+  .range-card .d{ font-weight:300; font-size:.8rem; color:rgba(255,255,255,.9); line-height:1.4; margin-top:4px; text-shadow:0 1px 8px rgba(0,0,0,.3); }
+  .range-card .more{ font-weight:700; font-size:.78rem; letter-spacing:.04em; color:#fff; display:inline-flex; align-items:center; gap:6px; margin-top:9px; }
+  .range-card .more .a{ transition:transform .25s var(--ease); }
+  @media(hover:hover){ .range-card:hover .more .a{ transform:translateX(4px); } }
+  /* mobile only: 2-col, text directly on the image (no glass box) */
+  @media(max-width:679px){
+    .range-card{ aspect-ratio:4/5; }
+    .range-card::after{ background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.74)); }
+    .range-card .glass{ left:0; right:0; bottom:0; padding:14px 15px; background:none; border:none; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; border-radius:0; }
+    .range-card .glass .d{ display:none; }
+    .range-card h3{ font-size:1.05rem; }
+    .rfoot{ margin-top:8px; }
+    .range-card .more{ font-size:0; }
+    .range-card .more .a{ font-size:1.05rem; }
+  }
+
+  /* why grid */
+  .wc-grid{ display:grid; gap:16px; grid-template-columns:1fr; }
+  @media(min-width:560px){ .wc-grid{ grid-template-columns:1fr 1fr; } }
+  @media(min-width:900px){ .wc-grid{ grid-template-columns:repeat(3,1fr); gap:18px; } }
+  .wc-card{ background:var(--white); border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); padding:24px; box-shadow:var(--e1); transition:box-shadow .25s var(--ease), transform .25s var(--ease); }
+  @media(hover:hover){ .wc-card:hover{ box-shadow:var(--e2); transform:translateY(-3px); } }
+  .wc-card .ic{ width:46px; height:46px; border-radius:12px; background:var(--mist); display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+  .wc-card .ic svg{ width:24px; height:24px; }
+  .wc-card h3{ font-size:1.12rem; margin-bottom:6px; line-height:1.1; }
+  .wc-card p{ font-weight:300; font-size:.9rem; color:var(--txt-soft); line-height:1.45; }
+
+  /* immerse (full-bleed) */
+  .immerse{ position:relative; background:var(--ink); color:var(--on-dark); overflow:hidden; height:100vh; height:100dvh; display:flex; flex-direction:column; justify-content:flex-end; }
+  .immerse img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .immerse .panel{ position:relative; z-index:1; width:min(90%,680px); margin:0 auto 6%; background:rgba(33,30,36,.55); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.14); border-radius:var(--r); padding:26px 28px; text-align:center; box-shadow:var(--e3); }
+  .immerse .panel h2{ font-size:clamp(1.5rem,3.6vw,2.4rem); margin-bottom:10px; }
+  .immerse .panel p{ font-weight:300; color:var(--on-dark-soft); margin-bottom:18px; }
+  @media(max-width:680px){
+    .immerse .panel{ width:auto; margin:0 20px 20px; padding:22px 22px; }
+  }
+
+  /* use tiles */
+  .uses{ background:var(--mist); }
+  .use-grid{ display:grid; gap:14px; grid-template-columns:repeat(2,1fr); }
+  @media(min-width:760px){ .use-grid{ grid-template-columns:repeat(3,1fr); gap:16px; } }
+  .use-tile{ display:block; text-decoration:none; color:inherit; background:var(--white); border-radius:var(--r-sm); padding:0; overflow:hidden; box-shadow:var(--e1); transition:transform .2s var(--ease), box-shadow .2s var(--ease); }
+  @media(hover:hover){ .use-tile:hover{ transform:translateY(-3px); box-shadow:var(--e2); } }
+  /* interactive explore module */
+  .exp-tabs{ display:flex; flex-wrap:wrap; gap:6px; background:var(--mist); border-radius:999px; padding:6px; margin:24px 0 4px; }
+  .exp-tab{ flex:1 1 auto; border:none; background:none; cursor:pointer; font-family:var(--font); font-weight:700; font-size:.92rem; color:var(--txt-soft); padding:13px 18px; border-radius:999px; white-space:nowrap; transition:background .2s var(--ease), color .2s; }
+  .exp-tab[aria-selected="true"]{ background:var(--charcoal); color:#fff; }
+  @media(hover:hover){ .exp-tab:not([aria-selected="true"]):hover{ color:var(--ink); } }
+  .exp-panel[hidden]{ display:none; }
+  .exp-panel{ margin-top:16px; }
+  .use-tile::before{ content:"Scenario image"; display:flex; align-items:flex-end; aspect-ratio:16/10; padding:12px 14px; font-size:.66rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#9a95a0; background:var(--mist) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23B7B2BB' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Ccircle cx='8.5' cy='9.5' r='1.5'/%3E%3Cpath d='M21 15l-5-5L5 20'/%3E%3C/svg%3E") center 42% / 40px no-repeat; }
+  .use-tile h3{ font-size:1.06rem; margin:15px 18px 5px; display:flex; align-items:center; gap:9px; }
+  .use-tile h3 svg{ width:20px; height:20px; color:var(--charcoal); flex:0 0 auto; }
+  .use-tile p{ font-weight:300; font-size:.86rem; color:var(--txt-soft); line-height:1.4; margin:0 18px 18px; }
+  .use-tile .uimg{ display:block; width:100%; aspect-ratio:16/10; object-fit:cover; transition:transform .5s var(--ease); }
+  .use-tile:has(.uimg)::before{ display:none; }
+  @media(hover:hover){ .use-tile:hover .uimg{ transform:scale(1.05); } }
+
+  /* tiers */
+  .tiers .grid{ display:grid; gap:18px; grid-template-columns:1fr; }
+  @media(min-width:860px){ .tiers .grid{ grid-template-columns:repeat(3,1fr); } }
+  .tier{ position:relative; background:var(--white); border:1px solid rgba(33,30,36,.12); border-radius:var(--r); padding:28px 26px; box-shadow:var(--e1); display:flex; flex-direction:column; }
+  .tier.feat{ border:2px solid var(--charcoal); }
+  .tier .tag{ position:absolute; top:-12px; left:26px; background:var(--accent); color:var(--ink); font-size:.66rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:4px 12px; border-radius:999px; }
+  .tier .name{ font-size:1.4rem; font-weight:700; }
+  .tier .pos{ font-weight:300; font-size:.82rem; color:var(--txt-soft); margin:2px 0 14px; }
+  .tier ul{ list-style:none; margin:0 0 20px; padding:0; display:grid; gap:9px; }
+  .tier li{ display:flex; gap:9px; align-items:flex-start; font-size:.9rem; font-weight:300; }
+  .tier li svg{ width:18px; height:18px; flex:0 0 auto; margin-top:1px; }
+  .tier .btn-primary,.tier .btn-ghost{ margin-top:auto; justify-content:center; }
+
+  /* split */
+  .split .grid{ display:grid; gap:28px; align-items:center; }
+  @media(min-width:860px){ .split .grid{ grid-template-columns:1fr 1fr; gap:56px; } .split.rev .media{ order:2; } }
+  .split .media img{ width:100%; border-radius:var(--r); box-shadow:var(--e2); display:block; aspect-ratio:4/3; object-fit:cover; background:var(--mist); }
+  .split h2{ font-size:clamp(1.9rem,4.6vw,2.8rem); margin-bottom:14px; }
+  .split .copy > p{ font-weight:300; color:var(--txt-soft); line-height:1.6; margin-bottom:14px; }
+  .split .statrow{ display:flex; gap:32px; margin-top:22px; flex-wrap:wrap; }
+  .split .statrow .n{ font-size:1.9rem; font-weight:700; color:var(--charcoal); line-height:1; }
+  .split .statrow .l{ font-weight:300; font-size:.8rem; color:var(--txt-soft); margin-top:5px; }
+
+  /* showsite visit */
+  .showsite{ background:var(--paper); }
+  .ss-grid{ display:grid; gap:26px; grid-template-columns:1fr; align-items:center; }
+  @media(min-width:860px){ .ss-grid{ grid-template-columns:1.05fr .95fr; gap:44px; } }
+  .ss-media{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .ss-ph{ position:relative; border-radius:var(--r-sm); overflow:hidden; box-shadow:var(--e1); background:repeating-linear-gradient(45deg,#e7e5e0,#e7e5e0 12px,#efede8 12px,#efede8 24px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#8b8690; text-align:center; padding:14px; }
+  .ss-ph svg{ width:30px; height:30px; opacity:.6; } .ss-ph span{ font-size:.68rem; font-weight:700; letter-spacing:.04em; }
+  .ss-ph img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .ss-ph-a{ grid-column:1 / -1; aspect-ratio:16/10; } .ss-ph-b,.ss-ph-c{ aspect-ratio:1/1; }
+  .ss-copy h2{ font-size:clamp(1.9rem,4.5vw,2.8rem); line-height:1.03; }
+  .ss-copy > p{ font-weight:300; color:var(--txt-soft); line-height:1.55; margin:14px 0 18px; max-width:46ch; }
+  .ss-points{ list-style:none; display:grid; gap:11px; margin:0 0 24px; }
+  .ss-points li{ display:flex; align-items:flex-start; gap:10px; font-size:.92rem; font-weight:300; color:var(--txt); }
+  .ss-points li svg{ width:18px; height:18px; color:var(--charcoal); flex:0 0 auto; margin-top:2px; }
+  .ss-note{ font-size:.82rem; color:var(--txt-soft); margin-top:14px; }
+
+  /* booking modal */
+  .book{ position:fixed; inset:0; z-index:200; display:none; }
+  .book.open{ display:block; }
+  .book-back{ position:absolute; inset:0; background:rgba(20,18,22,.55); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); opacity:0; transition:opacity .25s var(--ease); }
+  .book.open .book-back{ opacity:1; }
+  .book-panel{ position:absolute; left:50%; top:50%; transform:translate(-50%,-47%); width:min(94vw,560px); max-height:90vh; overflow-y:auto; background:var(--white); border-radius:var(--r); box-shadow:var(--e3); padding:26px 26px 28px; opacity:0; transition:opacity .25s var(--ease), transform .25s var(--ease); }
+  .book.open .book-panel{ opacity:1; transform:translate(-50%,-50%); }
+  .book-x{ position:absolute; top:14px; right:14px; width:38px; height:38px; border-radius:50%; border:none; background:var(--mist); color:var(--ink); font-size:1.35rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .book-head h3{ font-size:1.5rem; margin:4px 0 6px; } .book-head p{ font-weight:300; font-size:.9rem; color:var(--txt-soft); line-height:1.45; }
+  .book-body{ margin-top:18px; }
+  .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .cal-title{ font-weight:700; font-size:1.02rem; }
+  .cal-nav{ width:36px; height:36px; border-radius:10px; border:1px solid rgba(33,30,36,.14); background:var(--white); cursor:pointer; font-size:1.1rem; color:var(--ink); }
+  .cal-nav[disabled]{ opacity:.3; cursor:default; }
+  .cal-dow{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px; }
+  .cal-dow span{ text-align:center; font-size:.66rem; font-weight:700; letter-spacing:.04em; color:var(--txt-soft); text-transform:uppercase; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+  .cal-cell{ aspect-ratio:1/1; border:none; background:var(--mist); border-radius:10px; cursor:pointer; font-family:var(--font); font-weight:700; font-size:.9rem; color:var(--ink); display:flex; align-items:center; justify-content:center; transition:background .15s var(--ease); }
+  .cal-cell.empty{ background:none; cursor:default; }
+  .cal-cell[disabled]{ color:rgba(33,30,36,.24); cursor:default; }
+  @media(hover:hover){ .cal-cell:not([disabled]):not(.empty):hover{ background:#e7e4df; } }
+  .cal-cell.sel{ background:var(--charcoal); color:#fff; }
+  .slots{ margin-top:20px; } .slots-lbl{ font-size:.82rem; font-weight:400; color:var(--txt-soft); margin-bottom:10px; } .slots-lbl b{ color:var(--ink); font-weight:700; }
+  .slot-list{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .slot{ border:1px solid rgba(33,30,36,.14); background:var(--white); border-radius:10px; padding:11px 6px; cursor:pointer; font-family:var(--font); font-weight:700; font-size:.86rem; color:var(--ink); transition:border-color .15s, background .15s; }
+  @media(hover:hover){ .slot:hover{ border-color:var(--charcoal); } }
+  .slot.sel{ background:var(--charcoal); color:#fff; border-color:var(--charcoal); }
+  .book-form{ margin-top:20px; display:grid; gap:12px; }
+  .book-sum{ background:var(--mist); border-radius:12px; padding:12px 14px; font-size:.88rem; font-weight:300; color:var(--txt); } .book-sum b{ font-weight:700; color:var(--ink); }
+  .book-form label{ display:flex; flex-direction:column; gap:5px; font-size:.72rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--txt-soft); }
+  .book-form input{ font-family:var(--font); font-size:.95rem; padding:12px 14px; border:1px solid rgba(33,30,36,.16); border-radius:12px; background:var(--white); color:var(--ink); }
+  .book-form input:focus-visible{ outline:2px solid var(--charcoal); outline-offset:1px; }
+  .book-form .btn-primary{ justify-content:center; margin-top:4px; }
+  .book-done{ text-align:center; padding:16px 6px 6px; }
+  .book-done .tick{ width:52px; height:52px; border-radius:50%; background:var(--accent); color:var(--ink); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:1.5rem; font-weight:700; }
+  .book-done h3{ font-size:1.3rem; margin-bottom:6px; } .book-done p{ font-weight:300; color:var(--txt-soft); font-size:.9rem; line-height:1.5; }
+  .book-done .btn-primary{ margin-top:18px; justify-content:center; }
+
+  /* reviews */
+  .trust{ background:var(--paper); text-align:center; }
+  .trust .g{ display:inline-flex; align-items:center; gap:10px; font-weight:700; font-size:.8rem; text-transform:uppercase; letter-spacing:.14em; color:#fff; background:var(--charcoal); padding:9px 16px; border-radius:999px; }
+  .trust h2{ font-size:clamp(2rem,5vw,3.2rem); margin:22px 0 8px; }
+  .reviews{ display:grid; grid-template-columns:1fr; gap:16px; margin-top:34px; }
+  @media(min-width:680px){ .reviews{ grid-template-columns:repeat(3,1fr); } }
+  .review{ background:var(--white); border-radius:var(--r-sm); box-shadow:var(--e1); padding:22px; text-align:left; }
+  .review .stars{ letter-spacing:2px; color:var(--charcoal); font-weight:700; }
+  .review p{ font-weight:300; font-size:.95rem; margin:10px 0; }
+  .review .by{ font-size:.8rem; color:var(--txt-soft); }
+
+  /* callback */
+  .callback{ position:relative; overflow:hidden; color:var(--on-dark); text-align:center;
+    background:radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px) 0 0/18px 18px,
+              linear-gradient(115deg,#3B333D 0%,#9E88A3 100%); }
+  .callback::after{ content:""; position:absolute; right:-90px; top:-100px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.14), transparent 70%); pointer-events:none; }
+  .callback .wrap{ position:relative; z-index:1; }
+  .callback h2{ font-size:clamp(1.9rem,5vw,2.8rem); }
+  .callback p{ font-weight:300; color:var(--on-dark-soft); max-width:48ch; margin:10px auto 24px; }
+  .callback .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; align-items:center; }
+  .callback .phone{ font-weight:700; font-size:1.1rem; color:#fff; text-decoration:none; }
+
+  /* faq */
+  .faq .wrap{ max-width:820px; }
+  .faq h2{ font-size:clamp(2rem,5vw,3rem); margin-bottom:24px; text-align:center; }
+  .faq-item{ border-bottom:1px solid rgba(33,30,36,.12); }
+  .faq-item summary{ list-style:none; cursor:pointer; padding:20px 36px 20px 0; position:relative; font-weight:700; font-size:1.05rem; }
+  .faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-item summary::after{ content:"+"; position:absolute; right:4px; top:17px; font-weight:300; font-size:1.5rem; color:var(--txt-soft); }
+  .faq-item[open] summary::after{ content:"\2013"; }
+  .faq-item .ans{ padding:0 36px 22px 0; font-weight:300; color:var(--txt-soft); line-height:1.6; font-size:.95rem; }
+
+  /* final */
+  .final{ text-align:center; }
+  .final h2{ font-size:clamp(2.2rem,6vw,4rem); margin-bottom:22px; }
+  .final .note{ margin-top:16px; font-weight:300; font-size:.82rem; color:var(--txt-soft); }
+
+  /* footer */
+  .site-foot{ background:var(--ink); color:var(--on-dark-soft); padding:56px 0 28px; }
+  .site-foot .top{ display:grid; gap:32px; }
+  @media(min-width:760px){ .site-foot .top{ grid-template-columns:1.5fr 1fr 1fr 1fr; gap:40px; } }
+  .site-foot .logo img{ height:38px; width:auto; display:block; filter:brightness(0) invert(1); }
+  .site-foot .reg{ font-size:.78rem; font-weight:300; line-height:1.6; margin-top:16px; max-width:44ch; }
+  .site-foot h4{ color:#fff; font-size:.74rem; text-transform:uppercase; letter-spacing:.16em; font-weight:700; margin-bottom:14px; }
+  .site-foot ul{ list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+  .site-foot a{ color:var(--on-dark-soft); text-decoration:none; font-weight:300; font-size:.9rem; }
+  @media(hover:hover){ .site-foot a:hover{ color:#fff; } }
+  .site-foot .social{ display:flex; gap:10px; margin-top:22px; }
+  .site-foot .social a{ width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; color:#fff; }
+  .site-foot .social svg{ width:16px; height:16px; fill:currentColor; }
+  .site-foot .pay{ margin-top:42px; border-top:1px solid rgba(255,255,255,.12); padding-top:26px; }
+  .site-foot .pay p{ font-size:.82rem; font-weight:300; margin-bottom:14px; max-width:60ch; }
+  .site-foot .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .site-foot .chip{ background:#fff; color:var(--ink); border-radius:7px; padding:6px 11px; font-size:.72rem; font-weight:700; }
+  .site-foot .copy{ margin-top:28px; border-top:1px solid rgba(255,255,255,.12); padding-top:20px; font-size:.74rem; font-weight:300; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+
+  /* support widget */
+  .mainhead .supporttrigger{ border:none; background:none; padding:0; }
+  .support{ position:fixed; left:18px; bottom:18px; z-index:200; }
+  .support .launch{ position:relative; width:56px; height:56px; border-radius:50%; border:none; cursor:pointer; background:var(--accent); color:var(--charcoal); box-shadow:var(--e2); }
+  .support .launch span{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .support .launch svg{ width:26px; height:26px; } .support .launch img{ width:26px; height:26px; display:block; }
+  .support .launch .chat, .support .launch .phone{ transition:opacity .4s var(--ease), transform .4s var(--ease); } .support .launch .phone{ opacity:0; transform:scale(.7); } .support .launch .x{ opacity:0; }
+  .support .launch.show-phone .chat{ opacity:0; transform:scale(.7); } .support .launch.show-phone .phone{ opacity:1; transform:scale(1); }
+  .support.open .launch .chat, .support.open .launch .phone{ opacity:0; } .support.open .launch .x{ opacity:1; }
+  @media (prefers-reduced-motion: reduce){ .support .launch .phone{ display:none; } }
+  .support .panel{ position:absolute; left:0; bottom:70px; width:300px; max-width:calc(100vw - 36px); max-height:calc(100vh - 170px); overflow-y:auto; background:var(--accent); color:var(--charcoal); border-radius:22px; box-shadow:var(--e3); padding:22px 20px 18px; opacity:0; transform:translateY(10px) scale(.98); transform-origin:0 100%; pointer-events:none; transition:opacity .25s var(--ease), transform .25s var(--ease); }
+  .support.open .panel{ opacity:1; transform:none; pointer-events:auto; }
+  .support .panel .ttl img{ height:34px; width:auto; display:block; }
+  .support .panel .sub{ font-weight:400; font-size:.9rem; margin:10px 0 16px; line-height:1.35; }
+  .support .sheet{ background:#fff; border-radius:16px; padding:12px; }
+  .support .sheet .lab{ font-size:.82rem; color:#9a948f; padding:2px 6px 10px; }
+  .support .opt{ display:flex; align-items:center; gap:11px; background:#FCFBE9; border:1px solid #EFEECB; border-radius:11px; padding:11px 14px; margin-bottom:8px; text-decoration:none; color:var(--charcoal); font-size:.92rem; }
+  .support .opt svg{ width:18px; height:18px; flex:0 0 auto; } .support .opt img{ width:20px; height:20px; flex:0 0 auto; object-fit:contain; display:block; }
+  @media(hover:hover){ .support .opt:hover{ background:#F6F4D6; } }
+
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+  /* why-us bento (built better) — fully tiled */
+  .whyb-grid{ display:grid; gap:14px; grid-template-columns:1fr 1fr; }
+  .whyb-cell{ position:relative; border-radius:var(--r-sm); overflow:hidden; padding:22px; display:flex; flex-direction:column; justify-content:flex-end; box-shadow:var(--e1); min-height:120px; }
+  /* mobile + tablet: full-width hero + statement, then insulation half-width with pressure-treated & framing beside it */
+  .whyb-a{ grid-column:1 / -1; aspect-ratio:6/5; }
+  .whyb-b{ grid-column:1 / -1; }
+  .whyb-c{ grid-column:1; grid-row:span 2; }
+  @media(min-width:900px){
+    .whyb-grid{ grid-template-columns:repeat(4,1fr); grid-auto-rows:176px; grid-auto-flow:dense; gap:16px; }
+    .whyb-cell{ min-height:0; }
+    .whyb-a{ grid-column:span 2; grid-row:span 3; aspect-ratio:auto; }
+    .whyb-b{ grid-column:span 2; }
+    .whyb-c{ grid-column:auto; grid-row:span 2; aspect-ratio:auto; }
+  }
+  .whyb-photo{ color:#fff; } .whyb-photo img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .6s var(--ease); }
+  .whyb-photo .ph{ position:absolute; inset:0; background:repeating-linear-gradient(45deg,#e7e5e0,#e7e5e0 12px,#efede8 12px,#efede8 24px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--slate); text-align:center; padding:16px; }
+  .whyb-photo .ph svg{ width:32px; height:32px; opacity:.6; } .whyb-photo .ph .cap{ font-size:.7rem; font-weight:700; max-width:24ch; line-height:1.3; }
+  .whyb-photo::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.72)); }
+  .whyb-photo .in{ position:relative; z-index:1; }
+  .whyb-dark{ background:linear-gradient(150deg,#211E24,#3B333D); color:#fff; }
+  .whyb-accent{ background:rgba(255,255,0,.3); color:var(--ink); }
+  .whyb-light{ background:var(--mist); color:var(--txt); }
+  .whyb-cell .lab{ font-size:.68rem; text-transform:uppercase; letter-spacing:.14em; font-weight:700; opacity:1; margin-bottom:7px; color:#B7997F; }
+  .whyb-cell .big{ font-size:1.6rem; font-weight:700; line-height:1.08; }
+  .whyb-cell h3{ font-size:1.12rem; margin-bottom:5px; line-height:1.1; }
+  .whyb-cell p{ font-weight:300; font-size:.85rem; line-height:1.4; color:inherit; opacity:.9; }
+  .whyb-light p{ color:var(--txt-soft); opacity:1; } .whyb-accent p{ color:var(--ink); opacity:.85; }
+  /* dark statement card */
+  .whyb-b{ flex-direction:row; align-items:center; justify-content:flex-start; gap:15px; }
+  .whyb-b .wb-ic{ flex:0 0 auto; color:#fff; } .whyb-b .wb-ic svg{ width:56px; height:56px; display:block; }
+  .whyb-b .wb-txt .big{ font-size:1.5rem; } .whyb-b .wb-txt p{ margin-top:7px; opacity:.82; }
+  .whyb-b::after{ content:""; position:absolute; right:-70px; top:-80px; width:250px; height:250px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.055), transparent 70%); pointer-events:none; }
+  /* light feature cards */
+  .whyb-feat{ flex-direction:row; align-items:center; justify-content:flex-start; gap:14px; padding:22px; }
+  .whyb-feat .wb-ic{ flex:0 0 auto; color:var(--charcoal); } .whyb-feat .wb-ic svg{ width:52px; height:52px; display:block; }
+  .whyb-feat .lab{ margin-bottom:3px; color:#B7997F; opacity:1; }
+  .whyb-feat h3{ font-size:1.08rem; margin-bottom:4px; }
+  .whyb-feat p{ font-size:.82rem; }
+  @media(hover:hover){ .whyb-feat:hover{ transform:translateY(-3px); box-shadow:var(--e2); } }
+  @media(hover:hover){ .whyb-cell{ transition:transform .25s var(--ease), box-shadow .25s var(--ease); } .whyb-light:hover, .whyb-photo:hover{ transform:translateY(-3px); box-shadow:var(--e2); } .whyb-photo:hover img{ transform:scale(1.05); } }
+
+  /* ranges bento (one feature + two) */
+  .rb-grid{ display:grid; gap:16px; grid-template-columns:1fr; }
+  @media(min-width:820px){ .rb-grid{ grid-template-columns:1.3fr 1fr; grid-auto-rows:1fr; } }
+  .rb-card{ position:relative; display:block; border-radius:var(--r); overflow:hidden; text-decoration:none; color:#fff; box-shadow:var(--e1); min-height:230px; }
+  @media(min-width:820px){ .rb-feat{ grid-row:span 2; } }
+  .rb-card img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .6s var(--ease); }
+  @media(hover:hover){ .rb-card:hover img{ transform:scale(1.05); } }
+  .rb-card::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.12) 30%,rgba(0,0,0,.68)); }
+  .rb-in{ position:absolute; left:0; right:0; bottom:0; z-index:1; padding:24px; }
+  .rb-in .tag{ display:inline-block; font-size:.66rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:5px 11px; border-radius:999px; background:rgba(255,255,255,.92); color:var(--ink); margin-bottom:10px; }
+  .rb-in .tag.y{ background:var(--accent); }
+  .rb-feat .rb-in h3{ font-size:1.9rem; } .rb-card h3{ font-size:1.35rem; margin:0; }
+  .rb-in p{ font-weight:300; font-size:.9rem; color:rgba(255,255,255,.9); margin-top:6px; max-width:34ch; }
+  .rb-in .shop{ margin-top:12px; display:inline-flex; align-items:center; gap:7px; font-weight:700; font-size:.88rem; color:#fff; }
+  .rb-in .shop .a{ transition:transform .25s var(--ease); } @media(hover:hover){ .rb-card:hover .rb-in .shop .a{ transform:translateX(4px); } }
+
+  /* ===== Cart drawer (shared, namespaced ptc-) ===== */
+  .ptc-root{ position:fixed; inset:0; z-index:300; visibility:hidden; }
+  .ptc-root.open{ visibility:visible; }
+  .ptc-scrim{ position:absolute; inset:0; background:rgba(33,30,36,.42); opacity:0; transition:opacity .3s var(--ease); }
+  .ptc-root.open .ptc-scrim{ opacity:1; }
+  .ptc-drawer{ position:absolute; top:0; right:0; height:100dvh; width:440px; max-width:100vw; background:#fff; box-shadow:var(--e3); display:flex; flex-direction:column; border-top-left-radius:24px; border-bottom-left-radius:24px; overflow:hidden; transform:translateX(100%); transition:transform .34s var(--ease); }
+  .ptc-root.open .ptc-drawer{ transform:none; }
+  @media(max-width:480px){ .ptc-drawer{ width:100vw; border-radius:0; } }
+  .ptc-head{ display:flex; align-items:center; justify-content:space-between; padding:20px 22px 16px; border-bottom:1px solid rgba(33,30,36,.08); }
+  .ptc-head h2{ font-size:1.18rem; font-weight:700; letter-spacing:-.02em; margin:0; display:flex; align-items:baseline; gap:9px; font-family:var(--font); }
+  .ptc-cnt{ font-size:.8rem; font-weight:400; color:#6E6A74; }
+  .ptc-x{ width:38px; height:38px; border-radius:50%; border:none; background:#F5F5F5; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--ink); } .ptc-x svg{ width:18px; height:18px; }
+  .ptc-body{ flex:1; overflow-y:auto; padding:18px 22px; }
+  .ptc-item{ display:flex; gap:14px; }
+  .ptc-actions{ display:flex; align-items:center; gap:14px; margin-top:8px; flex-wrap:wrap; } .ptc-actions .ptc-rm{ margin-top:0; }
+  .ptc-qty{ display:inline-flex; align-items:center; border:1px solid rgba(33,30,36,.2); border-radius:999px; }
+  .ptc-qty button{ width:30px; height:30px; border:none; background:none; cursor:pointer; font-size:1.05rem; font-weight:700; color:var(--ink); font-family:var(--font); display:flex; align-items:center; justify-content:center; border-radius:999px; }
+  .ptc-qty button:disabled{ color:rgba(33,30,36,.28); cursor:default; }
+  @media(hover:hover){ .ptc-qty button:not(:disabled):hover{ background:var(--mist); } }
+  .ptc-qty .q-n{ min-width:26px; text-align:center; font-weight:700; font-size:.9rem; }
+  .ptc-thumb{ width:96px; height:96px; flex:0 0 auto; border-radius:14px; overflow:hidden; background:#F5F5F5; } .ptc-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .ptc-it{ min-width:0; flex:1; } .ptc-it h3{ font-size:1rem; font-weight:700; margin:0 0 3px; letter-spacing:-.02em; font-family:var(--font); }
+  .ptc-rng{ font-size:.76rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#B7997F; margin-bottom:7px; }
+  .ptc-pr{ font-size:1.12rem; font-weight:700; }
+  .ptc-rm{ margin-top:7px; display:inline-flex; align-items:center; gap:5px; background:none; border:none; padding:0; cursor:pointer; font-family:var(--font); color:#6E6A74; font-size:.8rem; text-decoration:underline; text-underline-offset:2px; } .ptc-rm svg{ width:13px; height:13px; }
+  .ptc-cfg{ margin-top:18px; border:1px solid rgba(33,30,36,.1); border-radius:16px; overflow:hidden; }
+  .ptc-cfg summary{ list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; padding:13px 16px; font-weight:700; font-size:.9rem; background:#F5F5F5; font-family:var(--font); }
+  .ptc-cfg summary::-webkit-details-marker{ display:none; }
+  .ptc-chev{ width:16px; height:16px; transition:transform .3s var(--ease); color:#6E6A74; } .ptc-cfg[open] summary .ptc-chev{ transform:rotate(180deg); }
+  .ptc-rows{ padding:6px 16px 10px; }
+  .ptc-crow{ display:grid; grid-template-columns:1fr auto; gap:4px 12px; padding:9px 0; border-bottom:1px solid rgba(33,30,36,.06); } .ptc-crow:last-child{ border-bottom:none; }
+  .ptc-k{ font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:#6E6A74; font-weight:700; }
+  .ptc-v{ font-size:.88rem; font-weight:400; grid-column:1; }
+  .ptc-p{ grid-row:1 / span 2; align-self:center; font-size:.86rem; font-weight:700; white-space:nowrap; } .ptc-p.free{ color:#6E6A74; font-weight:400; }
+  .ptc-promo{ margin-top:16px; display:flex; gap:8px; } .ptc-promo input{ flex:1; font-family:var(--font); font-size:.9rem; padding:12px 14px; border:1px solid rgba(33,30,36,.18); border-radius:11px; background:#fff; color:var(--ink); } .ptc-promo input:focus{ outline:none; border-color:var(--charcoal); } .ptc-promo button{ font-family:var(--font); font-weight:700; font-size:.85rem; border:1.5px solid rgba(33,30,36,.22); background:#fff; border-radius:11px; padding:0 18px; cursor:pointer; color:var(--ink); }
+  .ptc-assure{ margin-top:16px; display:grid; gap:9px; } .ptc-a{ display:flex; align-items:center; gap:9px; font-size:.82rem; color:#6E6A74; font-weight:300; } .ptc-a svg{ width:16px; height:16px; flex:0 0 auto; color:#2a8f57; }
+  .ptc-foot{ border-top:1px solid rgba(33,30,36,.1); padding:16px 22px 20px; background:#fff; }
+  .ptc-ln{ display:flex; justify-content:space-between; font-size:.86rem; font-weight:300; color:#6E6A74; margin-bottom:5px; }
+  .ptc-tot{ display:flex; align-items:baseline; justify-content:space-between; margin:8px 0 3px; } .ptc-tot .l{ font-size:1rem; font-weight:700; } .ptc-tot .v{ font-size:1.5rem; font-weight:700; }
+  .ptc-vat{ font-size:.74rem; color:#6E6A74; font-weight:300; margin-bottom:14px; }
+  .ptc-cta{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1rem; padding:16px; border-radius:14px; } .ptc-cta svg{ width:17px; height:17px; } .ptc-cta:active{ transform:scale(.99); }
+  .ptc-cont{ display:block; text-align:center; margin-top:11px; background:none; border:none; width:100%; font-family:var(--font); font-size:.86rem; color:#6E6A74; cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
+  .ptc-empty{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:30px 30px 50px; }
+  .ptc-ico{ width:84px; height:84px; border-radius:50%; background:#F5F5F5; display:flex; align-items:center; justify-content:center; color:#5A5560; margin-bottom:20px; } .ptc-ico svg{ width:38px; height:38px; }
+  .ptc-empty h3{ font-size:1.3rem; font-weight:700; margin:0 0 8px; letter-spacing:-.02em; font-family:var(--font); }
+  .ptc-empty p{ font-size:.92rem; font-weight:300; color:#6E6A74; max-width:30ch; margin:0 0 22px; }
+  .ptc-ranges{ margin-top:6px; width:100%; display:grid; gap:9px; } .ptc-lab{ font-size:.7rem; text-transform:uppercase; letter-spacing:.12em; color:#6E6A74; font-weight:700; } .ptc-ranges a{ display:flex; align-items:center; justify-content:space-between; padding:13px 16px; border:1px solid rgba(33,30,36,.1); border-radius:12px; text-decoration:none; color:var(--ink); font-weight:700; font-size:.9rem; } .ptc-ranges a svg{ width:16px; height:16px; color:#6E6A74; }
+  .ptc-hidden{ display:none !important; }
+  @media(hover:hover){ .ptc-x:hover{ background:#ececec; } .ptc-rm:hover{ color:#a3402c; } .ptc-promo button:hover,.ptc-ranges a:hover{ border-color:var(--charcoal); } }
+  @media (prefers-reduced-motion: reduce){ .ptc-scrim,.ptc-drawer{ transition:none !important; } }
+</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<div data-include="partials/header.html"></div>
+<div class="promo">FREE DELIVERY — <b>selected postcodes*</b> &nbsp;·&nbsp; 10% OFF GRANDMASTER — CODE <b>GM10</b></div>
 
+<!-- Phone numbers — single source of truth: Phone_Numbers.md (website default = 01777 553392). -->
+<header class="mainhead">
+  <button class="menu" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="logo" href="projecttimber-home.html" aria-label="Project Timber home"><img src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/tplogo.svg" alt="Project Timber"></a>
+  <button class="search" type="button" aria-label="Search Project Timber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg> Search Project Timber</button>
+  <div class="icons">
+    <button class="ic searchic" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></button>
+    <button class="ic supporttrigger" type="button" aria-label="Customer support"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""></button>
+    <a class="ic" href="projecttimber-account.html" aria-label="My account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a>
+    <button class="ic cartopen" type="button" aria-label="Basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.3 12.3a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L22 8H6"/></svg><span class="badge cartbadge">1</span></button>
+  </div>
+</header>
+
+<nav class="primnav" id="primnav"><ul>
+  <li><a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds</a></li>
+  <li><a href="https://www.projecttimber.com/summerhouses/">Summerhouses</a></li>
+  <li><a href="projecttimber-garden-offices.html">Garden Offices</a></li>
+  <li><a href="https://www.projecttimber.com/garden-workshops/">Garden Workshops</a></li>
+  <li><a href="https://www.projecttimber.com/insulated-garden-buildings/">Insulated Garden Buildings</a></li>
+  <li><a href="https://www.projecttimber.com/log-cabins/">Log Cabins</a></li>
+  <li><a href="https://www.projecttimber.com/greenhouses/">Greenhouses</a></li>
+</ul></nav>
+
+<div class="hsearch" id="hsearch" hidden>
+  <div class="wrap"><input type="search" placeholder="Search Project Timber" aria-label="Search Project Timber"></div>
+</div>
+<script>
+  (function(){
+    var hs=document.getElementById('hsearch'); if(!hs) return;
+    var inp=hs.querySelector('input');
+    function toggle(){ if(hs.hasAttribute('hidden')){ hs.removeAttribute('hidden'); if(inp) inp.focus(); } else { hs.setAttribute('hidden',''); } }
+    document.querySelectorAll('.searchic, .mainhead .search').forEach(function(b){ b.addEventListener('click', toggle); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !hs.hasAttribute('hidden')) hs.setAttribute('hidden',''); });
+  })();
+</script>
 
 <!-- ===================== HERO ===================== -->
 <header class="hero" id="main" tabindex="-1">
@@ -40,7 +515,16 @@
   </div>
 </header>
 
-
+<script>
+  (function(){
+    var v=document.getElementById('heroVideo'), b=document.getElementById('heroVtoggle'); if(!v||!b) return;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    function setPaused(p){ b.classList.toggle('paused',p); b.setAttribute('aria-label', p?'Play background video':'Pause background video'); }
+    function apply(){ if(reduce.matches){ v.pause(); v.removeAttribute('autoplay'); setPaused(true); } }
+    apply(); if(reduce.addEventListener) reduce.addEventListener('change',apply);
+    b.addEventListener('click',function(){ if(v.paused){ v.play(); setPaused(false); } else { v.pause(); setPaused(true); } });
+  })();
+</script>
 
 <!-- ===================== TRUST BAR ===================== -->
 <div class="trustbar"><div class="wrap">
@@ -86,17 +570,26 @@
   <div class="whyb-grid">
     <!-- A: flat-pack hero (replace .ph with <img src="…" alt="…"> when the photo is ready) -->
     <div class="whyb-cell whyb-photo whyb-a">
-      <div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 20"/></svg><span class="cap">Image: two people slotting a wall panel together</span></div>
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/modular_panels_2.webp" alt="Modular timber panels being slotted together" loading="lazy">
       <div class="in"><div class="lab">Fast &amp; DIY-friendly</div><h3>Goes together like flat-pack</h3><p>Modular panels, fewer parts, clear step-by-step instructions.</p></div>
     </div>
-    <div class="whyb-cell whyb-dark whyb-b"><div class="big">Fewer parts.<br>Less time.</div><p style="margin-top:8px">Designed to go up over a weekend — or add assembly on the insulated range.</p></div>
+    <div class="whyb-cell whyb-dark whyb-b">
+      <span class="wb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9.5V13l2.5 1.8"/><path d="M9 2h6"/></svg></span>
+      <div class="wb-txt"><div class="lab">Build Time</div><div class="big">Fewer parts.<br>Less time.</div><p>Designed to go up over a weekend — or add assembly on the insulated range.</p></div>
+    </div>
     <!-- C: insulation cutaway (replace .ph with <img> when ready) -->
     <div class="whyb-cell whyb-photo whyb-c">
-      <div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 20"/></svg><span class="cap">Image: insulated panel cutaway</span></div>
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/insulated_wall.webp" alt="Cutaway of an insulated wall panel" loading="lazy">
       <div class="in"><div class="lab">All-season</div><h3>Insulation built in</h3><p>Warm walls, floor &amp; roof, year-round.</p></div>
     </div>
-    <div class="whyb-cell whyb-light"><h3>Pressure-treated</h3><p>Protected against rot, as standard.</p></div>
-    <div class="whyb-cell whyb-light whyb-accent"><h3>Doubled-up framing</h3><p>Extra strength at every joint.</p></div>
+    <div class="whyb-cell whyb-light whyb-feat">
+      <span class="wb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z"/><path d="M12 8l2.3 3.4H9.7zM12 10.8l1.7 2.6h-3.4zM12 13.8v1.6"/></svg></span>
+      <div class="wb-txt"><div class="lab">Durability</div><h3>Pressure-treated</h3><p>Protected against rot, as standard.</p></div>
+    </div>
+    <div class="whyb-cell whyb-light whyb-feat">
+      <span class="wb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l8-5 8 5v11"/><path d="M4 20h16M8 20v-6.5M12 20v-8.5M16 20v-6.5"/></svg></span>
+      <div class="wb-txt"><div class="lab">Strength</div><h3>Doubled-up framing</h3><p>Extra strength at every joint.</p></div>
+    </div>
   </div>
 </div></section>
 
@@ -114,7 +607,7 @@
   <!-- OFFICE -->
   <div class="exp-panel" id="panel-office" role="tabpanel" aria-labelledby="tab-office">
     <section class="immerse" style="padding:0">
-      <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/10x8_My_Den_Composite_Garden_Office_04.jpg" alt="The insulated My Den Composite garden office" loading="lazy">
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/garden-office-fullwidth3.webp" alt="The insulated My Den Composite garden office interior" loading="lazy">
       <div class="panel">
         <div class="eyebrow" style="color:#fff;opacity:.7">Fully insulated · all year round</div>
         <h2>A garden office you'll actually use in January.</h2>
@@ -125,12 +618,12 @@
     <section class="uses"><div class="wrap">
       <div class="sec-head"><div class="eyebrow">A garden office, your way</div><h2>What will <span class="fade">yours be?</span></h2></div>
       <div class="use-grid">
-        <a class="use-tile" href="projecttimber-garden-offices.html"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="11" rx="1"/><path d="M8 20h8M12 16v4"/></svg> Home office</h3><p>Quiet, insulated and distraction-free.</p></a>
-        <a class="use-tile" href="projecttimber-garden-offices.html"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6M20 9v6M7 7v10M17 7v10M7 12h10"/></svg> Gym</h3><p>Train, steps from the house.</p></a>
-        <a class="use-tile" href="projecttimber-garden-offices.html"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.9 1-1.7-.6-1 .1-2.3 1.3-2.3H17a4 4 0 0 0 4-4c0-5-4-8-9-8z"/><circle cx="8" cy="10" r="1" fill="#3B333D" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="#3B333D" stroke="none"/><circle cx="16" cy="10" r="1" fill="#3B333D" stroke="none"/></svg> Studio</h3><p>Create or practise in peace.</p></a>
-        <a class="use-tile" href="projecttimber-garden-offices.html"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 12c0 4.5-7 9-7 9z"/></svg> Hobby room</h3><p>A dedicated space for what you love.</p></a>
-        <a class="use-tile" href="projecttimber-garden-offices.html"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l10-2v13"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="16" r="2"/></svg> Music room</h3><p>Space to play without the neighbours.</p></a>
-        <a class="use-tile" href="projecttimber-garden-offices.html"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></svg> Garden retreat</h3><p>Somewhere to simply switch off.</p></a>
+        <a class="use-tile" href="projecttimber-garden-offices.html"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/my-den-composite-office.webp" alt="A My Den garden office used as a home office" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="11" rx="1"/><path d="M8 20h8M12 16v4"/></svg> Home office</h3><p>Quiet, insulated and distraction-free.</p></a>
+        <a class="use-tile" href="projecttimber-garden-offices.html"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/my-den-composite-gym.webp" alt="A My Den garden office used as a gym" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6M20 9v6M7 7v10M17 7v10M7 12h10"/></svg> Gym</h3><p>Train, steps from the house.</p></a>
+        <a class="use-tile" href="projecttimber-garden-offices.html"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/my-den-composite-studio.webp" alt="A My Den garden office used as a studio" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.9 1-1.7-.6-1 .1-2.3 1.3-2.3H17a4 4 0 0 0 4-4c0-5-4-8-9-8z"/><circle cx="8" cy="10" r="1" fill="#3B333D" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="#3B333D" stroke="none"/><circle cx="16" cy="10" r="1" fill="#3B333D" stroke="none"/></svg> Studio</h3><p>Create or practise in peace.</p></a>
+        <a class="use-tile" href="projecttimber-garden-offices.html"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/my-den-composite-salon.webp" alt="A My Den garden office used as a hobby room" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 12c0 4.5-7 9-7 9z"/></svg> Hobby room</h3><p>A dedicated space for what you love.</p></a>
+        <a class="use-tile" href="projecttimber-garden-offices.html"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/my-den-composite-music-room-ai-2.webp" alt="A My Den garden office used as a music room" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l10-2v13"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="16" r="2"/></svg> Music room</h3><p>Space to play without the neighbours.</p></a>
+        <a class="use-tile" href="projecttimber-garden-offices.html"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/my-den-composite-retreat.webp" alt="A My Den garden office used as a garden retreat" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></svg> Garden retreat</h3><p>Somewhere to simply switch off.</p></a>
       </div>
     </div></section>
   </div>
@@ -162,7 +655,7 @@
   <!-- WORKSHOP -->
   <div class="exp-panel" id="panel-workshop" role="tabpanel" aria-labelledby="tab-workshop" hidden>
     <section class="immerse" style="padding:0">
-      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/GM_Pent_Workshop_Interior.webp" alt="A Grandmaster Pent garden workshop" loading="lazy">
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/workshop_2_1.webp" alt="Inside a Grandmaster garden workshop" loading="lazy">
       <div class="panel">
         <div class="eyebrow" style="color:#fff;opacity:.7">Grandmaster · heavy-duty</div>
         <h2>Room to build, fix and make.</h2>
@@ -173,12 +666,12 @@
     <section class="uses"><div class="wrap">
       <div class="sec-head"><div class="eyebrow">A workshop, your way</div><h2>What will <span class="fade">yours build?</span></h2></div>
       <div class="use-grid">
-        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l4 4-9 9-4 1 1-4z"/><path d="M14 6l3-3 4 4-3 3"/></svg> Woodworking</h3><p>A proper bench and room for the tools.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a3.5 3.5 0 0 0-4.6 4.6l-6 6 1.7 1.7 6-6a3.5 3.5 0 0 0 4.6-4.6l-2.1 2.1-1.7-1.7z"/></svg> DIY &amp; repairs</h3><p>Somewhere to fix, tinker and get it done.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="1.5"/><path d="M8 7V5h8v2M9 12h6"/></svg> Tool &amp; bike store</h3><p>Secure, dry and easy to get to.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.9 1-1.7-.6-1 .1-2.3 1.3-2.3H17a4 4 0 0 0 4-4c0-5-4-8-9-8z"/><circle cx="8" cy="10" r="1" fill="#3B333D" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="#3B333D" stroke="none"/><circle cx="16" cy="10" r="1" fill="#3B333D" stroke="none"/></svg> Hobby making</h3><p>Model-making, crafts, restoration and more.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Home business</h3><p>Trade base, studio or workshop from home.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M17.7 6.3l-1.4 1.4M7.7 16.3l-1.4 1.4"/></svg> Garden machinery</h3><p>Mowers, trimmers and kit, kept sheltered.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/woodworking_1_1x.webp" alt="A garden workshop set up for woodworking" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l4 4-9 9-4 1 1-4z"/><path d="M14 6l3-3 4 4-3 3"/></svg> Woodworking</h3><p>A proper bench and room for the tools.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/diy_and_repairs_1_1x.webp" alt="A garden workshop used for DIY and repairs" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a3.5 3.5 0 0 0-4.6 4.6l-6 6 1.7 1.7 6-6a3.5 3.5 0 0 0 4.6-4.6l-2.1 2.1-1.7-1.7z"/></svg> DIY &amp; repairs</h3><p>Somewhere to fix, tinker and get it done.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/tool_and_bike_store_1_1x.webp" alt="A garden workshop used as a tool and bike store" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="1.5"/><path d="M8 7V5h8v2M9 12h6"/></svg> Tool &amp; bike store</h3><p>Secure, dry and easy to get to.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/hobby_making_1_1x.webp" alt="A garden workshop used for hobby making" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.9 1-1.7-.6-1 .1-2.3 1.3-2.3H17a4 4 0 0 0 4-4c0-5-4-8-9-8z"/><circle cx="8" cy="10" r="1" fill="#3B333D" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="#3B333D" stroke="none"/><circle cx="16" cy="10" r="1" fill="#3B333D" stroke="none"/></svg> Hobby making</h3><p>Model-making, crafts, restoration and more.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/GM_Pent_Workshop_Interior.webp" alt="A garden workshop used as a home business base" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Home business</h3><p>Trade base, studio or workshop from home.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-workshops/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/garden_machinery_1_1x.webp" alt="A garden workshop used to store garden machinery" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M17.7 6.3l-1.4 1.4M7.7 16.3l-1.4 1.4"/></svg> Garden machinery</h3><p>Mowers, trimmers and kit, kept sheltered.</p></a>
       </div>
     </div></section>
   </div>
@@ -186,29 +679,53 @@
   <!-- STORAGE -->
   <div class="exp-panel" id="panel-storage" role="tabpanel" aria-labelledby="tab-storage" hidden>
     <section class="immerse" style="padding:0">
-      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/shed_1x.webp" alt="A Hobbyist garden shed" loading="lazy">
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/garden-shed-2.webp" alt="A Hobbyist garden shed" loading="lazy">
       <div class="panel">
         <div class="eyebrow" style="color:#fff;opacity:.7">Hobbyist · dependable</div>
         <h2>Room for everything else.</h2>
-        <p>Tough, secure garden sheds to keep tools, bikes, mowers and furniture dry and out of the way — pressure-treated timber with a 25-year anti-rot guarantee.*</p>
+        <p>Tough garden sheds to keep tools, toys, furniture and everything else dry and out of the way — pressure-treated timber with a 25-year anti-rot guarantee.*</p>
         <a class="btn-primary" href="https://www.projecttimber.com/garden-sheds/">Explore sheds <span class="a">→</span></a>
       </div>
     </section>
     <section class="uses"><div class="wrap">
       <div class="sec-head"><div class="eyebrow">Sorted &amp; stored</div><h2>What will <span class="fade">yours hold?</span></h2></div>
       <div class="use-grid">
-        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a3.5 3.5 0 0 0-4.6 4.6l-6 6 1.7 1.7 6-6a3.5 3.5 0 0 0 4.6-4.6l-2.1 2.1-1.7-1.7z"/></svg> Garden tools</h3><p>Spades, forks and everything in between.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17l4-7h5l3 7M10 10l2-4h3"/></svg> Bikes &amp; mowers</h3><p>Big kit kept dry and secure.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M3 11h18M9 7V5h6v2"/></svg> Seasonal storage</h3><p>Furniture and decorations, out of season.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l8-4 8 4v10H4z"/><path d="M8 19v-6h8v6"/></svg> Bin &amp; log store</h3><p>Tidy the bins, keep the logs dry.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="6" rx="2"/><path d="M5 11V9a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2M6 17v2M18 17v2"/></svg> Furniture store</h3><p>Room for the things without a home.</p></a>
-        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="1.5"/><path d="M8 7V5h8v2M9 12h6"/></svg> Overflow storage</h3><p>Free up the garage and the loft.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/gardening-tools.webp" alt="A garden shed storing gardening tools" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a3.5 3.5 0 0 0-4.6 4.6l-6 6 1.7 1.7 6-6a3.5 3.5 0 0 0 4.6-4.6l-2.1 2.1-1.7-1.7z"/></svg> Garden tools</h3><p>Spades, forks and everything in between.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/outdoor-toys.webp" alt="A garden shed storing outdoor toys" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18M3 12h18"/></svg> Outdoor toys</h3><p>Scooters, sandpit toys and garden games, tidied away out of the rain.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/seasonal-storage.webp" alt="A garden shed used for seasonal storage" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M3 11h18M9 7V5h6v2"/></svg> Seasonal storage</h3><p>Furniture and decorations, out of season.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/binandlogstore.webp" alt="A bin and log store" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l8-4 8 4v10H4z"/><path d="M8 19v-6h8v6"/></svg> Bin &amp; log store</h3><p>Tidy the bins, keep the logs dry.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/furniture-store.webp" alt="A garden shed storing furniture" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="6" rx="2"/><path d="M5 11V9a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2M6 17v2M18 17v2"/></svg> Furniture store</h3><p>Room for the things without a home.</p></a>
+        <a class="use-tile" href="https://www.projecttimber.com/garden-sheds/"><img class="uimg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/overflow-storage.webp" alt="A garden shed used for overflow storage" loading="lazy"><h3><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="1.5"/><path d="M8 7V5h8v2M9 12h6"/></svg> Overflow storage</h3><p>Free up the garage and the loft.</p></a>
       </div>
     </div></section>
   </div>
 </section>
 
-
+<script>
+  (function(){
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.exp-tab'));
+    if(!tabs.length) return;
+    var panels = {};
+    tabs.forEach(function(t){ panels[t.dataset.panel] = document.getElementById('panel-'+t.dataset.panel); });
+    function select(name){
+      tabs.forEach(function(t){ var on = t.dataset.panel===name; t.setAttribute('aria-selected', on?'true':'false'); t.tabIndex = on?0:-1; });
+      Object.keys(panels).forEach(function(k){ if(panels[k]) panels[k].hidden = (k!==name); });
+    }
+    tabs.forEach(function(t){ t.addEventListener('click', function(){ select(t.dataset.panel); }); });
+    var bar = document.querySelector('.exp-tabs');
+    if(bar) bar.addEventListener('keydown', function(e){
+      var i = tabs.indexOf(document.activeElement); if(i<0) return;
+      if(e.key==='ArrowRight'||e.key==='ArrowLeft'){ e.preventDefault(); var n=(i+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length; tabs[n].focus(); select(tabs[n].dataset.panel); }
+    });
+    var m = new Date().getMonth(); // 0 = Jan
+    // Seasonal default: Mar–May workshop · Jun–Aug summerhouse · Sep–Oct storage · Nov–Feb office (insulated/all-season)
+    var def = (m>=2 && m<=4) ? 'workshop'
+            : (m>=5 && m<=7) ? 'summerhouse'
+            : (m>=8 && m<=9) ? 'storage'
+            : 'office';
+    select(def);
+  })();
+</script>
 
 <!-- ===================== RANGES (good/better/best) ===================== -->
 <section class="tiers"><div class="wrap">
@@ -231,7 +748,7 @@
 
 <!-- ===================== MADE IN BRITAIN ===================== -->
 <section class="split rev" style="background:var(--paper)"><div class="wrap"><div class="grid">
-  <div class="media"><img src="https://www.projecttimber.com/wp-content/uploads/2024/10/Hand-crafted-SQ.jpg" alt="Hand-crafted in Project Timber's Nottinghamshire workshop" loading="lazy"></div>
+  <div class="media"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/factory_worker_insulation.webp" alt="A worker fitting insulation in Project Timber's Nottinghamshire workshop" loading="lazy"></div>
   <div class="copy">
     <div class="eyebrow">Designed &amp; made in the UK</div>
     <h2>Hand-crafted on the edge of <span class="fade">Sherwood Forest.</span></h2>
@@ -248,9 +765,9 @@
 <section class="showsite"><div class="wrap">
   <div class="ss-grid">
     <div class="ss-media">
-      <div class="ss-ph ss-ph-a"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/Showsite_Buildings.webp" alt="Project Timber showsite display buildings" loading="lazy"></div>
+      <div class="ss-ph ss-ph-a"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/showsite-buildings-2.webp" alt="Project Timber showsite display buildings" loading="lazy"></div>
       <div class="ss-ph ss-ph-b"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/Showsite_Interior-scaled.webp" alt="Inside a Project Timber display building" loading="lazy"></div>
-      <div class="ss-ph ss-ph-c"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/Showsite_Closeup-scaled.webp" alt="Close-up of a Project Timber building's finish" loading="lazy"></div>
+      <div class="ss-ph ss-ph-c"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/showsite_evo_cedar.webp" alt="An Evolution cedar garden building at the showsite" loading="lazy"></div>
     </div>
     <div class="ss-copy">
       <div class="eyebrow">Visit us</div>
@@ -307,7 +824,64 @@
     </div>
   </div>
 </div>
+<script>
+  (function(){
+    var book=document.getElementById('book'); if(!book) return;
+    var lastFocus=null;
+    function open(){ lastFocus=document.activeElement; resetFlow(); book.classList.add('open'); book.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; var x=book.querySelector('.book-x'); if(x) x.focus(); }
+    function close(){ book.classList.remove('open'); book.setAttribute('aria-hidden','true'); document.body.style.overflow=''; if(lastFocus) lastFocus.focus(); }
+    [].forEach.call(document.querySelectorAll('.ss-open'),function(b){ b.addEventListener('click',open); });
+    book.addEventListener('click',function(e){ if(e.target.hasAttribute('data-close')) close(); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape' && book.classList.contains('open')) close(); });
 
+    var grid=document.getElementById('calGrid'), title=document.getElementById('calTitle');
+    var prevBtn=book.querySelector('[data-prev]'), nextBtn=book.querySelector('[data-next]');
+    var slots=document.getElementById('slots'), slotList=document.getElementById('slotList'), slotDate=document.getElementById('slotDate');
+    var form=document.getElementById('bookForm'), done=document.getElementById('bookDone'), sum=document.getElementById('bookSum'), doneMsg=document.getElementById('doneMsg');
+    var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var dows=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var times=['9:30','10:30','11:30','13:00','14:00','15:00','16:00'];
+    var today=new Date(); today.setHours(0,0,0,0);
+    var minMonth=new Date(today.getFullYear(),today.getMonth(),1);
+    var view=new Date(minMonth), selDate=null, selTime=null;
+    function sameMonth(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth(); }
+    function fmt(d){ return dows[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()]; }
+    function renderCal(){
+      title.textContent=months[view.getMonth()]+' '+view.getFullYear();
+      prevBtn.disabled=sameMonth(view,minMonth);
+      grid.innerHTML='';
+      var first=new Date(view.getFullYear(),view.getMonth(),1);
+      var startDow=(first.getDay()+6)%7, dim=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
+      for(var i=0;i<startDow;i++){ var e=document.createElement('div'); e.className='cal-cell empty'; grid.appendChild(e); }
+      for(var d=1;d<=dim;d++){
+        var cell=document.createElement('button'); cell.type='button'; cell.className='cal-cell'; cell.textContent=d;
+        var date=new Date(view.getFullYear(),view.getMonth(),d);
+        if(date<today || date.getDay()===0){ cell.disabled=true; }
+        else { (function(date,cell){ cell.addEventListener('click',function(){ selectDate(date,cell); }); })(date,cell); }
+        if(selDate && date.getTime()===selDate.getTime()) cell.classList.add('sel');
+        grid.appendChild(cell);
+      }
+    }
+    function selectDate(date,cell){
+      selDate=date; selTime=null;
+      [].forEach.call(grid.querySelectorAll('.cal-cell.sel'),function(c){ c.classList.remove('sel'); });
+      cell.classList.add('sel');
+      slotDate.textContent=fmt(date); slotList.innerHTML='';
+      times.forEach(function(t){ var b=document.createElement('button'); b.type='button'; b.className='slot'; b.textContent=t;
+        b.addEventListener('click',function(){ selTime=t; [].forEach.call(slotList.querySelectorAll('.slot.sel'),function(s){s.classList.remove('sel');}); b.classList.add('sel'); showForm(); });
+        slotList.appendChild(b);
+      });
+      slots.hidden=false; form.hidden=true; done.hidden=true;
+      slots.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+    function showForm(){ sum.innerHTML='Your visit: <b>'+fmt(selDate)+' at '+selTime+'</b>'; form.hidden=false; done.hidden=true; form.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+    function resetFlow(){ selDate=null; selTime=null; view=new Date(minMonth); slots.hidden=true; form.hidden=true; done.hidden=true; renderCal(); }
+    prevBtn.addEventListener('click',function(){ if(sameMonth(view,minMonth))return; view.setMonth(view.getMonth()-1); renderCal(); });
+    nextBtn.addEventListener('click',function(){ view.setMonth(view.getMonth()+1); renderCal(); });
+    form.addEventListener('submit',function(e){ e.preventDefault(); doneMsg.textContent='Thanks — we’ll email you to confirm your visit for '+fmt(selDate)+' at '+selTime+'.'; slots.hidden=true; form.hidden=true; done.hidden=false; done.scrollIntoView({behavior:'smooth',block:'nearest'}); });
+    renderCal();
+  })();
+</script>
 
 <!-- ===================== REVIEWS ===================== -->
 <section class="trust"><div class="wrap">
@@ -351,17 +925,164 @@
 </div></section>
 
 <!-- ===================== FOOTER ===================== -->
-<div data-include="partials/footer.html"></div>
+<footer class="site-foot"><div class="wrap">
+  <div class="top">
+    <div>
+      <a class="logo" href="projecttimber-home.html"><img src="https://www.projecttimber.com/wp-content/uploads/2026/02/ProjectTimber-Logo-2-1.svg" alt="Project Timber"></a>
+      <p class="reg">Project Timber Limited is a company registered in England and Wales with registration number 05126131. Our registered office is at Parry Works, Grassthorpe Road, Sutton-on-Trent, Newark NG23 6QX.</p>
+      <div class="social">
+        <a href="https://www.facebook.com/projecttimber" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 9h3V6h-3c-1.66 0-3 1.34-3 3v2H8v3h3v6h3v-6h2.5l.5-3H14V9z"/></svg></a>
+        <a href="https://www.instagram.com/projecttimber/" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></a>
+        <a href="https://twitter.com/project_timber" aria-label="X"><svg viewBox="0 0 24 24"><path d="M17.3 3H20l-6.1 7L21 21h-5.6l-4.4-5.3L5.8 21H3l6.5-7.5L3 3h5.7l4 4.9L17.3 3zm-1 16h1.5L8 4.7H6.4L16.3 19z"/></svg></a>
+        <a href="https://www.pinterest.co.uk/projecttimberltd/" aria-label="Pinterest"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-3.6 19.3c-.1-.8-.2-2 0-2.9l1.1-4.8s-.3-.6-.3-1.4c0-1.3.8-2.3 1.7-2.3.8 0 1.2.6 1.2 1.3 0 .8-.5 2-.8 3.1-.2.9.5 1.6 1.4 1.6 1.6 0 2.8-1.7 2.8-4.1 0-2.2-1.5-3.7-3.8-3.7a4 4 0 0 0-4.1 4c0 .8.3 1.6.7 2.1l-.3 1.1c0 .2-.2.2-.3.1-1-.5-1.7-2-1.7-3.3 0-2.7 2-5.1 5.6-5.1 3 0 5.2 2.1 5.2 4.9 0 3-1.8 5.3-4.4 5.3-.9 0-1.7-.5-2-1l-.5 2c-.2.8-.7 1.7-1 2.3A10 10 0 1 0 12 2z"/></svg></a>
+        <a href="https://www.youtube.com/@projecttimber" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M22 8.2a3 3 0 0 0-2.1-2.1C18 5.6 12 5.6 12 5.6s-6 0-7.9.5A3 3 0 0 0 2 8.2 31 31 0 0 0 1.6 12 31 31 0 0 0 2 15.8a3 3 0 0 0 2.1 2.1c1.9.5 7.9.5 7.9.5s6 0 7.9-.5a3 3 0 0 0 2.1-2.1c.3-1.2.4-2.5.4-3.8s-.1-2.6-.4-3.8zM10 15V9l5.2 3L10 15z"/></svg></a>
+      </div>
+    </div>
+    <div><h4>Products</h4><ul><li><a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds</a></li><li><a href="https://www.projecttimber.com/summerhouses/">Summerhouses</a></li><li><a href="projecttimber-garden-offices.html">Garden Offices</a></li><li><a href="https://www.projecttimber.com/garden-workshops/">Garden Workshops</a></li><li><a href="https://www.projecttimber.com/insulated-garden-buildings/">Insulated Garden Buildings</a></li><li><a href="https://www.projecttimber.com/log-cabins/">Log Cabins</a></li><li><a href="https://www.projecttimber.com/greenhouses/">Greenhouses</a></li></ul></div>
+    <div><h4>Help</h4><ul><li><a href="https://www.projecttimber.com/faq">FAQ</a></li><li><a href="https://www.projecttimber.com/delivery">Delivery</a></li><li><a href="https://www.projecttimber.com/returns">Returns</a></li><li><a href="https://www.projecttimber.com/contact">Contact</a></li><li><a href="https://www.projecttimber.com/building-base-garden-building/">Building a Base</a></li><li><a href="https://www.projecttimber.com/testimonials/">Testimonials</a></li></ul></div>
+    <div><h4>Links</h4><ul><li><a href="https://www.projecttimber.com/terms">Terms</a></li><li><a href="https://www.projecttimber.com/privacy">Privacy</a></li><li><a href="https://www.projecttimber.com/resources">Blog</a></li><li><a href="https://www.projecttimber.com/checkout">Checkout</a></li></ul></div>
+  </div>
+  <div class="pay">
+    <p>100% secure checkout. Pay your way with Revolut Pay, PayPal, or using any major credit card, Apple Pay, or Google Pay.</p>
+    <div class="chips"><span class="chip">Revolut Pay</span><span class="chip">Visa</span><span class="chip">Mastercard</span><span class="chip">Amex</span><span class="chip">Apple Pay</span><span class="chip">Google Pay</span><span class="chip">PayPal</span></div>
+  </div>
+  <p style="font-size:.74rem;font-weight:300;color:var(--on-dark-soft);margin:0 0 14px">* Terms and conditions apply.</p>
+  <div class="copy"><span>© 2026 All Rights Reserved, Project Timber</span><span>Concept mockup · imagery © Project Timber</span></div>
+</div></footer>
 
 <!-- ===================== CUSTOMER SUPPORT WIDGET ===================== -->
-<div data-include="partials/support.html"></div>
+<div class="support" id="support">
+  <div class="panel" role="dialog" aria-label="Customer support">
+    <div class="ttl"><img src="https://www.projecttimber.com/wp-content/uploads/2026/02/ProjectTimber-Logo-2-1.svg" alt="Project Timber"></div>
+    <p class="sub">British-made garden buildings, designed and built in Nottinghamshire.</p>
+    <div class="sheet">
+      <div class="lab">Select</div>
+      <a class="opt" href="tel:01777553392"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/call.png" alt=""> Call</a>
+      <a class="opt" href="#"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/callback.png" alt=""> Request a Callback</a>
+      <a class="opt" href="#"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""> Chat to Us</a>
+      <a class="opt" href="#"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/whatsapp.png" alt=""> WhatsApp Us</a>
+    </div>
+  </div>
+  <button class="launch" type="button" aria-label="Customer support" aria-expanded="false">
+    <span class="chat"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""></span>
+    <span class="phone"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/call.png" alt=""></span>
+    <span class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+  </button>
+</div>
 
-
+<script>
+  // mobile menu toggle
+  (function(){ var m=document.querySelector('.mainhead .menu'), p=document.getElementById('primnav');
+    if(m&&p){ m.addEventListener('click',function(){ var o=p.classList.toggle('open'); m.setAttribute('aria-expanded',o); }); } })();
+  // support widget
+  (function(){
+    var sup=document.getElementById('support'); if(!sup) return;
+    var launch=sup.querySelector('.launch');
+    function toggle(force){ var open=(force!==undefined)?force:!sup.classList.contains('open'); sup.classList.toggle('open',open); if(launch) launch.setAttribute('aria-expanded',open); }
+    if(launch) launch.addEventListener('click',function(){ toggle(); });
+    document.querySelectorAll('.supporttrigger').forEach(function(b){ b.addEventListener('click',function(){ toggle(true); }); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape' && sup.classList.contains('open')){ toggle(false); if(launch) launch.focus(); } });
+    if(launch && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){ setInterval(function(){ if(!sup.classList.contains('open')) launch.classList.toggle('show-phone'); }, 3000); }
+  })();
+</script>
 <!-- ===================== CART DRAWER ===================== -->
-<div data-include="partials/cart-drawer.html"></div>
-
-
-<script src="assets/js/partials-data.js"></script>
-<script src="assets/js/include.js" data-page="assets/js/mini-cart.js,assets/js/home.js"></script>
+<div class="ptc-root" id="ptcRoot" aria-hidden="true">
+  <div class="ptc-scrim" data-cart-close></div>
+  <aside class="ptc-drawer" role="dialog" aria-label="Basket" aria-modal="true">
+    <div class="ptc-state" id="ptcFilled" style="display:flex;flex-direction:column;min-height:0;flex:1">
+      <div class="ptc-head">
+        <h2>Your basket <span class="ptc-cnt">1 item</span></h2>
+        <button class="ptc-x" data-cart-close type="button" aria-label="Close basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div class="ptc-body">
+        <div class="ptc-item">
+          <div class="ptc-thumb"><img src="https://www.projecttimber.com/wp-content/uploads/2024/10/8x6_Evolution_My_Den_Composite_Cladding_Garden_Office_01.jpg" alt="My Den Insulated Garden Office"></div>
+          <div class="ptc-it">
+            <div class="ptc-rng">My Den</div>
+            <h3>My Den Insulated Garden Office</h3>
+            <div class="ptc-pr">£4,009.00</div>
+            <div class="ptc-actions"><div class="ptc-qty"><button class="q-dec" type="button" aria-label="Decrease quantity">&minus;</button><span class="q-n">1</span><button class="q-inc" type="button" aria-label="Increase quantity">+</button></div><button class="ptc-rm" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg> Remove</button></div>
+          </div>
+        </div>
+        <details class="ptc-cfg" open>
+          <summary>Your configuration <svg class="ptc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="ptc-rows">
+            <div class="ptc-crow"><span class="ptc-k">Size</span><span class="ptc-v">8 × 6</span><span class="ptc-p">£3,972.00</span></div>
+            <div class="ptc-crow"><span class="ptc-k">UPVC door &amp; position</span><span class="ptc-v">White UPVC — Left front door</span><span class="ptc-p free">Included</span></div>
+            <div class="ptc-crow"><span class="ptc-k">Windows</span><span class="ptc-v">Timber — side opening, left</span><span class="ptc-p free">Included</span></div>
+            <div class="ptc-crow"><span class="ptc-k">Floor</span><span class="ptc-v">11mm T&amp;G with foil insulation — 55mm</span><span class="ptc-p free">Included</span></div>
+            <div class="ptc-crow"><span class="ptc-k">Laminate floor</span><span class="ptc-v">None</span><span class="ptc-p free">—</span></div>
+            <div class="ptc-crow"><span class="ptc-k">Paint colour</span><span class="ptc-v">None</span><span class="ptc-p free">—</span></div>
+            <div class="ptc-crow"><span class="ptc-k">Colour trim</span><span class="ptc-v">Swan White</span><span class="ptc-p">£37.00</span></div>
+            <div class="ptc-crow"><span class="ptc-k">Assembly service</span><span class="ptc-v">None</span><span class="ptc-p free">—</span></div>
+          </div>
+        </details>
+        <div class="ptc-promo">
+          <input type="text" placeholder="Promo code (e.g. GM10)" aria-label="Promo code">
+          <button type="button">Apply</button>
+        </div>
+        <div class="ptc-assure">
+          <div class="ptc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> Secure checkout · card, Apple Pay or PayPal</div>
+          <div class="ptc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg> Free delivery on selected postcodes</div>
+        </div>
+      </div>
+      <div class="ptc-foot">
+        <div class="ptc-ln"><span>Subtotal</span><span>£4,009.00</span></div>
+        <div class="ptc-ln"><span>Delivery</span><span>Calculated at checkout</span></div>
+        <div class="ptc-tot"><span class="l">Total</span><span class="v">£4,009.00</span></div>
+        <div class="ptc-vat">Includes £668.17 VAT</div>
+        <a class="ptc-cta" href="projecttimber-checkout.html">Proceed to checkout <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <button class="ptc-cont" data-cart-close type="button">Continue shopping</button>
+      </div>
+    </div>
+    <div class="ptc-state ptc-hidden" id="ptcEmpty" style="flex-direction:column;min-height:0;flex:1">
+      <div class="ptc-head">
+        <h2>Your basket</h2>
+        <button class="ptc-x" data-cart-close type="button" aria-label="Close basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div class="ptc-empty">
+        <div class="ptc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h2l2.2 11.4a1.5 1.5 0 0 0 1.5 1.2h8.1a1.5 1.5 0 0 0 1.5-1.2L22 8H7"/><circle cx="10" cy="20.5" r="1.2"/><circle cx="18" cy="20.5" r="1.2"/></svg></div>
+        <h3>Your basket is empty</h3>
+        <p>Once you've configured a garden building, it'll appear here ready for checkout.</p>
+        <div class="ptc-ranges">
+          <span class="ptc-lab">Popular ranges</span>
+          <a href="projecttimber-garden-offices.html">Garden Offices <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+          <a href="https://www.projecttimber.com/summerhouses/">Summerhouses <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+          <a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+<script>
+  (function(){
+    var root=document.getElementById('ptcRoot'); if(!root) return;
+    var filled=document.getElementById('ptcFilled'), empty=document.getElementById('ptcEmpty');
+    var badges=document.querySelectorAll('.cartbadge');
+    function setState(f){ filled.classList.toggle('ptc-hidden',!f); filled.style.display=f?'flex':'none'; empty.classList.toggle('ptc-hidden',f); empty.style.display=f?'none':'flex'; }
+    function open(){ root.classList.add('open'); root.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; var x=root.querySelector('.ptc-x'); if(x) x.focus(); }
+    function close(){ root.classList.remove('open'); root.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+    document.querySelectorAll('.cartopen').forEach(function(b){ b.addEventListener('click',function(e){ e.preventDefault(); open(); }); });
+    root.querySelectorAll('[data-cart-close]').forEach(function(b){ b.addEventListener('click',close); });
+    root.querySelectorAll('.ptc-rm').forEach(function(b){ b.addEventListener('click',function(){ setState(false); badges.forEach(function(x){ x.textContent='0'; }); }); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape' && root.classList.contains('open')) close(); });
+  })();
+</script>
+<script>
+  (function(){
+    var s=document.querySelector('.ptc-qty'); if(!s) return;
+    var dec=s.querySelector('.q-dec'), inc=s.querySelector('.q-inc'), n=s.querySelector('.q-n');
+    var unitEl=document.querySelector('.ptc-pr');
+    var subEl=document.querySelector('.ptc-ln span:last-child');
+    var totEl=document.querySelector('.ptc-tot .v');
+    var vatEl=document.querySelector('.ptc-vat');
+    var unit=unitEl?parseFloat(unitEl.textContent.replace(/[^0-9.]/g,'')):0, q=1;
+    function m(x){ return '£'+x.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+    function u(){ n.textContent=q; dec.disabled=q<=1; var t=unit*q; if(subEl)subEl.textContent=m(t); if(totEl)totEl.textContent=m(t); if(vatEl)vatEl.textContent='Includes '+m(t/6)+' VAT'; }
+    dec.addEventListener('click',function(){ if(q>1){q--;u();} });
+    inc.addEventListener('click',function(){ q++; u(); });
+    u();
+  })();
+</script>
 </body>
 </html>
