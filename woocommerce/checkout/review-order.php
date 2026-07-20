@@ -127,6 +127,7 @@ $pt_norm_dims = function ( $s ) {
 			<?php endif; ?>
 			<h3><?php echo wp_kses_post( $product_name ); ?></h3>
 			<div class="pr"><?php echo wp_kses_post( $line_total ); ?></div>
+			<a class="rm" href="<?php echo esc_url( wc_get_cart_remove_url( $cart_item_key ) ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Remove %s from basket', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) ); ?>"><?php esc_html_e( 'Remove', 'woocommerce' ); ?></a>
 		</div>
 	</div>
 
