@@ -234,6 +234,9 @@
 .co-form .woocommerce-additional-fields{ display:flex; flex-direction:column; }
 .co-form #order_pickup_date_field{ order:1; }
 .co-form .woocommerce-additional-fields__field-wrapper{ order:2; }
+/* Delivery-cost disclaimer sits last, snug under "Special instructions" (mockup). Without
+   an explicit order it defaults to 0 and floats above the Delivery heading. */
+.co-form .woocommerce-additional-fields .co-delnote{ order:3; margin-top:14px; }
 .co-form #order_pickup_date_field > h3{ font-size:1.15rem; margin:0 0 4px; font-weight:700; }
 .co-form .pt-delivery-hint{ font-size:.84rem; font-weight:300; color:var(--txt-soft); margin:0 0 16px; }
 /* Calendar affordance on the (readonly, jQuery-UI) date input, echoing the mockup's native picker. */
