@@ -82,7 +82,7 @@
         },
         {
             "key": "field_pt_show_insulation",
-            "label": "Insulation (feature)",
+            "label": "Feature: image & text (2 col)",
             "name": "show_insulation",
             "type": "true_false",
             "instructions": "",
@@ -959,7 +959,7 @@
             "label": "Feature sections",
             "name": "",
             "type": "tab",
-            "instructions": "The alternating image / copy sections (Insulation, Cladding, Built to last, Assembly, Large image with card).",
+            "instructions": "The alternating image / copy sections (Image & text (2-col), Cladding, Built to last, Assembly, Large image with card).",
             "placement": "top",
             "endpoint": 0,
             "required": 0,
@@ -974,7 +974,7 @@
         },
         {
             "key": "field_pt_insulation_image",
-            "label": "Insulation — image",
+            "label": "Feature: image & text (2 col) — image",
             "name": "insulation_image",
             "type": "image",
             "return_format": "url",
@@ -999,7 +999,7 @@
         },
         {
             "key": "field_pt_insulation_heading",
-            "label": "Insulation — heading",
+            "label": "Feature: image & text (2 col) — heading",
             "name": "insulation_heading",
             "type": "text",
             "instructions": "",
@@ -1019,7 +1019,7 @@
         },
         {
             "key": "field_pt_insulation_body",
-            "label": "Insulation — body",
+            "label": "Feature: image & text (2 col) — body",
             "name": "insulation_body",
             "type": "wysiwyg",
             "tabs": "all",
@@ -1039,7 +1039,7 @@
         },
         {
             "key": "field_pt_insulation_stats",
-            "label": "Insulation — stats",
+            "label": "Feature: image & text (2 col) — stats",
             "name": "insulation_stats",
             "type": "repeater",
             "layout": "table",
