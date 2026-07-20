@@ -2965,7 +2965,7 @@ function pt_send_email_template()
             $subject = "Project Timber's Delivery Update";
         }
         ob_start();
-        require_once __DIR__ . "/inc/" . $_POST['order_email_template'] . "-email.php";
+        require_once __DIR__ . "/inc/emails/" . $_POST['order_email_template'] . "-email.php";
 
         $body = ob_get_clean();
 
