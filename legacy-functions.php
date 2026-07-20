@@ -74,11 +74,6 @@ function mailchimp($subscriber, $listId)
     $result = curl_exec($ch);
 }
 
-function sw_cp_display_total_string($frontend_params)
-{
-    $frontend_params['i18n_price_format'] = sprintf(_x('%1$s%2$s%3$s', '"Total" string followed by price followed by price suffix', 'woocommerce-composite-products'), '%t', '%p', '%s');
-    return $frontend_params;
-}
 
 add_action('woocommerce_checkout_after_customer_details', 'order_summary_on_checkout');
 function order_summary_on_checkout()
@@ -1439,28 +1434,6 @@ function fn_add_delivery_date_shipping_address($order)
 
 <?php
 }
-function search_order_id($orderid)
-{
-
-    $curl = curl_init();
-
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://api.optimoroute.com/v1/get_orders?key=' . ( defined( 'PT_OPTIMO_API_KEY' ) ? PT_OPTIMO_API_KEY : '' ) . '&orderNo=' . $orderid,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-    ));
-
-    $response = curl_exec($curl);
-
-    curl_close($curl);
-
-    return json_decode($response);
-}
 
 add_action('woocommerce_process_shop_order_meta', 'my_custom_checkout_field_update_order_meta', 99);
 function my_custom_checkout_field_update_order_meta($order_id)
@@ -1965,37 +1938,6 @@ function final_delivery_date_orderby($columns)
     return wp_parse_args($custom, $columns);
 }
 
-//add_filter( 'request', 'final_delivery_date_orderby_value' );
-function final_delivery_date_orderby_value($vars)
-{
-    if (isset($vars['orderby']) && '_final_delivery_date' == $vars['orderby']) {
-        $vars = array_merge($vars, array(
-            'meta_key' => '_final_delivery_date',
-            'orderby' => 'meta_value'
-        ));
-    }
-
-    if (isset($vars['orderby']) && '_order_type' == $vars['orderby']) {
-        $vars = array_merge($vars, array(
-            'meta_key' => '_order_type',
-            'orderby' => 'meta_value'
-        ));
-    }
-
-    if (isset($vars['orderby']) && '_delivery_status' == $vars['orderby']) {
-        $vars = array_merge($vars, array(
-            'meta_key' => '_delivery_status',
-            'orderby' => 'meta_value'
-        ));
-    }
-
-    // Sort Orders by ID by default on admin's order page
-    if (!isset($vars['orderby']) or $vars['orderby'] === "") {
-        $vars['orderby'] = "ID";
-    }
-
-    return $vars;
-}
 # End :: Custom sortable column on admin's order page
 // extra fields for the per order ========================================== end!
 
@@ -2030,25 +1972,6 @@ function custom_rename_address_fields($fields) {
     return $fields;
 }
 
-function get_parent_product_category_by_product_id($product_id)
-{
-    // Get product categories
-    $terms = wp_get_post_terms($product_id, 'product_cat');
-
-    // Store parent categories
-    $parent_categories = array();
-
-    foreach ($terms as $term) {
-        // Check if the category has a parent
-        if ($term->parent != 0) {
-            // Get parent category
-            $parent = get_term($term->parent, 'product_cat');
-            $parent_categories[] = $parent;
-        }
-    }
-
-    return $parent_categories;
-}
 
 add_action('wp_enqueue_scripts', 'enabling_date_picker');
 function enabling_date_picker()
@@ -2751,44 +2674,7 @@ function cw_show_coupon_js()
 }
 add_action('woocommerce_before_checkout_form', 'cw_show_coupon_js');
 
-function cw_show_coupon()
-{
-    global $woocommerce;
-    $promo_enable = get_field('show_coupon', 'option');
 
-    if ($woocommerce->cart->needs_payment()) {
-        echo '<p class="woo-promo-checkout"> Have a coupon? <a href="#" id="show-coupon-form">Click here to enter your coupon code</a>.';
-        echo '<p>Click here to opt out of voucher <span><a href="#to-footer">*</span/>';
-        if ($promo_enable == 1) {
-
-
-            /*foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-        
-                $product_id = $cart_item['product_id'];
-                $terms = get_the_terms($product_id, 'product_cat');
-         
-                foreach ($terms as $term) {
-                    
-                    if($term->slug == 'garden-offices' || $term->slug == 'garden-workshops') {                
-                        $coupon_code = 'snowdrops30';                
-                        break;
-        
-                    } else if($term->slug == 'garden-sheds' || $term->slug == 'summerhouses' || $term->slug == 'insulated-garden-buildings' 
-                             || $term->slug == 'greenhouses') {                                 
-                        $coupon_code = 'snowdrops25';
-                    }            
-                }
-            }*/
-
-            //echo '<span class="code-name">' . get_field('global_coupon_text', 'option') . '&nbsp; "' . get_field("coupon_code", "option") . '"</span>';
-
-            //echo '<span class="code-name">'.get_field('global_coupon_text', 'option') .'&nbsp; "'.$coupon_code. '"</span>';
-        }
-        echo '</p><div id="coupon-anchor"></div>';
-    }
-}
-
-// add_action('woocommerce_after_order_notes', 'cw_show_coupon');
 
 function time_schedule()
 {
@@ -2851,18 +2737,6 @@ function time_schedule()
 }
 
 
-function array_replacing(&$item, $key)
-{
-
-    if ($key == 'option_title') {
-
-        $productidsss[] = $item;
-    }
-
-    if ($key == 'option_thumbnail_html') {
-        $item = 'my new image - ' . $productidsss[0];
-    }
-}
 
 // Add a custom column before "actions" last column
 add_filter('manage_edit-shop_order_columns', 'custom_shop_order_column1', 100);
@@ -2890,14 +2764,6 @@ function custom_shop_order_list_column_content($column)
     }
 }
 
-//add_filter( 'woocommerce_get_price_html', 'wc_cp_custom_price_html', 10, 2 );
-function wc_cp_custom_price_html($price_html, $product)
-{
-
-    $price_html = $price_html . "=== test !!";
-
-    return $price_html;
-}
 
 // Adding Meta container admin shop_order pages
 add_action('add_meta_boxes', 'pt_add_email_meta_boxes');
@@ -3143,77 +3009,9 @@ function disable_new_order_for_on_hold_order_status($recipient, $order = false)
     }
 }
 
-function add_voucher_once()
-{
-    // Define the coupon code
-    $coupon_code = 'BF40';
-
-    // Access the WooCommerce session
-    if (WC()->session) {
-        // Check if the voucher was already applied or removed
-        if (WC()->session->get('voucher_applied_once') === 'yes') {
-            return; // Do not reapply the coupon
-        }
-    }
-
-    // Check if the voucher is already in the cart 
-    if (!WC()->cart->has_discount($coupon_code)) {
-        // Apply the voucher
-        WC()->cart->apply_coupon($coupon_code);
-
-        // Mark it as applied in the session
-        if (WC()->session) {
-            WC()->session->set('voucher_applied_once', 'yes');
-        }
-    }
-}
-//add_action('woocommerce_cart_updated', 'add_voucher_once');
-
-function prevent_voucher_readdition($coupon_code)
-{
-    // Define the coupon code to track
-    $tracked_coupon = 'BF40';
-
-    // If the user removes the voucher
-    if ($coupon_code === $tracked_coupon) {
-        // Set a session to prevent re-adding
-        if (WC()->session) {
-            WC()->session->set('voucher_applied_once', 'yes');
-        }
-    }
-}
-//add_action('woocommerce_removed_coupon', 'prevent_voucher_readdition');
 
 
-//add_action('woocommerce_before_checkout_form', 'ptcoupon_apply_coupon');
-function ptcoupon_apply_coupon()
-{
 
-    /*foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-        
-        $product_id = $cart_item['product_id'];
-        $terms = get_the_terms($product_id, 'product_cat');
-
-        foreach ($terms as $term) {
-            
-            if($term->slug == 'garden-offices' || $term->slug == 'garden-workshops') {                
-                $coupon_code = 'snowdrops30';                
-                break;
-
-            } else if($term->slug == 'garden-sheds' || $term->slug == 'summerhouses' || $term->slug == 'insulated-garden-buildings' 
-                     || $term->slug == 'greenhouses') {                                 
-                $coupon_code = 'snowdrops25';
-            }            
-        }
-    }*/
-
-    $coupon_code = 'BF40';
-
-    if (WC()->cart->has_discount($coupon_code)) {
-        return;
-    }
-    WC()->cart->apply_coupon($coupon_code);
-}
 
 add_filter('loop_shop_per_page', 'new_loop_shop_per_page', 20);
 
@@ -3434,32 +3232,6 @@ function tech_specs_tabs_content()
 
         #END :: Technical Specifications
 
-        # automation for pallet labels
-        function print_label($orderid)
-        {
-
-            $curl = curl_init();
-
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://api.palletways.com/GetLabelsByConNo/' . $orderid . '?apikey=OGpHLBxOXd7j9PAScUbno%2FBYbZefIbSE3UXwY4Hcufc%3D',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'GET',
-                CURLOPT_HTTPHEADER => array(
-                    'Cookie: PORTAL=pc264eajob4hur0inq72ulak8o'
-                ),
-            ));
-
-            $response = curl_exec($curl);
-
-            curl_close($curl);
-
-            return file_put_contents('./pdflabel/' . $orderid . '.pdf', $response); // save the string to a file
-        }
 
         function send_email($orderid)
         {
@@ -5822,25 +5594,6 @@ jQuery(document).ready(function() {
 
 
 
-// Helper function: calculate delivery Date
-function calculateDeliveryDate($days)
-{
-    $current_date = new DateTime();
-    $delivery_date = clone $current_date;
-    $days_added = 0;
-
-    while ($days_added < $days) {
-        $delivery_date->add(new DateInterval('P1D'));
-
-        // Check if it's not a weekend (1 = Monday, 7 = Sunday)
-        $day_of_week = $delivery_date->format('N');
-        if ($day_of_week < 6) { // Monday (1) through Friday (5)
-            $days_added++;
-        }
-    }
-
-    return $delivery_date;
-}
 
 // Helper function: calculate monthly payment rate
 function calculateMonthlyPayment($principal, $annual_rate = 0.1699, $years = 5)
@@ -5961,23 +5714,6 @@ add_filter( 'woocommerce_email_headers', function ( $headers, $email_id, $order 
     return $headers;
 }, 10, 3 );
 
-// Helper function - add this to functions.php if not already there
-function calculate_business_days_delivery($business_days_needed) {
-    $current_date = new DateTime();
-    $business_days_counted = 0;
-    
-    while ($business_days_counted < $business_days_needed) {
-        $current_date->add(new DateInterval('P1D'));
-        
-        // Check if this day is a weekday (Monday=1 to Friday=5)
-        $day_of_week = (int) $current_date->format('N');
-        if ($day_of_week >= 1 && $day_of_week <= 5) {
-            $business_days_counted++;
-        }
-    }
-    
-    return $current_date->format('M, jS D');
-}
 
 add_action('template_redirect', function() {
     $request_uri = strtok($_SERVER['REQUEST_URI'], '?'); // remove query string

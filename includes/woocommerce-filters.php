@@ -5,7 +5,6 @@ add_filter('woocommerce_single_product_carousel_options', 'ud_update_woo_flexsli
 // Ensure cart contents update when products are added to the cart via AJAX (place the following in functions.php)
 add_filter('add_to_cart_fragments', 'woocommerce_header_add_to_cart_fragment');
 add_action('init', 'pt_update_woocommerce_version');
-//add_filter('woocommerce_composite_front_end_params', 'sw_cp_display_total_string');
 
 remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_meta', 40);
 remove_action('woocommerce_sidebar', 'woocommerce_get_sidebar', 10);
