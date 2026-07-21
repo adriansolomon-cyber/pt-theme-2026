@@ -82,7 +82,7 @@
         },
         {
             "key": "field_pt_show_insulation",
-            "label": "Feature: image & text (2 col)",
+            "label": "Feature Sections' Card",
             "name": "show_insulation",
             "type": "true_false",
             "instructions": "",
@@ -1014,7 +1014,7 @@
         },
         {
             "key": "field_pt_insulation_image",
-            "label": "Feature: image & text (2 col) — image",
+            "label": "Feature Sections' Card - Feature Image",
             "name": "insulation_image",
             "type": "image",
             "return_format": "url",
@@ -1039,7 +1039,7 @@
         },
         {
             "key": "field_pt_insulation_eyebrow",
-            "label": "Feature: image & text (2 col) — eyebrow",
+            "label": "Feature Sections' Card - Feature Eyebrow",
             "name": "insulation_eyebrow",
             "type": "text",
             "instructions": "Small label above the heading. Leave blank to use “Insulation”.",
@@ -1059,7 +1059,7 @@
         },
         {
             "key": "field_pt_insulation_heading",
-            "label": "Feature: image & text (2 col) — heading",
+            "label": "Feature Sections' Card - Feature Heading",
             "name": "insulation_heading",
             "type": "text",
             "instructions": "",
@@ -1079,7 +1079,7 @@
         },
         {
             "key": "field_pt_insulation_body",
-            "label": "Feature: image & text (2 col) — body",
+            "label": "Feature Sections' Card - Feature Body",
             "name": "insulation_body",
             "type": "wysiwyg",
             "tabs": "all",
@@ -1099,7 +1099,7 @@
         },
         {
             "key": "field_pt_insulation_stats",
-            "label": "Feature: image & text (2 col) — stats",
+            "label": "Feature Sections' Card - Feature Stats",
             "name": "insulation_stats",
             "type": "repeater",
             "layout": "table",
