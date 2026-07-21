@@ -54,7 +54,9 @@
   .promo{ background:var(--ink); color:var(--on-dark); text-align:center; font-size:.74rem; letter-spacing:.05em; padding:8px 14px; }
   .promo b{ color:#fff; }
 
-  .subnav{ position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:18px; padding:12px 20px;
+  /* sticky header group — top row hides on scroll down, reveals on scroll up (sub-nav stays pinned) */
+  #topbar{ position:sticky; top:0; z-index:50; transition:transform .35s var(--ease); will-change:transform; }
+  .subnav{ position:relative; z-index:50; display:flex; align-items:center; gap:18px; padding:12px 20px;
     border-bottom:1px solid rgba(33,30,36,.08); background:rgba(255,255,255,.72);
     backdrop-filter:saturate(160%) blur(18px); -webkit-backdrop-filter:saturate(160%) blur(18px); }
   @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){ .subnav{ background:#fff; } }
@@ -89,16 +91,36 @@
   .sec-head{ margin-bottom:30px; display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap; }
   .sec-head h2{ font-size:clamp(2rem,5vw,3rem); }
   .filmlink{ font-weight:400; font-size:.95rem; color:var(--txt); text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
-  .filmlink .pp{ width:26px; height:26px; border-radius:50%; background:var(--mist); display:inline-flex; align-items:center; justify-content:center; font-size:.7rem; }
+  .filmlink .pp{ width:26px; height:26px; border-radius:50%; background:rgba(59,51,61,.12); color:#3B333D; display:inline-flex; align-items:center; justify-content:center; font-size:.7rem; transition:background .2s var(--ease), color .2s var(--ease); }
+  @media(hover:hover){ .filmlink:hover .pp{ background:#3B333D; color:#fff; } }
 
   /* ---------------- INLINE CONFIGURATOR ---------------- */
   .configurator{ background:var(--white); }
   .cfg-grid{ display:grid; gap:26px; align-items:start; }
   @media(min-width:860px){ .cfg-grid{ grid-template-columns:1fr 1fr; gap:44px; } }
-  .cfg-preview img{ width:100%; border-radius:var(--r); box-shadow:var(--e2); display:block; aspect-ratio:4/3; object-fit:cover; background:var(--mist); }
+  .cfg-preview img{ width:100%; border-radius:var(--r); box-shadow:var(--e2); display:block; aspect-ratio:16/9; object-fit:cover; background:var(--mist); }
   @media(min-width:860px){ .cfg-preview{ position:sticky; top:88px; } }
   .cfg-preview .pcap{ display:flex; justify-content:space-between; align-items:baseline; margin-top:14px; }
   .cfg-preview .pcap .nm{ font-weight:700; } .cfg-preview .pcap .sz{ color:var(--txt-soft); font-weight:300; }
+  .cfg-preview .cfg-info{ margin-top:16px; }
+  .cfg-preview .cfg-titlerow{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+  .cfg-preview .cfg-title{ font-size:1.4rem; line-height:1.15; }
+  .cfg-preview .cfg-mib{ flex:0 0 auto; width:86px; height:auto; aspect-ratio:auto; object-fit:contain; border-radius:0; box-shadow:none; background:none; display:block; }
+  @media(max-width:520px){ .cfg-preview .cfg-mib{ width:66px; } }
+  .cfg-preview .cfg-size-cap{ font-size:.85rem; color:var(--txt-soft); font-weight:300; margin-top:7px; } .cfg-preview .cfg-size-cap b{ color:var(--ink); font-weight:700; }
+  .cfg-desc{ margin-top:14px; border-top:1px solid rgba(33,30,36,.1); }
+  .cfg-desc summary{ list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 0 12px; font-weight:700; font-size:.98rem; }
+  .cfg-desc summary::-webkit-details-marker{ display:none; }
+  .cfg-desc summary::after{ content:"+"; font-weight:300; font-size:1.4rem; color:var(--txt-soft); line-height:1; }
+  .cfg-desc[open] summary::after{ content:"\2013"; }
+  .cfg-desc p{ font-weight:300; font-size:.92rem; color:var(--txt-soft); line-height:1.6; padding-bottom:14px; margin:0; }
+  .cfg-desc .cfg-feat{ list-style:none; margin:0 0 14px; padding:0; display:grid; gap:6px; }
+  .cfg-desc .cfg-feat li{ font-weight:300; font-size:.92rem; color:var(--txt-soft); line-height:1.5; padding-left:18px; position:relative; }
+  .cfg-desc .cfg-feat li::before{ content:""; position:absolute; left:3px; top:.62em; width:5px; height:5px; border-radius:50%; background:var(--charcoal); }
+  .cfg-specs-link{ display:inline-flex; align-items:center; gap:8px; margin-top:14px; font-size:.9rem; font-weight:700; color:var(--ink); text-decoration:none; border-bottom:1px solid rgba(33,30,36,.18); padding-bottom:2px; }
+  .cfg-specs-link svg{ width:16px; height:16px; color:var(--charcoal); flex:0 0 auto; }
+  .cfg-specs-link .a{ transition:transform .2s var(--ease); }
+  @media(hover:hover){ .cfg-specs-link:hover{ border-bottom-color:var(--charcoal); } .cfg-specs-link:hover .a{ transform:translateX(3px); } }
   .cfg-gallery{ position:relative; }
   .cfg-navbtn{ position:absolute; top:50%; transform:translateY(-50%); width:42px; height:42px; border-radius:50%; border:none; background:rgba(255,255,255,.86); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); box-shadow:var(--e1); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--ink); font-size:1.3rem; line-height:1; z-index:2; }
   .cfg-navbtn.prev{ left:12px; } .cfg-navbtn.next{ right:12px; }
@@ -115,6 +137,20 @@
   .cfg-disc.open .cfg-disc-panel, .cfg-disc:focus-within .cfg-disc-panel{ opacity:1; transform:none; pointer-events:auto; }
   .cfg-dot{ width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.6); border:none; cursor:pointer; padding:0; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:width .2s var(--ease), background .2s; }
   .cfg-dot.on{ background:#fff; width:18px; border-radius:4px; }
+  #cfgImg{ cursor:zoom-in; }
+  /* gallery lightbox (zoom + browse) */
+  .glb{ position:fixed; inset:0; z-index:250; display:none; }
+  .glb.open{ display:flex; align-items:center; justify-content:center; }
+  .glb-back{ position:absolute; inset:0; background:rgba(20,18,22,.93); }
+  .glb-stage{ position:relative; z-index:1; width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .glb-img{ max-width:92vw; max-height:88vh; object-fit:contain; border-radius:8px; box-shadow:var(--e3); cursor:zoom-in; transition:transform .25s var(--ease); will-change:transform; -webkit-user-select:none; user-select:none; }
+  .glb-img.zoom{ cursor:zoom-out; transform:scale(2.2); transition:transform-origin 0s, transform .2s var(--ease); }
+  .glb-btn{ position:absolute; z-index:2; border-radius:50%; border:none; background:rgba(255,255,255,.15); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); color:#fff; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  @media(hover:hover){ .glb-btn:hover{ background:rgba(255,255,255,.3); } }
+  .glb-prev, .glb-next{ width:48px; height:48px; font-size:1.7rem; top:50%; transform:translateY(-50%); }
+  .glb-prev{ left:16px; } .glb-next{ right:16px; }
+  .glb-x{ top:16px; right:16px; width:44px; height:44px; font-size:1.4rem; }
+  .glb-count{ position:absolute; z-index:2; bottom:18px; left:50%; transform:translateX(-50%); color:#fff; font-size:.8rem; font-weight:300; background:rgba(0,0,0,.4); padding:5px 13px; border-radius:999px; }
 
   .cfg-row{ border:1px solid rgba(33,30,36,.12); border-radius:var(--r-sm); background:var(--white); margin-bottom:10px; overflow:hidden; transition:border-color .2s, box-shadow .2s; }
   .cfg-row.open{ border-color:rgba(33,30,36,.28); box-shadow:var(--e1); }
@@ -124,6 +160,12 @@
   .cfg-head .sel{ margin-left:auto; color:var(--txt-soft); font-weight:300; font-size:.82rem; text-align:right; max-width:48%; }
   .cfg-head .chev{ flex:0 0 auto; transition:transform .3s var(--ease); color:var(--txt-soft); }
   .cfg-row.open .cfg-head .chev{ transform:rotate(180deg); }
+  /* accessibility — keyboard focus (charcoal); inset ring for controls inside overflow:hidden containers */
+  :focus-visible{ outline:3px solid #3B333D; outline-offset:2px; }
+  :focus:not(:focus-visible){ outline:none; }
+  .cfg-head:focus-visible{ outline:none; box-shadow:inset 0 0 0 3px #3B333D; }
+  .opt-card:focus-visible{ outline:none; box-shadow:inset 0 0 0 3px #3B333D, var(--e1); }
+  .cfg-head[role="button"]{ cursor:pointer; }
   .cfg-body{ display:grid; grid-template-rows:0fr; transition:grid-template-rows .35s var(--ease); }
   .cfg-row.open .cfg-body{ grid-template-rows:1fr; }
   .cfg-body > div{ overflow:hidden; }
@@ -165,6 +207,11 @@
   .cfg-summary .price{ font-size:2.1rem; font-weight:700; line-height:1; }
   .cfg-summary .price small{ font-size:.78rem; font-weight:300; color:var(--txt-soft); }
   .cfg-summary .pvat{ font-size:.72rem; font-weight:300; color:var(--txt-soft); margin-top:3px; }
+  .cfg-summary .cfg-deliv-group{ margin-top:14px; display:grid; gap:7px; }
+  .cfg-summary .cfg-di{ display:flex; align-items:flex-start; gap:8px; font-size:.85rem; font-weight:400; color:var(--ink); line-height:1.4; }
+  .cfg-summary .cfg-di svg{ width:16px; height:16px; color:var(--charcoal); flex:0 0 auto; margin-top:2px; }
+  .cfg-summary .cfg-di b{ font-weight:700; }
+  .cfg-summary .cfg-di .soft{ color:var(--txt-soft); font-weight:300; }
   .cfg-summary .addbtn{ display:block; width:100%; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1rem; padding:15px; border-radius:12px; margin-top:14px; transition:transform .2s var(--ease); }
   .cfg-summary .addbtn:active{ transform:scale(.985); }
   .cfg-summary .fineprint{ font-size:.68rem; font-weight:300; color:var(--txt-soft); margin-top:12px; }
@@ -321,6 +368,24 @@
     .reviews.many .review{ flex:0 0 320px; padding:22px; }
   }
 
+  /* ---------------- RECOMMENDED / RELATED ---------------- */
+  .recommend h2{ font-size:clamp(2rem,5vw,3rem); }
+  .rec-rail{ display:flex; gap:16px; overflow-x:auto; scroll-snap-type:x mandatory; scroll-padding-inline:20px; -webkit-overflow-scrolling:touch; padding:2px 20px 12px; margin:30px -20px 0; scrollbar-width:none; }
+  .rec-rail::-webkit-scrollbar{ display:none; }
+  .rec-card{ scroll-snap-align:start; flex:0 0 78%; display:flex; flex-direction:column; background:var(--white); border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); overflow:hidden; box-shadow:var(--e1); text-decoration:none; color:var(--ink); transition:transform .25s var(--ease), box-shadow .25s var(--ease); }
+  @media(hover:hover){ .rec-card:hover{ transform:translateY(-3px); box-shadow:var(--e2); } }
+  .rec-img{ aspect-ratio:4/3; background:var(--mist); overflow:hidden; } .rec-img img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s var(--ease); }
+  @media(hover:hover){ .rec-card:hover .rec-img img{ transform:scale(1.04); } }
+  .rec-body{ padding:15px 17px 17px; display:flex; flex-direction:column; flex:1; }
+  .rec-rng{ font-size:.68rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#8A6A4F; margin-bottom:5px; }
+  .rec-card h3{ font-size:1.04rem; line-height:1.15; margin-bottom:8px; }
+  .rec-price{ font-weight:700; font-size:.95rem; margin-top:auto; } .rec-price small{ font-weight:300; color:var(--txt-soft); font-size:.76rem; }
+  .rec-price.rec-tbc{ color:var(--txt-soft); font-size:.9rem; }
+  @media(min-width:760px){
+    .rec-rail{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; overflow:visible; margin:34px 0 0; padding:0; }
+    .rec-card{ flex:none; }
+  }
+
   /* ---------------- FINAL CTA ---------------- */
   .final{ text-align:center; }
   .final h2{ font-size:clamp(2.2rem,6vw,4rem); margin-bottom:24px; }
@@ -346,7 +411,7 @@
   .util .sep{ opacity:.4; }
   @media(max-width:680px){ .util .hideS{ display:none; } }
 
-  .mainhead{ display:flex; align-items:center; gap:14px; padding:10px 20px; border-bottom:1px solid rgba(33,30,36,.07); }
+  .mainhead{ display:flex; align-items:center; gap:14px; padding:10px 20px; border-bottom:1px solid rgba(33,30,36,.07); background:var(--white); }
   .mainhead .menu{ display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:none; background:none; cursor:pointer; color:var(--ink); padding:0; }
   .mainhead .menu svg{ width:24px; height:24px; }
   @media(min-width:860px){ .mainhead .menu{ display:none; } }
@@ -374,7 +439,7 @@
   @media(min-width:860px){ .mainhead .icons .searchic{ display:none; } }
   .mainhead .supporttrigger{ border:none; background:none; padding:0; }
 
-  .primnav{ border-bottom:1px solid rgba(33,30,36,.07); }
+  .primnav{ border-bottom:1px solid rgba(33,30,36,.07); background:var(--white); }
   .primnav ul{ list-style:none; margin:0; padding:9px 20px; display:flex; gap:26px; justify-content:center; font-size:.9rem; font-weight:400; }
   .primnav a{ color:var(--ink); text-decoration:none; white-space:nowrap; }
   @media(hover:hover){ .primnav a:hover{ color:#000; } }
@@ -484,7 +549,8 @@
   .mk-card .txt{ position:absolute; left:0; right:0; bottom:0; z-index:1; padding:18px 20px; }
   .mk-card .txt h3{ font-size:1.12rem; margin-bottom:5px; color:#fff; text-shadow:0 1px 10px rgba(0,0,0,.35); }
   .mk-card .txt p{ font-weight:300; font-size:.86rem; color:rgba(255,255,255,.92); line-height:1.4; text-shadow:0 1px 8px rgba(0,0,0,.35); margin:0; }
-  .mk-card .play{ position:absolute; top:14px; right:14px; z-index:1; width:46px; height:46px; border-radius:50%; background:rgba(255,255,255,.22); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.5); display:flex; align-items:center; justify-content:center; color:#fff; font-size:.82rem; }
+  .mk-card .play{ position:absolute; top:14px; right:14px; z-index:1; width:46px; height:46px; border-radius:50%; background:rgba(59,51,61,.55); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.7); display:flex; align-items:center; justify-content:center; color:#fff; font-size:.82rem; transition:background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease); }
+  @media(hover:hover){ .mk-card:hover .play{ background:#fff; color:#3B333D; border-color:#fff; } }
   .mk-card .img2{ opacity:0; animation:mkwin 6s ease-in-out infinite; }
   @keyframes mkwin{ 0%,40%{ opacity:0; } 50%,90%{ opacity:1; } 100%{ opacity:0; } }
   @media (prefers-reduced-motion: reduce){ .mk-card .img2{ animation:none; opacity:.5; } }
@@ -497,9 +563,22 @@
   .faq-video iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
   .faq-video .fv-play{ position:absolute; inset:0; width:100%; height:100%; border:none; padding:0; cursor:pointer; background:none; }
   .faq-video .fv-play img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .faq-video .fv-play .fv-btn{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:74px; height:74px; border-radius:50%; background:rgba(33,30,36,.62); border:2px solid rgba(255,255,255,.9); box-shadow:0 6px 24px rgba(0,0,0,.35); color:#fff; display:flex; align-items:center; justify-content:center; transition:transform .2s var(--ease), background .2s; }
+  .faq-video .fv-play .fv-btn{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:74px; height:74px; border-radius:50%; background:rgba(59,51,61,.55); border:2px solid rgba(255,255,255,.9); box-shadow:0 6px 24px rgba(0,0,0,.35); color:#fff; display:flex; align-items:center; justify-content:center; transition:transform .2s var(--ease), background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease); }
   .faq-video .fv-play .fv-btn svg{ width:26px; height:26px; }
-  @media(hover:hover){ .faq-video .fv-play:hover .fv-btn{ background:var(--accent); border-color:var(--accent); color:var(--ink); transform:translate(-50%,-50%) scale(1.06); } }
+  @media(hover:hover){ .faq-video .fv-play:hover .fv-btn{ background:#fff; border-color:#fff; color:#3B333D; transform:translate(-50%,-50%) scale(1.06); } }
+  /* attention pulse on video play buttons — sonar rings, disabled for reduced motion */
+  @keyframes pt-ring{ 0%{ transform:scale(.82); opacity:.7; } 100%{ transform:scale(1.9); opacity:0; } }
+  .faq-video .fv-btn::before, .faq-video .fv-btn::after,
+  .mk-card .play::before, .mk-card .play::after,
+  .filmlink .pp::before, .filmlink .pp::after{ content:""; position:absolute; inset:0; border-radius:50%; border:2px solid #fff; pointer-events:none; animation:pt-ring 2.2s var(--ease) infinite; }
+  .faq-video .fv-btn::after, .mk-card .play::after, .filmlink .pp::after{ animation-delay:1.1s; }
+  .filmlink .pp{ position:relative; }
+  .filmlink .pp::before, .filmlink .pp::after{ border-color:#3B333D; }
+  @media(prefers-reduced-motion:reduce){
+    .faq-video .fv-btn::before, .faq-video .fv-btn::after,
+    .mk-card .play::before, .mk-card .play::after,
+    .filmlink .pp::before, .filmlink .pp::after{ animation:none; display:none; }
+  }
 
   /* ---------------- SPLIT (image + copy) ---------------- */
   .split .grid{ display:grid; gap:28px; align-items:center; }
@@ -558,7 +637,7 @@
   .ptc-qty .q-n{ min-width:26px; text-align:center; font-weight:700; font-size:.9rem; }
   .ptc-thumb{ width:96px; height:96px; flex:0 0 auto; border-radius:14px; overflow:hidden; background:#F5F5F5; } .ptc-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
   .ptc-it{ min-width:0; flex:1; } .ptc-it h3{ font-size:1rem; font-weight:700; margin:0 0 3px; letter-spacing:-.02em; font-family:var(--font); }
-  .ptc-rng{ font-size:.76rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#B7997F; margin-bottom:7px; }
+  .ptc-rng{ font-size:.76rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#8A6A4F; margin-bottom:7px; }
   .ptc-pr{ font-size:1.12rem; font-weight:700; }
   .ptc-rm{ margin-top:7px; display:inline-flex; align-items:center; gap:5px; background:none; border:none; padding:0; cursor:pointer; font-family:var(--font); color:#6E6A74; font-size:.8rem; text-decoration:underline; text-underline-offset:2px; } .ptc-rm svg{ width:13px; height:13px; }
   .ptc-cfg{ margin-top:18px; border:1px solid rgba(33,30,36,.1); border-radius:16px; overflow:hidden; }
@@ -592,7 +671,8 @@
 
 <div class="promo">FREE DELIVERY — <b>selected postcodes*</b> &nbsp;·&nbsp; 10% OFF GRANDMASTER — CODE <b>GM10</b></div>
 
-<!-- ===================== GLOBAL HEADER ===================== -->
+<!-- ===================== GLOBAL HEADER (inside #topbar: top row hides on scroll down, reveals on scroll up) ===================== -->
+<div id="topbar">
 <header class="mainhead">
   <button class="menu" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
   <a class="logo" href="projecttimber-home.html" aria-label="Project Timber home"><img src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/tplogo.svg" alt="Project Timber"></a>
@@ -630,9 +710,10 @@
 
 <div class="subnav">
   <span class="brand">My Den Composite Garden Office</span>
-  <nav class="tabs"><a href="#configure">Configure</a><a href="#highlights">Highlights</a><a href="#insulation">Insulation</a><a href="#assembly">Assembly</a><a href="#specs">Specs</a><a href="#faq">FAQ</a></nav>
+  <nav class="tabs"><a href="#configure">Customise</a><a href="#highlights">Highlights</a><a href="#insulation">Insulation</a><a href="#assembly">Assembly</a><a href="#specs">Specs</a><a href="#faq">FAQ</a></nav>
   <button class="buy">Customise &amp; buy</button>
 </div>
+</div><!-- /#topbar -->
 
 <!-- ===================== HERO ===================== -->
 <header class="hero"><div class="wrap">
@@ -664,7 +745,31 @@
         <button class="cfg-navbtn next" type="button" aria-label="Next image">&rsaquo;</button>
         <div class="cfg-dots" id="cfgDots"></div>
       </div>
-      <div class="pcap"><span class="nm">My Den Composite</span><span class="sz" id="cfgSize">8 × 6</span></div>
+      <div class="cfg-info">
+        <div class="cfg-titlerow">
+          <h2 class="cfg-title">My Den Insulated Composite Garden Office</h2>
+          <img class="cfg-mib" loading="lazy" src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/made-in-britain.jpg" alt="Made in Britain">
+        </div>
+        <div class="cfg-size-cap">Selected size: <b id="cfgSize">8 × 6</b></div>
+        <details class="cfg-desc">
+          <summary>Description</summary>
+          <p>A fully insulated, all-season garden office designed to be used every day of the year. The My Den pairs low-maintenance LP Strongcore composite cladding with pre-insulated modular panels in the walls, floor and roof — so it stays warm in winter and cool in summer. Double glazing and a UPVC door with multi-point locking come as standard, every building is hand-crafted in Nottinghamshire, and it's backed by a 15-year anti-rot guarantee on the composite. Delivered as pre-assembled panels for a faster, simpler build.</p>
+        </details>
+        <details class="cfg-desc">
+          <summary>Key features</summary>
+          <ul class="cfg-feat">
+            <li>Superior composite timber cladding</li>
+            <li>Fully insulated — walls, floor &amp; roof</li>
+            <li>UPVC door with multi-point locking</li>
+            <li>80mm total wall thickness</li>
+            <li>Insulated metal roof</li>
+            <li>Double glazing as standard</li>
+            <li>15-year anti-rot guarantee*</li>
+            <li>Easy self-assembly</li>
+          </ul>
+        </details>
+        <a class="cfg-specs-link" href="#specs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg> View full specifications <span class="a">→</span></a>
+      </div>
     </div>
 
     <div>
@@ -743,7 +848,7 @@
         <div class="cfg-row">
           <div class="cfg-head"><span class="ix">6.</span><span class="lab">Paint colour</span><span class="sel" id="sel-paint">None</span><span class="chev">▾</span></div>
           <div class="cfg-body"><div><div class="cfg-inner">
-            <p class="cfg-note">Supplied in tubs of paint — buildings aren't pre-painted on delivery, so painting is done on site. Swatch colours shown are indicative approximations.</p>
+            <p class="cfg-note">Thorndown paint, supplied in tins — buildings aren't pre-painted on delivery, so painting is done on site. Swatch colours shown are indicative approximations.</p>
             <div class="opt-cards" data-group="paint" data-sel="sel-paint">
               <div class="opt-card sel" data-val="None" data-delta="0"><div class="im ph"></div><span class="badge4w">⚠ Paint within 4 weeks!*</span><div class="nm">None</div><div class="pr">£0.00</div><div class="selbtn">Selected</div></div>
               <div class="opt-card" data-val="Dormouse Grey" data-delta="177"><div class="im" style="background:#9C948B"><span class="tins">*SUPPLIED IN TINS</span></div><div class="nm">Dormouse Grey</div><div class="pr">£177.00</div><div class="selbtn">Select</div></div>
@@ -759,7 +864,7 @@
         <div class="cfg-row">
           <div class="cfg-head"><span class="ix">7.</span><span class="lab">Colour trim</span><span class="sel" id="sel-trim">None</span><span class="chev">▾</span></div>
           <div class="cfg-body"><div><div class="cfg-inner">
-            <p class="cfg-note">Supplied in tubs of paint — buildings aren't pre-painted on delivery, so painting is done on site. Swatch colours shown are indicative approximations.</p>
+            <p class="cfg-note">Thorndown paint, supplied in tins — buildings aren't pre-painted on delivery, so painting is done on site. Swatch colours shown are indicative approximations.</p>
             <div class="opt-cards" data-group="trim" data-sel="sel-trim">
               <div class="opt-card sel" data-val="None" data-delta="0"><div class="im ph"></div><span class="badge4w">⚠ Paint within 4 weeks!*</span><div class="nm">None</div><div class="pr">£0.00</div><div class="selbtn">Selected</div></div>
               <div class="opt-card" data-val="Swan White" data-delta="37"><div class="im" style="background:#F2EFE6"><span class="tins">*SUPPLIED IN TINS</span></div><div class="nm">Swan White</div><div class="pr">£37.00</div><div class="selbtn">Select</div></div>
@@ -784,12 +889,15 @@
 
       <!-- live summary -->
       <div class="cfg-summary">
-        <div class="deliv">Free delivery to most mainland UK postcodes* · choose your delivery date at checkout</div>
         <!-- FINANCE HIDDEN (re-enable when a finance provider is in place):
         <div class="ptoggle"><button class="on" data-pay="cash">Cash</button><button data-pay="finance">Finance</button></div>
         -->
         <div class="price" id="cfgPrice">£4,461.00</div>
         <div class="pvat">inc. VAT</div>
+        <div class="cfg-deliv-group">
+          <div class="cfg-di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h11v9H3z"/><path d="M14 9h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.7"/><circle cx="17.5" cy="18" r="1.7"/></svg> Free delivery to most mainland UK postcodes*</div>
+          <div class="cfg-di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg> <span>Delivery available from <b id="delivFrom">—</b> · <span class="soft">choose your delivery date at checkout</span></span></div>
+        </div>
         <button class="addbtn cfgadd">Add to basket</button>
         <p class="fineprint">Prices as per the live configurator. Paint/trim swatch colours are indicative approximations.</p>
       </div>
@@ -870,7 +978,7 @@
     <div class="wc-card">
       <div class="ic"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2020/02/Composite-Cladding-1.png" alt=""></div>
       <h3>Superior composite timber</h3>
-      <p>LP Strongcore composite — the look of wood, none of the upkeep.</p>
+      <p>LP Strongcore composite — the look of wood, with far less upkeep.</p>
     </div>
     <div class="wc-card">
       <div class="ic"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2020/04/Fully-Insulated.png" alt=""></div>
@@ -932,7 +1040,7 @@
   </video>
   <div class="panel">
     <div class="eyebrow" style="color:#fff;opacity:.7">Composite cladding</div>
-    <h3>The look of timber, without the upkeep.</h3>
+    <h3>The look of timber, with far less upkeep.</h3>
     <p>LP Strongcore composite is wood fibres bonded with high-quality resins — the natural character of wood with the strength and low maintenance of composite. It resists weather, moisture, fungal growth and decay, and gives the My Den its modern anthracite finish.</p>
   </div>
 </section>
@@ -1081,7 +1189,7 @@
       if(b) b.addEventListener('click',function(){ v.innerHTML='<iframe src="https://www.youtube.com/embed/gOu01FhR6BA?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3" title="My Den FAQ" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>'; }); })();
   </script>
   <details class="faq-item"><summary>Do I need planning permission?</summary><div class="ans">Usually not. Our buildings are designed to stay under 2.5m in height and fall under "permitted development," so planning permission typically isn't required. Always check with your local authority if you're in a conservation area, national park or listed building, and note the building shouldn't be used as self-contained accommodation. We don't offer legal advice — please confirm with your local planning authority before ordering.</div></details>
-  <details class="faq-item"><summary>Do I need a base?</summary><div class="ans">Yes — all garden buildings must be assembled on a solid, level foundation. Our purpose-made Eze Base provides a solid, level foundation with minimal groundwork; ask us to add it to your order. Assembling on an unsuitable foundation may invalidate your warranty.</div></details>
+  <details class="faq-item"><summary>Do I need a base?</summary><div class="ans">Yes — all garden buildings must be assembled on a solid, level foundation. Your My Den includes our purpose-made Eze Base as standard, giving a solid, level foundation with minimal groundwork. Assembling on an unsuitable foundation may invalidate your warranty.</div></details>
   <details class="faq-item"><summary>Is it difficult to assemble?</summary><div class="ans">No. The panels arrive pre-assembled and pre-insulated and fit through a standard doorway. We recommend two people with basic DIY tools, and every building comes with clear, illustrated instructions. Prefer not to build it? Add our assembly service at checkout.</div></details>
   <details class="faq-item"><summary>Will it stay warm enough to use in winter?</summary><div class="ans">Yes. The walls, floor and roof are fully insulated with multi-foil (U-value comparable to 120mm glass wool), and double glazing comes as standard — so it stays comfortable year-round.</div></details>
   <details class="faq-item"><summary>How is it delivered?</summary><div class="ans">Kerbside, by lorry or van. You choose a preferred delivery date at checkout and we do our best to meet it — at busier times we may need to agree an alternative date with you, and we'll keep you informed throughout. Please ensure there's clear access in front of your property on the delivery date.</div></details>
@@ -1091,7 +1199,7 @@
 <section class="trust" id="trust"><div class="wrap">
   <span class="g">★ 15-year anti-rot guarantee</span>
   <h2>Bought with <span class="swipe">confidence.</span></h2>
-  <p class="lead" style="max-width:48ch;margin:8px auto 0">Free delivery to selected postcodes, and Made in Britain.</p>
+  <p class="lead" style="max-width:48ch;margin:8px auto 0">Free delivery to most mainland UK postcodes*, and Made in Britain.</p>
   <div class="reviews">
     <div class="review">
       <div class="rev-media"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2020/04/My-Den-Customer-Image-1.jpg" alt="Customer photo of a My Den garden office"></div>
@@ -1115,6 +1223,30 @@
 </div></section>
 <script>/* reviews: switch to a swipe rail on all devices once there are more than 3 */
 (function(){ var r=document.querySelector('.trust .reviews'); if(r && r.querySelectorAll('.review').length>3) r.classList.add('many'); })();</script>
+
+<!-- ===================== RECOMMENDED PRODUCTS ===================== -->
+<section class="recommend"><div class="wrap">
+  <div class="eyebrow">Explore the range</div>
+  <h2>You might also <span class="fade">like.</span></h2>
+  <div class="rec-rail">
+    <a class="rec-card" href="https://www.projecttimber.com/garden-offices/my-den/" target="_blank" rel="noopener">
+      <div class="rec-img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2020/04/My-Den-1.jpg" alt="My Den Insulated Garden Office"></div>
+      <div class="rec-body"><div class="rec-rng">My Den</div><h3>My Den Insulated Garden Office</h3><div class="rec-price">From £3,972 <small>inc. VAT</small></div></div>
+    </a>
+    <a class="rec-card" href="https://www.projecttimber.com/garden-offices/double-doors-my-den/" target="_blank" rel="noopener">
+      <div class="rec-img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/02/My-Den-double-door.jpg" alt="My Den Double Door insulated garden office"></div>
+      <div class="rec-body"><div class="rec-rng">My Den</div><h3>My Den Double Door</h3><div class="rec-price">From £6,394 <small>inc. VAT</small></div></div>
+    </a>
+    <a class="rec-card" href="https://www.projecttimber.com/garden-offices/my-den-cedar-home-office-shed/" target="_blank" rel="noopener">
+      <div class="rec-img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2020/11/My-Den-cedar.jpg" alt="My Den Cedar insulated garden room"></div>
+      <div class="rec-body"><div class="rec-rng">My Den</div><h3>My Den Cedar Garden Room</h3><div class="rec-price">From £8,867 <small>inc. VAT</small></div></div>
+    </a>
+    <a class="rec-card" href="https://www.projecttimber.com/garden-offices/project-timber-evolution-offset-door-insulated-garden-office/" target="_blank" rel="noopener">
+      <div class="rec-img"><img loading="lazy" src="https://projecttimber.com/wp-content/uploads/2018/02/Evolution-14x8-Offset-Door.jpg" alt="Evolution Offset Door insulated garden room"></div>
+      <div class="rec-body"><div class="rec-rng">Evolution</div><h3>Evolution Offset Door</h3><div class="rec-price">From £7,802 <small>inc. VAT</small></div></div>
+    </a>
+  </div>
+</div></section>
 
 <!-- ===================== FINAL CTA ===================== -->
 <section class="final"><div class="wrap">
@@ -1165,7 +1297,7 @@
 </div></footer>
 
 <div class="buybar">
-  <div class="p">From £4,461 <small>FREE DELIVERY*</small></div>
+  <div class="p">From £4,461 <small>inc. VAT</small></div>
   <button class="go">Customise &amp; buy</button>
 </div>
 
@@ -1263,6 +1395,28 @@
     if(galNext) galNext.addEventListener('click',function(){ show(gi+1); });
     if(galWrap){ var sx=null; galWrap.addEventListener('touchstart',function(e){ sx=e.touches[0].clientX; },{passive:true}); galWrap.addEventListener('touchend',function(e){ if(sx===null)return; var dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40) show(dx<0?gi+1:gi-1); sx=null; }); }
     setGallery('8 × 6');
+    // ---- gallery lightbox (click to open · browse · zoom) ----
+    function initGlb(){
+      var glb=document.getElementById('cfgLightbox'); if(!glb || !galImg) return;
+      var img=glb.querySelector('.glb-img');
+      var prev=glb.querySelector('.glb-prev'), next=glb.querySelector('.glb-next'), count=glb.querySelector('.glb-count');
+      function upd(){ img.classList.remove('zoom'); img.style.transformOrigin='center center'; img.src=gal[gi];
+        var multi=gal.length>1; prev.style.display=multi?'':'none'; next.style.display=multi?'':'none';
+        if(count){ count.textContent=(gi+1)+' / '+gal.length; count.style.display=multi?'':'none'; } }
+      function openLB(){ upd(); glb.classList.add('open'); glb.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+      function closeLB(){ glb.classList.remove('open'); glb.setAttribute('aria-hidden','true'); document.body.style.overflow=''; img.classList.remove('zoom'); }
+      galImg.addEventListener('click', openLB);
+      prev.addEventListener('click', function(e){ e.stopPropagation(); show(gi-1); upd(); });
+      next.addEventListener('click', function(e){ e.stopPropagation(); show(gi+1); upd(); });
+      glb.querySelector('.glb-x').addEventListener('click', closeLB);
+      glb.querySelector('.glb-back').addEventListener('click', closeLB);
+      img.addEventListener('click', function(e){ e.stopPropagation(); var z=img.classList.toggle('zoom'); if(!z) img.style.transformOrigin='center center'; });
+      img.addEventListener('mousemove', function(e){ if(!img.classList.contains('zoom')) return; var r=img.getBoundingClientRect(); img.style.transformOrigin=((e.clientX-r.left)/r.width*100)+'% '+((e.clientY-r.top)/r.height*100)+'%'; });
+      document.addEventListener('keydown', function(e){ if(!glb.classList.contains('open')) return; if(e.key==='Escape') closeLB(); else if(e.key==='ArrowLeft'){ show(gi-1); upd(); } else if(e.key==='ArrowRight'){ show(gi+1); upd(); } });
+      var sx=null; glb.addEventListener('touchstart',function(e){ sx=e.touches[0].clientX; },{passive:true});
+      glb.addEventListener('touchend',function(e){ if(sx===null||img.classList.contains('zoom')){ sx=null; return; } var dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40){ show(dx<0?gi+1:gi-1); upd(); } sx=null; });
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', initGlb); else initGlb();
     function fmt(n){ return '£'+Math.round(n).toLocaleString('en-GB')+'.00'; }
     function fmtm(n){ return '£'+Math.round(n).toLocaleString('en-GB'); }
     function total(){ var t=state.base; for(var k in state.deltas){ t+=state.deltas[k]; } return t; }
@@ -1273,7 +1427,7 @@
       var el=document.getElementById('cfgPrice');
       if(el){ el.innerHTML = pay==='finance' ? fmtm(t/120)+' <small>/mo over 120 months*</small>' : fmt(t); }
       var bb=document.querySelector('.buybar .p');
-      if(bb){ bb.innerHTML = fmt(t)+' <small>FREE DELIVERY*</small>'; }
+      if(bb){ bb.innerHTML = fmt(t)+' <small>inc. VAT</small>'; }
     }
     // accordion
     document.querySelectorAll('.configurator .cfg-head').forEach(function(h){
@@ -1376,7 +1530,7 @@
         </div>
         <div class="ptc-assure">
           <div class="ptc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> Secure checkout · card, Apple Pay or PayPal</div>
-          <div class="ptc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg> Free delivery on selected postcodes</div>
+          <div class="ptc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg> Free delivery on most mainland UK postcodes*</div>
         </div>
       </div>
       <div class="ptc-foot">
@@ -1532,6 +1686,42 @@
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });
 })();
 </script>
+<script>
+/* header hide-on-scroll-down / reveal-on-scroll-up — isolated. Sub-nav stays pinned; only the top row translates away. */
+(function(){
+  var bar=document.getElementById('topbar'); if(!bar) return;
+  var sub=bar.querySelector('.subnav');
+  var lastY=window.scrollY||window.pageYOffset||0, hidden=false;
+  function off(){ return sub ? sub.offsetTop : 0; }
+  window.addEventListener('scroll', function(){
+    var y=window.scrollY||window.pageYOffset||0;
+    if(y<60){ if(hidden){ bar.style.transform=''; hidden=false; } lastY=y; return; }   // always show near top
+    if(y>lastY+4 && !hidden){ bar.style.transform='translateY(-'+off()+'px)'; hidden=true; }   // scrolling down
+    else if(y<lastY-4 && hidden){ bar.style.transform=''; hidden=false; }                       // scrolling up
+    lastY=y;
+  }, { passive:true });
+})();
+</script>
+<script>
+/* earliest delivery date — auto-computed so it never goes stale. LEAD_DAYS = lead time to confirm with ops. */
+(function(){
+  var el=document.getElementById('delivFrom'); if(!el) return;
+  var LEAD_DAYS=42;
+  var d=new Date(); d.setDate(d.getDate()+LEAD_DAYS);
+  var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var wd=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function ord(n){ var s=['th','st','nd','rd'], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+  el.textContent=m[d.getMonth()]+', '+ord(d.getDate())+' '+wd[d.getDay()];
+})();
+</script>
+<div class="glb" id="cfgLightbox" aria-hidden="true">
+  <div class="glb-back"></div>
+  <button class="glb-btn glb-x" type="button" aria-label="Close">&times;</button>
+  <button class="glb-btn glb-prev" type="button" aria-label="Previous image">&lsaquo;</button>
+  <div class="glb-stage"><img class="glb-img" src="" alt="My Den Composite gallery image"></div>
+  <button class="glb-btn glb-next" type="button" aria-label="Next image">&rsaquo;</button>
+  <div class="glb-count"></div>
+</div>
 <button class="totop hide" id="toTop" type="button" aria-label="Back to top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
 <script>
 /* back-to-top — isolated so nothing else can stop it. Appears on scroll up, hides on scroll down / near top. */
@@ -1550,6 +1740,85 @@
   btn.addEventListener('click', function(){
     window.scrollTo({ top:0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   });
+})();
+</script>
+<script>
+/* configurator accessibility — keyboard + ARIA (progressive enhancement; matches approved prototype) */
+(function(){
+  var uid=0;
+  document.querySelectorAll('.configurator .cfg-row').forEach(function(row){
+    var head=row.querySelector('.cfg-head'), body=row.querySelector('.cfg-body');
+    if(!head||!body) return;
+    if(!body.id) body.id='cfg-panel-'+(++uid);
+    head.setAttribute('role','button'); head.setAttribute('tabindex','0'); head.setAttribute('aria-controls', body.id);
+    var chev=head.querySelector('.chev'); if(chev) chev.setAttribute('aria-hidden','true');
+    function sync(){ head.setAttribute('aria-expanded', row.classList.contains('open')?'true':'false'); }
+    sync();
+    head.addEventListener('click', function(){ setTimeout(sync,0); });
+    head.addEventListener('keydown', function(e){ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); head.click(); } });
+  });
+  document.querySelectorAll('.configurator .opt-cards').forEach(function(group){
+    group.setAttribute('role','radiogroup');
+    var row=group.closest('.cfg-row'), lab=row&&row.querySelector('.cfg-head .lab');
+    if(lab&&!group.getAttribute('aria-label')) group.setAttribute('aria-label', lab.textContent.trim());
+    var cards=[].slice.call(group.querySelectorAll('.opt-card'));
+    cards.forEach(function(c){
+      c.setAttribute('role','radio');
+      var nm=c.querySelector('.nm'), pr=c.querySelector('.pr'), sb=c.querySelector('.selbtn');
+      var name=nm?nm.textContent.trim():(c.getAttribute('data-val')||'');
+      if(pr&&pr.textContent.trim()) name+=', '+pr.textContent.trim();
+      c.setAttribute('aria-label', name);
+      if(sb) sb.setAttribute('aria-hidden','true');
+    });
+    function isVis(c){ return !c.classList.contains('hide') && c.offsetParent!==null; }
+    function vis(){ return cards.filter(isVis); }
+    function syncState(){
+      cards.forEach(function(c){ c.setAttribute('aria-checked', c.classList.contains('sel')?'true':'false'); c.tabIndex=-1; });
+      var v=vis(), sel=v.filter(function(c){return c.classList.contains('sel');})[0]||v[0];
+      if(sel) sel.tabIndex=0;
+    }
+    syncState();
+    group.addEventListener('click', function(){ setTimeout(syncState,0); });
+    group.addEventListener('keydown', function(e){
+      var v=vis(), cur=document.activeElement, i=v.indexOf(cur);
+      if(i<0) return;
+      var n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown') n=v[(i+1)%v.length];
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp') n=v[(i-1+v.length)%v.length];
+      else if(e.key==='Home') n=v[0];
+      else if(e.key==='End') n=v[v.length-1];
+      else if(e.key===' '||e.key==='Enter'){ e.preventDefault(); cur.click(); setTimeout(syncState,0); return; }
+      else return;
+      e.preventDefault(); n.click(); syncState(); n.focus();
+    });
+    var mo=new MutationObserver(function(){ syncState(); });
+    cards.forEach(function(c){ mo.observe(c,{attributes:true,attributeFilter:['class']}); });
+  });
+  var galImg=document.getElementById('cfgImg');
+  if(galImg){
+    galImg.setAttribute('role','button'); galImg.setAttribute('tabindex','0'); galImg.setAttribute('aria-haspopup','dialog');
+    galImg.setAttribute('aria-label','Open image gallery — zoom and browse');
+    galImg.addEventListener('keydown', function(e){ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); galImg.click(); } });
+  }
+  var glb=document.getElementById('cfgLightbox');
+  if(glb&&galImg){
+    glb.setAttribute('role','dialog'); glb.setAttribute('aria-modal','true'); glb.setAttribute('aria-label','Image gallery');
+    var wasOpen=false;
+    new MutationObserver(function(){
+      var open=glb.classList.contains('open');
+      if(open&&!wasOpen){ var x=glb.querySelector('.glb-x'); if(x) x.focus(); }
+      else if(!open&&wasOpen){ galImg.focus(); }
+      wasOpen=open;
+    }).observe(glb,{attributes:true,attributeFilter:['class']});
+    glb.addEventListener('keydown', function(e){
+      if(e.key!=='Tab'||!glb.classList.contains('open')) return;
+      var f=[].slice.call(glb.querySelectorAll('button')).filter(function(b){return b.offsetParent!==null;});
+      if(!f.length) return;
+      var first=f[0], last=f[f.length-1];
+      if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
+    });
+  }
 })();
 </script>
 </body>

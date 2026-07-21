@@ -61,7 +61,7 @@
       window:"Pick your window material and position. Side-opening windows aid airflow; 'both ends' adds light and ventilation front and back. Timber is standard; UPVC is a low-maintenance upgrade. Positions are as you look at the building from the garden.",
       floor:"Comes with an insulated tongue-and-groove floor as standard. Upgrade for a more solid feel and heavier loads.",
       laminate:"An optional laminate finish laid over the floor for a ready-to-use interior — choose a tone, or leave it bare to finish your own way.",
-      paint:"Supplied in tubs of paint — buildings aren't pre-painted on delivery, so painting is done on site. Swatch colours shown are indicative approximations.",
+      paint:"Thorndown paint, supplied in tins — buildings aren't pre-painted on delivery, so painting is done on site. Swatch colours shown are indicative approximations.",
       assembly:"Prefer not to self-build? Add our assembly service and our team installs the building for you on delivery. Leave as None to build it yourself using the included instructions."
     };
     function isColourComp(c){ return /paint|trim/i.test((c&&(c.title||c.key))||''); }
@@ -156,6 +156,40 @@
         setGallery(galleryFor(lead));
       }).catch(function(){ /* keep whatever single image is showing */ });
     }
+
+    // ---- gallery lightbox (click the preview to open · browse · zoom) — shares gal/gi/show ----
+    (function initGlb(){
+      var glb=document.getElementById('cfgLightbox'); if(!glb || !elImg) return;
+      var img=glb.querySelector('.glb-img');
+      var prev=glb.querySelector('.glb-prev'), next=glb.querySelector('.glb-next'), count=glb.querySelector('.glb-count');
+      function upd(){ if(!gal.length) return; img.classList.remove('zoom'); img.style.transformOrigin='center center'; img.src=gal[gi];
+        var multi=gal.length>1; prev.style.display=multi?'':'none'; next.style.display=multi?'':'none';
+        if(count){ count.textContent=(gi+1)+' / '+gal.length; count.style.display=multi?'':'none'; } }
+      function openLB(){ if(!gal.length) return; upd(); glb.classList.add('open'); glb.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+      function closeLB(){ glb.classList.remove('open'); glb.setAttribute('aria-hidden','true'); document.body.style.overflow=''; img.classList.remove('zoom'); }
+      elImg.style.cursor='zoom-in';
+      elImg.addEventListener('click', openLB);
+      prev.addEventListener('click', function(e){ e.stopPropagation(); show(gi-1); upd(); });
+      next.addEventListener('click', function(e){ e.stopPropagation(); show(gi+1); upd(); });
+      glb.querySelector('.glb-x').addEventListener('click', closeLB);
+      glb.querySelector('.glb-back').addEventListener('click', closeLB);
+      img.addEventListener('click', function(e){ e.stopPropagation(); var z=img.classList.toggle('zoom'); if(!z) img.style.transformOrigin='center center'; });
+      img.addEventListener('mousemove', function(e){ if(!img.classList.contains('zoom')) return; var r=img.getBoundingClientRect(); img.style.transformOrigin=((e.clientX-r.left)/r.width*100)+'% '+((e.clientY-r.top)/r.height*100)+'%'; });
+      document.addEventListener('keydown', function(e){ if(!glb.classList.contains('open')) return; if(e.key==='Escape') closeLB(); else if(e.key==='ArrowLeft'){ show(gi-1); upd(); } else if(e.key==='ArrowRight'){ show(gi+1); upd(); } });
+      var sx=null; glb.addEventListener('touchstart',function(e){ sx=e.touches[0].clientX; },{passive:true});
+      glb.addEventListener('touchend',function(e){ if(sx===null||img.classList.contains('zoom')){ sx=null; return; } var dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40){ show(dx<0?gi+1:gi-1); upd(); } sx=null; });
+    })();
+
+    // ---- earliest delivery date in the summary (auto-computed so it never goes stale) ----
+    (function(){
+      var el=document.getElementById('delivFrom'); if(!el) return;
+      var LEAD_DAYS=42;
+      var d=new Date(); d.setDate(d.getDate()+LEAD_DAYS);
+      var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var wd=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      function ord(n){ var s=['th','st','nd','rd'], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+      el.textContent=mo[d.getMonth()]+', '+ord(d.getDate())+' '+wd[d.getDay()];
+    })();
 
     // ====================== specifications (design preserved; data now live) ======================
     // The 7 curated spec cards stay exactly as designed; cells with data-spec are filled from

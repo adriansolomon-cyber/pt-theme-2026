@@ -510,6 +510,51 @@
             "append": ""
         },
         {
+            "key": "field_pt_cfg_key_features",
+            "label": "Configurator — key features",
+            "name": "cfg_key_features",
+            "type": "repeater",
+            "instructions": "The “Key features” list in the configurator preview. Leave empty to use the default list.",
+            "layout": "table",
+            "button_label": "Add feature",
+            "sub_fields": [
+                {
+                    "key": "field_pt_cfg_key_feature",
+                    "label": "Feature",
+                    "name": "feature",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_cfg_key_features"
+                }
+            ],
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
             "key": "field_pt_tab_highlights",
             "label": "Highlights",
             "name": "",

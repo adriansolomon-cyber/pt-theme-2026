@@ -130,7 +130,47 @@ get_header();
         <button class="cfg-navbtn next" type="button" aria-label="Next image">&rsaquo;</button>
         <div class="cfg-dots" id="cfgDots"></div>
       </div>
-      <div class="pcap"><span class="nm" id="cfgProdName"><?php echo esc_html( $pt_name ); ?></span><span class="sz" id="cfgSize">8 × 6</span></div>
+      <div class="cfg-info">
+        <div class="cfg-titlerow">
+          <h2 class="cfg-title" id="cfgProdName"><?php echo esc_html( $pt_name ); ?></h2>
+          <img class="cfg-mib" loading="lazy" src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/made-in-britain.jpg" alt="Made in Britain">
+        </div>
+        <div class="cfg-size-cap">Selected size: <b id="cfgSize">8 × 6</b></div>
+        <?php $pt_cfg_short = $pt_product ? apply_filters( 'woocommerce_short_description', $pt_product->get_short_description() ) : ''; ?>
+        <details class="cfg-desc">
+          <summary>Description</summary>
+          <?php if ( $pt_cfg_short ) : ?>
+            <?php echo wp_kses_post( $pt_cfg_short ); ?>
+          <?php else : ?>
+            <p><?php echo esc_html( $pt_f( 'cfg_description', 'A fully insulated, all-season garden office designed to be used every day of the year. Low-maintenance composite cladding pairs with pre-insulated modular panels in the walls, floor and roof — warm in winter, cool in summer. Double glazing and a UPVC door with multi-point locking come as standard, every building is hand-crafted in Nottinghamshire, and it is backed by a 15-year anti-rot guarantee on the composite. Delivered as pre-assembled panels for a faster build.' ) ); ?></p>
+          <?php endif; ?>
+        </details>
+        <?php if ( $pt_has_rows( 'cfg_key_features' ) ) : ?>
+        <details class="cfg-desc">
+          <summary>Key features</summary>
+          <ul class="cfg-feat">
+            <?php while ( have_rows( 'cfg_key_features', $pt_pid ) ) : the_row(); ?>
+              <li><?php echo esc_html( get_sub_field( 'feature' ) ); ?></li>
+            <?php endwhile; ?>
+          </ul>
+        </details>
+        <?php else : ?>
+        <details class="cfg-desc">
+          <summary>Key features</summary>
+          <ul class="cfg-feat">
+            <li>Superior composite timber cladding</li>
+            <li>Fully insulated — walls, floor &amp; roof</li>
+            <li>UPVC door with multi-point locking</li>
+            <li>80mm total wall thickness</li>
+            <li>Insulated metal roof</li>
+            <li>Double glazing as standard</li>
+            <li>15-year anti-rot guarantee*</li>
+            <li>Easy self-assembly</li>
+          </ul>
+        </details>
+        <?php endif; ?>
+        <a class="cfg-specs-link" href="#specs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg> View full specifications <span class="a">→</span></a>
+      </div>
     </div>
 
     <div>
@@ -142,7 +182,10 @@ get_header();
 
       <!-- live summary -->
       <div class="cfg-summary">
-        <div class="deliv" id="cfgDeliv">Free delivery to most mainland UK postcodes* · choose your delivery date at checkout</div>
+        <div class="cfg-deliv-group">
+          <div class="cfg-di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h11v9H3z"/><path d="M14 9h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.7"/><circle cx="17.5" cy="18" r="1.7"/></svg> Free delivery to most mainland UK postcodes*</div>
+          <div class="cfg-di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg> <span>Delivery available from <b id="delivFrom">—</b> · <span class="soft">choose your delivery date at checkout</span></span></div>
+        </div>
         <!-- FINANCE HIDDEN (re-enable when a finance provider is in place):
         <div class="ptoggle"><button class="on" data-pay="cash">Cash</button><button data-pay="finance">Finance</button></div>
         -->
@@ -362,7 +405,7 @@ get_header();
   </video>
   <div class="panel">
     <div class="eyebrow" style="color:#fff;opacity:.7">Composite cladding</div>
-    <h3><?php echo esc_html( $pt_f( 'cladding_heading', 'The look of timber, without the upkeep.' ) ); ?></h3>
+    <h3><?php echo esc_html( $pt_f( 'cladding_heading', 'The look of timber, with far less upkeep.' ) ); ?></h3>
     <?php $pt_clad_body = get_field( 'cladding_body', $pt_pid ); ?>
     <p><?php echo $pt_clad_body ? esc_html( $pt_clad_body ) : 'LP Strongcore composite is wood fibres bonded with high-quality resins — the natural character of wood with the strength and low maintenance of composite. It resists weather, moisture, fungal growth and decay, and gives the ' . esc_html( $pt_line ) . ' its modern anthracite finish.'; ?></p>
   </div>
@@ -611,6 +654,46 @@ get_header();
 </div></section>
 
 <?php endif; ?>
+<!-- ===================== RECOMMENDED PRODUCTS ===================== -->
+<?php
+// "You might also like" — WooCommerce up-sells if set, otherwise related products.
+$pt_rec_ids = $pt_product ? $pt_product->get_upsell_ids() : array();
+if ( empty( $pt_rec_ids ) && function_exists( 'wc_get_related_products' ) ) {
+	$pt_rec_ids = wc_get_related_products( $pt_pid, 4 );
+}
+$pt_rec_ids = array_slice( array_values( array_filter( array_map( 'intval', (array) $pt_rec_ids ) ) ), 0, 4 );
+if ( $pt_rec_ids ) :
+	?>
+<section class="recommend"><div class="wrap">
+  <div class="sec-head"><h2>You might also <span class="fade">like.</span></h2></div>
+  <div class="rec-rail">
+    <?php
+    foreach ( $pt_rec_ids as $pt_rid ) :
+        $pt_rp = wc_get_product( $pt_rid );
+        if ( ! $pt_rp ) {
+            continue;
+        }
+        $pt_rimg   = get_the_post_thumbnail_url( $pt_rid, 'large' );
+        $pt_rrng   = pt_product_line_singular( $pt_rid );
+        $pt_rprice = pt_product_from_price_html( $pt_rp );
+        ?>
+      <a class="rec-card" href="<?php echo esc_url( get_permalink( $pt_rid ) ); ?>">
+        <div class="rec-img"><?php if ( $pt_rimg ) : ?><img loading="lazy" src="<?php echo esc_url( $pt_rimg ); ?>" alt="<?php echo esc_attr( $pt_rp->get_name() ); ?>"><?php endif; ?></div>
+        <div class="rec-body">
+          <?php if ( $pt_rrng ) : ?><div class="rec-rng"><?php echo esc_html( $pt_rrng ); ?></div><?php endif; ?>
+          <h3><?php echo esc_html( $pt_rp->get_name() ); ?></h3>
+          <?php if ( $pt_rprice ) : ?>
+            <div class="rec-price"><?php echo wp_kses_post( $pt_rprice ); ?> <small>inc. VAT</small></div>
+          <?php else : ?>
+            <div class="rec-price rec-tbc">Price on request</div>
+          <?php endif; ?>
+        </div>
+      </a>
+    <?php endforeach; ?>
+  </div>
+</div></section>
+<?php endif; ?>
+
 <!-- ===================== FINAL CTA ===================== -->
 <?php if ( $pt_show( 'show_final' ) ) : ?>
 <section class="final"><div class="wrap">
@@ -627,6 +710,16 @@ get_header();
 <div class="buybar">
   <div class="p"><?php echo esc_html( $pt_from ); ?> <small>FREE DELIVERY*</small></div>
   <button class="go">Customise &amp; buy</button>
+</div>
+
+<!-- ===================== GALLERY LIGHTBOX ===================== -->
+<div class="glb" id="cfgLightbox" aria-hidden="true">
+  <div class="glb-back"></div>
+  <button class="glb-btn glb-x" type="button" aria-label="Close">&times;</button>
+  <button class="glb-btn glb-prev" type="button" aria-label="Previous image">&lsaquo;</button>
+  <div class="glb-stage"><img class="glb-img" src="" alt="<?php echo esc_attr( $pt_name ); ?> gallery image"></div>
+  <button class="glb-btn glb-next" type="button" aria-label="Next image">&rsaquo;</button>
+  <div class="glb-count"></div>
 </div>
 
 <?php
