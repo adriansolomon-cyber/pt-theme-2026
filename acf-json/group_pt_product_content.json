@@ -510,6 +510,26 @@
             "append": ""
         },
         {
+            "key": "field_pt_cfg_description",
+            "label": "Configurator — description",
+            "name": "cfg_description",
+            "type": "textarea",
+            "instructions": "The “Description” accordion in the configurator preview. Leave blank to use the product’s WooCommerce short description, then a default.",
+            "rows": 6,
+            "new_lines": "wpautop",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
             "key": "field_pt_cfg_key_features",
             "label": "Configurator — key features",
             "name": "cfg_key_features",

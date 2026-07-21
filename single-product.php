@@ -136,13 +136,18 @@ get_header();
           <img class="cfg-mib" loading="lazy" src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/made-in-britain.jpg" alt="Made in Britain">
         </div>
         <div class="cfg-size-cap">Selected size: <b id="cfgSize">8 × 6</b></div>
-        <?php $pt_cfg_short = $pt_product ? apply_filters( 'woocommerce_short_description', $pt_product->get_short_description() ) : ''; ?>
+        <?php
+        $pt_cfg_desc  = function_exists( 'get_field' ) ? get_field( 'cfg_description', $pt_pid ) : '';           // ACF override (preferred)
+        $pt_cfg_short = $pt_product ? apply_filters( 'woocommerce_short_description', $pt_product->get_short_description() ) : ''; // WooCommerce short description
+        ?>
         <details class="cfg-desc">
           <summary>Description</summary>
-          <?php if ( $pt_cfg_short ) : ?>
+          <?php if ( $pt_cfg_desc ) : ?>
+            <?php echo wp_kses_post( $pt_cfg_desc ); ?>
+          <?php elseif ( $pt_cfg_short ) : ?>
             <?php echo wp_kses_post( $pt_cfg_short ); ?>
           <?php else : ?>
-            <p><?php echo esc_html( $pt_f( 'cfg_description', 'A fully insulated, all-season garden office designed to be used every day of the year. Low-maintenance composite cladding pairs with pre-insulated modular panels in the walls, floor and roof — warm in winter, cool in summer. Double glazing and a UPVC door with multi-point locking come as standard, every building is hand-crafted in Nottinghamshire, and it is backed by a 15-year anti-rot guarantee on the composite. Delivered as pre-assembled panels for a faster build.' ) ); ?></p>
+            <p>A fully insulated, all-season garden office designed to be used every day of the year. Low-maintenance composite cladding pairs with pre-insulated modular panels in the walls, floor and roof — warm in winter, cool in summer. Double glazing and a UPVC door with multi-point locking come as standard, every building is hand-crafted in Nottinghamshire, and it is backed by a 15-year anti-rot guarantee on the composite. Delivered as pre-assembled panels for a faster build.</p>
           <?php endif; ?>
         </details>
         <?php if ( $pt_has_rows( 'cfg_key_features' ) ) : ?>
