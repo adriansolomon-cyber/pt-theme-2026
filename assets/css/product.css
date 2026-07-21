@@ -461,9 +461,9 @@
 .cfg-desc summary::after{ content:"+"; font-weight:300; font-size:1.4rem; color:var(--txt-soft); line-height:1; }
 .cfg-desc[open] summary::after{ content:"\2013"; }
 .cfg-desc p{ font-weight:300; font-size:.92rem; color:var(--txt-soft); line-height:1.6; padding-bottom:14px; margin:0; }
-.cfg-desc .cfg-feat{ list-style:none; margin:0 0 14px; padding:0; display:grid; gap:6px; }
-.cfg-desc .cfg-feat li{ font-weight:300; font-size:.92rem; color:var(--txt-soft); line-height:1.5; padding-left:18px; position:relative; }
-.cfg-desc .cfg-feat li::before{ content:""; position:absolute; left:3px; top:.62em; width:5px; height:5px; border-radius:50%; background:var(--charcoal); }
+.cfg-desc .cfg-feat, .cfg-desc ul{ list-style:none; margin:0 0 14px; padding:0; display:grid; gap:6px; }
+.cfg-desc .cfg-feat li, .cfg-desc ul li{ font-weight:300; font-size:.92rem; color:var(--txt-soft); line-height:1.5; padding-left:18px; position:relative; }
+.cfg-desc .cfg-feat li::before, .cfg-desc ul li::before{ content:""; position:absolute; left:3px; top:.62em; width:5px; height:5px; border-radius:50%; background:var(--charcoal); }
 .cfg-specs-link{ display:inline-flex; align-items:center; gap:8px; margin-top:14px; font-size:.9rem; font-weight:700; color:var(--ink); text-decoration:none; border-bottom:1px solid rgba(33,30,36,.18); padding-bottom:2px; }
 .cfg-specs-link svg{ width:16px; height:16px; color:var(--charcoal); flex:0 0 auto; }
 .cfg-specs-link .a{ transition:transform .2s var(--ease); }
