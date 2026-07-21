@@ -160,11 +160,33 @@ add_action(
 			}
 			if ( file_exists( $dir . '/assets/js/product.js' ) ) {
 				wp_enqueue_script( 'pt-product', $uri . '/assets/js/product.js', array(), $ver( 'assets/js/product.js' ), true );
+				// Bestseller sizes (legacy ACF field 'best_seller_sizes'): a list of size names
+				// flagged as bestsellers. product.js uses it to build the size filter
+				// ("Bestsellers" + by depth). Normalise to a flat array of strings.
+				$pt_best     = function_exists( 'get_field' ) ? get_field( 'best_seller_sizes', get_queried_object_id() ) : null;
+				$pt_best_arr = array();
+				if ( is_array( $pt_best ) ) {
+					foreach ( $pt_best as $pt_b ) {
+						if ( is_string( $pt_b ) ) {
+							$pt_best_arr[] = trim( $pt_b );
+						} elseif ( is_array( $pt_b ) ) {
+							$pt_v = reset( $pt_b );
+							if ( is_string( $pt_v ) ) {
+								$pt_best_arr[] = trim( $pt_v );
+							}
+						}
+					}
+				} elseif ( is_string( $pt_best ) && '' !== trim( $pt_best ) ) {
+					$pt_best_arr = array_map( 'trim', preg_split( '/[\r\n,]+/', $pt_best ) );
+				}
+				$pt_best_arr = array_values( array_filter( $pt_best_arr ) );
+
 				// Hand product.js the current product id + site origin (same-origin config/specs API).
 				wp_add_inline_script(
 					'pt-product',
 					'window.PT_WC_BASE=' . wp_json_encode( untrailingslashit( home_url() ) ) . ';'
-					. 'window.PT_PRODUCT_ID=' . wp_json_encode( (string) get_queried_object_id() ) . ';',
+					. 'window.PT_PRODUCT_ID=' . wp_json_encode( (string) get_queried_object_id() ) . ';'
+					. 'window.PT_BEST_SIZES=' . wp_json_encode( $pt_best_arr ) . ';',
 					'before'
 				);
 			}

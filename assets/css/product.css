@@ -501,3 +501,10 @@
   .rec-rail{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; overflow:visible; margin:34px 0 0; padding:0; }
   .rec-card{ flex:none; }
 }
+
+/* ===== configurator size filter (Bestsellers / by depth) ===== */
+.size-groups{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+.size-groups button{ border:1px solid rgba(33,30,36,.2); background:var(--white); border-radius:999px; padding:8px 15px; font-family:var(--font); font-weight:700; font-size:.82rem; color:var(--txt-soft); cursor:pointer; transition:border-color .15s var(--ease), color .15s, background .15s; }
+.size-groups button.on{ background:var(--charcoal); color:#fff; border-color:var(--charcoal); }
+@media(hover:hover){ .size-groups button:not(.on):hover{ border-color:var(--charcoal); color:var(--ink); } }
+.configurator .opt-card.hide{ display:none; }

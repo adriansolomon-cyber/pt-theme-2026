@@ -279,6 +279,34 @@
     // Size option names from the live store carry finish/door text
     // (e.g. "20 x 8 - UPVC - Graphite"); the configurator shows ONLY the dimension.
     function sizeDisplay(name){ var m=String(name==null?'':name).match(/(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)/i); return m ? (m[1]+' × '+m[2]) : String(name==null?'':name); }
+    // ---- bestseller sizes + size filter (Bestsellers / by depth) — data from window.PT_BEST_SIZES ----
+    function normSize(s){ var t=String(s==null?'':s).toLowerCase().replace(/[×]/g,'x'); var m=t.match(/(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)/); return m ? (m[1]+'x'+m[2]) : t.replace(/\s+/g,''); }
+    var BEST_SIZES=((typeof window!=='undefined'&&window.PT_BEST_SIZES)||[]).map(normSize);
+    function isBestSize(name){ return BEST_SIZES.length>0 && BEST_SIZES.indexOf(normSize(name))>-1; }
+    // Build the "Bestsellers" + by-depth filter pills above the size grid (mirrors the design).
+    function initSizeFilter(){
+      if(!elRows) return;
+      var grid=elRows.querySelector('.opt-cards[data-mode="size"]'); if(!grid) return;
+      if(grid.parentNode.querySelector('.size-groups')) return;
+      var cards=[].slice.call(grid.querySelectorAll('.opt-card'));
+      function depthOf(c){ var v=(c.dataset.val||'').split(/[×x]/i); return v.length>1 ? v[1].trim() : (c.dataset.val||'').trim(); }
+      var depths=[]; cards.forEach(function(c){ var d=depthOf(c); if(d && depths.indexOf(d)<0) depths.push(d); });
+      var bests=cards.filter(function(c){ return c.dataset.best; });
+      if(depths.length<2 && !bests.length) return;
+      depths.sort(function(a,b){ return parseFloat(a)-parseFloat(b); });
+      var wrap=document.createElement('div'); wrap.className='size-groups'; wrap.setAttribute('role','tablist'); wrap.setAttribute('aria-label','Filter sizes');
+      grid.parentNode.insertBefore(wrap, grid);
+      function match(c,key){ return key==='__best' ? !!c.dataset.best : depthOf(c)===key; }
+      function showKey(key){
+        [].forEach.call(wrap.children,function(b){ var on=b.dataset.key===key; b.classList.toggle('on',on); b.setAttribute('aria-selected', on?'true':'false'); });
+        cards.forEach(function(c){ c.classList.toggle('hide', !match(c,key)); });
+      }
+      function addPill(key,label){ var b=document.createElement('button'); b.type='button'; b.setAttribute('role','tab'); b.dataset.key=key; b.textContent=label; b.addEventListener('click',function(){ showKey(key); }); wrap.appendChild(b); }
+      if(bests.length) addPill('__best','Bestsellers');
+      depths.forEach(function(d){ addPill(d, d+'ft deep'); });
+      var selCard=grid.querySelector('.opt-card.sel');
+      showKey(bests.length ? '__best' : (selCard ? depthOf(selCard) : depths[0]));
+    }
     function cardHTML(group,opt,selected,colour){
       var label=(group===sizeCid)?sizeDisplay(opt.name):opt.name;
       var isNone=/^\s*none\s*$/i.test(opt.name||'');
@@ -287,7 +315,8 @@
       var img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+'</div>':'<div class="im ph">'+tins+'</div>';
       var badge4w=(colour&&isNone)?'<span class="badge4w">⚠ Paint within 4 weeks!*</span>':'';
       var price=(opt.price==null)?'<span class="pr-sk skel-box"></span>':fmt(opt.price);
-      return '<div class="opt-card'+(selected?' sel':'')+'" data-group="'+esc(group)+'" data-opt="'+opt.id+'">'+img+badge4w+
+      var sizeAttrs=(group===sizeCid) ? ' data-val="'+esc(label)+'"'+(isBestSize(opt.name)?' data-best="1"':'') : '';
+      return '<div class="opt-card'+(selected?' sel':'')+'" data-group="'+esc(group)+'" data-opt="'+opt.id+'"'+sizeAttrs+'>'+img+badge4w+
         '<div class="nm">'+esc(label)+'</div><div class="pr">'+price+'</div>'+
         '<div class="selbtn">'+(selected?'Selected':'Select')+'</div></div>';
     }
@@ -317,6 +346,7 @@
       var cards=sizes.map(function(o){ return cardHTML(sizeCid,o,o.id===sizeId); }).join('');
       var sizeComp=components.filter(function(c){ return c.id===sizeCid; })[0];
       if(elRows) elRows.innerHTML=rowHTML(1,'Size','sel-size',sizeCid,'size',cards,stepNote(sizeComp||{key:'size'}));
+      initSizeFilter();
       renderSpecSeg();
     }
 
