@@ -86,7 +86,7 @@ get_header();
   <span class="brand"><?php echo esc_html( $pt_name ); ?></span>
   <nav class="tabs"><a href="#configure">Configure</a><?php
     if ( $pt_show( 'show_highlights' ) ) { echo '<a href="#highlights">Highlights</a>'; }
-    if ( $pt_show( 'show_insulation' ) ) { echo '<a href="#insulation">Insulation</a>'; }
+    if ( $pt_show( 'show_feature_card' ) ) { echo '<a href="#insulation">Insulation</a>'; }
     if ( $pt_show( 'show_assembly' ) ) { echo '<a href="#assembly">Assembly</a>'; }
     if ( $pt_show( 'show_specs' ) ) { echo '<a href="#specs">Specs</a>'; }
     if ( $pt_show( 'show_faq' ) ) { echo '<a href="#faq">FAQ</a>'; }
@@ -364,18 +364,18 @@ get_header();
 
 <?php endif; ?>
 <!-- ===================== INSULATION (3 + 4) ===================== -->
-<?php if ( $pt_show( 'show_insulation' ) ) : ?>
+<?php if ( $pt_show( 'show_feature_card' ) ) : ?>
 <section class="split" id="insulation" style="background:var(--mist)"><div class="wrap"><div class="grid">
-  <div class="media"><img src="<?php echo esc_url( $pt_f( 'insulation_image', 'https://projecttimber.com/wp-content/uploads/2018/09/main_img4th.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
+  <div class="media"><img src="<?php echo esc_url( $pt_f( 'feature_card_image', 'https://projecttimber.com/wp-content/uploads/2018/09/main_img4th.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
   <div class="copy">
-    <div class="eyebrow"><?php echo esc_html( $pt_f( 'insulation_eyebrow', 'Insulation' ) ); ?></div>
-    <?php $pt_ins_heading = get_field( 'insulation_heading', $pt_pid ); ?>
+    <div class="eyebrow"><?php echo esc_html( $pt_f( 'feature_card_eyebrow', 'Insulation' ) ); ?></div>
+    <?php $pt_ins_heading = get_field( 'feature_card_heading', $pt_pid ); ?>
     <?php if ( $pt_ins_heading ) : ?>
       <h2><?php echo esc_html( $pt_ins_heading ); ?></h2>
     <?php else : ?>
       <h2>Warm in winter.<br><span class="fade">Cool in summer.</span></h2>
     <?php endif; ?>
-    <?php $pt_ins_body = get_field( 'insulation_body', $pt_pid ); ?>
+    <?php $pt_ins_body = get_field( 'feature_card_body', $pt_pid ); ?>
     <?php if ( $pt_ins_body ) : ?>
       <?php echo wp_kses_post( $pt_ins_body ); ?>
     <?php else : ?>
@@ -383,8 +383,8 @@ get_header();
       <p>The heavy-duty metal roof adds a 40mm insulated core with a steel outer shell and white-gloss interior — built to shrug off British weather, season after season.</p>
     <?php endif; ?>
     <div class="statrow">
-      <?php if ( $pt_has_rows( 'insulation_stats' ) ) : ?>
-        <?php while ( have_rows( 'insulation_stats', $pt_pid ) ) : the_row(); ?>
+      <?php if ( $pt_has_rows( 'feature_card_stats' ) ) : ?>
+        <?php while ( have_rows( 'feature_card_stats', $pt_pid ) ) : the_row(); ?>
           <div><div class="n"><?php echo esc_html( get_sub_field( 'number' ) ); ?><span style="font-size:1rem"><?php echo esc_html( get_sub_field( 'unit' ) ); ?></span></div><div class="l"><?php echo esc_html( get_sub_field( 'label' ) ); ?></div></div>
         <?php endwhile; ?>
       <?php else : ?>

@@ -81,9 +81,9 @@
             "ui_off_text": ""
         },
         {
-            "key": "field_pt_show_insulation",
+            "key": "field_pt_show_feature_card",
             "label": "Feature Sections' Card",
-            "name": "show_insulation",
+            "name": "show_feature_card",
             "type": "true_false",
             "instructions": "",
             "required": 0,
@@ -1013,9 +1013,9 @@
             "selected": 0
         },
         {
-            "key": "field_pt_insulation_image",
+            "key": "field_pt_feature_card_image",
             "label": "Feature Sections' Card - Feature Image",
-            "name": "insulation_image",
+            "name": "feature_card_image",
             "type": "image",
             "return_format": "url",
             "preview_size": "medium",
@@ -1038,9 +1038,9 @@
             "mime_types": ""
         },
         {
-            "key": "field_pt_insulation_eyebrow",
+            "key": "field_pt_feature_card_eyebrow",
             "label": "Feature Sections' Card - Feature Eyebrow",
-            "name": "insulation_eyebrow",
+            "name": "feature_card_eyebrow",
             "type": "text",
             "instructions": "Small label above the heading. Leave blank to use “Insulation”.",
             "default_value": "",
@@ -1058,9 +1058,9 @@
             "append": ""
         },
         {
-            "key": "field_pt_insulation_heading",
+            "key": "field_pt_feature_card_heading",
             "label": "Feature Sections' Card - Feature Heading",
-            "name": "insulation_heading",
+            "name": "feature_card_heading",
             "type": "text",
             "instructions": "",
             "required": 0,
@@ -1078,9 +1078,9 @@
             "append": ""
         },
         {
-            "key": "field_pt_insulation_body",
+            "key": "field_pt_feature_card_body",
             "label": "Feature Sections' Card - Feature Body",
-            "name": "insulation_body",
+            "name": "feature_card_body",
             "type": "wysiwyg",
             "tabs": "all",
             "toolbar": "basic",
@@ -1098,15 +1098,15 @@
             "delay": 0
         },
         {
-            "key": "field_pt_insulation_stats",
+            "key": "field_pt_feature_card_stats",
             "label": "Feature Sections' Card - Feature Stats",
-            "name": "insulation_stats",
+            "name": "feature_card_stats",
             "type": "repeater",
             "layout": "table",
             "button_label": "Add stat",
             "sub_fields": [
                 {
-                    "key": "field_pt_ins_stat_number",
+                    "key": "field_pt_feature_card_stat_number",
                     "label": "Number",
                     "name": "number",
                     "type": "text",
@@ -1124,10 +1124,10 @@
                     "placeholder": "",
                     "prepend": "",
                     "append": "",
-                    "parent_repeater": "field_pt_insulation_stats"
+                    "parent_repeater": "field_pt_feature_card_stats"
                 },
                 {
-                    "key": "field_pt_ins_stat_unit",
+                    "key": "field_pt_feature_card_stat_unit",
                     "label": "Unit",
                     "name": "unit",
                     "type": "text",
@@ -1145,10 +1145,10 @@
                     "placeholder": "",
                     "prepend": "",
                     "append": "",
-                    "parent_repeater": "field_pt_insulation_stats"
+                    "parent_repeater": "field_pt_feature_card_stats"
                 },
                 {
-                    "key": "field_pt_ins_stat_label",
+                    "key": "field_pt_feature_card_stat_label",
                     "label": "Label",
                     "name": "label",
                     "type": "text",
@@ -1166,7 +1166,7 @@
                     "placeholder": "",
                     "prepend": "",
                     "append": "",
-                    "parent_repeater": "field_pt_insulation_stats"
+                    "parent_repeater": "field_pt_feature_card_stats"
                 }
             ],
             "instructions": "",
