@@ -150,30 +150,31 @@ get_header();
             <p>A fully insulated, all-season garden office designed to be used every day of the year. Low-maintenance composite cladding pairs with pre-insulated modular panels in the walls, floor and roof — warm in winter, cool in summer. Double glazing and a UPVC door with multi-point locking come as standard, every building is hand-crafted in Nottinghamshire, and it is backed by a 15-year anti-rot guarantee on the composite. Delivered as pre-assembled panels for a faster build.</p>
           <?php endif; ?>
         </details>
-        <?php if ( $pt_has_rows( 'cfg_key_features' ) ) : ?>
+        <?php
+        // Key features: one per line in the ACF 'cfg_key_features' textarea; falls back to the default list.
+        $pt_kf_raw = function_exists( 'get_field' ) ? (string) get_field( 'cfg_key_features', $pt_pid ) : '';
+        $pt_kf     = array_values( array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', $pt_kf_raw ) ) ) );
+        if ( ! $pt_kf ) {
+            $pt_kf = array(
+                'Superior composite timber cladding',
+                'Fully insulated — walls, floor & roof',
+                'UPVC door with multi-point locking',
+                '80mm total wall thickness',
+                'Insulated metal roof',
+                'Double glazing as standard',
+                '15-year anti-rot guarantee*',
+                'Easy self-assembly',
+            );
+        }
+        ?>
         <details class="cfg-desc">
           <summary>Key features</summary>
           <ul class="cfg-feat">
-            <?php while ( have_rows( 'cfg_key_features', $pt_pid ) ) : the_row(); ?>
-              <li><?php echo esc_html( get_sub_field( 'feature' ) ); ?></li>
-            <?php endwhile; ?>
+            <?php foreach ( $pt_kf as $pt_kf_item ) : ?>
+              <li><?php echo esc_html( $pt_kf_item ); ?></li>
+            <?php endforeach; ?>
           </ul>
         </details>
-        <?php else : ?>
-        <details class="cfg-desc">
-          <summary>Key features</summary>
-          <ul class="cfg-feat">
-            <li>Superior composite timber cladding</li>
-            <li>Fully insulated — walls, floor &amp; roof</li>
-            <li>UPVC door with multi-point locking</li>
-            <li>80mm total wall thickness</li>
-            <li>Insulated metal roof</li>
-            <li>Double glazing as standard</li>
-            <li>15-year anti-rot guarantee*</li>
-            <li>Easy self-assembly</li>
-          </ul>
-        </details>
-        <?php endif; ?>
         <a class="cfg-specs-link" href="#specs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg> View full specifications <span class="a">→</span></a>
       </div>
     </div>
