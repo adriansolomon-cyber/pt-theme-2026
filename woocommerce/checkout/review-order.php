@@ -180,15 +180,21 @@ $pt_norm_dims = function ( $s ) {
 		<b><?php echo wp_kses_post( $pt_cart->get_cart_subtotal() ); ?></b>
 	</div>
 
-	<?php // Applied coupons / discounts (green saving line), placed under Subtotal. ?>
-	<?php if ( wc_coupons_enabled() ) : ?>
-		<?php foreach ( $pt_cart->get_coupons() as $code => $coupon ) : ?>
-			<div class="ln discount coupon-<?php echo esc_attr( sanitize_title( $code ) ); ?>">
-				<span><?php wc_cart_totals_coupon_label( $coupon ); ?></span>
-				<b><?php wc_cart_totals_coupon_html( $coupon ); ?></b>
-			</div>
-		<?php endforeach; ?>
-	<?php endif; ?>
+	<?php
+	// Applied coupons / discounts (green saving line), placed under Subtotal.
+	// NOT gated on wc_coupons_enabled(): this theme auto-applies vouchers
+	// programmatically (av_* in wc-custom-checkout-functions.php), which still
+	// discounts the total even when the coupon UI is switched off — so render
+	// whatever is actually applied to the cart.
+	foreach ( $pt_cart->get_coupons() as $code => $coupon ) :
+		?>
+		<div class="ln discount coupon-<?php echo esc_attr( sanitize_title( $code ) ); ?>">
+			<span><?php wc_cart_totals_coupon_label( $coupon ); ?></span>
+			<b><?php wc_cart_totals_coupon_html( $coupon ); ?></b>
+		</div>
+		<?php
+	endforeach;
+	?>
 
 	<?php do_action( 'woocommerce_review_order_before_shipping' ); ?>
 
