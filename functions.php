@@ -273,12 +273,12 @@ add_action(
 );
 
 /**
- * Checkout notices: hide informational notices on page load, keep errors.
+ * Checkout notices: hide the blue "info" notices on page load, keep the rest.
  *
- * On the checkout the carried-over "added to basket" (success) and WooCommerce's
- * admin "Customer matched zone" shipping-debug (notice) messages showed on load.
- * Strip those two types right before WooCommerce outputs them, but KEEP 'error'
- * notices so validation problems still appear after the customer submits.
+ * WooCommerce's admin "Customer matched zone" shipping-debug message is a
+ * 'notice' (info) type that showed on load. Strip that type right before
+ * WooCommerce outputs them, but KEEP 'success' (green) notices — e.g. "coupon
+ * applied" — and 'error' notices so both stay visible to the shopper.
  */
 add_action(
 	'woocommerce_before_checkout_form',
@@ -286,8 +286,8 @@ add_action(
 		if ( ! function_exists( 'wc_get_notices' ) || ! function_exists( 'wc_set_notices' ) || ! WC()->session ) {
 			return;
 		}
-		$notices = wc_get_notices();                       // grouped by type
-		unset( $notices['success'], $notices['notice'] );  // drop info/success, keep 'error'
+		$notices = wc_get_notices();      // grouped by type
+		unset( $notices['notice'] );      // drop info only; keep 'success' (green) + 'error'
 		wc_set_notices( $notices );
 	},
 	5   // before woocommerce_output_all_notices (priority 10)
@@ -423,7 +423,7 @@ add_action(
 
 /**
  * Enqueue the WooCommerce notice auto-hide handler on checkout + cart.
- * (Hides info/success notices on load, auto-dismisses later ones, keeps errors.)
+ * (Hides blue info notices on load, auto-dismisses later ones; keeps success + errors.)
  */
 add_action(
 	'wp_enqueue_scripts',

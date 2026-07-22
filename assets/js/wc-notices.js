@@ -1,21 +1,19 @@
 /* ============================================================
    Project Timber — WooCommerce notice behaviour (checkout / cart).
 
-   WooCommerce shows informational notices we don't want lingering: the
-   carried-over "…added to your basket" (success) and the admin-only
-   "Customer matched zone …" shipping-debug (notice). This:
-     • hides info/success notices present ON LOAD immediately, and
-     • auto-dismisses any info/success notices that appear afterwards
-       (e.g. "coupon applied") a few seconds later,
-   while ALWAYS keeping ERROR notices — so validation problems stay visible
-   after the customer submits their details.
+   WooCommerce shows a blue "info" notice we don't want lingering: the admin-only
+   "Customer matched zone …" shipping-debug line. This:
+     • hides info notices present ON LOAD immediately, and
+     • auto-dismisses any info notices that appear afterwards a few seconds later,
+   while ALWAYS keeping SUCCESS (green) and ERROR notices — so "coupon applied"
+   confirmations and validation problems both stay visible to the shopper.
 
    The PHP side (functions.php) already strips most load-time notices server-
    side; this is the client-side backstop for ones WooCommerce re-adds during
    shipping/total calculation.
    ============================================================ */
 (function () {
-  var INFO = '.woocommerce-message, .woocommerce-info'; // success / info — NOT .woocommerce-error
+  var INFO = '.woocommerce-info'; // info only — keep .woocommerce-message (green) + .woocommerce-error
   var DISMISS_AFTER = 5000;
 
   function isError(el) {
