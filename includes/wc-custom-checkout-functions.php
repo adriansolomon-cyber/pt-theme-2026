@@ -732,61 +732,6 @@ function copy_billing_to_shipping_if_same($order_id)
 }
 
 /**
- * Remove error notice in checkout page after 10
- */
-function add_checkout_notice_remover()
-{
-    // Only load on checkout page
-    if (is_checkout()) {
-    ?>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-
-    function scheduleNoticeRemoval(notice) {
-        setTimeout(function() {
-            if (notice && notice.parentNode) {
-                notice.remove();
-            }
-        }, 10000); // 10 seconds
-    }
-
-    // Remove existing notices that are already on the page
-    document.querySelectorAll('.woocommerce-error').forEach(scheduleNoticeRemoval);
-
-    // Watch for new notices added dynamically
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            // Check added nodes
-            mutation.addedNodes.forEach(function(node) {
-                if (node.nodeType === 1) { // Element node
-                    // Direct match
-                    if (node.matches && node.matches('.woocommerce-error')) {
-                        scheduleNoticeRemoval(node);
-                    }
-                    // Check children of added node
-                    const childNotices = node.querySelectorAll('.woocommerce-error');
-                    childNotices.forEach(scheduleNoticeRemoval);
-                }
-            });
-        });
-    });
-
-    // Start observing
-    observer.observe(document.body, {
-        childList: true, // Watch for added/removed children
-        subtree: true, // Watch entire subtree
-        attributes: false, // Don't watch attribute changes
-        characterData: false // Don't watch text changes
-    });
-});
-</script>
-<?php
-    }
-}
-add_action('wp_footer', 'add_checkout_notice_remover');
-
-
-/**
  * Force user to set pickup date if using Paypal as payment mothod.
  */
 add_action('wp_footer', 'validate_pickup_date_on_paypal_selection');
