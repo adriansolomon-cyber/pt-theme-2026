@@ -1,65 +1,63 @@
 /* ============================================================
    Project Timber — WooCommerce notice behaviour (checkout / cart).
 
-   WooCommerce shows a blue "info" notice we don't want lingering: the admin-only
-   "Customer matched zone …" shipping-debug line. This:
-     • hides info notices present ON LOAD immediately, and
-     • auto-dismisses any info notices that appear afterwards a few seconds later,
-   while ALWAYS keeping SUCCESS (green) and ERROR notices — so "coupon applied"
-   confirmations and validation problems both stay visible to the shopper.
+   Every notice (error, success, info) shows for 10 seconds with a filling
+   countdown bar along its bottom edge, then fades/collapses away — EXCEPT the
+   voucher/discount "…applied" message, which carries a hidden .pt-voucher-notice
+   marker (added server-side in wc-custom-checkout-functions.php) and stays
+   visible permanently.
 
-   The PHP side (functions.php) already strips most load-time notices server-
-   side; this is the client-side backstop for ones WooCommerce re-adds during
-   shipping/total calculation.
+   The bar itself is drawn purely in CSS (.pt-notice-autodismiss::after in
+   assets/css/wc-notices.css); this script only tags each notice and schedules
+   its removal, watching for notices WooCommerce injects later via AJAX
+   (coupon apply, add-to-basket, shipping recalculation).
    ============================================================ */
 (function () {
-  var INFO = '.woocommerce-info'; // info only — keep .woocommerce-message (green) + .woocommerce-error
-  var DISMISS_AFTER = 5000;
+  var SEL = '.woocommerce-message, .woocommerce-error, .woocommerce-info';
+  var TTL = 10000; // ms a notice stays before auto-dismiss
 
-  function isError(el) {
-    return el.classList && el.classList.contains('woocommerce-error');
+  // The voucher/discount message is tagged persistent with a hidden marker span.
+  function isPersistent(el) {
+    return !!(el.querySelector && el.querySelector('.pt-voucher-notice'));
   }
 
-  function fadeRemove(el, delay) {
-    setTimeout(function () {
-      el.style.transition = 'opacity .4s ease, max-height .5s ease, margin .4s ease, padding .4s ease';
-      el.style.overflow = 'hidden';
-      el.style.maxHeight = el.scrollHeight + 'px';
-      // next frame → collapse
-      requestAnimationFrame(function () {
-        el.style.opacity = '0';
-        el.style.maxHeight = '0';
-        el.style.marginTop = '0'; el.style.marginBottom = '0';
-        el.style.paddingTop = '0'; el.style.paddingBottom = '0';
-      });
-      setTimeout(function () { if (el && el.parentNode) el.parentNode.removeChild(el); }, 550);
-    }, delay);
+  function collapse(el) {
+    el.classList.add('pt-notice-dismissing');
+    el.style.overflow = 'hidden';
+    el.style.maxHeight = el.scrollHeight + 'px';
+    requestAnimationFrame(function () {
+      el.style.opacity = '0';
+      el.style.maxHeight = '0';
+      el.style.marginTop = '0'; el.style.marginBottom = '0';
+      el.style.paddingTop = '0'; el.style.paddingBottom = '0';
+    });
+    setTimeout(function () { if (el && el.parentNode) el.parentNode.removeChild(el); }, 550);
   }
 
-  function handleNode(el, onLoad) {
-    if (!el || el.nodeType !== 1 || isError(el)) return;
-    if (onLoad) {
-      el.style.display = 'none';                 // instant, no flash-lingering
-      if (el.parentNode) el.parentNode.removeChild(el);
-    } else {
-      fadeRemove(el, DISMISS_AFTER);             // let it show briefly, then dismiss
+  function process(el) {
+    if (!el || el.nodeType !== 1 || el.getAttribute('data-pt-notice')) return;
+    el.setAttribute('data-pt-notice', '1');
+
+    if (isPersistent(el)) {           // voucher — keep on screen, no bar
+      el.classList.add('pt-notice-persist');
+      return;
     }
+
+    el.classList.add('pt-notice-autodismiss'); // CSS ::after draws the 10s bar
+    setTimeout(function () { collapse(el); }, TTL); // authoritative removal
+  }
+
+  function scan(root) {
+    if (!root || root.nodeType !== 1 && root.nodeType !== 9) return;
+    if (root.nodeType === 1 && root.matches && root.matches(SEL)) process(root);
+    if (root.querySelectorAll) [].forEach.call(root.querySelectorAll(SEL), process);
   }
 
   function run() {
-    // 1) notices already on the page at load → remove immediately
-    [].forEach.call(document.querySelectorAll(INFO), function (el) { handleNode(el, true); });
-
-    // 2) notices added later (AJAX cart/coupon updates) → auto-dismiss, keep errors
+    scan(document);
     if (!window.MutationObserver) return;
     new MutationObserver(function (muts) {
-      muts.forEach(function (m) {
-        [].forEach.call(m.addedNodes || [], function (n) {
-          if (n.nodeType !== 1) return;
-          if (n.matches && n.matches(INFO)) handleNode(n, false);
-          if (n.querySelectorAll) [].forEach.call(n.querySelectorAll(INFO), function (el) { handleNode(el, false); });
-        });
-      });
+      muts.forEach(function (m) { [].forEach.call(m.addedNodes || [], scan); });
     }).observe(document.body, { childList: true, subtree: true });
   }
 

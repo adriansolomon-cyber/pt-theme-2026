@@ -298,10 +298,14 @@ function show_coupon_status_message() {
     $default_lower = strtolower( $default_code );
     $special_lower = strtolower( $special_code );
 
+    // Hidden marker: tells assets/js/wc-notices.js to keep this notice visible
+    // permanently (no 10s auto-dismiss countdown), unlike every other notice.
+    $persist = '<span class="pt-voucher-notice"></span>';
+
     // Case 1: Default voucher applied
     if ( $default_code && WC()->cart->has_discount( $default_code ) ) {
         wc_print_notice(
-            sprintf(
+            $persist . sprintf(
                 __('Great news! We automatically applied the "%s" discount to your order.', 'textdomain'),
                 strtoupper( $default_code )
             ),
@@ -313,7 +317,7 @@ function show_coupon_status_message() {
     // Case 2: Special voucher (XMAS30) applied
     if ( $special_code && WC()->cart->has_discount( $special_code ) ) {
         wc_print_notice(
-            sprintf(
+            $persist . sprintf(
                 __('Your exclusive "%s" discount has been applied!', 'textdomain'),
                 strtoupper( $special_code )
             ),
@@ -328,7 +332,7 @@ function show_coupon_status_message() {
 
         if ( $lower !== $default_lower && $lower !== $special_lower ) {
             wc_print_notice(
-                sprintf(
+                $persist . sprintf(
                     __('Coupon "%s" is active on your order.', 'textdomain'),
                     strtoupper( $code )
                 ),

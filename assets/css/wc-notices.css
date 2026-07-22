@@ -1,0 +1,39 @@
+/* ============================================================
+   Project Timber — WooCommerce notice countdown bar (cart / checkout).
+
+   Non-persistent notices get .pt-notice-autodismiss (added by wc-notices.js):
+   a thin bar fills left→right along the bottom edge over 10s, then the script
+   collapses the notice. The voucher/discount message gets .pt-notice-persist
+   instead and shows no bar. See assets/js/wc-notices.js.
+   ============================================================ */
+
+.pt-notice-autodismiss { position: relative; overflow: hidden; }
+
+/* The countdown bar — drawn as a pseudo-element so it works even when the
+   notice is a <ul> (WooCommerce errors), no child insertion needed. */
+.pt-notice-autodismiss::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: currentColor;
+  opacity: .4;
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: pt-notice-fill 10s linear forwards;
+}
+
+@keyframes pt-notice-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Smooth collapse when the timer elapses (JS toggles this on + sets max-height). */
+.pt-notice-dismissing {
+  transition: opacity .4s ease, max-height .5s ease, margin .4s ease, padding .4s ease;
+}
+
+/* Persistent voucher/discount message: no countdown, no bar. */
+.pt-notice-persist::after { content: none; }

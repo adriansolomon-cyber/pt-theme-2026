@@ -422,8 +422,9 @@ add_action(
 );
 
 /**
- * Enqueue the WooCommerce notice auto-hide handler on checkout + cart.
- * (Hides blue info notices on load, auto-dismisses later ones; keeps success + errors.)
+ * Enqueue the WooCommerce notice auto-dismiss handler + its countdown-bar CSS
+ * on checkout + cart. Every notice shows for 10s with a filling bar then
+ * collapses away, except the voucher/discount message which stays permanently.
  */
 add_action(
 	'wp_enqueue_scripts',
@@ -431,14 +432,27 @@ add_action(
 		if ( ! function_exists( 'is_checkout' ) || ! ( is_checkout() || is_cart() ) ) {
 			return;
 		}
-		$dir = get_stylesheet_directory();
+		$dir     = get_stylesheet_directory();
+		$uri     = get_stylesheet_directory_uri();
+		$version = wp_get_theme()->get( 'Version' );
+
+		$css = $dir . '/assets/css/wc-notices.css';
+		if ( file_exists( $css ) ) {
+			wp_enqueue_style(
+				'pt-wc-notices',
+				$uri . '/assets/css/wc-notices.css',
+				array(),
+				$version . '.' . filemtime( $css )
+			);
+		}
+
 		$file = $dir . '/assets/js/wc-notices.js';
 		if ( file_exists( $file ) ) {
 			wp_enqueue_script(
 				'pt-wc-notices',
-				get_stylesheet_directory_uri() . '/assets/js/wc-notices.js',
+				$uri . '/assets/js/wc-notices.js',
 				array(),
-				wp_get_theme()->get( 'Version' ) . '.' . filemtime( $file ),
+				$version . '.' . filemtime( $file ),
 				true
 			);
 		}
