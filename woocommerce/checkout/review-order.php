@@ -99,10 +99,26 @@ $pt_norm_dims = function ( $s ) {
 			}
 			$value = $pt_norm_dims( $child_product->get_name() );
 			$qty   = isset( $child['quantity'] ) ? (int) $child['quantity'] : 1;
+
+			// Per-option price column (design: £X.XX for priced options, "Included"
+			// for chosen zero-cost options, "—" for a "None" selection).
+			$raw    = isset( $child['line_subtotal'] ) ? (float) $child['line_subtotal'] : 0;
+			$name_lc = strtolower( trim( wp_strip_all_tags( $child_product->get_name() ) ) );
+			if ( '' === $name_lc || 'none' === $name_lc || '-' === $name_lc || '—' === $name_lc ) {
+				$price = '—';
+				$free  = true;
+			} elseif ( $raw > 0 ) {
+				$price = wp_kses_post( $pt_cart->get_product_subtotal( $child_product, $qty ) );
+				$free  = false;
+			} else {
+				$price = esc_html__( 'Included', 'woocommerce' );
+				$free  = true;
+			}
+
 			if ( $qty > 1 ) {
 				$value .= ' × ' . $qty;
 			}
-			$cfg_rows[] = array( 'k' => esc_html( $label ), 'v' => esc_html( $value ) );
+			$cfg_rows[] = array( 'k' => esc_html( $label ), 'v' => esc_html( $value ), 'p' => $price, 'free' => $free );
 		}
 	} else {
 		$item_data = apply_filters( 'woocommerce_get_item_data', array(), $cart_item );
@@ -112,7 +128,7 @@ $pt_norm_dims = function ( $s ) {
 			if ( '' === trim( wp_strip_all_tags( (string) $key ) ) && '' === trim( wp_strip_all_tags( (string) $val ) ) ) {
 				continue;
 			}
-			$cfg_rows[] = array( 'k' => wp_kses_post( $key ), 'v' => wp_kses_post( $val ) );
+			$cfg_rows[] = array( 'k' => wp_kses_post( $key ), 'v' => wp_kses_post( $val ), 'p' => '', 'free' => true );
 		}
 	}
 	?>
@@ -139,6 +155,9 @@ $pt_norm_dims = function ( $s ) {
 					<div class="crow">
 						<span class="k"><?php echo $row['k']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped above. ?></span>
 						<span class="v"><?php echo $row['v']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped above. ?></span>
+						<?php if ( '' !== $row['p'] ) : ?>
+							<span class="p<?php echo ! empty( $row['free'] ) ? ' free' : ''; ?>"><?php echo $row['p']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped above. ?></span>
+						<?php endif; ?>
 					</div>
 				<?php endforeach; ?>
 			</div>
