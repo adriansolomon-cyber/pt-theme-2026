@@ -56,6 +56,16 @@
     return (cur.currency_prefix || cur.currency_symbol || '£') + p.join(cur.currency_decimal_separator || '.') + (cur.currency_suffix || '');
   }
 
+  // The Store API returns line/subtotal/discount amounts EXCLUDING tax, plus a
+  // separate *_tax field; the grand total is incl. tax. When the store displays
+  // cart prices incl. tax (PT_CART_INCL_TAX, matching checkout), fold the tax
+  // back in so every line reads consistently. `base`/`tax` are minor-unit ints.
+  var INCL_TAX = (window.PT_CART_INCL_TAX !== false);
+  function withTax(base, tax) {
+    var b = parseInt(base, 10) || 0;
+    return INCL_TAX ? b + (parseInt(tax, 10) || 0) : b;
+  }
+
   function cartFetch(path, opts) {
     opts = opts || {}; opts.credentials = 'include';
     opts.headers = Object.assign({ Accept: 'application/json' }, opts.headers || {});
@@ -83,7 +93,9 @@
       '<div class="ptc-thumb">' + (im ? '<img src="' + esc(im) + '" alt="' + disp(it.name) + '">' : '') + '</div>' +
       '<div class="ptc-it">' + (rng ? '<div class="ptc-rng">' + disp(rng) + '</div>' : '') +
       '<h3>' + disp(it.name) + '</h3>' +
-      '<div class="ptc-pr">' + money(it.totals && it.totals.line_total, it.totals) + '</div>' +
+      // line_subtotal = per-item price BEFORE coupon discount (the discount is a
+      // separate summary line), matching the checkout order-summary item cards.
+      '<div class="ptc-pr">' + money(withTax(it.totals && it.totals.line_subtotal, it.totals && it.totals.line_subtotal_tax), it.totals) + '</div>' +
       '<button class="ptc-rm" data-key="' + esc(it.key) + '">' + TRASH + ' Remove</button>' +
       '</div></div>' + cfg + '</div>';
   }
@@ -110,12 +122,12 @@
     var box = document.getElementById('ptcItems'); if (box) box.innerHTML = items.map(itemHTML).join('');
     setText('#ptcCount', n + ' item' + (n === 1 ? '' : 's'));
     var t = cart.totals || {};
-    setText('#ptcSubtotal', money(t.total_items, t));
-    setText('#ptcTotal', money(t.total_price, t));
+    setText('#ptcSubtotal', money(withTax(t.total_items, t.total_items_tax), t));
+    setText('#ptcTotal', money(t.total_price, t)); // already incl. tax
     setText('#ptcVat', 'Includes ' + money(t.total_tax, t) + ' VAT');
     var disc = parseInt(t.total_discount, 10) || 0, dln = $('#ptcDiscountLn');
     if (dln) dln.hidden = !(disc > 0);
-    if (disc > 0) setText('#ptcDiscount', '−' + money(t.total_discount, t));
+    if (disc > 0) setText('#ptcDiscount', '−' + money(withTax(t.total_discount, t.total_discount_tax), t));
     renderCoupons(cart.coupons || []);
     couponMsg('');
   }
@@ -123,7 +135,7 @@
   function renderCoupons(list) {
     var cl = $('#ptcCouponList'); if (!cl) return;
     cl.innerHTML = (list || []).map(function (c) {
-      var d = (c.totals && parseInt(c.totals.total_discount, 10)) ? ('−' + money(c.totals.total_discount, c.totals)) : '';
+      var d = (c.totals && parseInt(c.totals.total_discount, 10)) ? ('−' + money(withTax(c.totals.total_discount, c.totals.total_discount_tax), c.totals)) : '';
       return '<div class="ptc-coupon"><span class="code">' + disp(c.code) + '</span>' + (d ? '<span class="cd">' + d + '</span>' : '') +
         '<button class="cx" type="button" data-coupon="' + esc(c.code) + '" aria-label="Remove coupon">✕</button></div>';
     }).join('');

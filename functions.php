@@ -135,10 +135,14 @@ add_action(
 
 		if ( file_exists( $dir . '/assets/js/mini-cart.js' ) ) {
 			wp_enqueue_script( 'pt-mini-cart', $uri . '/assets/js/mini-cart.js', array(), $ver( 'assets/js/mini-cart.js' ), true );
-			// mini-cart.js reads the WooCommerce Store API nonce from this global.
+			// mini-cart.js reads the WooCommerce Store API nonce from this global,
+			// plus whether cart/checkout prices are shown incl. tax so its subtotal
+			// and discount lines match the checkout summary (Store API returns those
+			// two ex-tax while the grand total is incl-tax — mixing them looks wrong).
 			wp_add_inline_script(
 				'pt-mini-cart',
-				'window.wcStoreApiNonce=' . wp_json_encode( wp_create_nonce( 'wc_store_api' ) ) . ';',
+				'window.wcStoreApiNonce=' . wp_json_encode( wp_create_nonce( 'wc_store_api' ) ) . ';'
+					. 'window.PT_CART_INCL_TAX=' . ( 'incl' === get_option( 'woocommerce_tax_display_cart' ) ? 'true' : 'false' ) . ';',
 				'before'
 			);
 		}
