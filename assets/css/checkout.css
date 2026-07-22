@@ -312,6 +312,18 @@
 #payment .woocommerce-terms-and-conditions-wrapper{ margin:16px 0; font-size:.88rem; font-weight:300; }
 #payment .woocommerce-privacy-policy-text{ font-size:.8rem; color:var(--txt-soft); font-weight:300; }
 #payment .form-row.place-order{ margin-top:16px; padding:0; }
+
+/* Lay the submit region out as a flex column so any floated/positioned children
+   — WooCommerce's #place_order or the Share Cart plugin button — can't overlap
+   the SSL note (flex containers ignore child floats). Order follows source:
+   terms → Share Cart → Place Order → SSL note. */
+.woocommerce-checkout #payment .form-row.place-order{ display:flex; flex-direction:column; align-items:stretch; gap:14px; }
+.woocommerce-checkout #payment .form-row.place-order #place_order{ float:none !important; position:static !important; width:100%; margin:0; }
+.woocommerce-checkout #payment .form-row.place-order .co-secure{ margin-top:0; }
+/* keep the Share Cart plugin button at its natural size, not stretched full-width */
+.woocommerce-checkout #payment .form-row.place-order [class*="wsc"],
+.woocommerce-checkout #payment .form-row.place-order .share_cart,
+.woocommerce-checkout #payment .form-row.place-order .wc-share-cart{ align-self:flex-start; }
 #payment #place_order{ width:100%; display:flex; align-items:center; justify-content:center; gap:9px; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1.05rem; padding:17px; border-radius:14px; float:none; }
 #payment #place_order:active{ transform:scale(.99); }
 #payment #place_order svg{ width:18px; height:18px; flex:0 0 auto; }
