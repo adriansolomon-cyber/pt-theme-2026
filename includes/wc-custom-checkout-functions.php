@@ -1244,3 +1244,55 @@ function wc_checkout_email_js_validation() {
     </script>
     <?php
 }
+
+/**
+ * "Secure 256-bit SSL encrypted payment" reassurance note under the Place Order
+ * button (design-files/projecttimber-checkout.html → .co-secure). WooCommerce core
+ * doesn't output this, so add it after the submit button. Styled by
+ * assets/css/checkout.css (.co-secure).
+ */
+add_action(
+    'woocommerce_review_order_after_submit',
+    function () {
+        ?>
+        <div class="co-secure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> <?php esc_html_e( 'Secure 256-bit SSL encrypted payment', 'woocommerce' ); ?></div>
+        <?php
+    },
+    20
+);
+
+/**
+ * Place-order button: show "Place order · <total> →" like the design
+ * (design-files/projecttimber-checkout.html). WooCommerce's button only prints
+ * "Place order", so rewrite its label on load and after every AJAX order-review
+ * update (updated_checkout) so the total never goes stale. Only the visible
+ * label changes — the button name/value used for submission is untouched.
+ */
+add_action(
+    'wp_footer',
+    function () {
+        if ( ! function_exists( 'is_checkout' ) || ! is_checkout() || is_order_received_page() ) {
+            return;
+        }
+        ?>
+        <script>
+        (function () {
+          var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+          function label() {
+            var btn = document.getElementById('place_order');
+            if (!btn) return;
+            var base = btn.getAttribute('data-pt-label');
+            if (base == null) { base = (btn.textContent || 'Place order').trim() || 'Place order'; btn.setAttribute('data-pt-label', base); }
+            var t = document.querySelector('#order_review .grand .v')
+                 || document.querySelector('#order_review .order-total .woocommerce-Price-amount');
+            var total = t ? t.textContent.trim() : '';
+            btn.innerHTML = base + (total ? (' · ' + total) : '') + ' ' + ARROW;
+          }
+          if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', label);
+          else label();
+          if (window.jQuery) jQuery(document.body).on('updated_checkout', label);
+        })();
+        </script>
+        <?php
+    }
+);
