@@ -328,6 +328,15 @@
 .co-grid > .woocommerce-message,
 .co-grid > .woocommerce-info{ grid-column:1 / -1; margin:0 0 22px; }
 
+/* Notices printed ABOVE the checkout form (the persistent voucher message,
+   add-to-basket / validation errors) render flush under the header nav — give
+   the first one clearance so it doesn't touch the menu. Later stacked notices
+   keep their default spacing. */
+.woocommerce-checkout .pt-page-content .woocommerce > .woocommerce-message:first-child,
+.woocommerce-checkout .pt-page-content .woocommerce > .woocommerce-error:first-child,
+.woocommerce-checkout .pt-page-content .woocommerce > .woocommerce-info:first-child,
+.woocommerce-checkout .pt-page-content .woocommerce > .woocommerce-notices-wrapper:first-child{ margin-top:26px; }
+
 /* single-allowed-country renders as plain text — keep it field-sized, not a heading */
 .co-form #billing_country_field strong,
 .co-form #shipping_country_field strong{ font-weight:400; font-size:.95rem; }
