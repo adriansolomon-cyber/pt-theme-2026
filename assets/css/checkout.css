@@ -290,6 +290,11 @@
 .co-summary .cfg .crow .v p{ margin:0; }
 .co-summary .cfg .crow .v{ overflow-wrap:anywhere; }
 
+/* Applied-coupon discount line in the totals block — green saving, with any
+   WC "[Remove]" link kept small and secondary. */
+.co-summary .sum-tot .ln.discount b{ color:var(--ok); }
+.co-summary .sum-tot .ln.discount .woocommerce-remove-coupon{ margin-left:8px; font-size:.72rem; font-weight:400; color:var(--txt-soft); text-decoration:underline; text-underline-offset:2px; }
+
 #payment_col .co-payment-title{ font-size:1.15rem; margin:0 0 16px; }
 #payment.woocommerce-checkout-payment{ background:transparent; border-radius:0; }
 #payment ul.payment_methods{ list-style:none; margin:0; padding:0; border:0; display:flex; flex-direction:column; gap:10px; }
