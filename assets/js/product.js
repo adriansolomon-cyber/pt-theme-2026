@@ -107,6 +107,10 @@
       return extra?url+'&'+extra:url;
     }
     function cfgUrl(pid){ return baseUrl()+'/wp-json/wc/v3/product/'+encodeURIComponent(pid)+'/config'; }
+    // Store API (key-free, same-origin, always present — core WooCommerce Blocks). Used for
+    // the product image gallery so it doesn't depend on the prod-only timber/v1/wc proxy,
+    // which isn't installed on staging (that call was 404ing).
+    function storeUrl(path){ return baseUrl()+'/wp-json/wc/store/v1/'+path; }
     function getJSON(url){
       var ctrl=('AbortController' in window)?new AbortController():null;
       var t=ctrl?setTimeout(function(){ ctrl.abort(); },20000):null;
@@ -149,9 +153,9 @@
     function loadGallery(pid){
       galleryBase=(product&&product.images)?product.images.map(function(im){ return im&&im.src; }).filter(Boolean):[];
       if(galleryBase.length>1){ setGallery(galleryFor((product.images[0]||{}).src)); return; }
-      getJSON(api('products/'+pid+'?_fields=id,images')).then(function(p){
+      getJSON(storeUrl('products/'+pid)).then(function(p){
         var arr=Array.isArray(p)?p[0]:p;
-        galleryBase=(arr&&arr.images)?arr.images.map(function(im){ return im&&im.src; }).filter(Boolean):galleryBase;
+        galleryBase=(arr&&arr.images)?arr.images.map(function(im){ return im&&(im.src||im.thumbnail); }).filter(Boolean):galleryBase;
         var lead=(sizeId!=null&&meta[sizeId]&&meta[sizeId].img)||galleryBase[0]||(product&&product.images&&product.images[0]&&product.images[0].src);
         setGallery(galleryFor(lead));
       }).catch(function(){ /* keep whatever single image is showing */ });
