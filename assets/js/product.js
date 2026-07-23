@@ -240,7 +240,11 @@
 
     // ====================== parsing ======================
     function parseConfig(pid,cfg){
-      product={ id:cfg.id, name:cfg.name, permalink:cfg.permalink, images:cfg.img?[{src:cfg.img}]:[] };
+      // Prefer the full gallery the /config endpoint now returns (v1.1.0 `images`);
+      // fall back to the single `img`. loadGallery() still hits the Store API only if
+      // this leaves us with ≤1 image (older mu-plugin / single-image products).
+      var cfgImgs=(cfg.images&&cfg.images.length)?cfg.images.map(function(s){ return {src:s}; }):(cfg.img?[{src:cfg.img}]:[]);
+      product={ id:cfg.id, name:cfg.name, permalink:cfg.permalink, images:cfgImgs };
       components=(cfg.components||[]).map(function(c){ var key=c.key||TITLE_KEY[c.title]||String(c.title||'').toLowerCase().replace(/\s+/g,'_'); return { id:String(c.id), title:c.title, key:key, optional:!!c.optional, description:c.description||c.desc||'' }; });
       sizeCid=(cfg.sizeCid!=null)?String(cfg.sizeCid):null;
       scenarios={}; meta={}; sel={}; sizeId=null;
