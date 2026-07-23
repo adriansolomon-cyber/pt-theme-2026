@@ -440,6 +440,7 @@
       if(!USE_CONFIG_ENDPOINT) return Promise.reject(new Error('disabled'));
       return getJSON(cfgUrl(pid)).then(function(cfg){
         if(Array.isArray(cfg)) cfg=cfg[0];
+        console.log('[PT config payload] (network)', cfg);
         if(!cfg || !cfg.sizes || !cfg.sizes.length) throw new Error('config endpoint returned no sizes');
         parseConfig(pid,cfg); saveCache(pid); afterParse(pid,false);
       });
@@ -458,7 +459,7 @@
       if(!pid){ status('No product configured.',true); return; }
       curPid=pid; pendingSize=urlSize();
       var cached=loadCache(pid);
-      if(cached){ product=cached.product; components=cached.components; scenarios=cached.scenarios; sizeCid=cached.sizeCid; meta=cached.meta||{}; sel={}; sizeId=null; afterParse(pid,true); return; }
+      if(cached){ console.log('[PT config payload] (sessionStorage cache)', cached); product=cached.product; components=cached.components; scenarios=cached.scenarios; sizeCid=cached.sizeCid; meta=cached.meta||{}; sel={}; sizeId=null; afterParse(pid,true); return; }
       status('Loading…',false,true); if(elAdd) elAdd.disabled=true; showSkeleton();
       loadViaConfig(pid).catch(function(e){ if(e&&e.message) console.warn('config endpoint unavailable → proxy flow:', e.message); return loadViaProxy(pid); })
         .catch(function(err){ console.error(err); status(err.message||'Failed to load. Check the product / connection.',true); });
