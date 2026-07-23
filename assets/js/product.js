@@ -91,12 +91,25 @@
     function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
     // --- session cache: makes reloads / repeat product loads instant ---
-    function ckey(pid){ return 'ptCfg:'+DEFAULT_BASE+':'+pid; }
+    // CACHE_VER is baked into the key: bump it whenever the /config payload shape or
+    // parsing changes so every stale client cache is dropped on the next load (no
+    // manual sessionStorage.clear() needed). CACHE_TTL also expires entries so a
+    // server-side product edit self-heals within the session.
+    var CACHE_VER='2';                 // v2 = /config now returns Any-Option components + images[]
+    var CACHE_TTL=10*60*1000;          // 10 minutes
+    function ckey(pid){ return 'ptCfg:'+CACHE_VER+':'+DEFAULT_BASE+':'+pid; }
     function saveCache(pid){
       if(!pid||!product) return;
-      try{ sessionStorage.setItem(ckey(pid), JSON.stringify({ product:product, components:components, scenarios:scenarios, sizeCid:sizeCid, meta:meta })); }catch(e){}
+      try{ sessionStorage.setItem(ckey(pid), JSON.stringify({ t:Date.now(), product:product, components:components, scenarios:scenarios, sizeCid:sizeCid, meta:meta })); }catch(e){}
     }
-    function loadCache(pid){ try{ var c=JSON.parse(sessionStorage.getItem(ckey(pid))||'null'); return (c&&c.product)?c:null; }catch(e){ return null; } }
+    function loadCache(pid){
+      try{
+        var c=JSON.parse(sessionStorage.getItem(ckey(pid))||'null');
+        if(!c||!c.product) return null;
+        if(c.t && (Date.now()-c.t) > CACHE_TTL){ sessionStorage.removeItem(ckey(pid)); return null; }
+        return c;
+      }catch(e){ return null; }
+    }
 
     // --- networking ---
     function baseUrl(){ return DEFAULT_BASE.replace(/\/+$/,''); }
@@ -440,7 +453,6 @@
       if(!USE_CONFIG_ENDPOINT) return Promise.reject(new Error('disabled'));
       return getJSON(cfgUrl(pid)).then(function(cfg){
         if(Array.isArray(cfg)) cfg=cfg[0];
-        console.log('[PT config payload] (network)', cfg);
         if(!cfg || !cfg.sizes || !cfg.sizes.length) throw new Error('config endpoint returned no sizes');
         parseConfig(pid,cfg); saveCache(pid); afterParse(pid,false);
       });
@@ -459,7 +471,7 @@
       if(!pid){ status('No product configured.',true); return; }
       curPid=pid; pendingSize=urlSize();
       var cached=loadCache(pid);
-      if(cached){ console.log('[PT config payload] (sessionStorage cache)', cached); product=cached.product; components=cached.components; scenarios=cached.scenarios; sizeCid=cached.sizeCid; meta=cached.meta||{}; sel={}; sizeId=null; afterParse(pid,true); return; }
+      if(cached){ product=cached.product; components=cached.components; scenarios=cached.scenarios; sizeCid=cached.sizeCid; meta=cached.meta||{}; sel={}; sizeId=null; afterParse(pid,true); return; }
       status('Loading…',false,true); if(elAdd) elAdd.disabled=true; showSkeleton();
       loadViaConfig(pid).catch(function(e){ if(e&&e.message) console.warn('config endpoint unavailable → proxy flow:', e.message); return loadViaProxy(pid); })
         .catch(function(err){ console.error(err); status(err.message||'Failed to load. Check the product / connection.',true); });
