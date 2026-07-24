@@ -36,6 +36,8 @@ add_filter(
 require_once get_stylesheet_directory() . '/inc/category-render.php';
 // Single-product dynamic helpers (from price, category-line name).
 require_once get_stylesheet_directory() . '/inc/product-render.php';
+// Live search suggestions REST endpoint (header typeahead).
+require_once get_stylesheet_directory() . '/inc/search-suggest.php';
 
 // ── Back-office migration from the old theme (verbatim; loaded in phases) ──
 require_once get_stylesheet_directory() . '/inc/order-statuses.php';   // custom WC order statuses
@@ -143,6 +145,17 @@ add_action(
 				'pt-mini-cart',
 				'window.wcStoreApiNonce=' . wp_json_encode( wp_create_nonce( 'wc_store_api' ) ) . ';'
 					. 'window.PT_CART_INCL_TAX=' . ( 'incl' === get_option( 'woocommerce_tax_display_cart' ) ? 'true' : 'false' ) . ';',
+				'before'
+			);
+		}
+
+		// Header live-search typeahead — the search box is in the header on every
+		// page, so enhance it site-wide. Talks to /wp-json/pt/v1/search.
+		if ( file_exists( $dir . '/assets/js/search-suggest.js' ) ) {
+			wp_enqueue_script( 'pt-search-suggest', $uri . '/assets/js/search-suggest.js', array(), $ver( 'assets/js/search-suggest.js' ), true );
+			wp_add_inline_script(
+				'pt-search-suggest',
+				'window.PT_SEARCH_ENDPOINT=' . wp_json_encode( esc_url_raw( rest_url( 'pt/v1/search' ) ) ) . ';',
 				'before'
 			);
 		}

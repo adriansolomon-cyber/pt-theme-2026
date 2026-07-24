@@ -41,6 +41,24 @@ a{ color:inherit; }
 .hsearch .wrap{ padding:10px 20px; }
 .hsearch input{ width:100%; font-family:var(--font); font-size:.95rem; padding:12px 16px; border:1px solid rgba(33,30,36,.18); border-radius:999px; color:var(--ink); }
 .hsearch input:focus{ outline:none; border-color:var(--charcoal); }
+/* live-search typeahead dropdown */
+.hsearch .wrap{ position:relative; }
+.hsuggest{ position:absolute; left:20px; right:20px; top:calc(100% - 6px); z-index:70; background:#fff; border:1px solid rgba(33,30,36,.12); border-radius:14px; box-shadow:0 12px 30px rgba(33,30,36,.14); overflow:hidden; }
+.hsuggest[hidden]{ display:none; }
+.hsuggest .hs-item{ display:flex; align-items:center; gap:12px; padding:9px 14px; text-decoration:none; color:var(--ink); border-bottom:1px solid rgba(33,30,36,.06); }
+.hsuggest .hs-item:last-of-type{ border-bottom:0; }
+.hsuggest .hs-item:hover, .hsuggest .hs-item.hs-on{ background:rgba(33,30,36,.05); }
+.hsuggest .hs-thumb{ flex:0 0 46px; width:46px; height:46px; border-radius:9px; overflow:hidden; background:rgba(33,30,36,.06); }
+.hsuggest .hs-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+.hsuggest .hs-meta{ min-width:0; display:flex; flex-direction:column; gap:2px; }
+.hsuggest .hs-name{ font-size:.92rem; font-weight:600; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hsuggest .hs-price{ font-size:.86rem; font-weight:300; color:var(--txt-soft); }
+.hsuggest .hs-price b{ color:var(--ink); font-weight:700; }
+.hsuggest .hs-price .was{ text-decoration:line-through; opacity:.7; margin-right:5px; }
+.hsuggest .hs-price b.now{ color:#C0392B; }
+.hsuggest .hs-all{ display:block; padding:11px 14px; text-align:center; font-size:.86rem; font-weight:700; color:var(--ink); text-decoration:none; background:rgba(33,30,36,.04); }
+.hsuggest .hs-all:hover{ background:rgba(33,30,36,.09); }
+.hsuggest .hs-empty, .hsuggest .hs-loading{ padding:14px; text-align:center; font-size:.9rem; color:var(--txt-soft); }
 @media(max-width:859px){
     .mainhead{ position:relative; gap:6px; }
     .mainhead .icons{ display:contents; }
