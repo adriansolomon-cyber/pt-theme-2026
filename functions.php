@@ -237,6 +237,35 @@ add_action(
 );
 
 /**
+ * Admin: add a live search + "selected first" ordering to the native product-category
+ * checklist on the product edit screen (assets/js/admin-cat-search.js). Progressive
+ * enhancement only — the checkboxes/inputs are untouched, so saving is unaffected.
+ */
+add_action(
+	'admin_enqueue_scripts',
+	function ( $hook ) {
+		if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
+			return;
+		}
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || 'product' !== $screen->post_type ) {
+			return;
+		}
+		$dir  = get_stylesheet_directory();
+		$file = $dir . '/assets/js/admin-cat-search.js';
+		if ( file_exists( $file ) ) {
+			wp_enqueue_script(
+				'pt-admin-cat-search',
+				get_stylesheet_directory_uri() . '/assets/js/admin-cat-search.js',
+				array(),
+				wp_get_theme()->get( 'Version' ) . '.' . filemtime( $file ),
+				true
+			);
+		}
+	}
+);
+
+/**
  * URL helpers used in the templates. Fall back to sensible defaults when
  * WooCommerce is not active so templates never call an undefined function.
  */
