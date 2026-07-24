@@ -56,5 +56,8 @@ $pt_cats = array(
 </ul></nav>
 
 <div class="hsearch" id="hsearch" hidden>
-  <div class="wrap"><input type="search" placeholder="Search Project Timber" aria-label="Search Project Timber"></div>
+  <form class="wrap" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+    <input type="search" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" placeholder="Search Project Timber" aria-label="Search Project Timber">
+    <input type="hidden" name="post_type" value="product">
+  </form>
 </div>

@@ -233,6 +233,13 @@ add_action(
 				);
 			}
 		}
+
+		// --- Product search results (search.php) — reuses the category card grid ---
+		if ( is_search() ) {
+			if ( file_exists( $dir . '/assets/css/category.css' ) ) {
+				wp_enqueue_style( 'pt-category', $uri . '/assets/css/category.css', array( 'pt-base' ), $ver( 'assets/css/category.css' ) );
+			}
+		}
 	}
 );
 

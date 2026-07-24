@@ -69,6 +69,11 @@
   .cat-promo[hidden]{ display:none; }
   /* grid footer + bottom SEO content */
   .grid-foot{ text-align:center; padding:6px 0 54px; color:var(--txt-soft); font-size:.85rem; font-weight:300; } .grid-foot b{ color:var(--ink); font-weight:700; }
+  .search-pagination{ display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin:26px 0 6px; }
+  .search-pagination .page-numbers{ display:inline-flex; align-items:center; justify-content:center; min-width:40px; height:40px; padding:0 12px; border:1px solid rgba(33,30,36,.14); border-radius:999px; color:var(--ink); text-decoration:none; font-size:.92rem; font-weight:600; transition:background .15s, border-color .15s; }
+  .search-pagination a.page-numbers:hover{ border-color:var(--ink); }
+  .search-pagination .page-numbers.current{ background:var(--ink); color:#fff; border-color:var(--ink); }
+  .search-pagination .page-numbers.dots{ border:none; }
   .cat-bottom{ background:#F5F5F5; border-top:1px solid rgba(33,30,36,.08); }
   .cat-bottom .wrap{ padding:48px 20px; }
   .cat-bottom h2{ font-size:1.5rem; margin-bottom:14px; }

@@ -296,6 +296,63 @@ function pt_cat_product_from_price( $product ) {
 }
 
 /**
+ * Build one product's card-data array (the shape pt_cat_card_html() expects):
+ * id, name, permalink, up-to-2 images, composite-aware "from" price, attributes
+ * (for facets) and stock status. Returns null for a non-product. Reused by the
+ * category grid and the product search results page.
+ */
+function pt_cat_product_entry( $product ) {
+	if ( ! is_object( $product ) || ! is_callable( array( $product, 'get_id' ) ) ) {
+		return null;
+	}
+	$pid   = (int) $product->get_id();
+	$price = pt_cat_product_from_price( $product );
+
+	$imgs = array();
+	$main = $product->get_image_id();
+	if ( $main ) {
+		$u = wp_get_attachment_image_url( $main, 'woocommerce_single' );
+		if ( $u ) {
+			$imgs[] = array( 'src' => $u );
+		}
+	}
+	foreach ( (array) $product->get_gallery_image_ids() as $g ) {
+		if ( count( $imgs ) >= 2 ) {
+			break;
+		}
+		$u = wp_get_attachment_image_url( $g, 'woocommerce_single' );
+		if ( $u ) {
+			$imgs[] = array( 'src' => $u );
+		}
+	}
+
+	$attrs = array();
+	foreach ( (array) $product->get_attributes() as $attr ) {
+		if ( ! is_object( $attr ) || ! is_callable( array( $attr, 'get_name' ) ) ) {
+			continue;
+		}
+		$nm = function_exists( 'wc_attribute_label' ) ? wc_attribute_label( $attr->get_name(), $product ) : $attr->get_name();
+		if ( is_callable( array( $attr, 'is_taxonomy' ) ) && $attr->is_taxonomy() ) {
+			$terms   = wc_get_product_terms( $pid, $attr->get_name(), array( 'fields' => 'names' ) );
+			$options = is_array( $terms ) ? array_values( $terms ) : array();
+		} else {
+			$options = array_values( (array) $attr->get_options() );
+		}
+		$attrs[] = array( 'name' => (string) $nm, 'options' => array_map( 'strval', $options ) );
+	}
+
+	return array(
+		'id'           => $pid,
+		'name'         => wp_strip_all_tags( $product->get_name() ),
+		'permalink'    => get_permalink( $pid ),
+		'images'       => $imgs,
+		'price'        => $price,
+		'attributes'   => $attrs,
+		'stock_status' => $product->get_stock_status(),
+	);
+}
+
+/**
  * Native fallback build (same shape as the mu-plugin's timber_catp_build) using
  * WC getters, so the category grid renders even without the mu-plugin — including
  * proper composite "from" pricing (pt_cat_product_from_price). Cached per term.
@@ -337,54 +394,10 @@ function pt_cat_native_build( $term ) {
 	);
 	$products = array();
 	foreach ( (array) $q->posts as $pid ) {
-		$product = wc_get_product( (int) $pid );
-		if ( ! $product ) {
-			continue;
+		$entry = pt_cat_product_entry( wc_get_product( (int) $pid ) );
+		if ( $entry ) {
+			$products[] = $entry;
 		}
-		$price = pt_cat_product_from_price( $product );
-
-		$imgs = array();
-		$main = $product->get_image_id();
-		if ( $main ) {
-			$u = wp_get_attachment_image_url( $main, 'woocommerce_single' );
-			if ( $u ) {
-				$imgs[] = array( 'src' => $u );
-			}
-		}
-		foreach ( (array) $product->get_gallery_image_ids() as $g ) {
-			if ( count( $imgs ) >= 2 ) {
-				break;
-			}
-			$u = wp_get_attachment_image_url( $g, 'woocommerce_single' );
-			if ( $u ) {
-				$imgs[] = array( 'src' => $u );
-			}
-		}
-
-		$attrs = array();
-		foreach ( (array) $product->get_attributes() as $attr ) {
-			if ( ! is_object( $attr ) || ! is_callable( array( $attr, 'get_name' ) ) ) {
-				continue;
-			}
-			$nm = function_exists( 'wc_attribute_label' ) ? wc_attribute_label( $attr->get_name(), $product ) : $attr->get_name();
-			if ( is_callable( array( $attr, 'is_taxonomy' ) ) && $attr->is_taxonomy() ) {
-				$terms   = wc_get_product_terms( $product->get_id(), $attr->get_name(), array( 'fields' => 'names' ) );
-				$options = is_array( $terms ) ? array_values( $terms ) : array();
-			} else {
-				$options = array_values( (array) $attr->get_options() );
-			}
-			$attrs[] = array( 'name' => (string) $nm, 'options' => array_map( 'strval', $options ) );
-		}
-
-		$products[] = array(
-			'id'           => (int) $pid,
-			'name'         => wp_strip_all_tags( $product->get_name() ),
-			'permalink'    => get_permalink( (int) $pid ),
-			'images'       => $imgs,
-			'price'        => $price,
-			'attributes'   => $attrs,
-			'stock_status' => $product->get_stock_status(),
-		);
 	}
 	$result = array(
 		'category' => array(
