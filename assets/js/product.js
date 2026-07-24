@@ -49,8 +49,11 @@
     function urlPid(){ if(typeof window!=='undefined' && window.PT_PRODUCT_ID) return String(window.PT_PRODUCT_ID); try{ var q=new URLSearchParams(location.search); return q.get('product')||q.get('product_id')||q.get('pid')||''; }catch(e){ return ''; } }
     function urlSize(){
       try{ var q=new URLSearchParams(location.search); var v=q.get('size')||q.get('size_id')||q.get('sid'); if(v) return v; }catch(e){}
+      var path=(location.pathname||'');
       // size-filter path segment, e.g. /summerhouses/f/8-x-8/product-slug/
-      try{ var m=(location.pathname||'').match(/\/f\/([^\/]+)/i); if(m&&m[1]) return decodeURIComponent(m[1]); }catch(e){}
+      try{ var m=path.match(/\/f\/([^\/]+)/i); if(m&&m[1]) return decodeURIComponent(m[1]); }catch(e){}
+      // bare size segment anywhere in the path, e.g. /8-x-8/ or /.../8-x-8/product-slug/
+      try{ var m2=path.match(/(?:^|\/)(\d+-x-\d+)(?:\/|$)/i); if(m2&&m2[1]) return m2[1]; }catch(e){}
       return '';
     }
     var TITLE_KEY={ 'Size':'size','Wall Thickness':'wall','Floor':'floor','Roof Cover':'roof',
