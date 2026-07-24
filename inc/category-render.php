@@ -77,6 +77,20 @@ function pt_cat_compact( $name ) {
 	return preg_replace( '/\s+/', '', $s );
 }
 
+/** sizeFt() — "12 x 8 - UPVC" → "12ft × 8ft" (the design's dimension format). */
+function pt_cat_size_ft( $name ) {
+	preg_match_all( '/\d+(?:\.\d+)?/', (string) $name, $m );
+	$n = isset( $m[0] ) ? $m[0] : array();
+	if ( count( $n ) < 2 ) {
+		return pt_cat_compact( $name ); // unexpected label — fall back to compact
+	}
+	$fmt = function ( $v ) {
+		$v = (float) $v;
+		return ( (float) (int) $v === $v ) ? (string) (int) $v : rtrim( rtrim( sprintf( '%.2f', $v ), '0' ), '.' );
+	};
+	return $fmt( $n[0] ) . 'ft × ' . $fmt( $n[1] ) . 'ft';
+}
+
 /** facetValues() — [{slug,label}] for one facet of one product. */
 function pt_cat_facet_values( $p, $f ) {
 	$out = array();
@@ -108,7 +122,11 @@ function pt_cat_facet_data_attr( $p ) {
 	return $out ? ' ' . implode( ' ', $out ) : '';
 }
 
-/** sizesLine() — "3 sizes · 10×6–10×10". */
+/**
+ * sizesLine() — design markup: "<b>3</b> sizes: from <b>12ft × 8ft</b> to
+ * <b>16ft × 8ft</b>" (single size → "<b>1</b> size: <b>8ft × 6ft</b>").
+ * Returns safe HTML (dynamic parts escaped); render WITHOUT esc_html().
+ */
 function pt_cat_sizes_line( $p ) {
 	$opts = pt_cat_attr_options( isset( $p['attributes'] ) ? $p['attributes'] : array(), 'size' );
 	if ( empty( $opts ) ) {
@@ -122,10 +140,14 @@ function pt_cat_sizes_line( $p ) {
 			return ( $A[0] <=> $B[0] ) ?: ( $A[1] <=> $B[1] );
 		}
 	);
-	$n  = count( $opts );
-	$lo = pt_cat_compact( $opts[0] );
-	$hi = pt_cat_compact( $opts[ $n - 1 ] );
-	return $n . ' size' . ( $n > 1 ? 's' : '' ) . ' · ' . ( $lo === $hi ? $lo : $lo . '–' . $hi );
+	$n     = count( $opts );
+	$lo    = pt_cat_size_ft( $opts[0] );
+	$hi    = pt_cat_size_ft( $opts[ $n - 1 ] );
+	$count = '<b>' . (int) $n . '</b> size' . ( $n > 1 ? 's' : '' ) . ': ';
+	if ( $lo === $hi ) {
+		return $count . '<b>' . esc_html( $lo ) . '</b>';
+	}
+	return $count . 'from <b>' . esc_html( $lo ) . '</b> to <b>' . esc_html( $hi ) . '</b>';
 }
 
 /** cardHTML() — one product card, matching category.js output. */
@@ -175,7 +197,7 @@ function pt_cat_card_html( $p ) {
 	$h .= '</div>';
 	$h .= '<div class="pbody"><h3>' . esc_html( $name ) . '</h3><div class="pprice">' . $price_html . '</div>';
 	if ( $sizes ) {
-		$h .= '<div class="psizes">' . esc_html( $sizes ) . '</div>';
+		$h .= '<div class="psizes">' . $sizes . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput -- safe HTML from pt_cat_sizes_line (dynamic parts escaped)
 	}
 	$h .= '</div></a>';
 	return $h;

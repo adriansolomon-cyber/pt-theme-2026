@@ -112,6 +112,7 @@
   .prod h3{ font-size:1.02rem; line-height:1.18; letter-spacing:-.01em; }
   .prod .pprice{ font-size:.9rem; color:var(--txt-soft); margin-top:auto; } .prod .pprice b{ font-size:1.2rem; color:var(--ink); font-weight:700; }
   .prod .psizes{ font-size:.9rem; font-weight:400; color:var(--txt-soft); line-height:1.4; }
+  .prod .psizes b{ color:var(--ink); font-weight:700; }
   .prod .pview{ font-weight:700; font-size:.82rem; color:var(--charcoal); display:inline-flex; align-items:center; gap:6px; margin-top:6px; }
   .prod .pview .a{ color:#9a8f00; transition:transform .25s var(--ease); }
   @media(hover:hover){ .prod:hover .pview .a{ transform:translateX(4px); } }

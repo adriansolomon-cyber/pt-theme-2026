@@ -84,7 +84,9 @@
       return [];
     }
     function facetData(p){ return FACETS.map(function(f){ var slugs=facetValues(p,f).map(function(v){ return v.slug; }); return slugs.length?('data-f-'+f.key+'="'+esc(slugs.join(' '))+'"'):''; }).filter(Boolean).join(' '); }
-    function sizesLine(p){ var opts=attrOpts(p,'size').slice().sort(function(a,b){ var A=sizeVal(a),B=sizeVal(b); return A[0]-B[0]||A[1]-B[1]; }); if(!opts.length) return ''; var n=opts.length, lo=compact(opts[0]), hi=compact(opts[n-1]); return n+' size'+(n>1?'s':'')+' · '+(lo===hi?lo:lo+'–'+hi); }
+    function sizeFt(name){ var m=String(name==null?'':name).match(/\d+(?:\.\d+)?/g); if(!m||m.length<2) return compact(name); return m[0]+'ft × '+m[1]+'ft'; }
+    // design markup: "<b>3</b> sizes: from <b>12ft × 8ft</b> to <b>16ft × 8ft</b>" (returns safe HTML)
+    function sizesLine(p){ var opts=attrOpts(p,'size').slice().sort(function(a,b){ var A=sizeVal(a),B=sizeVal(b); return A[0]-B[0]||A[1]-B[1]; }); if(!opts.length) return ''; var n=opts.length, lo=sizeFt(opts[0]), hi=sizeFt(opts[n-1]); var count='<b>'+n+'</b> size'+(n>1?'s':'')+': '; return (lo===hi) ? (count+'<b>'+esc(lo)+'</b>') : (count+'from <b>'+esc(lo)+'</b> to <b>'+esc(hi)+'</b>'); }
 
     // size-component option product ids for one composite product (→ for the "from" price)
     function sizeOptionIds(p){
@@ -115,7 +117,7 @@
           badgeHTML()+
         '</div>'+
         '<div class="pbody"><h3>'+esc(p.name)+'</h3><div class="pprice">'+priceHTML+'</div>'+
-          (sizes?'<div class="psizes">'+esc(sizes)+'</div>':'')+
+          (sizes?'<div class="psizes">'+sizes+'</div>':'')+
         '</div></a>';
     }
     function buildFilters(products){
