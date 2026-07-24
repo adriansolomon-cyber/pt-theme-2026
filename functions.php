@@ -239,6 +239,11 @@ add_action(
 			if ( file_exists( $dir . '/assets/css/category.css' ) ) {
 				wp_enqueue_style( 'pt-category', $uri . '/assets/css/category.css', array( 'pt-base' ), $ver( 'assets/css/category.css' ) );
 			}
+			// search.php loads none of the per-page scripts, so wire the header
+			// search toggle here (other templates carry their own copy).
+			if ( file_exists( $dir . '/assets/js/header.js' ) ) {
+				wp_enqueue_script( 'pt-header', $uri . '/assets/js/header.js', array(), $ver( 'assets/js/header.js' ), true );
+			}
 		}
 	}
 );
