@@ -78,6 +78,29 @@ function pt_product_from_price_html( $product ) {
 	return $p > 0 ? 'From £' . number_format( round( $p ), 0, '.', ',' ) : '';
 }
 
+/**
+ * "From" price as display HTML, with the campaign discount applied when active:
+ *   no discount → "From £1,234"
+ *   discount    → 'From <span class="was">£1,234</span><span class="now">£1,111</span>'
+ * Mirrors the configurator's was/now treatment (.was/.now styles already exist).
+ * Output is safe markup — echo through wp_kses_post(). Empty string if no price.
+ */
+function pt_product_from_price_display( $product ) {
+	$p = pt_product_from_price( $product );
+	if ( $p <= 0 ) {
+		return '';
+	}
+	$gbp = function ( $n ) {
+		return '£' . number_format( round( $n ), 0, '.', ',' );
+	};
+	$pct = ( $product && function_exists( 'pt_product_discount_pct' ) ) ? (float) pt_product_discount_pct( $product->get_id() ) : 0.0;
+	if ( $pct > 0 ) {
+		$d = $p - ( $p * $pct / 100 );
+		return 'From <span class="was">' . $gbp( $p ) . '</span><span class="now">' . $gbp( $d ) . '</span>';
+	}
+	return 'From ' . $gbp( $p );
+}
+
 /** Walk a term up to its top-level ancestor (root of the category tree). */
 function pt_term_root( $term ) {
 	$guard = 0;

@@ -28,7 +28,7 @@ $pt_line    = pt_product_line_singular( $pt_pid );            // singular catego
 if ( '' === $pt_line ) {
 	$pt_line = $pt_name;
 }
-$pt_from = $pt_product ? pt_product_from_price_html( $pt_product ) : '';
+$pt_from = $pt_product ? pt_product_from_price_display( $pt_product ) : '';
 if ( '' === $pt_from ) {
 	$pt_from = 'From £—';
 }
@@ -108,7 +108,7 @@ get_header();
     <img src="<?php echo esc_url( $pt_hero_img ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>">
   </div>
   <div class="pricepill">
-    <span class="pl"><b><?php echo esc_html( $pt_from ); ?></b></span>
+    <span class="pl"><b><?php echo wp_kses_post( $pt_from ); ?></b></span>
     <button class="go">Customise &amp; buy</button>
   </div>
 </div></header>
@@ -707,7 +707,7 @@ if ( $pt_rec_ids ) :
 
 <?php endif; ?>
 <div class="buybar">
-  <div class="p"><?php echo esc_html( $pt_from ); ?> <small>FREE DELIVERY*</small></div>
+  <div class="p"><?php echo wp_kses_post( $pt_from ); ?> <small>FREE DELIVERY*</small></div>
   <button class="go">Customise &amp; buy</button>
 </div>
 
