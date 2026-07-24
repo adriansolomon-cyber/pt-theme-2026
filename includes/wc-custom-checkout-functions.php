@@ -9,7 +9,97 @@
  */
 
 function auto_voucher_enabled() {
-    return (bool) get_field('enable_auto_apply_voucher_on_checkout', 'option');
+    // Master on/off for ALL campaigns — ACF "Show coupon" toggle (show_coupon).
+    return function_exists( 'get_field' ) ? (bool) get_field( 'show_coupon', 'option' ) : false;
+}
+
+/**
+ * Campaign config helpers (all driven by the ACF options-page fields).
+ *   show_coupon                     — master toggle (auto_voucher_enabled())
+ *   coupon_code / coupon_percentage — DEFAULT campaign: applies to all products
+ *   special_coupon_code / _percentage + special_offer_category_includes
+ *                                   — SPECIAL campaign: only products in those categories
+ */
+
+/** Parse a percentage-ish text field ("10", "10%", " 7.5 ") → float. */
+function pt_campaign_pct( $field ) {
+    if ( ! function_exists( 'get_field' ) ) return 0.0;
+    return (float) preg_replace( '/[^0-9.]/', '', (string) get_field( $field, 'option' ) );
+}
+
+/** Resolve the comma-separated "special_offer_category_includes" into product_cat term IDs. */
+function pt_campaign_special_cat_ids() {
+    if ( ! function_exists( 'get_field' ) ) return array();
+    $raw = get_field( 'special_offer_category_includes', 'option' );
+    if ( ! is_string( $raw ) || '' === trim( $raw ) ) return array();
+
+    $ids = array();
+    foreach ( explode( ',', $raw ) as $tok ) {
+        $tok = trim( $tok );
+        if ( '' === $tok ) continue;
+        if ( ctype_digit( $tok ) ) { $ids[] = (int) $tok; continue; }
+        $term = get_term_by( 'slug', sanitize_title( $tok ), 'product_cat' );
+        if ( ! $term ) $term = get_term_by( 'name', $tok, 'product_cat' );
+        if ( $term && ! is_wp_error( $term ) ) $ids[] = (int) $term->term_id;
+    }
+    return array_values( array_unique( array_filter( $ids ) ) );
+}
+
+/** Is a product in (or under) one of the special-offer categories? */
+function pt_product_in_special_category( $product_id ) {
+    $special = pt_campaign_special_cat_ids();
+    if ( empty( $special ) ) return false;
+
+    $cats = wc_get_product_term_ids( (int) $product_id, 'product_cat' );
+    $cats = is_array( $cats ) ? $cats : array();
+    $all  = $cats;
+    foreach ( $cats as $cid ) {                       // a product in a CHILD of a special cat also qualifies
+        foreach ( get_ancestors( (int) $cid, 'product_cat' ) as $anc ) {
+            $all[] = (int) $anc;
+        }
+    }
+    return (bool) array_intersect( $special, array_unique( $all ) );
+}
+
+/**
+ * The display discount % for a product (0 = none). Special % if the product is in a
+ * special category and a special code is set; otherwise the default % if a default
+ * code is set. This is the VISUAL discount — the real money-off is the auto-applied
+ * coupon at checkout, so keep each coupon's % in sync with these fields.
+ */
+function pt_product_discount_pct( $product_id ) {
+    if ( ! auto_voucher_enabled() ) return 0.0;
+
+    if ( av_get_special_voucher_code() && pt_product_in_special_category( $product_id ) ) {
+        return pt_campaign_pct( 'special_coupon_percentage' );
+    }
+    $default_code = function_exists( 'get_field' ) ? get_field( 'coupon_code', 'option' ) : '';
+    if ( is_string( $default_code ) && '' !== trim( $default_code ) ) {
+        return pt_campaign_pct( 'coupon_percentage' );
+    }
+    return 0.0;
+}
+
+/**
+ * Display discount % for a whole product-category page (used on category listings):
+ * special % if the term (or an ancestor) is a special-offer category, else the default %.
+ */
+function pt_term_discount_pct( $term_id ) {
+    if ( ! auto_voucher_enabled() ) return 0.0;
+
+    $term_id = (int) $term_id;
+    $special = pt_campaign_special_cat_ids();
+    if ( $term_id && ! empty( $special ) ) {
+        $chain = array_merge( array( $term_id ), get_ancestors( $term_id, 'product_cat' ) );
+        if ( array_intersect( $special, $chain ) && av_get_special_voucher_code() ) {
+            return pt_campaign_pct( 'special_coupon_percentage' );
+        }
+    }
+    $default_code = function_exists( 'get_field' ) ? get_field( 'coupon_code', 'option' ) : '';
+    if ( is_string( $default_code ) && '' !== trim( $default_code ) ) {
+        return pt_campaign_pct( 'coupon_percentage' );
+    }
+    return 0.0;
 }
 
 /**
@@ -26,32 +116,9 @@ function av_product_qualifies_simple( $product_id ) {
     $product_id = (int) $product_id;
     if ( ! $product_id ) return false;
 
-    $product = wc_get_product( $product_id );
-    if ( ! $product ) return false;
-
-    // Get categories
-    $cats = wc_get_product_term_ids( $product_id, 'product_cat' );
-    if ( ! is_array( $cats ) ) $cats = [];
-
-    // RULE SET
-    $keywords           = [ 'grandmaster' ];
-    $allowed_categories = [ 2346 ];
-
-    // Title match
-    $title = strtolower( $product->get_name() );
-    foreach ( $keywords as $k ) {
-        if ( strpos( $title, $k ) !== false ) {
-            return true;
-        }
-    }
-
-    // Category match
-    if ( array_intersect( $allowed_categories, $cats ) ) {
-        return true;
-    }
-
-    // No match
-    return false;
+    // Qualifies for the SPECIAL campaign when it sits in one of the ACF-configured
+    // special-offer categories (special_offer_category_includes).
+    return pt_product_in_special_category( $product_id );
 }
 
 
@@ -76,7 +143,9 @@ function av_get_default_voucher_code() {
  * Special voucher code.
  */
 function av_get_special_voucher_code() {
-    return 'gm10';
+    if ( ! auto_voucher_enabled() || ! function_exists( 'get_field' ) ) return '';
+    $code = get_field( 'special_coupon_code', 'option' );
+    return is_string( $code ) ? strtolower( trim( $code ) ) : '';
 }
 
 /**
@@ -135,30 +204,11 @@ function av_cart_qualifies_for_special() {
     if ( ! WC()->cart || WC()->cart->is_empty() ) return false;
 
     $parents = av_get_parent_cart_products();
-    $count   = count( $parents );
+    if ( empty( $parents ) ) return false;
 
-    if ( $count === 0 ) return false;
-
-    // Rule: 2+ parent products
-    // if ( $count >= 2 ) return true;
-
-    // Rule: single parent product → check title/category
-    $keywords           = [ 'grandmaster' ];
-    $allowed_categories = [ 2346 ];
-
+    // Qualifies when any parent product is in an ACF-configured special-offer category.
     foreach ( $parents as $p ) {
-        $title = strtolower( $p['title'] );
-        $cats  = $p['categories'];
-
-        // Keyword match
-        foreach ( $keywords as $k ) {
-            if ( strpos( $title, $k ) !== false ) {
-                return true;
-            }
-        }
-
-        // Category match
-        if ( array_intersect( $allowed_categories, $cats ) ) {
+        if ( pt_product_in_special_category( $p['product_id'] ) ) {
             return true;
         }
     }

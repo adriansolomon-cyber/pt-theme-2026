@@ -186,11 +186,16 @@ add_action(
 				$pt_best_arr = array_values( array_filter( $pt_best_arr ) );
 
 				// Hand product.js the current product id + site origin (same-origin config/specs API).
+				// Campaign display discount for THIS product (0 = none). Visual only —
+				// the real money-off is the auto-applied coupon at checkout.
+				$pt_disc = function_exists( 'pt_product_discount_pct' ) ? (float) pt_product_discount_pct( get_queried_object_id() ) : 0.0;
+
 				wp_add_inline_script(
 					'pt-product',
 					'window.PT_WC_BASE=' . wp_json_encode( untrailingslashit( home_url() ) ) . ';'
 					. 'window.PT_PRODUCT_ID=' . wp_json_encode( (string) get_queried_object_id() ) . ';'
-					. 'window.PT_BEST_SIZES=' . wp_json_encode( $pt_best_arr ) . ';',
+					. 'window.PT_BEST_SIZES=' . wp_json_encode( $pt_best_arr ) . ';'
+					. 'window.PT_DISCOUNT_PCT=' . wp_json_encode( $pt_disc ) . ';',
 					'before'
 				);
 			}
@@ -214,10 +219,13 @@ add_action(
 				// calls are same-origin (staging/live) rather than the hardcoded production URL.
 				$term = get_queried_object();
 				$slug = ( $term && isset( $term->slug ) ) ? $term->slug : '';
+				// Campaign display discount for this category page (0 = none).
+				$pt_cat_disc = ( function_exists( 'pt_term_discount_pct' ) && $term && isset( $term->term_id ) ) ? (float) pt_term_discount_pct( $term->term_id ) : 0.0;
 				wp_add_inline_script(
 					'pt-category',
 					'window.PT_WC_BASE=' . wp_json_encode( untrailingslashit( home_url() ) ) . ';'
-					. 'window.PT_CATEGORY_SLUG=' . wp_json_encode( $slug ) . ';',
+					. 'window.PT_CATEGORY_SLUG=' . wp_json_encode( $slug ) . ';'
+					. 'window.PT_DISCOUNT_PCT=' . wp_json_encode( $pt_cat_disc ) . ';',
 					'before'
 				);
 			}

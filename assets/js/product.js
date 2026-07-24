@@ -90,6 +90,13 @@
     function fmtm(n){ return '£'+Math.round(n).toLocaleString('en-GB'); }
     function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
+    // --- campaign display discount (visual only; the real money-off is the auto-applied
+    //     coupon at checkout). PT_DISCOUNT_PCT is injected by functions.php for this product. ---
+    var DISC=(typeof window!=='undefined' && typeof window.PT_DISCOUNT_PCT==='number' && window.PT_DISCOUNT_PCT>0) ? window.PT_DISCOUNT_PCT : 0;
+    function disc(n){ return DISC>0 ? (n - n*DISC/100) : n; }
+    // formatted price; when a discount is active, shows the original struck through + the new price.
+    function fmtDisc(n){ return DISC>0 ? '<span class="was">'+fmt(n)+'</span><span class="now">'+fmt(disc(n))+'</span>' : fmt(n); }
+
     // --- session cache: makes reloads / repeat product loads instant ---
     // CACHE_VER is baked into the key: bump it whenever the /config payload shape or
     // parsing changes so every stale client cache is dropped on the next load (no
@@ -335,7 +342,9 @@
       var tins=(colour&&!isNone)?'<span class="tins">*SUPPLIED IN TINS</span>':'';
       var img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+'</div>':'<div class="im ph">'+tins+'</div>';
       var badge4w=(colour&&isNone)?'<span class="badge4w">⚠ Paint within 4 weeks!*</span>':'';
-      var price=(opt.price==null)?'<span class="pr-sk skel-box"></span>':fmt(opt.price);
+      // size cards show the headline "from" price (discounted when a campaign is live);
+      // option add-on deltas stay at their raw value — the discounted total covers them.
+      var price=(opt.price==null)?'<span class="pr-sk skel-box"></span>':((group===sizeCid)?fmtDisc(opt.price):fmt(opt.price));
       var sizeAttrs=(group===sizeCid) ? ' data-val="'+esc(label)+'"'+(isBestSize(opt.name)?' data-best="1"':'') : '';
       return '<div class="opt-card'+(selected?' sel':'')+'" data-group="'+esc(group)+'" data-opt="'+opt.id+'"'+sizeAttrs+'>'+img+badge4w+
         '<div class="nm">'+esc(label)+'</div><div class="pr">'+price+'</div>'+
@@ -433,8 +442,8 @@
     function recalc(){
       var t=total();
       var payBtn=document.querySelector('.cfg-summary .ptoggle .on'); var pay=payBtn?payBtn.dataset.pay:'cash';
-      if(elPrice) elPrice.innerHTML = pay==='finance' ? fmtm(t/120)+' <small>/mo over 120 months*</small>' : fmt(t);
-      var bb=document.querySelector('.buybar .p'); if(bb) bb.innerHTML=fmt(t)+' <small>FREE DELIVERY*</small>';
+      if(elPrice) elPrice.innerHTML = pay==='finance' ? fmtm(disc(t)/120)+' <small>/mo over 120 months*</small>' : fmtDisc(t);
+      var bb=document.querySelector('.buybar .p'); if(bb) bb.innerHTML=fmtDisc(t)+' <small>FREE DELIVERY*</small>';
       if(elAdd) elAdd.disabled=(sizeId==null);
       if(elDeliv && sizeId!=null) elDeliv.textContent='Ready to add · '+(scenarios[sizeId]?scenarios[sizeId].name:'');
     }

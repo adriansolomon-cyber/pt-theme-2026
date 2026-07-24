@@ -508,3 +508,7 @@
 .size-groups button.on{ background:var(--charcoal); color:#fff; border-color:var(--charcoal); }
 @media(hover:hover){ .size-groups button:not(.on):hover{ border-color:var(--charcoal); color:var(--ink); } }
 .configurator .opt-card.hide{ display:none; }
+
+/* Campaign discount: original struck through + discounted "now" price (PDP). */
+.was{ text-decoration:line-through; color:var(--txt-soft); font-weight:400; opacity:.7; margin-right:7px; }
+.now{ font-weight:700; color:var(--ink); }

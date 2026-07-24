@@ -227,3 +227,7 @@
 .cat-intro p.cat-skel .sk:nth-child(1){ width:92%; } .cat-intro p.cat-skel .sk:nth-child(2){ width:84%; } .cat-intro p.cat-skel .sk:nth-child(3){ width:60%; }
 .cat-intro p.cat-skel .sk::after{ content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent); animation:catskel 1.3s infinite; }
 @media(prefers-reduced-motion:reduce){ .cat-intro p.cat-skel .sk::after{ animation:none; } }
+
+/* Campaign discount: original struck through + discounted "now" price (category cards). */
+.pprice .was{ text-decoration:line-through; color:var(--txt-soft); font-weight:400; opacity:.7; margin-right:6px; }
+.pprice .now{ font-weight:700; }
