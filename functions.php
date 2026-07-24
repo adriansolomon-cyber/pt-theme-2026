@@ -244,6 +244,26 @@ add_action(
 );
 
 /**
+ * Force the theme's search.php for front-end searches. WooCommerce routes
+ * product searches (?post_type=product) through its own archive-product.php via
+ * the template_include filter (priority 10); this runs later so our product
+ * search results template (search.php) wins instead.
+ */
+add_filter(
+	'template_include',
+	function ( $template ) {
+		if ( ! is_admin() && is_search() ) {
+			$search = locate_template( 'search.php' );
+			if ( $search ) {
+				return $search;
+			}
+		}
+		return $template;
+	},
+	99
+);
+
+/**
  * Admin: add a live search + "selected first" ordering to the native product-category
  * checklist on the product edit screen (assets/js/admin-cat-search.js). Progressive
  * enhancement only — the checkboxes/inputs are untouched, so saving is unaffected.

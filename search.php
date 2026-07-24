@@ -29,12 +29,21 @@ if ( '' !== $pt_term && function_exists( 'wc_get_product' ) ) {
 			'posts_per_page'      => 24,
 			'paged'               => $pt_paged,
 			'ignore_sticky_posts' => true,
-			// Respect catalog visibility: drop products hidden from search.
 			'tax_query'           => array(
+				'relation' => 'AND',
+				// Respect catalog visibility: drop products hidden from search.
 				array(
 					'taxonomy' => 'product_visibility',
 					'field'    => 'name',
 					'terms'    => array( 'exclude-from-search' ),
+					'operator' => 'NOT IN',
+				),
+				// Match the site's main-search rule (exclude_simple_and_bundle_from_search):
+				// only show configurable products, not the simple size sub-products or bundles.
+				array(
+					'taxonomy' => 'product_type',
+					'field'    => 'slug',
+					'terms'    => array( 'simple', 'bundle' ),
 					'operator' => 'NOT IN',
 				),
 			),
