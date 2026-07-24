@@ -319,6 +319,14 @@
     function normSize(s){ var t=String(s==null?'':s).toLowerCase().replace(/[×]/g,'x'); var m=t.match(/(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)/); return m ? (m[1]+'x'+m[2]) : t.replace(/\s+/g,''); }
     var BEST_SIZES=((typeof window!=='undefined'&&window.PT_BEST_SIZES)||[]).map(normSize);
     function isBestSize(name){ return BEST_SIZES.length>0 && BEST_SIZES.indexOf(normSize(name))>-1; }
+    // Set by initSizeFilter — switches the active size-filter group to the one
+    // containing a given card (so a preselected non-bestseller size stays visible).
+    var sizeFilterShow=null;
+    function revealSelectedSize(){
+      if(typeof sizeFilterShow!=='function' || !elRows) return;
+      var sc=elRows.querySelector('.opt-cards[data-group="'+sizeCid+'"] .opt-card.sel');
+      if(sc) sizeFilterShow(sc);
+    }
     // Build the "Bestsellers" + by-depth filter pills above the size grid (mirrors the design).
     function initSizeFilter(){
       if(!elRows) return;
@@ -340,8 +348,12 @@
       function addPill(key,label){ var b=document.createElement('button'); b.type='button'; b.setAttribute('role','tab'); b.dataset.key=key; b.textContent=label; b.addEventListener('click',function(){ showKey(key); }); wrap.appendChild(b); }
       if(bests.length) addPill('__best','Bestsellers');
       depths.forEach(function(d){ addPill(d, d+'ft deep'); });
+      sizeFilterShow=function(card){ if(!card) return; showKey((bests.length && card.dataset.best) ? '__best' : depthOf(card)); };
       var selCard=grid.querySelector('.opt-card.sel');
-      showKey(bests.length ? '__best' : (selCard ? depthOf(selCard) : depths[0]));
+      // Prefer the selected size's own group so a preselected non-bestseller size
+      // (e.g. 10×10) isn't hidden behind the default Bestsellers tab.
+      if(selCard){ sizeFilterShow(selCard); }
+      else { showKey(bests.length ? '__best' : depths[0]); }
     }
     function cardHTML(group,opt,selected,colour){
       var label=(group===sizeCid)?sizeDisplay(opt.name):opt.name;
@@ -404,7 +416,7 @@
       if(specImg && sm && sm.img){ specImg.src=sm.img; specImg.alt=(product?product.name:'Product')+' '+sc.name+' preview'; }
       if(elSize) elSize.textContent=sizeDisplay(sc.name);
       setGallery(galleryFor((sm&&sm.img) || (product&&product.images&&product.images[0]&&product.images[0].src)));
-      markSelected(sizeCid,id); setSelLabel('sel-size',sizeDisplay(sc.name));
+      markSelected(sizeCid,id); setSelLabel('sel-size',sizeDisplay(sc.name)); revealSelectedSize();
       var need=[]; components.forEach(function(c){ if(c.id===sizeCid) return; (sc.config[c.id]||[]).forEach(function(x){ need.push(x); }); });
       var haveAll=need.every(function(x){ return meta[x]; });
       if(haveAll){ renderOptionRows(sc); status('Configured for '+sc.name+'.'); return Promise.resolve(); }
