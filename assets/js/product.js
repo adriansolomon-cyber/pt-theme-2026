@@ -47,7 +47,12 @@
     // WP single-product.php injects window.PT_PRODUCT_ID (the queried product) — most reliable; the
     // ?product= param is the standalone-prototype fallback.
     function urlPid(){ if(typeof window!=='undefined' && window.PT_PRODUCT_ID) return String(window.PT_PRODUCT_ID); try{ var q=new URLSearchParams(location.search); return q.get('product')||q.get('product_id')||q.get('pid')||''; }catch(e){ return ''; } }
-    function urlSize(){ try{ var q=new URLSearchParams(location.search); return q.get('size')||q.get('size_id')||q.get('sid')||''; }catch(e){ return ''; } }
+    function urlSize(){
+      try{ var q=new URLSearchParams(location.search); var v=q.get('size')||q.get('size_id')||q.get('sid'); if(v) return v; }catch(e){}
+      // size-filter path segment, e.g. /summerhouses/f/8-x-8/product-slug/
+      try{ var m=(location.pathname||'').match(/\/f\/([^\/]+)/i); if(m&&m[1]) return decodeURIComponent(m[1]); }catch(e){}
+      return '';
+    }
     var TITLE_KEY={ 'Size':'size','Wall Thickness':'wall','Floor':'floor','Roof Cover':'roof',
       'Guttering':'guttering','Paint Colour':'paint','Colour Trim':'trim','Base':'base' };
 
@@ -384,7 +389,7 @@
       if(!pendingSize) return null;
       var want=pendingSize; pendingSize=null;
       var id=scenarios[want]?+want:null;
-      if(id==null){ var norm=function(s){ return String(s).toLowerCase().replace(/\s+/g,''); }; Object.keys(scenarios).forEach(function(k){ if(id==null && norm(scenarios[k].name)===norm(want)) id=+k; }); }
+      if(id==null){ var norm=function(s){ return String(s).toLowerCase().replace(/×/g,'x').replace(/[^a-z0-9]+/g,''); }; Object.keys(scenarios).forEach(function(k){ if(id==null && norm(scenarios[k].name)===norm(want)) id=+k; }); }
       return id!=null ? selectSize(id) : null;
     }
 
