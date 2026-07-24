@@ -80,6 +80,15 @@ function pt_product_discount_pct( $product_id ) {
     return 0.0;
 }
 
+/** True when a product-category term (or an ancestor) is a special-offer category. */
+function pt_term_is_special( $term_id ) {
+    $term_id = (int) $term_id;
+    $special = pt_campaign_special_cat_ids();
+    if ( ! $term_id || empty( $special ) ) return false;
+    $chain = array_merge( array( $term_id ), get_ancestors( $term_id, 'product_cat' ) );
+    return (bool) array_intersect( $special, $chain );
+}
+
 /**
  * Display discount % for a whole product-category page (used on category listings):
  * special % if the term (or an ancestor) is a special-offer category, else the default %.
@@ -87,19 +96,24 @@ function pt_product_discount_pct( $product_id ) {
 function pt_term_discount_pct( $term_id ) {
     if ( ! auto_voucher_enabled() ) return 0.0;
 
-    $term_id = (int) $term_id;
-    $special = pt_campaign_special_cat_ids();
-    if ( $term_id && ! empty( $special ) ) {
-        $chain = array_merge( array( $term_id ), get_ancestors( $term_id, 'product_cat' ) );
-        if ( array_intersect( $special, $chain ) && av_get_special_voucher_code() ) {
-            return pt_campaign_pct( 'special_coupon_percentage' );
-        }
+    if ( pt_term_is_special( $term_id ) && av_get_special_voucher_code() ) {
+        return pt_campaign_pct( 'special_coupon_percentage' );
     }
     $default_code = function_exists( 'get_field' ) ? get_field( 'coupon_code', 'option' ) : '';
     if ( is_string( $default_code ) && '' !== trim( $default_code ) ) {
         return pt_campaign_pct( 'coupon_percentage' );
     }
     return 0.0;
+}
+
+/** The coupon code shown on the on-card discount badge for a category page ('' = none). */
+function pt_term_discount_code( $term_id ) {
+    if ( ! auto_voucher_enabled() ) return '';
+    if ( pt_term_is_special( $term_id ) && av_get_special_voucher_code() ) {
+        return strtoupper( av_get_special_voucher_code() );
+    }
+    $default_code = function_exists( 'get_field' ) ? get_field( 'coupon_code', 'option' ) : '';
+    return ( is_string( $default_code ) && '' !== trim( $default_code ) ) ? strtoupper( trim( $default_code ) ) : '';
 }
 
 /**

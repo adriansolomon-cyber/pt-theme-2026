@@ -3,41 +3,351 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Project Timber</title>
+<title>Garden Offices — Project Timber</title>
 
 <!-- ============================================================
-     PROJECT TIMBER · Category page (generic template)
-     Title, description, products and filters are all rendered live from the
-     category in ?slug= (assets/js/category.js) — the markup below is a bare
-     skeleton only, no hardcoded content. Same design system + header/footer/support.
+     PROJECT TIMBER · Category page (Garden Offices)
+     Same design system + header/footer/support as the product page.
+     Filter is hidden until opened (off-canvas drawer). Cleaner cards.
      Phone numbers — single source of truth: Phone_Numbers.md (website = 553392).
      ============================================================ -->
 
-<link rel="stylesheet" href="../assets/css/base.css">
-<link rel="stylesheet" href="../assets/css/category.css">
+<style>
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerbold.otf") format("opentype"); font-weight:700; font-display:swap; }
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerregular.otf") format("opentype"); font-weight:400; font-display:swap; }
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerlight.otf") format("opentype"); font-weight:300; font-display:swap; }
+
+  :root{
+    --ink:#211E24; --charcoal:#3B333D; --slate:#5A5560; --graphite:#6E6A74;
+    --clay:#B7997F; --sand:#E6D9C7; --stone:#CFC0AC;
+    --paper:#F5F5F5; --mist:#F5F5F5; --white:#FFFFFF;
+    --accent:#FFFF00;
+    --txt:#211E24; --txt-soft:#6E6A74; --on-dark:#F7F4EF; --on-dark-soft:#B7B2BB;
+    --r:26px; --r-sm:16px; --maxw:1180px;
+    --ease:cubic-bezier(.2,.7,.3,1);
+    --e1:0 1px 2px rgba(33,30,36,.06), 0 6px 16px rgba(33,30,36,.06);
+    --e2:0 2px 6px rgba(33,30,36,.08), 0 18px 40px rgba(33,30,36,.10);
+    --e3:0 10px 30px rgba(33,30,36,.14), 0 30px 70px rgba(33,30,36,.16);
+    --font:"F37 Jagger","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html{ scroll-behavior:smooth; }
+  body{ margin:0; background:var(--white); color:var(--txt); font-family:var(--font); font-weight:400; line-height:1.55; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,h4{ font-weight:700; line-height:1.05; letter-spacing:-.02em; margin:0; }
+  p{ margin:0; } a{ color:inherit; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+  .eyebrow{ font-weight:400; text-transform:uppercase; letter-spacing:.22em; font-size:.7rem; color:var(--txt-soft); }
+  .fade{ background:linear-gradient(100deg,var(--charcoal) 35%,#9b96a1); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  /* promo + header (same as product page) */
+  .promo{ background:var(--ink); color:var(--on-dark); text-align:center; font-size:.74rem; letter-spacing:.05em; padding:8px 14px; }
+  .promo b{ color:#fff; }
+  .mainhead{ display:flex; align-items:center; gap:14px; padding:10px 20px; border-bottom:1px solid rgba(33,30,36,.07); position:sticky; top:0; z-index:50; background:rgba(255,255,255,.85); backdrop-filter:saturate(160%) blur(18px); -webkit-backdrop-filter:saturate(160%) blur(18px); }
+  .mainhead .menu{ display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:none; background:none; cursor:pointer; color:var(--ink); padding:0; }
+  .mainhead .menu svg{ width:24px; height:24px; }
+  @media(min-width:860px){ .mainhead .menu{ display:none; } }
+  .mainhead .logo{ display:inline-flex; } .mainhead .logo img{ height:44px; width:auto; display:block; }
+  .mainhead .search{ margin-left:auto; flex:0 1 360px; display:none; align-items:center; gap:9px; border:1px solid rgba(33,30,36,.15); border-radius:999px; padding:11px 16px; color:var(--txt-soft); font-size:.85rem; font-family:inherit; text-align:left; cursor:pointer; }
+  .mainhead .search svg{ width:16px; height:16px; }
+  @media(min-width:860px){ .mainhead .search{ display:flex; } }
+  .mainhead .icons{ margin-left:auto; display:flex; gap:2px; align-items:center; }
+  @media(min-width:860px){ .mainhead .icons{ margin-left:18px; } }
+  .hsearch{ background:#fff; border-bottom:1px solid rgba(33,30,36,.08); }
+  .hsearch[hidden]{ display:none; }
+  .hsearch .wrap{ padding:10px 20px; }
+  .hsearch input{ width:100%; font-family:var(--font); font-size:.95rem; padding:12px 16px; border:1px solid rgba(33,30,36,.18); border-radius:999px; color:var(--ink); }
+  .hsearch input:focus{ outline:none; border-color:var(--charcoal); }
+  @media(max-width:859px){
+    .mainhead{ position:relative; gap:6px; }
+    .mainhead .icons{ display:contents; }
+    .mainhead .logo{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+    .mainhead .menu{ order:1; }
+    .mainhead .searchic{ order:2; }
+    .mainhead .icons .supporttrigger{ display:none; order:8; }
+    .mainhead a.ic[aria-label="My account"]{ order:8; margin-left:auto; }
+    .mainhead .cartopen{ order:9; }
+  }
+  .mainhead .ic{ position:relative; cursor:pointer; color:var(--ink); display:inline-flex; align-items:center; justify-content:center; min-width:40px; min-height:40px; border:none; background:none; padding:0; }
+  .mainhead .ic svg{ width:22px; height:22px; } .mainhead .ic img{ width:22px; height:22px; display:block; }
+  .mainhead .ic .badge{ position:absolute; top:-2px; right:-2px; background:var(--accent); color:var(--ink); font-size:.6rem; font-weight:700; border-radius:999px; padding:1px 5px; }
+  @media(min-width:860px){ .mainhead .icons .searchic{ display:none; } }
+  .mainhead .supporttrigger{ border:none; background:none; padding:0; }
+  .primnav{ border-bottom:1px solid rgba(33,30,36,.07); }
+  .primnav ul{ list-style:none; margin:0; padding:9px 20px; display:flex; gap:26px; justify-content:center; font-size:.9rem; font-weight:400; }
+  .primnav a{ color:var(--ink); text-decoration:none; white-space:nowrap; }
+  @media(hover:hover){ .primnav a:hover{ color:#000; } }
+  @media(max-width:860px){ .primnav{ display:none; } .primnav.open{ display:block; } .primnav ul{ flex-direction:column; align-items:flex-start; gap:0; padding:6px 20px 12px; } .primnav li{ width:100%; padding:11px 0; border-bottom:1px solid rgba(33,30,36,.06); } }
+
+  /* breadcrumb + intro */
+  .crumbs{ padding:18px 0 0; font-size:.82rem; color:var(--txt-soft); font-weight:300; }
+  .crumbs a{ text-decoration:none; color:var(--txt-soft); }
+  @media(hover:hover){ .crumbs a:hover{ color:var(--ink); } }
+  .crumbs .sep{ margin:0 7px; opacity:.5; } .crumbs .here{ color:var(--ink); }
+  .cat-intro{ padding:12px 0 4px; }
+  .cat-intro h1{ font-size:clamp(2rem,5vw,3rem); }
+  .cat-intro p{ font-weight:300; color:var(--txt-soft); max-width:72ch; margin-top:12px; line-height:1.6; }
+  /* category promo banner (placeholder) */
+  .cat-promo{ display:flex; align-items:center; gap:14px; background:var(--charcoal); color:var(--on-dark); border-radius:var(--r-sm); padding:14px 18px; margin:18px 0 2px; }
+  .cat-promo .tag{ background:var(--accent); color:var(--ink); font-size:.62rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border-radius:999px; flex:0 0 auto; }
+  .cat-promo p{ font-size:.92rem; font-weight:300; } .cat-promo p b{ color:var(--accent); font-weight:700; }
+  .cat-promo .x{ margin-left:auto; border:none; background:none; color:var(--on-dark-soft); cursor:pointer; display:inline-flex; flex:0 0 auto; } .cat-promo .x svg{ width:18px; height:18px; }
+  .cat-promo[hidden]{ display:none; }
+  /* grid footer + bottom SEO content */
+  .grid-foot{ text-align:center; padding:6px 0 54px; color:var(--txt-soft); font-size:.85rem; font-weight:300; } .grid-foot b{ color:var(--ink); font-weight:700; }
+  .cat-bottom{ background:#F5F5F5; border-top:1px solid rgba(33,30,36,.08); }
+  .cat-bottom .wrap{ padding:48px 20px; }
+  .cat-bottom h2{ font-size:1.5rem; margin-bottom:14px; }
+  .cat-bottom p{ font-weight:300; color:var(--txt-soft); line-height:1.7; max-width:78ch; margin-bottom:14px; }
+
+  /* toolbar */
+  .cat-toolbar{ display:flex; align-items:center; gap:14px; padding:18px 0; border-bottom:1px solid rgba(33,30,36,.1); flex-wrap:wrap; }
+  .filt-btn{ display:inline-flex; align-items:center; gap:9px; border:1px solid rgba(33,30,36,.18); background:var(--white); border-radius:999px; padding:10px 18px; font-family:var(--font); font-weight:700; font-size:.9rem; cursor:pointer; color:var(--ink); transition:border-color .2s, background .2s; }
+  @media(hover:hover){ .filt-btn:hover{ border-color:var(--charcoal); } }
+  .filt-btn svg{ width:17px; height:17px; }
+  .cat-toolbar .count{ font-size:.88rem; color:var(--txt-soft); } .cat-toolbar .count b{ color:var(--ink); }
+  .cat-toolbar .sort{ margin-left:auto; display:flex; align-items:center; gap:8px; font-size:.84rem; color:var(--txt-soft); }
+  .cat-toolbar select{ font-family:var(--font); font-size:.88rem; padding:9px 40px 9px 14px; border:1px solid rgba(33,30,36,.18); border-radius:10px; background-color:#fff; color:var(--ink); cursor:pointer; -webkit-appearance:none; -moz-appearance:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233B333D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; background-size:14px; }
+  .cat-toolbar select:focus{ outline:none; border-color:var(--charcoal); }
+  @media(max-width:560px){ .cat-toolbar .count{ display:none; } }
+
+  /* product grid */
+  .prod-grid{ display:grid; grid-template-columns:1fr; grid-auto-rows:1fr; gap:18px; padding:26px 0 64px; }
+  @media(min-width:560px){ .prod-grid{ grid-template-columns:1fr 1fr; grid-auto-rows:auto; } }
+  @media(min-width:920px){ .prod-grid{ grid-template-columns:repeat(3,1fr); } }
+  .prod{ display:flex; flex-direction:column; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); overflow:hidden; text-decoration:none; color:var(--txt); box-shadow:var(--e1); transition:transform .25s var(--ease), box-shadow .25s var(--ease); }
+  @media(hover:hover){ .prod:hover{ transform:translateY(-4px); box-shadow:var(--e2); } }
+  .prod .ph{ aspect-ratio:4/3; background:linear-gradient(135deg,#E6D9C7,#CFC0AC); display:flex; align-items:center; justify-content:center; color:rgba(33,30,36,.3); }
+  .prod .ph svg{ width:40px; height:40px; } .prod .ph img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .prod .ph.duo{ position:relative; background:linear-gradient(180deg,#FFFFFF,#F1EFEA); }
+  .prod .ph.duo img{ position:absolute; inset:0; width:100%; height:100%; display:block; transition:opacity .45s var(--ease); }
+  .prod .ph.duo .pimg{ object-fit:cover; padding:0; opacity:1; }
+  .prod .ph.duo .pscene{ object-fit:cover; opacity:0; }
+  .prod .ph.duo.cover{ background:var(--mist); } .prod .ph.duo.cover .pimg{ object-fit:cover; padding:0; }
+  @media(hover:hover){ .prod:hover .ph.duo .pimg{ opacity:0; } .prod:hover .ph.duo .pscene{ opacity:1; } }
+  /* no hover (touch): show the lifestyle scene image by default */
+  @media(hover:none){ .prod .ph.duo .pimg{ opacity:0; } .prod .ph.duo .pscene{ opacity:1; } }
+  .prod .pbody{ padding:16px 18px 18px; display:flex; flex-direction:column; gap:7px; flex:1; }
+  .prod .pmeta{ font-size:.68rem; font-weight:400; color:var(--txt-soft); letter-spacing:.06em; text-transform:uppercase; display:inline-flex; align-items:center; gap:7px; }
+  .prod .pmeta svg{ width:13px; height:13px; color:var(--charcoal); }
+  .prod h3{ font-size:1.02rem; line-height:1.18; letter-spacing:-.01em; }
+  .prod .pprice{ font-size:.9rem; color:var(--txt-soft); margin-top:auto; } .prod .pprice b{ font-size:1.2rem; color:var(--ink); font-weight:700; }
+  .prod .psizes{ font-size:.9rem; font-weight:400; color:var(--txt-soft); line-height:1.4; }
+  .prod .psizes b{ color:var(--ink); font-weight:700; }
+  /* promoted price + on-card discount badge */
+  .prod .pbadge{ position:absolute; top:12px; left:12px; z-index:3; background:var(--ink); color:#fff; border-radius:10px; padding:6px 11px; box-shadow:var(--e2); line-height:1.05; text-align:left; pointer-events:none; }
+  .prod .pbadge b{ display:block; font-size:.82rem; font-weight:700; letter-spacing:.01em; }
+  .prod .pbadge span{ display:block; font-size:.58rem; font-weight:400; letter-spacing:.05em; text-transform:uppercase; opacity:.85; margin-top:2px; }
+  .prod .pprice .was{ text-decoration:line-through; color:var(--txt-soft); font-weight:400; margin:0 5px 0 3px; }
+  .prod .pprice b.now{ color:#C0392B; }
+  .prod .pview{ font-weight:700; font-size:.82rem; color:var(--charcoal); display:inline-flex; align-items:center; gap:6px; margin-top:6px; }
+  .prod .pview .a{ color:#9a8f00; transition:transform .25s var(--ease); }
+  @media(hover:hover){ .prod:hover .pview .a{ transform:translateX(4px); } }
+  .prod[hidden]{ display:none; }
+  /* mobile-only "Shop now" CTA on each product card */
+  @media(max-width:559px){
+    .prod .pbody::after{ content:"Shop now"; display:block; text-align:center; margin-top:8px; background:var(--accent); color:var(--ink); font-weight:700; font-size:.92rem; letter-spacing:.01em; padding:13px 16px; border-radius:12px; transition:transform .15s var(--ease); }
+    .prod:active .pbody::after{ transform:scale(.99); }
+  }
+  .noresults{ grid-column:1/-1; text-align:center; padding:50px 0; color:var(--txt-soft); font-weight:300; }
+  /* in-grid promo card (image slot — upload promo creative; see Promo_Banner_Sizes.md) */
+  .promo-card{ position:relative; border-radius:var(--r-sm); overflow:hidden; box-shadow:var(--e1); text-decoration:none; background:linear-gradient(135deg,#3B333D,#5A5560); transition:transform .25s var(--ease), box-shadow .25s var(--ease); min-height:200px; }
+  @media(hover:hover){ .promo-card:hover{ transform:translateY(-4px); box-shadow:var(--e2); } }
+  .promo-card img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .promo-card .ph-note{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; color:var(--on-dark-soft); text-align:center; padding:18px; }
+  .promo-card .ph-note svg{ width:34px; height:34px; opacity:.65; }
+  .promo-card .ph-note b{ color:#fff; font-size:.86rem; font-weight:700; }
+  .promo-card .ph-note span{ font-size:.72rem; }
+
+  /* filter drawer */
+  .drawer-backdrop{ position:fixed; inset:0; background:rgba(33,30,36,.45); opacity:0; pointer-events:none; transition:opacity .3s var(--ease); z-index:90; }
+  .drawer-backdrop.open{ opacity:1; pointer-events:auto; }
+  .drawer{ position:fixed; top:0; left:0; bottom:0; width:340px; max-width:88vw; background:#fff; z-index:100; transform:translateX(-100%); transition:transform .35s var(--ease); display:flex; flex-direction:column; box-shadow:var(--e3); border-top-right-radius:24px; border-bottom-right-radius:24px; overflow:hidden; }
+  .drawer.open{ transform:none; }
+  .drawer-head{ display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid rgba(33,30,36,.1); }
+  .drawer-head h3{ font-size:1.2rem; }
+  .drawer-head .close{ border:none; background:none; cursor:pointer; color:var(--txt-soft); display:inline-flex; } .drawer-head .close svg{ width:22px; height:22px; }
+  .drawer-body{ flex:1; overflow-y:auto; padding:4px 20px; }
+  .fgroup{ border-bottom:1px solid rgba(33,30,36,.08); }
+  .fgroup summary{ list-style:none; cursor:pointer; padding:16px 24px 16px 0; position:relative; font-weight:700; font-size:.95rem; }
+  .fgroup summary::-webkit-details-marker{ display:none; }
+  .fgroup summary::after{ content:"+"; position:absolute; right:2px; top:14px; font-weight:300; font-size:1.3rem; color:var(--txt-soft); }
+  .fgroup[open] summary::after{ content:"\2013"; }
+  .fgroup .opts{ padding:0 0 16px; display:grid; gap:11px; }
+  .fopt{ display:flex; align-items:center; gap:10px; font-size:.9rem; font-weight:300; cursor:pointer; }
+  .fopt input{ width:17px; height:17px; accent-color:var(--charcoal); cursor:pointer; }
+  .fopt .ct{ margin-left:auto; color:var(--txt-soft); font-size:.8rem; }
+  .drawer-foot{ display:flex; gap:10px; padding:16px 20px; border-top:1px solid rgba(33,30,36,.1); }
+  .drawer-foot button{ flex:1; border-radius:11px; padding:13px; font-family:var(--font); font-weight:700; font-size:.9rem; cursor:pointer; }
+  .drawer-foot .reset{ background:#fff; border:1.5px solid rgba(33,30,36,.2); color:var(--ink); }
+  .drawer-foot .apply{ background:var(--accent); border:none; color:var(--ink); }
+
+  /* footer */
+  .site-foot{ background:var(--ink); color:var(--on-dark-soft); padding:56px 0 28px; }
+  .site-foot .top{ display:grid; gap:32px; }
+  @media(min-width:760px){ .site-foot .top{ grid-template-columns:1.5fr 1fr 1fr 1fr; gap:40px; } }
+  .site-foot .logo img{ height:38px; width:auto; display:block; filter:brightness(0) invert(1); }
+  .site-foot .reg{ font-size:.78rem; font-weight:300; line-height:1.6; margin-top:16px; max-width:44ch; }
+  .site-foot h4{ color:#fff; font-size:.74rem; text-transform:uppercase; letter-spacing:.16em; font-weight:700; margin-bottom:14px; }
+  .site-foot ul{ list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+  .site-foot a{ color:var(--on-dark-soft); text-decoration:none; font-weight:300; font-size:.9rem; }
+  @media(hover:hover){ .site-foot a:hover{ color:#fff; } }
+  .site-foot .social{ display:flex; gap:10px; margin-top:22px; }
+  .site-foot .social a{ width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; color:#fff; }
+  .site-foot .social svg{ width:16px; height:16px; fill:currentColor; }
+  .site-foot .pay{ margin-top:42px; border-top:1px solid rgba(255,255,255,.12); padding-top:26px; }
+  .site-foot .pay p{ font-size:.82rem; font-weight:300; margin-bottom:14px; max-width:60ch; }
+  .site-foot .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .site-foot .chip{ background:#fff; color:var(--ink); border-radius:7px; padding:6px 11px; font-size:.72rem; font-weight:700; }
+  .site-foot .copy{ margin-top:28px; border-top:1px solid rgba(255,255,255,.12); padding-top:20px; font-size:.74rem; font-weight:300; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+
+  /* support widget */
+  .support{ position:fixed; left:18px; bottom:18px; z-index:120; }
+  .support .launch{ position:relative; width:56px; height:56px; border-radius:50%; border:none; cursor:pointer; background:var(--accent); color:var(--charcoal); box-shadow:var(--e2); }
+  .support .launch span{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .support .launch svg{ width:26px; height:26px; } .support .launch img{ width:26px; height:26px; display:block; }
+  .support .launch .chat, .support .launch .phone{ transition:opacity .4s var(--ease), transform .4s var(--ease); } .support .launch .phone{ opacity:0; transform:scale(.7); } .support .launch .x{ opacity:0; }
+  .support .launch.show-phone .chat{ opacity:0; transform:scale(.7); } .support .launch.show-phone .phone{ opacity:1; transform:scale(1); }
+  .support.open .launch .chat, .support.open .launch .phone{ opacity:0; } .support.open .launch .x{ opacity:1; }
+  @media (prefers-reduced-motion: reduce){ .support .launch .phone{ display:none; } }
+  .support .panel{ position:absolute; left:0; bottom:70px; width:300px; max-width:calc(100vw - 36px); max-height:calc(100vh - 170px); overflow-y:auto; background:var(--accent); color:var(--charcoal); border-radius:22px; box-shadow:var(--e3); padding:22px 20px 18px; opacity:0; transform:translateY(10px) scale(.98); transform-origin:0 100%; pointer-events:none; transition:opacity .25s var(--ease), transform .25s var(--ease); }
+  .support.open .panel{ opacity:1; transform:none; pointer-events:auto; }
+  .support .panel .ttl img{ height:34px; width:auto; display:block; }
+  .support .panel .sub{ font-weight:400; font-size:.9rem; margin:10px 0 16px; line-height:1.35; }
+  .support .sheet{ background:#fff; border-radius:16px; padding:12px; }
+  .support .sheet .lab{ font-size:.82rem; color:#9a948f; padding:2px 6px 10px; }
+  .support .opt{ display:flex; align-items:center; gap:11px; background:#FCFBE9; border:1px solid #EFEECB; border-radius:11px; padding:11px 14px; margin-bottom:8px; text-decoration:none; color:var(--charcoal); font-size:.92rem; }
+  .support .opt svg{ width:18px; height:18px; flex:0 0 auto; } .support .opt img{ width:20px; height:20px; flex:0 0 auto; object-fit:contain; display:block; }
+  @media(hover:hover){ .support .opt:hover{ background:#F6F4D6; } }
+
+  /* trust strip (site-level, under nav) */
+  .trust-strip{ background:var(--paper); border-bottom:1px solid rgba(33,30,36,.07); }
+  .trust-strip .wrap{ display:flex; gap:12px 30px; justify-content:center; align-items:center; flex-wrap:wrap; padding:11px 20px; }
+  .trust-strip .ti{ display:inline-flex; align-items:center; gap:8px; font-size:.78rem; font-weight:400; color:var(--charcoal); }
+  .trust-strip .ti svg{ width:15px; height:15px; color:var(--charcoal); flex:0 0 auto; }
+  @media(max-width:560px){ .trust-strip .ti{ font-size:.7rem; } .trust-strip .wrap{ gap:8px 16px; } }
+
+  /* range banner (building-type selector) */
+  .range-banner{ position:relative; border-bottom:1px solid rgba(33,30,36,.08); margin-top:18px; }
+  .range-line{ position:absolute; left:0; right:0; bottom:32px; height:1.5px; background:rgba(33,30,36,.14); z-index:0; }
+  .range-row{ position:relative; z-index:1; display:flex; align-items:flex-end; gap:4px; overflow-x:auto; padding:16px 0; scrollbar-width:none; }
+  .range-row::-webkit-scrollbar{ display:none; }
+  .range-item{ flex:0 0 150px; display:flex; flex-direction:column; align-items:center; text-decoration:none; color:var(--txt); }
+  .range-item .rimg{ height:92px; width:100%; display:flex; align-items:center; justify-content:center; }
+  .range-item .rimg img{ max-height:88px; max-width:128px; object-fit:contain; display:block; }
+  .range-item .rimg.ph svg{ width:62px; height:auto; color:rgba(33,30,36,.26); }
+  .range-item .rpill{ position:relative; z-index:1; margin-top:8px; background:#fff; border:1px solid rgba(33,30,36,.18); border-radius:999px; padding:8px 16px; font-size:.8rem; font-weight:700; text-align:center; line-height:1.05; box-shadow:0 1px 2px rgba(0,0,0,.04); white-space:nowrap; }
+  .range-item.active .rpill{ background:var(--accent); border-color:var(--accent); }
+  @media(hover:hover){ .range-item:hover .rpill{ border-color:var(--charcoal); } .range-item.active:hover .rpill{ border-color:var(--accent); } }
+
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+  /* ===== Cart drawer (shared, namespaced ptc-) ===== */
+  .ptc-root{ position:fixed; inset:0; z-index:300; visibility:hidden; }
+  .ptc-root.open{ visibility:visible; }
+  .ptc-scrim{ position:absolute; inset:0; background:rgba(33,30,36,.42); opacity:0; transition:opacity .3s var(--ease); }
+  .ptc-root.open .ptc-scrim{ opacity:1; }
+  .ptc-drawer{ position:absolute; top:0; right:0; height:100dvh; width:440px; max-width:100vw; background:#fff; box-shadow:var(--e3); display:flex; flex-direction:column; border-top-left-radius:24px; border-bottom-left-radius:24px; overflow:hidden; transform:translateX(100%); transition:transform .34s var(--ease); }
+  .ptc-root.open .ptc-drawer{ transform:none; }
+  @media(max-width:480px){ .ptc-drawer{ width:100vw; border-radius:0; } }
+  .ptc-head{ display:flex; align-items:center; justify-content:space-between; padding:20px 22px 16px; border-bottom:1px solid rgba(33,30,36,.08); }
+  .ptc-head h2{ font-size:1.18rem; font-weight:700; letter-spacing:-.02em; margin:0; display:flex; align-items:baseline; gap:9px; font-family:var(--font); }
+  .ptc-cnt{ font-size:.8rem; font-weight:400; color:#6E6A74; }
+  .ptc-x{ width:38px; height:38px; border-radius:50%; border:none; background:#F5F5F5; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--ink); } .ptc-x svg{ width:18px; height:18px; }
+  .ptc-body{ flex:1; overflow-y:auto; padding:18px 22px; }
+  .ptc-item{ display:flex; gap:14px; }
+  .ptc-actions{ display:flex; align-items:center; gap:14px; margin-top:8px; flex-wrap:wrap; } .ptc-actions .ptc-rm{ margin-top:0; }
+  .ptc-qty{ display:inline-flex; align-items:center; border:1px solid rgba(33,30,36,.2); border-radius:999px; }
+  .ptc-qty button{ width:30px; height:30px; border:none; background:none; cursor:pointer; font-size:1.05rem; font-weight:700; color:var(--ink); font-family:var(--font); display:flex; align-items:center; justify-content:center; border-radius:999px; }
+  .ptc-qty button:disabled{ color:rgba(33,30,36,.28); cursor:default; }
+  @media(hover:hover){ .ptc-qty button:not(:disabled):hover{ background:var(--mist); } }
+  .ptc-qty .q-n{ min-width:26px; text-align:center; font-weight:700; font-size:.9rem; }
+  .ptc-thumb{ width:96px; height:96px; flex:0 0 auto; border-radius:14px; overflow:hidden; background:#F5F5F5; } .ptc-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .ptc-it{ min-width:0; flex:1; } .ptc-it h3{ font-size:1rem; font-weight:700; margin:0 0 3px; letter-spacing:-.02em; font-family:var(--font); }
+  .ptc-rng{ font-size:.76rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#B7997F; margin-bottom:7px; }
+  .ptc-pr{ font-size:1.12rem; font-weight:700; }
+  .ptc-rm{ margin-top:7px; display:inline-flex; align-items:center; gap:5px; background:none; border:none; padding:0; cursor:pointer; font-family:var(--font); color:#6E6A74; font-size:.8rem; text-decoration:underline; text-underline-offset:2px; } .ptc-rm svg{ width:13px; height:13px; }
+  .ptc-cfg{ margin-top:18px; border:1px solid rgba(33,30,36,.1); border-radius:16px; overflow:hidden; }
+  .ptc-cfg summary{ list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; padding:13px 16px; font-weight:700; font-size:.9rem; background:#F5F5F5; font-family:var(--font); }
+  .ptc-cfg summary::-webkit-details-marker{ display:none; }
+  .ptc-chev{ width:16px; height:16px; transition:transform .3s var(--ease); color:#6E6A74; } .ptc-cfg[open] summary .ptc-chev{ transform:rotate(180deg); }
+  .ptc-rows{ padding:6px 16px 10px; }
+  .ptc-crow{ display:grid; grid-template-columns:1fr auto; gap:4px 12px; padding:9px 0; border-bottom:1px solid rgba(33,30,36,.06); } .ptc-crow:last-child{ border-bottom:none; }
+  .ptc-k{ font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:#6E6A74; font-weight:700; }
+  .ptc-v{ font-size:.88rem; font-weight:400; grid-column:1; }
+  .ptc-p{ grid-row:1 / span 2; align-self:center; font-size:.86rem; font-weight:700; white-space:nowrap; } .ptc-p.free{ color:#6E6A74; font-weight:400; }
+  .ptc-promo{ margin-top:16px; display:flex; gap:8px; } .ptc-promo input{ flex:1; font-family:var(--font); font-size:.9rem; padding:12px 14px; border:1px solid rgba(33,30,36,.18); border-radius:11px; background:#fff; color:var(--ink); } .ptc-promo input:focus{ outline:none; border-color:var(--charcoal); } .ptc-promo button{ font-family:var(--font); font-weight:700; font-size:.85rem; border:1.5px solid rgba(33,30,36,.22); background:#fff; border-radius:11px; padding:0 18px; cursor:pointer; color:var(--ink); }
+  .ptc-assure{ margin-top:16px; display:grid; gap:9px; } .ptc-a{ display:flex; align-items:center; gap:9px; font-size:.82rem; color:#6E6A74; font-weight:300; } .ptc-a svg{ width:16px; height:16px; flex:0 0 auto; color:#2a8f57; }
+  .ptc-foot{ border-top:1px solid rgba(33,30,36,.1); padding:16px 22px 20px; background:#fff; }
+  .ptc-ln{ display:flex; justify-content:space-between; font-size:.86rem; font-weight:300; color:#6E6A74; margin-bottom:5px; }
+  .ptc-tot{ display:flex; align-items:baseline; justify-content:space-between; margin:8px 0 3px; } .ptc-tot .l{ font-size:1rem; font-weight:700; } .ptc-tot .v{ font-size:1.5rem; font-weight:700; }
+  .ptc-vat{ font-size:.74rem; color:#6E6A74; font-weight:300; margin-bottom:14px; }
+  .ptc-cta{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1rem; padding:16px; border-radius:14px; } .ptc-cta svg{ width:17px; height:17px; } .ptc-cta:active{ transform:scale(.99); }
+  .ptc-cont{ display:block; text-align:center; margin-top:11px; background:none; border:none; width:100%; font-family:var(--font); font-size:.86rem; color:#6E6A74; cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
+  .ptc-empty{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:30px 30px 50px; }
+  .ptc-ico{ width:84px; height:84px; border-radius:50%; background:#F5F5F5; display:flex; align-items:center; justify-content:center; color:#5A5560; margin-bottom:20px; } .ptc-ico svg{ width:38px; height:38px; }
+  .ptc-empty h3{ font-size:1.3rem; font-weight:700; margin:0 0 8px; letter-spacing:-.02em; font-family:var(--font); }
+  .ptc-empty p{ font-size:.92rem; font-weight:300; color:#6E6A74; max-width:30ch; margin:0 0 22px; }
+  .ptc-ranges{ margin-top:6px; width:100%; display:grid; gap:9px; } .ptc-lab{ font-size:.7rem; text-transform:uppercase; letter-spacing:.12em; color:#6E6A74; font-weight:700; } .ptc-ranges a{ display:flex; align-items:center; justify-content:space-between; padding:13px 16px; border:1px solid rgba(33,30,36,.1); border-radius:12px; text-decoration:none; color:var(--ink); font-weight:700; font-size:.9rem; } .ptc-ranges a svg{ width:16px; height:16px; color:#6E6A74; }
+  .ptc-hidden{ display:none !important; }
+  @media(hover:hover){ .ptc-x:hover{ background:#ececec; } .ptc-rm:hover{ color:#a3402c; } .ptc-promo button:hover,.ptc-ranges a:hover{ border-color:var(--charcoal); } }
+  @media (prefers-reduced-motion: reduce){ .ptc-scrim,.ptc-drawer{ transition:none !important; } }
+</style>
 </head>
 <body>
 
-<div data-include="../partials/header.html"></div>
+<div class="promo">FREE DELIVERY — <b>selected postcodes*</b> &nbsp;·&nbsp; 10% OFF GRANDMASTER — CODE <b>GM10</b></div>
 
+<header class="mainhead">
+  <button class="menu" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="logo" href="projecttimber-home.html" aria-label="Project Timber home"><img src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/tplogo.svg" alt="Project Timber"></a>
+  <button class="search" type="button" aria-label="Search Project Timber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg> Search Project Timber</button>
+  <div class="icons">
+    <button class="ic searchic" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></button>
+    <button class="ic supporttrigger" type="button" aria-label="Customer support"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""></button>
+    <a class="ic" href="projecttimber-account.html" aria-label="My account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a>
+    <button class="ic cartopen" type="button" aria-label="Basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.3 12.3a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L22 8H6"/></svg><span class="badge cartbadge">1</span></button>
+  </div>
+</header>
+
+<nav class="primnav" id="primnav"><ul>
+  <li><a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds</a></li>
+  <li><a href="https://www.projecttimber.com/summerhouses/">Summerhouses</a></li>
+  <li><a href="projecttimber-garden-offices.html">Garden Offices</a></li>
+  <li><a href="https://www.projecttimber.com/garden-workshops/">Garden Workshops</a></li>
+  <li><a href="https://www.projecttimber.com/insulated-garden-buildings/">Insulated Garden Buildings</a></li>
+  <li><a href="https://www.projecttimber.com/log-cabins/">Log Cabins</a></li>
+  <li><a href="https://www.projecttimber.com/greenhouses/">Greenhouses</a></li>
+</ul></nav>
+
+<div class="hsearch" id="hsearch" hidden>
+  <div class="wrap"><input type="search" placeholder="Search Project Timber" aria-label="Search Project Timber"></div>
+</div>
+<script>
+  (function(){
+    var hs=document.getElementById('hsearch'); if(!hs) return;
+    var inp=hs.querySelector('input');
+    function toggle(){ if(hs.hasAttribute('hidden')){ hs.removeAttribute('hidden'); if(inp) inp.focus(); } else { hs.setAttribute('hidden',''); } }
+    document.querySelectorAll('.searchic, .mainhead .search').forEach(function(b){ b.addEventListener('click', toggle); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !hs.hasAttribute('hidden')) hs.setAttribute('hidden',''); });
+  })();
+</script>
 
 <main class="wrap">
   <!-- breadcrumb -->
   <nav class="crumbs" aria-label="Breadcrumb">
-    <a href="projecttimber-home.html">Home</a><span class="sep">/</span><span class="here" aria-current="page"></span>
+    <a href="projecttimber-home.html">Home</a><span class="sep">/</span><span class="here" aria-current="page">Garden Offices</span>
   </nav>
 
-  <!-- intro — title/lede filled live by assets/js/category.js (skeleton until then) -->
+  <!-- intro (short — full copy is at the bottom for SEO) -->
   <div class="cat-intro">
-    <h1></h1>
-    <p class="cat-skel"><span class="sk"></span><span class="sk"></span><span class="sk"></span></p>
+    <h1>Garden Offices</h1>
+    <p>A purpose-built garden office gives you a quiet, insulated room to work, create or relax — usable all year round, without the cost or disruption of an extension.</p>
   </div>
 
 
   <!-- toolbar -->
   <div class="cat-toolbar">
     <button class="filt-btn" id="openFilters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg> Filters</button>
-    <span class="count"><b id="count">…</b> products</span>
+    <span class="count"><b id="count">12</b> products</span>
     <div class="sort">
       <label for="sort">Sort</label>
       <select id="sort">
@@ -50,35 +360,108 @@
 
   <!-- products -->
   <div class="prod-grid" id="grid">
-    <!-- Bare skeleton only — NO hardcoded products. Real cards are injected by assets/js/category.js
-         once the live category loads; this just prevents a blank/flash on first paint. -->
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <!-- Promo banner slot (kept; replace the image with your current promo) -->
-    <a class="promo-card" href="#" aria-label="Current promotion">
-      <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Square.png" alt="Current promotion">
+    <a class="prod" href="projecttimber-product-page-my-den-composite.html" data-range="my-den" data-price="4461">
+      <div class="ph duo"><img class="pimg" src="https://www.projecttimber.com/wp-content/uploads/2026/06/8x8_Evolution_My_Den_Composite_Cladding_Garden_Office_09-1-1.png" alt="My Den Insulated Composite Garden Office"><img class="pscene" src="https://www.projecttimber.com/wp-content/uploads/2026/06/My_Den_Composite_Garden_Office-scaled.webp" alt="" aria-hidden="true"></div>
+      <div class="pbody"><h3>My Den Insulated Composite Garden Office</h3><div class="pprice">From <b>£4,461</b></div><div class="psizes"><b>4</b> sizes: from <b>8ft × 6ft</b> to <b>10ft × 8ft</b></div></div>
     </a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
-    <a class="prod skel" aria-hidden="true"><div class="ph duo"></div><div class="pbody"><h3><span class="sk"></span></h3><div class="pprice"><span class="sk"></span></div><div class="psizes"><span class="sk"></span></div></div></a>
+    <!-- Promo: replace .ph-note with <img src="your-promo.jpg" alt="..."> — size in Promo_Banner_Sizes.md -->
+    <a class="promo-card" href="#" aria-label="Current promotion">
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Square.png" alt="10% off all Garden Offices">
+    </a>
+    <a class="prod" href="https://www.projecttimber.com/garden-offices/my-den-sliding-doors/" data-range="my-den" data-price="13995">
+      <div class="ph duo"><img class="pimg" src="https://www.projecttimber.com/wp-content/uploads/2026/06/MyDen_Sliding_Door_Transparent.png" alt="My Den Sliding Doors"><img class="pscene" src="https://www.projecttimber.com/wp-content/uploads/2021/11/My-Den-sliding-doors.jpg" alt="" aria-hidden="true"><div class="pbadge"><b>15% off</b><span>Code EXAMPLE15</span></div></div>
+      <div class="pbody"><h3>My Den Sliding Doors</h3><div class="pprice">From <span class="was">£13,995</span> <b class="now">£11,896</b></div><div class="psizes"><b>3</b> sizes: from <b>12ft × 8ft</b> to <b>16ft × 8ft</b></div></div>
+    </a>
+    <a class="prod" href="#" data-range="my-den" data-price="3972">
+      <div class="ph duo"><img class="pimg" src="https://www.projecttimber.com/wp-content/uploads/2026/06/10x8_My_Den_Garden_Pod-1.png" alt="My Den Insulated Garden Pod — Pressure Treated"><img class="pscene" src="https://www.projecttimber.com/wp-content/uploads/2021/11/My-Den-garden-pod.jpg" alt="" aria-hidden="true"></div>
+      <div class="pbody"><h3>My Den Insulated Garden Pod — Pressure Treated</h3><div class="pprice">From <b>£3,972</b></div><div class="psizes"><b>4</b> sizes: from <b>8ft × 6ft</b> to <b>10ft × 8ft</b></div></div>
+    </a>
+    <a class="prod" href="https://www.projecttimber.com/garden-offices/double-doors-my-den/" data-range="my-den" data-price="6394">
+      <div class="ph duo"><img class="pimg" src="https://www.projecttimber.com/wp-content/uploads/2026/06/16x8_My_Den_Double_Door-1.png" alt="My Den Double Door Insulated Garden Office"><img class="pscene" src="https://www.projecttimber.com/wp-content/uploads/2021/02/My-Den-double-door-768x432.jpg" alt="" aria-hidden="true"></div>
+      <div class="pbody"><h3>My Den Double Door Insulated Garden Office</h3><div class="pprice">From <b>£6,394</b></div><div class="psizes"><b>3</b> sizes: from <b>12ft × 8ft</b> to <b>16ft × 8ft</b></div></div>
+    </a>
+    <a class="prod" href="https://www.projecttimber.com/garden-offices/my-den-cedar-home-office-shed/" data-range="my-den" data-price="8867">
+      <div class="ph duo"><img class="pimg" src="https://www.projecttimber.com/wp-content/uploads/2026/06/10x8_My_Den_Cedar_Single_Door-1.png" alt="My Den Insulated Garden Room — Cedar"><img class="pscene" src="https://www.projecttimber.com/wp-content/uploads/2020/11/My-Den-cedar-768x432.jpg" alt="" aria-hidden="true"></div>
+      <div class="pbody"><h3>My Den Insulated Garden Room — Cedar</h3><div class="pprice">From <b>£8,867</b></div><div class="psizes"><b>4</b> sizes: from <b>8ft × 6ft</b> to <b>10ft × 8ft</b></div></div>
+    </a>
+    <a class="prod" href="#" data-range="evolution" data-price="4718">
+      <div class="ph duo"><img class="pimg" src="https://www.projecttimber.com/wp-content/uploads/2026/06/Evo_Pressure_Treated_Central_door.png" alt="Pressure Treated Evolution Insulated Garden Room"><img class="pscene" src="https://www.projecttimber.com/wp-content/uploads/2020/05/Evolution-pressure-treated-1-768x432.jpg" alt="" aria-hidden="true"></div>
+      <div class="pbody"><h3>Pressure Treated Evolution Insulated Garden Room</h3><div class="pprice">From <b>£4,718</b></div><div class="psizes"><b>6</b> sizes: from <b>8ft × 6ft</b> to <b>18ft × 8ft</b></div></div>
+    </a>
+    <a class="prod" href="#" data-range="my-den" data-price="3972">
+      <div class="ph duo"><img class="pimg" src="https://www.projecttimber.com/wp-content/uploads/2026/06/10x8_My_Den_Single_Door-1.png" alt="My Den Insulated Garden Office"><img class="pscene" src="https://www.projecttimber.com/wp-content/uploads/2026/06/MyDen_Garden-office_garden-scene-1.png" alt="" aria-hidden="true"></div>
+      <div class="pbody"><h3>My Den Insulated Garden Office</h3><div class="pprice">From <b>£3,972</b></div><div class="psizes"><b>4</b> sizes: from <b>8ft × 6ft</b> to <b>10ft × 8ft</b></div></div>
+    </a>
+    <a class="prod" href="https://www.projecttimber.com/garden-offices/evolution-large-overhang-insulated-garden-room/" data-range="evolution" data-price="7995">
+      <div class="ph duo"><img class="pimg" src="https://www.projecttimber.com/wp-content/uploads/2026/06/Evolution-large-overhang_1067x600-1.png" alt="Evolution Large Overhang Insulated Garden Room"><img class="pscene" src="https://www.projecttimber.com/wp-content/uploads/2020/02/evolution-garden-office-fully-insulated-with-large-roof-overhang-768x432.jpg" alt="" aria-hidden="true"></div>
+      <div class="pbody"><h3>Evolution Large Overhang Insulated Garden Room</h3><div class="pprice">From <b>£7,995</b></div><div class="psizes"><b>5</b> sizes: from <b>10ft × 10ft</b> to <b>18ft × 10ft</b></div></div>
+    </a>
+    <a class="prod" href="#" data-range="evolution" data-price="26426">
+      <div class="ph duo"><img class="pimg" src="https://www.projecttimber.com/wp-content/uploads/2026/06/Evo_Cedar_Side_Room.png" alt="Evolution Insulated Garden Room — Cedar"><img class="pscene" src="https://www.projecttimber.com/wp-content/uploads/2019/12/Evolution-cedar-partition-1-768x432.jpg" alt="" aria-hidden="true"></div>
+      <div class="pbody"><h3>Evolution Insulated Garden Room — Cedar</h3><div class="pprice">From <b>£26,426</b></div><div class="psizes"><b>5</b> sizes: from <b>16ft × 8ft</b> to <b>18ft × 10ft</b></div></div>
+    </a>
+    <a class="prod" href="https://www.projecttimber.com/garden-offices/evolution-central-door-partition-wall-garden-office/" data-range="evolution" data-price="5820">
+      <div class="ph duo"><img class="pimg" src="https://www.projecttimber.com/wp-content/uploads/2026/06/Evolution-twin-room_1067x600-1.png" alt="Evolution Garden Room — Twin Room — Composite"><img class="pscene" src="https://www.projecttimber.com/wp-content/uploads/2018/08/Evolution-twin-room-768x432.jpg" alt="" aria-hidden="true"></div>
+      <div class="pbody"><h3>Evolution Garden Room — Twin Room — Composite</h3><div class="pprice">From <b>£5,820</b></div><div class="psizes"><b>6</b> sizes: from <b>10ft × 8ft</b> to <b>20ft × 8ft</b></div></div>
+    </a>
+    <a class="prod" href="#" data-range="evolution" data-price="7802">
+      <div class="ph duo"><img class="pimg" src="https://www.projecttimber.com/wp-content/uploads/2026/06/Evolution_Composite_Offset_Door.png" alt="Evolution Insulated Garden Room — Offset Door — Composite"><img class="pscene" src="https://www.projecttimber.com/wp-content/uploads/2018/02/Evolution-offset-door-8-768x432.jpg" alt="" aria-hidden="true"></div>
+      <div class="pbody"><h3>Evolution Insulated Garden Room — Offset Door — Composite</h3><div class="pprice">From <b>£7,802</b></div><div class="psizes"><b>6</b> sizes: from <b>14ft × 8ft</b> to <b>20ft × 8ft</b></div></div>
+    </a>
+    <a class="prod" href="#" data-range="evolution" data-price="5055">
+      <div class="ph duo"><img class="pimg" src="https://www.projecttimber.com/wp-content/uploads/2026/06/Evolution_Composite_Central_Door.png" alt="Evolution Insulated Garden Room — Composite"><img class="pscene" src="https://www.projecttimber.com/wp-content/uploads/2018/01/Evolution-central-door.jpg" alt="" aria-hidden="true"></div>
+      <div class="pbody"><h3>Evolution Insulated Garden Room — Composite</h3><div class="pprice">From <b>£5,055</b></div><div class="psizes"><b>6</b> sizes: from <b>8ft × 6ft</b> to <b>18ft × 8ft</b></div></div>
+    </a>
     <p class="noresults" id="noresults" hidden>No products match those filters. <a href="#" id="clearFilters" style="color:var(--charcoal);font-weight:700">Clear filters</a></p>
   </div>
-  <div class="grid-foot">Loading products…</div>
+  <div class="grid-foot">Showing all <b>12</b> products</div>
 </main>
 
-<!-- ===================== CATEGORY CONTENT (SEO) — heading + copy filled live from the category description ===================== -->
-<section class="cat-bottom" style="display:none"><div class="wrap">
-  <h2></h2>
+<!-- ===================== CATEGORY CONTENT (SEO — bottom of page) ===================== -->
+<section class="cat-bottom"><div class="wrap">
+  <h2>Garden offices, built to last</h2>
+  <p>A Project Timber garden office turns unused garden space into a proper room you can use every day of the year. Our fully-insulated ranges — insulated in the walls, floor and roof, with double glazing as standard — stay warm in winter and cool in summer, so there's no "summer-only" compromise. Composite and cedar cladding options keep maintenance low and looks high, while pressure-treated timber buildings are backed by our up-to-25-year anti-rot guarantee.</p>
+  <p>Every garden office is designed and made in Britain at our Nottinghamshire workshop and built from pre-assembled, pre-insulated panels — so most of the work is done before it arrives. Configure your size and finish online to see your price instantly, add an assembly service if you'd prefer us to build it. Whether you need a quiet home office, a studio, a gym or a guest room, there's a size and specification to suit.</p>
 </div></section>
 
 <!-- ===================== FILTER DRAWER (hidden until opened) ===================== -->
 <div class="drawer-backdrop" id="backdrop"></div>
 <aside class="drawer" id="drawer" aria-label="Filters">
   <div class="drawer-head"><h3>Filters</h3><button class="ptc-x" id="closeFilters" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-  <div class="drawer-body"><!-- filter groups rendered live from the category's products by assets/js/category.js --></div>
+  <div class="drawer-body">
+    <details class="fgroup" open><summary>Product range</summary><div class="opts" data-filter="range">
+      <label class="fopt"><input type="checkbox" value="my-den"> My Den <span class="ct">6</span></label>
+      <label class="fopt"><input type="checkbox" value="evolution"> Evolution <span class="ct">6</span></label>
+    </div></details>
+    <details class="fgroup"><summary>Size</summary><div class="opts">
+      <label class="fopt"><input type="checkbox"> 8 × 6</label>
+      <label class="fopt"><input type="checkbox"> 10 × 6</label>
+      <label class="fopt"><input type="checkbox"> 8 × 8</label>
+      <label class="fopt"><input type="checkbox"> 10 × 8</label>
+      <label class="fopt"><input type="checkbox"> 12 × 8 and larger</label>
+    </div></details>
+    <details class="fgroup"><summary>Door style</summary><div class="opts">
+      <label class="fopt"><input type="checkbox"> Single door</label>
+      <label class="fopt"><input type="checkbox"> Double door</label>
+      <label class="fopt"><input type="checkbox"> Sliding door</label>
+    </div></details>
+    <details class="fgroup"><summary>Treatment</summary><div class="opts">
+      <label class="fopt"><input type="checkbox"> Pressure treated</label>
+      <label class="fopt"><input type="checkbox"> Composite</label>
+      <label class="fopt"><input type="checkbox"> Cedar</label>
+    </div></details>
+    <details class="fgroup"><summary>Windows</summary><div class="opts">
+      <label class="fopt"><input type="checkbox"> Timber, double-glazed</label>
+      <label class="fopt"><input type="checkbox"> UPVC</label>
+    </div></details>
+    <details class="fgroup"><summary>Roof style</summary><div class="opts">
+      <label class="fopt"><input type="checkbox"> Pent</label>
+      <label class="fopt"><input type="checkbox"> Apex</label>
+    </div></details>
+    <details class="fgroup"><summary>Availability</summary><div class="opts">
+      <label class="fopt"><input type="checkbox"> In stock</label>
+    </div></details>
+  </div>
   <div class="drawer-foot">
     <button class="reset" id="resetFilters" type="button">Reset</button>
     <button class="apply" id="applyFilters" type="button">Show results</button>
@@ -93,17 +476,203 @@
 </div></div>
 
 <!-- ===================== FOOTER ===================== -->
-<div data-include="../partials/footer.html"></div>
+<footer class="site-foot"><div class="wrap">
+  <div class="top">
+    <div>
+      <a class="logo" href="projecttimber-home.html"><img src="https://www.projecttimber.com/wp-content/uploads/2026/02/ProjectTimber-Logo-2-1.svg" alt="Project Timber"></a>
+      <p class="reg">Project Timber Limited is a company registered in England and Wales with registration number 05126131. Our registered office is at Parry Works, Grassthorpe Road, Sutton-on-Trent, Newark NG23 6QX.</p>
+      <div class="social">
+        <a href="https://www.facebook.com/projecttimber" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 9h3V6h-3c-1.66 0-3 1.34-3 3v2H8v3h3v6h3v-6h2.5l.5-3H14V9z"/></svg></a>
+        <a href="https://www.instagram.com/projecttimber/" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></a>
+        <a href="https://twitter.com/project_timber" aria-label="X"><svg viewBox="0 0 24 24"><path d="M17.3 3H20l-6.1 7L21 21h-5.6l-4.4-5.3L5.8 21H3l6.5-7.5L3 3h5.7l4 4.9L17.3 3zm-1 16h1.5L8 4.7H6.4L16.3 19z"/></svg></a>
+        <a href="https://www.pinterest.co.uk/projecttimberltd/" aria-label="Pinterest"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-3.6 19.3c-.1-.8-.2-2 0-2.9l1.1-4.8s-.3-.6-.3-1.4c0-1.3.8-2.3 1.7-2.3.8 0 1.2.6 1.2 1.3 0 .8-.5 2-.8 3.1-.2.9.5 1.6 1.4 1.6 1.6 0 2.8-1.7 2.8-4.1 0-2.2-1.5-3.7-3.8-3.7a4 4 0 0 0-4.1 4c0 .8.3 1.6.7 2.1l-.3 1.1c0 .2-.2.2-.3.1-1-.5-1.7-2-1.7-3.3 0-2.7 2-5.1 5.6-5.1 3 0 5.2 2.1 5.2 4.9 0 3-1.8 5.3-4.4 5.3-.9 0-1.7-.5-2-1l-.5 2c-.2.8-.7 1.7-1 2.3A10 10 0 1 0 12 2z"/></svg></a>
+        <a href="https://www.youtube.com/@projecttimber" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M22 8.2a3 3 0 0 0-2.1-2.1C18 5.6 12 5.6 12 5.6s-6 0-7.9.5A3 3 0 0 0 2 8.2 31 31 0 0 0 1.6 12 31 31 0 0 0 2 15.8a3 3 0 0 0 2.1 2.1c1.9.5 7.9.5 7.9.5s6 0 7.9-.5a3 3 0 0 0 2.1-2.1c.3-1.2.4-2.5.4-3.8s-.1-2.6-.4-3.8zM10 15V9l5.2 3L10 15z"/></svg></a>
+      </div>
+    </div>
+    <div><h4>Products</h4><ul><li><a href="https://www.projecttimber.com/summerhouses/">Summerhouses</a></li><li><a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds</a></li><li><a href="https://www.projecttimber.com/garden-workshops/">Garden Workshops</a></li><li><a href="projecttimber-garden-offices.html">Garden Offices</a></li></ul></div>
+    <div><h4>Help</h4><ul><li><a href="https://www.projecttimber.com/faq">FAQ</a></li><li><a href="https://www.projecttimber.com/delivery">Delivery</a></li><li><a href="https://www.projecttimber.com/returns">Returns</a></li><li><a href="https://www.projecttimber.com/contact">Contact</a></li><li><a href="https://www.projecttimber.com/building-base-garden-building/">Building a Base</a></li><li><a href="https://www.projecttimber.com/testimonials/">Testimonials</a></li></ul></div>
+    <div><h4>Links</h4><ul><li><a href="https://www.projecttimber.com/terms">Terms</a></li><li><a href="https://www.projecttimber.com/privacy">Privacy</a></li><li><a href="https://www.projecttimber.com/resources">Blog</a></li><li><a href="https://www.projecttimber.com/checkout">Checkout</a></li></ul></div>
+  </div>
+  <div class="pay">
+    <p>100% secure checkout. Pay your way with Revolut Pay, PayPal, or using any major credit card, Apple Pay, or Google Pay.</p>
+    <div class="chips"><span class="chip">Revolut Pay</span><span class="chip">Visa</span><span class="chip">Mastercard</span><span class="chip">Amex</span><span class="chip">Apple Pay</span><span class="chip">Google Pay</span><span class="chip">PayPal</span></div>
+  </div>
+  <p style="font-size:.74rem;font-weight:300;color:var(--on-dark-soft);margin:0 0 14px">* Terms and conditions apply.</p>
+  <div class="copy"><span>© 2026 All Rights Reserved, Project Timber</span><span>Concept mockup · imagery © Project Timber</span></div>
+</div></footer>
 
 <!-- ===================== SUPPORT WIDGET ===================== -->
-<div data-include="../partials/support.html"></div>
+<div class="support" id="support">
+  <div class="panel" role="dialog" aria-label="Customer support">
+    <div class="ttl"><img src="https://www.projecttimber.com/wp-content/uploads/2026/02/ProjectTimber-Logo-2-1.svg" alt="Project Timber"></div>
+    <p class="sub">British-made garden buildings, designed and built in Nottinghamshire.</p>
+    <div class="sheet">
+      <div class="lab">Select</div>
+      <a class="opt" href="tel:01777553392"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/call.png" alt=""> Call</a>
+      <a class="opt" href="#"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/callback.png" alt=""> Request a Callback</a>
+      <a class="opt" href="#"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""> Chat to Us</a>
+      <a class="opt" href="#"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/whatsapp.png" alt=""> WhatsApp Us</a>
+    </div>
+  </div>
+  <button class="launch" type="button" aria-label="Customer support" aria-expanded="false">
+    <span class="chat"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""></span>
+    <span class="phone"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/call.png" alt=""></span>
+    <span class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+  </button>
+</div>
 
+<script>
+  // mobile menu
+  (function(){ var m=document.querySelector('.mainhead .menu'), p=document.getElementById('primnav');
+    if(m&&p){ m.addEventListener('click',function(){ var o=p.classList.toggle('open'); m.setAttribute('aria-expanded',o); }); } })();
+  // support widget
+  (function(){ var sup=document.getElementById('support'); if(!sup) return; var launch=sup.querySelector('.launch');
+    function toggle(force){ var open=(force!==undefined)?force:!sup.classList.contains('open'); sup.classList.toggle('open',open); if(launch) launch.setAttribute('aria-expanded',open); }
+    if(launch) launch.addEventListener('click',function(){ toggle(); });
+    document.querySelectorAll('.supporttrigger').forEach(function(b){ b.addEventListener('click',function(){ toggle(true); }); });
+    if(launch && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){ setInterval(function(){ if(!sup.classList.contains('open')) launch.classList.toggle('show-phone'); }, 3000); } })();
 
+  // ---------------- filter drawer + filtering + sort ----------------
+  (function(){
+    var drawer=document.getElementById('drawer'), backdrop=document.getElementById('backdrop');
+    var sup=document.getElementById('support');
+    function open(){ drawer.classList.add('open'); backdrop.classList.add('open'); document.body.style.overflow='hidden'; if(sup) sup.style.display='none'; }
+    function close(){ drawer.classList.remove('open'); backdrop.classList.remove('open'); document.body.style.overflow=''; if(sup) sup.style.display=''; }
+    document.getElementById('openFilters').addEventListener('click',open);
+    document.getElementById('closeFilters').addEventListener('click',close);
+    document.getElementById('applyFilters').addEventListener('click',close);
+    backdrop.addEventListener('click',close);
+
+    var grid=document.getElementById('grid'), cards=[].slice.call(grid.querySelectorAll('.prod'));
+    var countEl=document.getElementById('count'), noRes=document.getElementById('noresults');
+    var rangeBoxes=[].slice.call(document.querySelectorAll('.opts[data-filter="range"] input'));
+
+    function apply(){
+      var active=rangeBoxes.filter(function(b){return b.checked;}).map(function(b){return b.value;});
+      var shown=0;
+      cards.forEach(function(c){
+        var ok = active.length===0 || active.indexOf(c.dataset.range)>-1;
+        c.hidden=!ok; if(ok) shown++;
+      });
+      countEl.textContent=shown; noRes.hidden=shown>0;
+    }
+    rangeBoxes.forEach(function(b){ b.addEventListener('change',apply); });
+
+    document.getElementById('resetFilters').addEventListener('click',function(){
+      document.querySelectorAll('.drawer input[type=checkbox]').forEach(function(b){ b.checked=false; }); apply();
+    });
+    var clear=document.getElementById('clearFilters'); if(clear) clear.addEventListener('click',function(e){ e.preventDefault();
+      document.querySelectorAll('.drawer input[type=checkbox]').forEach(function(b){ b.checked=false; }); apply(); });
+
+    // sort
+    document.getElementById('sort').addEventListener('change',function(){
+      var v=this.value, arr=cards.slice();
+      if(v==='low') arr.sort(function(a,b){return a.dataset.price-b.dataset.price;});
+      else if(v==='high') arr.sort(function(a,b){return b.dataset.price-a.dataset.price;});
+      arr.forEach(function(c){ grid.insertBefore(c,noRes); });
+      var promo=grid.querySelector('.promo-card'), prods=grid.querySelectorAll('.prod');
+      if(promo){ if(prods[1]) grid.insertBefore(promo,prods[1]); else grid.insertBefore(promo,noRes); }
+    });
+  })();
+</script>
 <!-- ===================== CART DRAWER ===================== -->
-<div data-include="../partials/cart-drawer.html"></div>
-
-
-<script src="../assets/js/partials-data.js"></script>
-<script src="../assets/js/include.js" data-page="../assets/js/mini-cart.js,../assets/js/category.js"></script>
+<div class="ptc-root" id="ptcRoot" aria-hidden="true">
+  <div class="ptc-scrim" data-cart-close></div>
+  <aside class="ptc-drawer" role="dialog" aria-label="Basket" aria-modal="true">
+    <div class="ptc-state" id="ptcFilled" style="display:flex;flex-direction:column;min-height:0;flex:1">
+      <div class="ptc-head">
+        <h2>Your basket <span class="ptc-cnt">1 item</span></h2>
+        <button class="ptc-x" data-cart-close type="button" aria-label="Close basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div class="ptc-body">
+        <div class="ptc-item">
+          <div class="ptc-thumb"><img src="https://www.projecttimber.com/wp-content/uploads/2024/10/8x6_Evolution_My_Den_Composite_Cladding_Garden_Office_01.jpg" alt="My Den Insulated Garden Office"></div>
+          <div class="ptc-it">
+            <div class="ptc-rng">My Den</div>
+            <h3>My Den Insulated Garden Office</h3>
+            <div class="ptc-pr">£4,009.00</div>
+            <div class="ptc-actions"><div class="ptc-qty"><button class="q-dec" type="button" aria-label="Decrease quantity">&minus;</button><span class="q-n">1</span><button class="q-inc" type="button" aria-label="Increase quantity">+</button></div><button class="ptc-rm" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg> Remove</button></div>
+          </div>
+        </div>
+        <details class="ptc-cfg" open>
+          <summary>Your configuration <svg class="ptc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="ptc-rows">
+            <div class="ptc-crow"><span class="ptc-k">Size</span><span class="ptc-v">8 × 6</span><span class="ptc-p">£3,972.00</span></div>
+            <div class="ptc-crow"><span class="ptc-k">UPVC door &amp; position</span><span class="ptc-v">White UPVC — Left front door</span><span class="ptc-p free">Included</span></div>
+            <div class="ptc-crow"><span class="ptc-k">Windows</span><span class="ptc-v">Timber — side opening, left</span><span class="ptc-p free">Included</span></div>
+            <div class="ptc-crow"><span class="ptc-k">Floor</span><span class="ptc-v">11mm T&amp;G with foil insulation — 55mm</span><span class="ptc-p free">Included</span></div>
+            <div class="ptc-crow"><span class="ptc-k">Laminate floor</span><span class="ptc-v">None</span><span class="ptc-p free">—</span></div>
+            <div class="ptc-crow"><span class="ptc-k">Paint colour</span><span class="ptc-v">None</span><span class="ptc-p free">—</span></div>
+            <div class="ptc-crow"><span class="ptc-k">Colour trim</span><span class="ptc-v">Swan White</span><span class="ptc-p">£37.00</span></div>
+            <div class="ptc-crow"><span class="ptc-k">Assembly service</span><span class="ptc-v">None</span><span class="ptc-p free">—</span></div>
+          </div>
+        </details>
+        <div class="ptc-promo">
+          <input type="text" placeholder="Promo code (e.g. GM10)" aria-label="Promo code">
+          <button type="button">Apply</button>
+        </div>
+        <div class="ptc-assure">
+          <div class="ptc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> Secure checkout · card, Apple Pay or PayPal</div>
+          <div class="ptc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg> Free delivery on selected postcodes</div>
+        </div>
+      </div>
+      <div class="ptc-foot">
+        <div class="ptc-ln"><span>Subtotal</span><span>£4,009.00</span></div>
+        <div class="ptc-ln"><span>Delivery</span><span>Calculated at checkout</span></div>
+        <div class="ptc-tot"><span class="l">Total</span><span class="v">£4,009.00</span></div>
+        <div class="ptc-vat">Includes £668.17 VAT</div>
+        <a class="ptc-cta" href="projecttimber-checkout.html">Proceed to checkout <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <button class="ptc-cont" data-cart-close type="button">Continue shopping</button>
+      </div>
+    </div>
+    <div class="ptc-state ptc-hidden" id="ptcEmpty" style="flex-direction:column;min-height:0;flex:1">
+      <div class="ptc-head">
+        <h2>Your basket</h2>
+        <button class="ptc-x" data-cart-close type="button" aria-label="Close basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div class="ptc-empty">
+        <div class="ptc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h2l2.2 11.4a1.5 1.5 0 0 0 1.5 1.2h8.1a1.5 1.5 0 0 0 1.5-1.2L22 8H7"/><circle cx="10" cy="20.5" r="1.2"/><circle cx="18" cy="20.5" r="1.2"/></svg></div>
+        <h3>Your basket is empty</h3>
+        <p>Once you've configured a garden building, it'll appear here ready for checkout.</p>
+        <div class="ptc-ranges">
+          <span class="ptc-lab">Popular ranges</span>
+          <a href="projecttimber-garden-offices.html">Garden Offices <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+          <a href="https://www.projecttimber.com/summerhouses/">Summerhouses <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+          <a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+<script>
+  (function(){
+    var root=document.getElementById('ptcRoot'); if(!root) return;
+    var filled=document.getElementById('ptcFilled'), empty=document.getElementById('ptcEmpty');
+    var badges=document.querySelectorAll('.cartbadge');
+    function setState(f){ filled.classList.toggle('ptc-hidden',!f); filled.style.display=f?'flex':'none'; empty.classList.toggle('ptc-hidden',f); empty.style.display=f?'none':'flex'; }
+    function open(){ root.classList.add('open'); root.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+    function close(){ root.classList.remove('open'); root.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+    document.querySelectorAll('.cartopen').forEach(function(b){ b.addEventListener('click',function(e){ e.preventDefault(); open(); }); });
+    root.querySelectorAll('[data-cart-close]').forEach(function(b){ b.addEventListener('click',close); });
+    root.querySelectorAll('.ptc-rm').forEach(function(b){ b.addEventListener('click',function(){ setState(false); badges.forEach(function(x){ x.textContent='0'; }); }); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape' && root.classList.contains('open')) close(); });
+  })();
+</script>
+<script>
+  (function(){
+    var s=document.querySelector('.ptc-qty'); if(!s) return;
+    var dec=s.querySelector('.q-dec'), inc=s.querySelector('.q-inc'), n=s.querySelector('.q-n');
+    var unitEl=document.querySelector('.ptc-pr');
+    var subEl=document.querySelector('.ptc-ln span:last-child');
+    var totEl=document.querySelector('.ptc-tot .v');
+    var vatEl=document.querySelector('.ptc-vat');
+    var unit=unitEl?parseFloat(unitEl.textContent.replace(/[^0-9.]/g,'')):0, q=1;
+    function m(x){ return '£'+x.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+    function u(){ n.textContent=q; dec.disabled=q<=1; var t=unit*q; if(subEl)subEl.textContent=m(t); if(totEl)totEl.textContent=m(t); if(vatEl)vatEl.textContent='Includes '+m(t/6)+' VAT'; }
+    dec.addEventListener('click',function(){ if(q>1){q--;u();} });
+    inc.addEventListener('click',function(){ q++; u(); });
+    u();
+  })();
+</script>
 </body>
 </html>

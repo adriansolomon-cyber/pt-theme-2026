@@ -219,13 +219,16 @@ add_action(
 				// calls are same-origin (staging/live) rather than the hardcoded production URL.
 				$term = get_queried_object();
 				$slug = ( $term && isset( $term->slug ) ) ? $term->slug : '';
-				// Campaign display discount for this category page (0 = none).
+				// Campaign display discount for this category page (0 = none) + the code
+				// shown on the on-card discount badge.
 				$pt_cat_disc = ( function_exists( 'pt_term_discount_pct' ) && $term && isset( $term->term_id ) ) ? (float) pt_term_discount_pct( $term->term_id ) : 0.0;
+				$pt_cat_code = ( function_exists( 'pt_term_discount_code' ) && $term && isset( $term->term_id ) ) ? (string) pt_term_discount_code( $term->term_id ) : '';
 				wp_add_inline_script(
 					'pt-category',
 					'window.PT_WC_BASE=' . wp_json_encode( untrailingslashit( home_url() ) ) . ';'
 					. 'window.PT_CATEGORY_SLUG=' . wp_json_encode( $slug ) . ';'
-					. 'window.PT_DISCOUNT_PCT=' . wp_json_encode( $pt_cat_disc ) . ';',
+					. 'window.PT_DISCOUNT_PCT=' . wp_json_encode( $pt_cat_disc ) . ';'
+					. 'window.PT_DISCOUNT_CODE=' . wp_json_encode( $pt_cat_code ) . ';',
 					'before'
 				);
 			}

@@ -58,7 +58,10 @@
     // Campaign display discount for this category page (visual only; real money-off is the
     // auto-applied coupon at checkout). PT_DISCOUNT_PCT is injected by functions.php.
     var DISC=(typeof window!=='undefined' && typeof window.PT_DISCOUNT_PCT==='number' && window.PT_DISCOUNT_PCT>0) ? window.PT_DISCOUNT_PCT : 0;
-    function fmtDisc(n){ return (DISC>0 && n>0) ? '<span class="was">'+fmt(n)+'</span><span class="now">'+fmt(n - n*DISC/100)+'</span>' : '<b>'+fmt(n)+'</b>'; }
+    var DCODE=(typeof window!=='undefined' && window.PT_DISCOUNT_CODE) ? String(window.PT_DISCOUNT_CODE) : '';
+    function fmtDisc(n){ return (DISC>0 && n>0) ? '<span class="was">'+fmt(n)+'</span> <b class="now">'+fmt(n - n*DISC/100)+'</b>' : '<b>'+fmt(n)+'</b>'; }
+    // on-card discount badge ("X% off" + code), shown when a campaign is live on this page.
+    function badgeHTML(){ return DISC>0 ? '<div class="pbadge"><b>'+Math.round(DISC)+'% off</b>'+(DCODE?'<span>Code '+esc(DCODE)+'</span>':'')+'</div>' : ''; }
     function slugify(s){ return String(s||'').toLowerCase().replace(/&amp;/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
     function setText(sel,txt){ var e=document.querySelector(sel); if(e) e.textContent=txt; }
     function sizeVal(name){ var n=(String(name).match(/\d+(?:\.\d+)?/g)||[]).map(Number); var w=n[0]||0,h=n[1]||0; return [w*h,w,h]; }
@@ -109,6 +112,7 @@
         '<div class="ph duo">'+
           (img0?'<img class="pimg" src="'+esc(img0)+'" alt="'+esc(p.name)+'">':'')+
           (img1?'<img class="pscene" src="'+esc(img1)+'" alt="" aria-hidden="true">':'')+
+          badgeHTML()+
         '</div>'+
         '<div class="pbody"><h3>'+esc(p.name)+'</h3><div class="pprice">'+priceHTML+'</div>'+
           (sizes?'<div class="psizes">'+esc(sizes)+'</div>':'')+
