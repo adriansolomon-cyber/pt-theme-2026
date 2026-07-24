@@ -29,9 +29,11 @@ function pt_campaign_pct( $field ) {
 
 /** Resolve the comma-separated "special_offer_category_includes" into product_cat term IDs. */
 function pt_campaign_special_cat_ids() {
-    if ( ! function_exists( 'get_field' ) ) return array();
+    static $cache = null;                 // memoise — called once per card on category pages
+    if ( null !== $cache ) return $cache;
+    if ( ! function_exists( 'get_field' ) ) { $cache = array(); return $cache; }
     $raw = get_field( 'special_offer_category_includes', 'option' );
-    if ( ! is_string( $raw ) || '' === trim( $raw ) ) return array();
+    if ( ! is_string( $raw ) || '' === trim( $raw ) ) { $cache = array(); return $cache; }
 
     $ids = array();
     foreach ( explode( ',', $raw ) as $tok ) {
@@ -42,7 +44,8 @@ function pt_campaign_special_cat_ids() {
         if ( ! $term ) $term = get_term_by( 'name', $tok, 'product_cat' );
         if ( $term && ! is_wp_error( $term ) ) $ids[] = (int) $term->term_id;
     }
-    return array_values( array_unique( array_filter( $ids ) ) );
+    $cache = array_values( array_unique( array_filter( $ids ) ) );
+    return $cache;
 }
 
 /** Is a product in (or under) one of the special-offer categories? */
@@ -78,6 +81,16 @@ function pt_product_discount_pct( $product_id ) {
         return pt_campaign_pct( 'coupon_percentage' );
     }
     return 0.0;
+}
+
+/** The coupon code for a product's on-card discount badge ('' = none). */
+function pt_product_discount_code( $product_id ) {
+    if ( ! auto_voucher_enabled() ) return '';
+    if ( av_get_special_voucher_code() && pt_product_in_special_category( $product_id ) ) {
+        return strtoupper( av_get_special_voucher_code() );
+    }
+    $default_code = function_exists( 'get_field' ) ? get_field( 'coupon_code', 'option' ) : '';
+    return ( is_string( $default_code ) && '' !== trim( $default_code ) ) ? strtoupper( trim( $default_code ) ) : '';
 }
 
 /** True when a product-category term (or an ancestor) is a special-offer category. */

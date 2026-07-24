@@ -143,7 +143,25 @@ function pt_cat_card_html( $p ) {
 	$href   = isset( $p['permalink'] ) ? $p['permalink'] : '#';
 	$sizes  = pt_cat_sizes_line( $p );
 	$facets = pt_cat_facet_data_attr( $p );
-	$price_html = $price > 0 ? 'From <b>' . esc_html( pt_cat_fmt( $price ) ) . '</b>' : 'View options';
+
+	// Campaign display discount for this product (visual only; the real money-off is
+	// the auto-applied coupon at checkout). 0 when no campaign applies.
+	$pid   = isset( $p['id'] ) ? (int) $p['id'] : 0;
+	$disc  = ( $pid && function_exists( 'pt_product_discount_pct' ) ) ? (float) pt_product_discount_pct( $pid ) : 0.0;
+	$dcode = ( $disc > 0 && $pid && function_exists( 'pt_product_discount_code' ) ) ? (string) pt_product_discount_code( $pid ) : '';
+
+	if ( $price > 0 && $disc > 0 ) {
+		$now        = $price - ( $price * $disc / 100 );
+		$price_html = 'From <span class="was">' . esc_html( pt_cat_fmt( $price ) ) . '</span> <b class="now">' . esc_html( pt_cat_fmt( $now ) ) . '</b>';
+	} elseif ( $price > 0 ) {
+		$price_html = 'From <b>' . esc_html( pt_cat_fmt( $price ) ) . '</b>';
+	} else {
+		$price_html = 'View options';
+	}
+
+	$badge = ( $disc > 0 )
+		? '<div class="pbadge"><b>' . esc_html( round( $disc ) ) . '% off</b>' . ( '' !== $dcode ? '<span>Code ' . esc_html( $dcode ) . '</span>' : '' ) . '</div>'
+		: '';
 
 	$h  = '<a class="prod" href="' . esc_url( $href ) . '" data-price="' . esc_attr( $price ) . '"' . $facets . '>';
 	$h .= '<div class="ph duo">';
@@ -153,6 +171,7 @@ function pt_cat_card_html( $p ) {
 	if ( $img1 ) {
 		$h .= '<img class="pscene" src="' . esc_url( $img1 ) . '" alt="" aria-hidden="true">';
 	}
+	$h .= $badge;
 	$h .= '</div>';
 	$h .= '<div class="pbody"><h3>' . esc_html( $name ) . '</h3><div class="pprice">' . $price_html . '</div>';
 	if ( $sizes ) {
@@ -237,15 +256,66 @@ function pt_cat_intro_desc( $desc ) {
 }
 
 /**
+ * "From" price for a category card: the cheapest starting price.
+ *  - variable  → min variation price
+ *  - composite → cheapest Size-component option price (composites report 0 at the
+ *                parent level, which is why cards showed "View options")
+ *  - else      → own price
+ */
+function pt_cat_product_from_price( $product ) {
+	if ( ! is_object( $product ) ) {
+		return 0.0;
+	}
+	if ( $product->is_type( 'variable' ) ) {
+		return (float) $product->get_variation_price( 'min', true );
+	}
+	if ( $product->is_type( 'composite' ) && is_callable( array( $product, 'get_components' ) ) ) {
+		$min = null;
+		foreach ( (array) $product->get_components() as $component ) {
+			$title = ( is_object( $component ) && is_callable( array( $component, 'get_title' ) ) ) ? (string) $component->get_title() : '';
+			if ( 'size' !== strtolower( trim( $title ) ) ) {
+				continue;
+			}
+			$opts = is_callable( array( $component, 'get_options' ) ) ? (array) $component->get_options() : array();
+			foreach ( $opts as $oid ) {
+				$op = wc_get_product( (int) $oid );
+				if ( ! $op ) {
+					continue;
+				}
+				$pr = (float) $op->get_price();
+				if ( $pr > 0 && ( null === $min || $pr < $min ) ) {
+					$min = $pr;
+				}
+			}
+		}
+		if ( null !== $min ) {
+			return $min;
+		}
+	}
+	return (float) $product->get_price();
+}
+
+/**
  * Native fallback build (same shape as the mu-plugin's timber_catp_build) using
- * WC getters, so the category grid renders even without the mu-plugin. Composite
- * "from" pricing is only approximate here (own price); the mu-plugin does it properly.
+ * WC getters, so the category grid renders even without the mu-plugin — including
+ * proper composite "from" pricing (pt_cat_product_from_price). Cached per term.
  */
 function pt_cat_native_build( $term ) {
 	$empty = array( 'category' => array( 'name' => '', 'description' => '' ), 'products' => array() );
 	if ( ! $term || is_wp_error( $term ) || ! function_exists( 'wc_get_product' ) ) {
 		return $empty;
 	}
+
+	// Cache the (price-resolving) build — composite from-pricing walks every size
+	// option, so recomputing on every request is wasteful.
+	$cache_key = 'pt_catn_' . (int) $term->term_id;
+	if ( ! isset( $_GET['nocache'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		$cached = get_transient( $cache_key );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+	}
+
 	$q = new WP_Query(
 		array(
 			'post_type'      => 'product',
@@ -271,7 +341,7 @@ function pt_cat_native_build( $term ) {
 		if ( ! $product ) {
 			continue;
 		}
-		$price = $product->is_type( 'variable' ) ? (float) $product->get_variation_price( 'min', true ) : (float) $product->get_price();
+		$price = pt_cat_product_from_price( $product );
 
 		$imgs = array();
 		$main = $product->get_image_id();
@@ -316,7 +386,7 @@ function pt_cat_native_build( $term ) {
 			'stock_status' => $product->get_stock_status(),
 		);
 	}
-	return array(
+	$result = array(
 		'category' => array(
 			'id'          => (int) $term->term_id,
 			'name'        => $term->name,
@@ -325,6 +395,8 @@ function pt_cat_native_build( $term ) {
 		),
 		'products' => $products,
 	);
+	set_transient( $cache_key, $result, HOUR_IN_SECONDS );
+	return $result;
 }
 
 /**
