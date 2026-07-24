@@ -95,7 +95,7 @@
     var DISC=(typeof window!=='undefined' && typeof window.PT_DISCOUNT_PCT==='number' && window.PT_DISCOUNT_PCT>0) ? window.PT_DISCOUNT_PCT : 0;
     function disc(n){ return DISC>0 ? (n - n*DISC/100) : n; }
     // formatted price; when a discount is active, shows the original struck through + the new price.
-    function fmtDisc(n){ return DISC>0 ? '<span class="was">'+fmt(n)+'</span><span class="now">'+fmt(disc(n))+'</span>' : fmt(n); }
+    function fmtDisc(n){ return (DISC>0 && n>0) ? '<span class="was">'+fmt(n)+'</span><span class="now">'+fmt(disc(n))+'</span>' : fmt(n); }
 
     // --- session cache: makes reloads / repeat product loads instant ---
     // CACHE_VER is baked into the key: bump it whenever the /config payload shape or
@@ -342,9 +342,9 @@
       var tins=(colour&&!isNone)?'<span class="tins">*SUPPLIED IN TINS</span>':'';
       var img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+'</div>':'<div class="im ph">'+tins+'</div>';
       var badge4w=(colour&&isNone)?'<span class="badge4w">⚠ Paint within 4 weeks!*</span>':'';
-      // size cards show the headline "from" price (discounted when a campaign is live);
-      // option add-on deltas stay at their raw value — the discounted total covers them.
-      var price=(opt.price==null)?'<span class="pr-sk skel-box"></span>':((group===sizeCid)?fmtDisc(opt.price):fmt(opt.price));
+      // every price shows the discounted value when a campaign is live; £0 / "Included"
+      // options render plain (fmtDisc skips the struck-through zero for n<=0).
+      var price=(opt.price==null)?'<span class="pr-sk skel-box"></span>':fmtDisc(opt.price);
       var sizeAttrs=(group===sizeCid) ? ' data-val="'+esc(label)+'"'+(isBestSize(opt.name)?' data-best="1"':'') : '';
       return '<div class="opt-card'+(selected?' sel':'')+'" data-group="'+esc(group)+'" data-opt="'+opt.id+'"'+sizeAttrs+'>'+img+badge4w+
         '<div class="nm">'+esc(label)+'</div><div class="pr">'+price+'</div>'+

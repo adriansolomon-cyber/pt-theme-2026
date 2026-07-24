@@ -58,7 +58,7 @@
     // Campaign display discount for this category page (visual only; real money-off is the
     // auto-applied coupon at checkout). PT_DISCOUNT_PCT is injected by functions.php.
     var DISC=(typeof window!=='undefined' && typeof window.PT_DISCOUNT_PCT==='number' && window.PT_DISCOUNT_PCT>0) ? window.PT_DISCOUNT_PCT : 0;
-    function fmtDisc(n){ return DISC>0 ? '<span class="was">'+fmt(n)+'</span><span class="now">'+fmt(n - n*DISC/100)+'</span>' : '<b>'+fmt(n)+'</b>'; }
+    function fmtDisc(n){ return (DISC>0 && n>0) ? '<span class="was">'+fmt(n)+'</span><span class="now">'+fmt(n - n*DISC/100)+'</span>' : '<b>'+fmt(n)+'</b>'; }
     function slugify(s){ return String(s||'').toLowerCase().replace(/&amp;/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
     function setText(sel,txt){ var e=document.querySelector(sel); if(e) e.textContent=txt; }
     function sizeVal(name){ var n=(String(name).match(/\d+(?:\.\d+)?/g)||[]).map(Number); var w=n[0]||0,h=n[1]||0; return [w*h,w,h]; }
