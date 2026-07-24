@@ -9,8 +9,60 @@
  */
 
 function auto_voucher_enabled() {
-    // Master on/off for ALL campaigns — ACF "Show coupon" toggle (show_coupon).
-    return function_exists( 'get_field' ) ? (bool) get_field( 'show_coupon', 'option' ) : false;
+    // Master on/off for ALL campaigns — ACF "Show coupon" toggle (show_coupon),
+    // AND the campaign must not have expired (campaign_end_date). When the end
+    // date passes, every discount surface (pill, configurator, category cards,
+    // cart coupon, schema) switches off automatically.
+    if ( ! function_exists( 'get_field' ) ) return false;
+    if ( ! (bool) get_field( 'show_coupon', 'option' ) ) return false;
+    return pt_campaign_active();
+}
+
+/**
+ * Parse the ACF "Campaign end date" (campaign_end_date) into a DateTime at the
+ * END of that day (23:59:59) so the campaign is valid THROUGH the chosen date.
+ * ACF date-picker stores its raw value as Ymd; we read the raw value (3rd arg
+ * false) so we don't depend on the field's display/return format. Returns null
+ * when no date is set (→ campaign never expires on a date basis).
+ */
+function pt_campaign_end_datetime() {
+    if ( ! function_exists( 'get_field' ) ) return null;
+    $raw = get_field( 'campaign_end_date', 'option', false );
+    $raw = is_scalar( $raw ) ? trim( (string) $raw ) : '';
+    if ( '' === $raw ) return null;
+
+    $dt = false;
+    if ( preg_match( '/^\d{8}$/', $raw ) ) {          // ACF raw Ymd, e.g. 20260725
+        $dt = DateTime::createFromFormat( 'Ymd', $raw );
+    }
+    if ( ! $dt instanceof DateTime ) {                // defensive: other return formats
+        $ts = strtotime( $raw );
+        if ( false === $ts ) return null;
+        $dt = new DateTime();
+        $dt->setTimestamp( $ts );
+    }
+    $dt->setTime( 23, 59, 59 );
+    return $dt;
+}
+
+/** End-of-day timestamp for the campaign, or null when no end date is set. */
+function pt_campaign_end_ts() {
+    $dt = pt_campaign_end_datetime();
+    return $dt ? $dt->getTimestamp() : null;
+}
+
+/** Campaign end date as 'Y-m-d' for schema validThrough ('' when unset). */
+function pt_campaign_end_iso() {
+    $dt = pt_campaign_end_datetime();
+    return $dt ? $dt->format( 'Y-m-d' ) : '';
+}
+
+/** False once the campaign end date has passed; true when unset or still within range. */
+function pt_campaign_active() {
+    $ts = pt_campaign_end_ts();
+    if ( null === $ts ) return true;                  // no end date → no expiry
+    $now = function_exists( 'current_time' ) ? current_time( 'timestamp' ) : time();
+    return $now <= $ts;
 }
 
 /**

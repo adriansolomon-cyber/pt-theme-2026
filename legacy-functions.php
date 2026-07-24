@@ -5345,6 +5345,11 @@ function fix_composite_product_price_schema($markup, $product)
         $discounted_price     = $base_price - (($base_price / 100) * $coupon_percent);
         $formatted_sale_price = number_format($discounted_price, 0, '.', '');
 
+        $valid_through = function_exists('pt_campaign_end_iso') ? pt_campaign_end_iso() : '';
+        if ('' === $valid_through) {
+            $valid_through = '2027-12-31'; // fallback when no campaign end date is set
+        }
+
         $markup['offers'][0]['price'] = $formatted_sale_price;
         $markup['offers'][0]['priceSpecification'] = [
             [
@@ -5356,7 +5361,7 @@ function fix_composite_product_price_schema($markup, $product)
                 "@type"         => "SalePriceSpecification",
                 "price"         => $formatted_sale_price,
                 "priceCurrency" => "GBP",
-                "validThrough"  => "2027-12-31"
+                "validThrough"  => $valid_through
             ]
         ];
     }
