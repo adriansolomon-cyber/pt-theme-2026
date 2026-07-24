@@ -21,24 +21,53 @@ function pt_product_from_price( $product ) {
 	if ( ! $product || ! function_exists( 'wc_get_product' ) ) {
 		return 0.0;
 	}
-	if ( $product->is_type( 'composite' ) && function_exists( 'timber_catp_size_options' ) ) {
+	if ( $product->is_type( 'variable' ) ) {
+		return (float) $product->get_variation_price( 'min', true );
+	}
+	if ( $product->is_type( 'composite' ) ) {
 		$min = INF;
-		foreach ( (array) timber_catp_size_options( $product ) as $oid ) {
-			$o = wc_get_product( (int) $oid );
-			if ( $o ) {
-				$p = (float) $o->get_price();
-				if ( $p > 0 && $p < $min ) {
-					$min = $p;
+
+		// Fast path: mu-plugin size-option resolver when present.
+		if ( function_exists( 'timber_catp_size_options' ) ) {
+			foreach ( (array) timber_catp_size_options( $product ) as $oid ) {
+				$o = wc_get_product( (int) $oid );
+				if ( $o ) {
+					$p = (float) $o->get_price();
+					if ( $p > 0 && $p < $min ) {
+						$min = $p;
+					}
 				}
 			}
 		}
+
+		// Native fallback: walk the "Size" component directly (composites report 0
+		// at the parent level, so without this the page shows "From £—"). This keeps
+		// the single-product page self-sufficient without the mu-plugin — same logic
+		// as pt_cat_product_from_price() used by the category grid.
+		if ( INF === $min && is_callable( array( $product, 'get_components' ) ) ) {
+			foreach ( (array) $product->get_components() as $component ) {
+				$title = ( is_object( $component ) && is_callable( array( $component, 'get_title' ) ) ) ? (string) $component->get_title() : '';
+				if ( 'size' !== strtolower( trim( $title ) ) ) {
+					continue;
+				}
+				$opts = is_callable( array( $component, 'get_options' ) ) ? (array) $component->get_options() : array();
+				foreach ( $opts as $oid ) {
+					$op = wc_get_product( (int) $oid );
+					if ( ! $op ) {
+						continue;
+					}
+					$pr = (float) $op->get_price();
+					if ( $pr > 0 && $pr < $min ) {
+						$min = $pr;
+					}
+				}
+			}
+		}
+
 		if ( INF !== $min ) {
 			return $min;
 		}
 		return (float) $product->get_price();
-	}
-	if ( $product->is_type( 'variable' ) ) {
-		return (float) $product->get_variation_price( 'min', true );
 	}
 	return (float) $product->get_price();
 }
