@@ -72,6 +72,44 @@ function pt_product_from_price( $product ) {
 	return (float) $product->get_price();
 }
 
+/**
+ * Cached "from" price for a product. Composite from-pricing walks every size
+ * option (many product loads), which is too slow for the interactive search
+ * typeahead to repeat each keystroke. Cache per product, keyed by a global
+ * version that bumps whenever any product is saved (see pt_from_price_cache_ver).
+ */
+function pt_from_price_cache_ver() {
+	return (int) get_option( 'pt_fp_ver', 1 );
+}
+function pt_product_from_price_cached( $product ) {
+	if ( ! is_object( $product ) || ! is_callable( array( $product, 'get_id' ) ) ) {
+		return 0.0;
+	}
+	$key    = 'pt_fp_' . pt_from_price_cache_ver() . '_' . (int) $product->get_id();
+	$cached = get_transient( $key );
+	if ( false !== $cached ) {
+		return (float) $cached;
+	}
+	$price = function_exists( 'pt_cat_product_from_price' )
+		? (float) pt_cat_product_from_price( $product )
+		: (float) pt_product_from_price( $product );
+	set_transient( $key, $price, 12 * HOUR_IN_SECONDS );
+	return $price;
+}
+/**
+ * Bump the from-price cache version on any product change. Composite prices
+ * depend on their size-option products, so a version bump (rather than deleting
+ * one key) is the simple correct way to invalidate all of them at once.
+ */
+function pt_bump_from_price_cache_ver() {
+	update_option( 'pt_fp_ver', pt_from_price_cache_ver() + 1, false );
+}
+// Tie invalidation to real edits (save_post_product / new product) — NOT
+// woocommerce_update_product, which also fires on stock decrements during orders
+// and would needlessly bust the cache on a busy store. 12h TTL is the backstop.
+add_action( 'save_post_product', 'pt_bump_from_price_cache_ver' );
+add_action( 'woocommerce_new_product', 'pt_bump_from_price_cache_ver' );
+
 /** "From £1,234" (or empty string if no price). */
 function pt_product_from_price_html( $product ) {
 	$p = pt_product_from_price( $product );

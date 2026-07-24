@@ -71,7 +71,7 @@ add_filter(
  * and return the WP_Query. Shared by the typeahead endpoint and search.php so
  * both behave identically.
  */
-function pt_product_search( $term, $per_page = 6, $paged = 1 ) {
+function pt_product_search( $term, $per_page = 6, $paged = 1, $count_total = true ) {
 	$args = array(
 		'post_type'           => 'product',
 		'post_status'         => 'publish',
@@ -79,6 +79,7 @@ function pt_product_search( $term, $per_page = 6, $paged = 1 ) {
 		'posts_per_page'      => (int) $per_page,
 		'paged'               => max( 1, (int) $paged ),
 		'ignore_sticky_posts' => true,
+		'no_found_rows'       => ! $count_total, // skip row count when the caller won't paginate
 		'tax_query'           => array(
 			'relation' => 'AND',
 			array(
@@ -106,9 +107,9 @@ function pt_product_search( $term, $per_page = 6, $paged = 1 ) {
  * Build the "From £X" (discount-aware) markup for a card-data entry.
  * Mirrors pt_cat_card_html()'s price block.
  */
-function pt_search_suggest_price_html( $entry ) {
-	$price = isset( $entry['price'] ) ? (float) $entry['price'] : 0.0;
-	$pid   = isset( $entry['id'] ) ? (int) $entry['id'] : 0;
+function pt_search_suggest_price_html( $price, $pid ) {
+	$price = (float) $price;
+	$pid   = (int) $pid;
 	$disc  = ( $pid && function_exists( 'pt_product_discount_pct' ) ) ? (float) pt_product_discount_pct( $pid ) : 0.0;
 
 	if ( $price > 0 && $disc > 0 ) {
@@ -143,24 +144,30 @@ function pt_search_suggest_rest( WP_REST_Request $req ) {
 		return rest_ensure_response( $cached );
 	}
 
-	$query = pt_product_search( $q, 6, 1 );
+	// no_found_rows: skip the SQL_CALC_FOUND_ROWS total — the typeahead doesn't use it.
+	$query = pt_product_search( $q, 6, 1, false );
 
 	$items = array();
 	foreach ( (array) $query->posts as $post ) {
-		$entry = pt_cat_product_entry( wc_get_product( $post->ID ) );
-		if ( ! $entry ) {
+		$product = wc_get_product( $post->ID );
+		if ( ! $product ) {
 			continue;
 		}
+		$pid    = (int) $post->ID;
+		// Lightweight: only the thumbnail + a cached from-price — skip the gallery
+		// and attribute build that pt_cat_product_entry does (unused in the preview).
+		$img_id = $product->get_image_id();
+		$img    = $img_id ? wp_get_attachment_image_url( $img_id, 'woocommerce_thumbnail' ) : '';
 		$items[] = array(
-			'name'       => $entry['name'],
-			'url'        => $entry['permalink'],
-			'img'        => ! empty( $entry['images'][0]['src'] ) ? $entry['images'][0]['src'] : '',
-			'price_html' => pt_search_suggest_price_html( $entry ),
+			'name'       => wp_strip_all_tags( $product->get_name() ),
+			'url'        => get_permalink( $pid ),
+			'img'        => $img ? $img : '',
+			'price_html' => pt_search_suggest_price_html( pt_product_from_price_cached( $product ), $pid ),
 		);
 	}
 
 	$out['items'] = $items;
-	$out['total'] = (int) $query->found_posts;
+	$out['total'] = count( $items );
 	$out['url']   = add_query_arg(
 		array(
 			's'         => rawurlencode( $q ),
