@@ -20,35 +20,9 @@ $pt_paged = max( 1, (int) get_query_var( 'paged' ) );
 $pt_products = array();
 $pt_pages    = 1;
 
-if ( '' !== $pt_term && function_exists( 'wc_get_product' ) ) {
-	$pt_q = new WP_Query(
-		array(
-			'post_type'           => 'product',
-			'post_status'         => 'publish',
-			's'                   => $pt_term,
-			'posts_per_page'      => 24,
-			'paged'               => $pt_paged,
-			'ignore_sticky_posts' => true,
-			'tax_query'           => array(
-				'relation' => 'AND',
-				// Respect catalog visibility: drop products hidden from search.
-				array(
-					'taxonomy' => 'product_visibility',
-					'field'    => 'name',
-					'terms'    => array( 'exclude-from-search' ),
-					'operator' => 'NOT IN',
-				),
-				// Match the site's main-search rule (exclude_simple_and_bundle_from_search):
-				// only show configurable products, not the simple size sub-products or bundles.
-				array(
-					'taxonomy' => 'product_type',
-					'field'    => 'slug',
-					'terms'    => array( 'simple', 'bundle' ),
-					'operator' => 'NOT IN',
-				),
-			),
-		)
-	);
+if ( '' !== $pt_term && function_exists( 'pt_product_search' ) && function_exists( 'wc_get_product' ) ) {
+	// Title-only, configurable-products-only search (shared with the typeahead).
+	$pt_q     = pt_product_search( $pt_term, 24, $pt_paged );
 	$pt_pages = max( 1, (int) $pt_q->max_num_pages );
 	foreach ( (array) $pt_q->posts as $pt_post ) {
 		$entry = pt_cat_product_entry( wc_get_product( $pt_post->ID ) );

@@ -36,6 +36,73 @@ add_action(
 );
 
 /**
+ * Title-only product search. The default WP search scans post_title + excerpt +
+ * post_content across the whole (very large) product catalogue before the
+ * tax_query drops simple/bundle rows — slow and noisy. When our queries set the
+ * pt_title_only flag, restrict the search SQL to post_title only: much faster
+ * and more relevant. Scoped by the global flag so it never affects other search.
+ */
+add_filter(
+	'posts_search',
+	function ( $search, $wp_query ) {
+		if ( empty( $GLOBALS['pt_search_title_only'] ) || '' === $search ) {
+			return $search;
+		}
+		global $wpdb;
+		$terms = ! empty( $wp_query->query_vars['search_terms'] ) ? (array) $wp_query->query_vars['search_terms'] : array();
+		if ( empty( $terms ) ) {
+			return $search;
+		}
+		$sql = '';
+		$and = '';
+		foreach ( $terms as $term ) {
+			$like = '%' . $wpdb->esc_like( $term ) . '%';
+			$sql .= $and . $wpdb->prepare( "{$wpdb->posts}.post_title LIKE %s", $like );
+			$and  = ' AND ';
+		}
+		return $sql ? " AND ({$sql}) " : $search;
+	},
+	10,
+	2
+);
+
+/**
+ * Run a product search (title-only, configurable products only, catalog-visible)
+ * and return the WP_Query. Shared by the typeahead endpoint and search.php so
+ * both behave identically.
+ */
+function pt_product_search( $term, $per_page = 6, $paged = 1 ) {
+	$args = array(
+		'post_type'           => 'product',
+		'post_status'         => 'publish',
+		's'                   => $term,
+		'posts_per_page'      => (int) $per_page,
+		'paged'               => max( 1, (int) $paged ),
+		'ignore_sticky_posts' => true,
+		'tax_query'           => array(
+			'relation' => 'AND',
+			array(
+				'taxonomy' => 'product_visibility',
+				'field'    => 'name',
+				'terms'    => array( 'exclude-from-search' ),
+				'operator' => 'NOT IN',
+			),
+			array(
+				'taxonomy' => 'product_type',
+				'field'    => 'slug',
+				'terms'    => array( 'simple', 'bundle' ),
+				'operator' => 'NOT IN',
+			),
+		),
+	);
+
+	$GLOBALS['pt_search_title_only'] = true;   // enable the posts_search filter for THIS query
+	$query                           = new WP_Query( $args );
+	$GLOBALS['pt_search_title_only'] = false;
+	return $query;
+}
+
+/**
  * Build the "From £X" (discount-aware) markup for a card-data entry.
  * Mirrors pt_cat_card_html()'s price block.
  */
@@ -76,30 +143,7 @@ function pt_search_suggest_rest( WP_REST_Request $req ) {
 		return rest_ensure_response( $cached );
 	}
 
-	$query = new WP_Query(
-		array(
-			'post_type'           => 'product',
-			'post_status'         => 'publish',
-			's'                   => $q,
-			'posts_per_page'      => 6,
-			'ignore_sticky_posts' => true,
-			'tax_query'           => array(
-				'relation' => 'AND',
-				array(
-					'taxonomy' => 'product_visibility',
-					'field'    => 'name',
-					'terms'    => array( 'exclude-from-search' ),
-					'operator' => 'NOT IN',
-				),
-				array(
-					'taxonomy' => 'product_type',
-					'field'    => 'slug',
-					'terms'    => array( 'simple', 'bundle' ),
-					'operator' => 'NOT IN',
-				),
-			),
-		)
-	);
+	$query = pt_product_search( $q, 6, 1 );
 
 	$items = array();
 	foreach ( (array) $query->posts as $post ) {
