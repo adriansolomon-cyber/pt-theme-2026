@@ -5351,6 +5351,9 @@ function fix_composite_product_price_schema($markup, $product)
         }
 
         $markup['offers'][0]['price'] = $formatted_sale_price;
+        // The sale price is only valid until the campaign ends — override WooCommerce's
+        // core priceValidUntil (derived from the product's own sale-end date) to match.
+        $markup['offers'][0]['priceValidUntil'] = $valid_through;
         $markup['offers'][0]['priceSpecification'] = [
             [
                 "@type"         => "PriceSpecification",
