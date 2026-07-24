@@ -5273,88 +5273,103 @@ function calculateMonthlyPayment($principal, $annual_rate = 0.1699, $years = 5)
 add_filter('woocommerce_structured_data_product', 'fix_composite_product_price_schema', 10, 2);
 function fix_composite_product_price_schema($markup, $product)
 {
-    if ($product->get_type() === 'composite') {
-        $current_url = $_SERVER['REQUEST_URI'];
-        $psizeUrl = null;
+    if ($product->get_type() !== 'composite' || ! $product instanceof WC_Product_Composite) {
+        return $markup;
+    }
 
-        // Find pattern like 18-x-6 etc
-        if (preg_match('/(\d+-x-\d+)/', $current_url, $matches)) {
-            $psizeUrl = $matches[1];
+    $current_url = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+    $psizeUrl    = null;
+
+    // Find a size in the URL, e.g. 18-x-6 (also matches the /f/8-x-8/ filter path).
+    if (preg_match('/(\d+-x-\d+)/', $current_url, $matches)) {
+        $psizeUrl = $matches[1];
+    }
+
+    $product_data = $product->get_composite_data();
+    $keys         = array_keys((array) $product_data);
+    if (empty($keys)) {
+        return $markup;
+    }
+    $all_sizes_products = isset($product_data[$keys[0]]['assigned_ids'])
+        ? (array) $product_data[$keys[0]]['assigned_ids']
+        : array();
+    if (empty($all_sizes_products)) {
+        return $markup;
+    }
+
+    // Resolve the regular base price: the size named in the URL when present,
+    // otherwise the cheapest size option — i.e. the "From £X" shown on the page.
+    // Without this, plain product URLs (no size) got no schema price at all.
+    $matched_price = null;
+    $from_price    = null;
+    foreach ($all_sizes_products as $pid) {
+        $bundle_product = wc_get_product($pid);
+        if (! $bundle_product) {
+            continue;
         }
-
-        if ($psizeUrl && $product instanceof WC_Product_Composite) {
-            $product_data = $product->get_composite_data();
-            $keys = array_keys($product_data);
-            $selected_key = $keys[0];
-            $all_sizes_products = $product_data[$selected_key]['assigned_ids'];
-            if ( av_product_qualifies_simple( get_the_ID() ) ) {
-                $coupon_percent = (float) get_field('special_coupon_percentage', 'option');
-            }else{
-                $coupon_percent = (float) get_field('coupon_percentage', 'option');
-            } 
-
-            if (!empty($all_sizes_products)) {
-                foreach ($all_sizes_products as $product_id) {
-                    $bundle_product = wc_get_product($product_id);
-                  
-
-                    if ($bundle_product) {
-                        $regular_price = (float) $bundle_product->get_price();
-                        $size_nameP = str_replace(' ', '-', $bundle_product->get_name());
-
-                        // Match product size by name
-                        if ($size_nameP === $psizeUrl || strpos($size_nameP, $psizeUrl) !== false) {
-
-                            $formatted_price = number_format($regular_price, 0, '.', '');
-
-                            // Always set availability + currency
-                            $markup['offers'][0]['priceCurrency'] = 'GBP';
-                            $markup['offers'][0]['availability'] =
-                                $product->is_in_stock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
-
-                            // IF WE HAVE A DISCOUNT
-                            if ($coupon_percent > 0) {
-                                $discounted_price = $regular_price - (($regular_price / 100) * $coupon_percent);
-                                $formatted_sale_price = number_format($discounted_price, 0, '.', '');
-
-                                // Display SALE as primary price
-                                $markup['offers'][0]['price'] = $formatted_sale_price;
-
-                                // Add regular + sale specifications
-                                $markup['offers'][0]['priceSpecification'] = [
-                                    [
-                                        "@type" => "PriceSpecification",
-                                        "price" => $formatted_price,
-                                        "priceCurrency" => "GBP"
-                                    ],
-                                    [
-                                        "@type" => "SalePriceSpecification",
-                                        "price" => $formatted_sale_price,
-                                        "priceCurrency" => "GBP",
-                                        "validThrough" => "2027-12-31"
-                                    ]
-                                ];
-                            }
-
-                            // NO DISCOUNT — NORMAL PRICE ONLY
-                            else {
-                                $markup['offers'][0]['price'] = $formatted_price;
-
-                                $markup['offers'][0]['priceSpecification'] = [
-                                    [
-                                        "@type" => "PriceSpecification",
-                                        "price" => $formatted_price,
-                                        "priceCurrency" => "GBP"
-                                    ]
-                                ];
-                            }
-
-                            break;
-                        }
-                    }
-                }
+        $price = (float) $bundle_product->get_price();
+        if ($price > 0 && ($from_price === null || $price < $from_price)) {
+            $from_price = $price;
+        }
+        if ($psizeUrl !== null && $matched_price === null) {
+            $size_nameP = str_replace(' ', '-', $bundle_product->get_name());
+            if ($size_nameP === $psizeUrl || strpos($size_nameP, $psizeUrl) !== false) {
+                $matched_price = $price;
             }
         }
+    }
+
+    $base_price = ($matched_price !== null) ? $matched_price : $from_price;
+    if ($base_price === null || $base_price <= 0) {
+        return $markup;
+    }
+
+    // Campaign discount %, honouring the show_coupon master toggle + special-category
+    // routing (pt_product_discount_pct returns 0 when campaigns are off).
+    if (function_exists('pt_product_discount_pct')) {
+        $coupon_percent = (float) pt_product_discount_pct($product->get_id());
+    } elseif (function_exists('av_product_qualifies_simple') && av_product_qualifies_simple($product->get_id())) {
+        $coupon_percent = (float) get_field('special_coupon_percentage', 'option');
+    } else {
+        $coupon_percent = (float) get_field('coupon_percentage', 'option');
+    }
+
+    $formatted_price = number_format($base_price, 0, '.', '');
+
+    $markup['offers'][0]['priceCurrency'] = 'GBP';
+    $markup['offers'][0]['availability']  =
+        $product->is_in_stock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
+
+    // IF WE HAVE A DISCOUNT — show the discounted price as primary, keep regular in spec.
+    if ($coupon_percent > 0) {
+        $discounted_price     = $base_price - (($base_price / 100) * $coupon_percent);
+        $formatted_sale_price = number_format($discounted_price, 0, '.', '');
+
+        $markup['offers'][0]['price'] = $formatted_sale_price;
+        $markup['offers'][0]['priceSpecification'] = [
+            [
+                "@type"         => "PriceSpecification",
+                "price"         => $formatted_price,
+                "priceCurrency" => "GBP"
+            ],
+            [
+                "@type"         => "SalePriceSpecification",
+                "price"         => $formatted_sale_price,
+                "priceCurrency" => "GBP",
+                "validThrough"  => "2027-12-31"
+            ]
+        ];
+    }
+    // NO DISCOUNT — NORMAL PRICE ONLY
+    else {
+        $markup['offers'][0]['price'] = $formatted_price;
+        $markup['offers'][0]['priceSpecification'] = [
+            [
+                "@type"         => "PriceSpecification",
+                "price"         => $formatted_price,
+                "priceCurrency" => "GBP"
+            ]
+        ];
     }
 
     return $markup;
