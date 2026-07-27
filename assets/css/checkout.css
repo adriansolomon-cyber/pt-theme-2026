@@ -378,10 +378,13 @@
 .ty .ty-link{ color:var(--charcoal); font-weight:700; text-decoration:underline; text-underline-offset:2px; font-size:.9rem; }
 
 /* order overview strip (order no / date / email / total / payment) */
-.woocommerce-order .woocommerce-order-overview{ list-style:none; margin:0 0 26px; padding:20px 22px; display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px 24px; border:1px solid rgba(33,30,36,.12); border-radius:var(--r); background:var(--white); box-shadow:var(--e1); }
-.woocommerce-order .woocommerce-order-overview li{ display:flex; flex-direction:column; gap:4px; margin:0; padding:0; border:0; font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--txt-soft); font-weight:400; }
+.woocommerce-order .woocommerce-order-overview{ list-style:none; margin:0 0 26px; padding:20px 22px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px 24px; border:1px solid rgba(33,30,36,.12); border-radius:var(--r); background:var(--white); box-shadow:var(--e1); }
+@media(max-width:560px){ .woocommerce-order .woocommerce-order-overview{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.woocommerce-order .woocommerce-order-overview li{ display:flex; flex-direction:column; gap:4px; margin:0; padding:0; border:0; min-width:0; font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--txt-soft); font-weight:400; }
 .woocommerce-order .woocommerce-order-overview li span{ display:block; }
-.woocommerce-order .woocommerce-order-overview li strong{ font-size:1rem; text-transform:none; letter-spacing:0; color:var(--ink); font-weight:700; }
+.woocommerce-order .woocommerce-order-overview li strong{ font-size:1rem; text-transform:none; letter-spacing:0; color:var(--ink); font-weight:700; min-width:0; overflow-wrap:anywhere; }
+/* the total must never split £ from the amount */
+.woocommerce-order .woocommerce-order-overview__total strong{ white-space:nowrap; overflow-wrap:normal; }
 
 /* order details + customer details cards */
 .woocommerce-order .woocommerce-order-details,
