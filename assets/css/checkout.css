@@ -413,6 +413,14 @@
 
 /* addresses */
 .woocommerce-order .woocommerce-customer-details .woocommerce-columns--addresses{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin:0; }
+/* WooCommerce's .col2-set adds clearfix ::before/::after; as a grid they'd become
+   stray cells and throw the two addresses onto a diagonal — remove them, and drop
+   the core float/48% width so the columns sit as clean grid children. */
+.woocommerce-order .woocommerce-customer-details .woocommerce-columns--addresses::before,
+.woocommerce-order .woocommerce-customer-details .woocommerce-columns--addresses::after{ content:none; display:none; }
+.woocommerce-order .woocommerce-customer-details .woocommerce-columns--addresses > .woocommerce-column{ float:none; width:auto; margin:0; padding:0; }
+/* keep the price (£ + amount) on one line in the overview strip */
+.woocommerce-order .woocommerce-order-overview .woocommerce-Price-amount{ white-space:nowrap; }
 .woocommerce-order .woocommerce-customer-details .woocommerce-column__title{ font-size:.95rem; font-weight:700; margin:0 0 8px; }
 .woocommerce-order .woocommerce-customer-details address{ font-style:normal; font-size:.9rem; line-height:1.6; color:var(--txt); font-weight:300; border:0; padding:0; }
 .woocommerce-order .woocommerce-customer-details address .woocommerce-customer-details--phone,
