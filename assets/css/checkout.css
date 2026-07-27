@@ -393,9 +393,11 @@
 .woocommerce-order .woocommerce-customer-details > h2{ font-size:1.1rem; margin:0 0 16px; font-weight:700; }
 
 /* order details table */
-.woocommerce-order table.order_details{ width:100%; border-collapse:collapse; margin:0; }
+/* strip WooCommerce core's .shop_table box (border, radius, -1px margin, cell
+   borders) so it doesn't draw a stray outline/vertical rule against the card. */
+.woocommerce-order table.order_details{ width:100%; border-collapse:collapse !important; margin:0 !important; border:0 !important; border-radius:0 !important; }
 .woocommerce-order table.order_details th,
-.woocommerce-order table.order_details td{ text-align:left; padding:12px 0; border-bottom:1px solid rgba(33,30,36,.08); vertical-align:top; font-size:.9rem; }
+.woocommerce-order table.order_details td{ text-align:left; padding:14px 2px; border:0 !important; border-bottom:1px solid rgba(33,30,36,.08) !important; vertical-align:top; font-size:.9rem; }
 .woocommerce-order table.order_details thead th{ font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--txt-soft); font-weight:700; padding-top:0; }
 .woocommerce-order table.order_details td.product-total,
 .woocommerce-order table.order_details th.product-total,
@@ -411,8 +413,8 @@
 .woocommerce-order table.order_details .variation dt{ font-weight:600; color:var(--txt); }
 .woocommerce-order table.order_details tfoot th{ font-weight:300; color:var(--txt-soft); }
 .woocommerce-order table.order_details tfoot td{ font-weight:700; color:var(--ink); }
-.woocommerce-order table.order_details tfoot tr:last-child th{ font-size:1.05rem; font-weight:700; color:var(--ink); border-bottom:0; padding-top:14px; }
-.woocommerce-order table.order_details tfoot tr:last-child td{ font-size:1.25rem; border-bottom:0; padding-top:14px; }
+.woocommerce-order table.order_details tfoot tr:last-child th{ font-size:1.05rem; font-weight:700; color:var(--ink); border-bottom:0 !important; padding-top:14px; }
+.woocommerce-order table.order_details tfoot tr:last-child td{ font-size:1.25rem; border-bottom:0 !important; padding-top:14px; }
 
 /* addresses */
 .woocommerce-order .woocommerce-customer-details .woocommerce-columns--addresses{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin:0; }
