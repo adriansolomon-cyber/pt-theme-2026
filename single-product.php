@@ -338,7 +338,7 @@ get_header();
     <div class="wc-card">
       <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2020/02/Composite-Cladding-1.png" alt=""></div>
       <h3>Superior composite timber</h3>
-      <p>LP Strongcore composite — the look of wood, none of the upkeep.</p>
+      <p>LP Strongcore composite — the look of wood, with far less upkeep.</p>
     </div>
     <div class="wc-card">
       <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2020/04/Fully-Insulated.png" alt=""></div>
@@ -373,7 +373,7 @@ get_header();
     <div class="wc-card">
       <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#3B333D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.2 5.2l-6.2 6.2 2 2 6.2-6.2a4 4 0 0 0 5.2-5.2l-2.4 2.4-2-2z"/></svg></div>
       <h3>Easy self-assembly</h3>
-      <p>Pre-insulated, pre-assembled panels.</p>
+      <p>Pre-insulated, pre-assembled panels that bolt together simply.</p>
     </div>
     <?php endif; ?>
   </div>
