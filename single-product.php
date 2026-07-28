@@ -212,8 +212,22 @@ get_header();
   </div>
   <?php if ( $pt_has_rows( 'highlights' ) ) : ?>
   <div class="rail">
-    <?php while ( have_rows( 'highlights', $pt_pid ) ) : the_row(); ?>
-      <div class="card photo">
+    <?php
+    // Preserve the design's bento template: big, tall, regular, regular, wide,
+    // wide. Applied by row position so dynamic highlights keep the same varied
+    // layout as the mockup. An explicit ACF "card_size" sub-field (c-big/c-tall/
+    // c-wide) wins if one is ever added to the repeater.
+    $pt_hl_pattern = array( 'c-big', 'c-tall', '', '', 'c-wide', 'c-wide' );
+    $pt_hl_i       = 0;
+    while ( have_rows( 'highlights', $pt_pid ) ) :
+        the_row();
+        $pt_hl_size = get_sub_field( 'card_size' );
+        if ( ! $pt_hl_size ) {
+            $pt_hl_size = isset( $pt_hl_pattern[ $pt_hl_i ] ) ? $pt_hl_pattern[ $pt_hl_i ] : '';
+        }
+        $pt_hl_i++;
+        ?>
+      <div class="<?php echo esc_attr( trim( 'card photo ' . $pt_hl_size ) ); ?>">
         <img src="<?php echo esc_url( get_sub_field( 'image' ) ); ?>" alt="<?php echo esc_attr( get_sub_field( 'title' ) ); ?>">
         <div class="scrim"></div>
         <div class="ctxt"><h3><?php echo esc_html( get_sub_field( 'title' ) ); ?></h3><p class="sub"><?php echo esc_html( get_sub_field( 'subtitle' ) ); ?></p></div>
