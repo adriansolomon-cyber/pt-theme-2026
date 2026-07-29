@@ -199,16 +199,36 @@
     if(galPrev) galPrev.addEventListener('click',function(){ show(gi-1); });
     if(galNext) galNext.addEventListener('click',function(){ show(gi+1); });
     if(galWrap){ var sx=null; galWrap.addEventListener('touchstart',function(e){ sx=e.touches[0].clientX; },{passive:true}); galWrap.addEventListener('touchend',function(e){ if(sx===null)return; var dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40) show(dx<0?gi+1:gi-1); sx=null; }); }
-    // Fetch the parent product's image gallery (best-effort; degrades to the single config image).
+    // Parent product's gallery — shown ONLY as the default before a size is
+    // selected. Once a size is chosen, loadSizeGallery() owns the hero, so this
+    // must not clobber it (guard on sizeId==null).
     function loadGallery(pid){
       galleryBase=(product&&product.images)?product.images.map(function(im){ return im&&im.src; }).filter(Boolean):[];
-      if(galleryBase.length>1){ setGallery(galleryFor((product.images[0]||{}).src)); return; }
+      if(galleryBase.length>1){ if(sizeId==null) setGallery(galleryFor((product.images[0]||{}).src)); return; }
       getJSON(storeUrl('products/'+pid)).then(function(p){
         var arr=Array.isArray(p)?p[0]:p;
         galleryBase=(arr&&arr.images)?arr.images.map(function(im){ return im&&(im.src||im.thumbnail); }).filter(Boolean):galleryBase;
-        var lead=(sizeId!=null&&meta[sizeId]&&meta[sizeId].img)||galleryBase[0]||(product&&product.images&&product.images[0]&&product.images[0].src);
-        setGallery(galleryFor(lead));
+        if(sizeId==null) setGallery(galleryFor(galleryBase[0]||(product&&product.images&&product.images[0]&&product.images[0].src)));
       }).catch(function(){ /* keep whatever single image is showing */ });
+    }
+
+    // Selected-size gallery: feature the chosen size sub-product's OWN gallery
+    // (its first image first). Show its known single image immediately so the
+    // hero never blanks, then fetch its full gallery from the Store API. Cached
+    // per size; a stale fetch is ignored if the user moved on (sizeId!==id).
+    var sizeGalCache={};
+    function loadSizeGallery(id){
+      var sm=meta[id];
+      var fallback=(sm&&sm.img)||(product&&product.images&&product.images[0]&&product.images[0].src)||'';
+      if(sizeGalCache[id]){ setGallery(sizeGalCache[id]); return; }
+      setGallery(fallback?[fallback]:[]);
+      getJSON(storeUrl('products/'+id)).then(function(p){
+        var arr=Array.isArray(p)?p[0]:p;
+        var imgs=(arr&&arr.images)?arr.images.map(function(im){ return im&&(im.src||im.thumbnail); }).filter(Boolean):[];
+        if(!imgs.length) imgs=fallback?[fallback]:[];
+        sizeGalCache[id]=imgs;
+        if(sizeId===id) setGallery(imgs);
+      }).catch(function(){ /* keep the fallback image showing */ });
     }
 
     // ---- gallery lightbox (click the preview to open · browse · zoom) — shares gal/gi/show ----
@@ -444,10 +464,11 @@
     function selectSize(id){
       sizeId=id; sel={}; sel[sizeCid]=id;
       var sc=scenarios[id]; if(!sc) return Promise.resolve();
-      var sm=meta[id];
       loadSpecs(id); markSpecSeg(id); updateSpecImg(sc.name);
       if(elSize) elSize.textContent=sizeDisplay(sc.name);
-      setGallery(galleryFor((sm&&sm.img) || (product&&product.images&&product.images[0]&&product.images[0].src)));
+      // Feature the SELECTED SIZE's own gallery (its first image first), not the
+      // parent product's — each size sub-product has its own images.
+      loadSizeGallery(id);
       markSelected(sizeCid,id); setSelLabel('sel-size',sizeDisplay(sc.name)); revealSelectedSize();
       var need=[]; components.forEach(function(c){ if(c.id===sizeCid) return; (sc.config[c.id]||[]).forEach(function(x){ need.push(x); }); });
       var haveAll=need.every(function(x){ return meta[x]; });
