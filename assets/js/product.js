@@ -14,6 +14,28 @@
     (function(){ var v=document.getElementById('faqVideo'); if(!v) return; var b=v.querySelector('.fv-play');
       if(b) b.addEventListener('click',function(){ v.innerHTML='<iframe src="https://www.youtube.com/embed/gOu01FhR6BA?autoplay=1&rel=0&modestbranding=1&controls=0&disablekb=1&fs=0&iv_load_policy=3" title="My Den FAQ" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>'; }); })();
 
+    // Video modal — routes [data-video] triggers (showcase, paint & trim) into an
+    // on-brand lightbox instead of a new tab. Falls back to the link when JS is off.
+    (function(){
+      var modal=document.getElementById('vmodal'); if(!modal) return;
+      var frame=document.getElementById('vmodalFrame'); if(!frame) return;
+      function ytId(url){ var m=String(url||'').match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i); return m?m[1]:''; }
+      function embedHTML(url){
+        var id=ytId(url);
+        if(id) return '<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="Video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+        return '<video src="'+String(url).replace(/"/g,'&quot;')+'" controls autoplay playsinline></video>';
+      }
+      function openV(url){ if(!url) return; frame.innerHTML=embedHTML(url); modal.hidden=false; document.body.style.overflow='hidden'; var x=modal.querySelector('.vmodal-x'); if(x) x.focus(); }
+      function closeV(){ modal.hidden=true; frame.innerHTML=''; document.body.style.overflow=''; }
+      document.addEventListener('click',function(e){
+        var t=e.target.closest('[data-video]'); if(!t) return;
+        var url=t.getAttribute('data-video')||t.getAttribute('href')||''; if(!url) return;
+        e.preventDefault(); openV(url);
+      });
+      modal.addEventListener('click',function(e){ if(e.target.closest('[data-vclose]')) closeV(); });
+      document.addEventListener('keydown',function(e){ if(e.key==='Escape' && !modal.hidden) closeV(); });
+    })();
+
 
   // scroll reveal
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in-view');io.unobserve(e.target);}});},{threshold:.18});

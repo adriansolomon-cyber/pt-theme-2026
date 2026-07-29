@@ -208,7 +208,7 @@ get_header();
     <?php else : ?>
       <h2>Get the <span class="fade">highlights.</span></h2>
     <?php endif; ?>
-    <a class="filmlink" href="<?php echo esc_url( $pt_f( 'showcase_video_url', 'https://www.youtube.com/watch?v=1AidYysfFB4&t=7s' ) ); ?>" target="_blank" rel="noopener"><span class="pp">▶</span> Watch the showcase</a>
+    <a class="filmlink" href="<?php echo esc_url( $pt_f( 'showcase_video_url', 'https://www.youtube.com/watch?v=1AidYysfFB4&t=7s' ) ); ?>" data-video target="_blank" rel="noopener"><span class="pp">▶</span> Watch the showcase</a>
   </div>
   <?php if ( $pt_has_rows( 'highlights' ) ) : ?>
   <div class="rail">
@@ -514,7 +514,7 @@ get_header();
     <div class="mk-card"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Laminate-flooring.webp" alt="Laminate flooring"><div class="txt"><h3>Laminate flooring</h3><p>Trend Oak Grey or Summer Oak Brown for a finished, home-like feel.</p></div></div>
     <div class="mk-card"><img class="img1" src="https://www.projecttimber.com/wp-content/uploads/2026/06/My-Den-Composite-upvc-white-window.png" alt="UPVC white window"><img class="img2" src="https://www.projecttimber.com/wp-content/uploads/2026/06/My-Den-Composite-upvc-graphite-window.png" alt="UPVC graphite window"><div class="txt"><h3>Windows</h3><p>Double-glazed UPVC — choose white or graphite.</p></div></div>
     <div class="mk-card"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/UPVC_Door_options-1.webp" alt="UPVC door options"><div class="txt"><h3>Door</h3><p>UPVC single door — choose your colour and positioning.</p></div></div>
-    <a class="mk-card" href="https://www.youtube.com/watch?v=37ugD8sF6qs" target="_blank" rel="noopener"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/DSC04911-scaled.jpg" alt="Paint and trim colour options"><span class="play">▶</span><div class="txt"><h3>Paint &amp; trim</h3><p>A range of colours — watch the colour options.</p></div></a>
+    <a class="mk-card" href="https://www.youtube.com/watch?v=37ugD8sF6qs" data-video target="_blank" rel="noopener"><img src="https://www.projecttimber.com/wp-content/uploads/2026/07/DSC04911-scaled.jpg" alt="Paint and trim colour options"><span class="play">▶</span><div class="txt"><h3>Paint &amp; trim</h3><p>A range of colours — watch the colour options.</p></div></a>
     <div class="mk-card"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/assembly_myden_composite.webp" alt="Building assembly service"><div class="txt"><h3>Assembly service</h3><p>Prefer not to build it? Let our team do it for you.</p></div></div>
     <?php endif; ?>
   </div>
@@ -740,6 +740,17 @@ if ( $pt_rec_ids ) :
   <div class="glb-stage"><img class="glb-img" src="" alt="<?php echo esc_attr( $pt_name ); ?> gallery image"></div>
   <button class="glb-btn glb-next" type="button" aria-label="Next image">&rsaquo;</button>
   <div class="glb-count"></div>
+</div>
+
+<!-- ===================== VIDEO MODAL ===================== -->
+<div class="vmodal" id="vmodal" hidden role="dialog" aria-modal="true" aria-label="Video player">
+  <div class="vmodal-back" data-vclose></div>
+  <div class="vmodal-box">
+    <button class="vmodal-x" type="button" aria-label="Close video" data-vclose>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="vmodal-frame" id="vmodalFrame"></div>
+  </div>
 </div>
 
 <?php
