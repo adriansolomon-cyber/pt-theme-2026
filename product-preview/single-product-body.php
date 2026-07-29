@@ -152,8 +152,9 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
     while ( have_rows( 'highlights', $pt_pid ) ) :
         the_row();
         $pt_hl_size = get_sub_field( 'card_size' );
-        if ( '' === $pt_hl_size || null === $pt_hl_size || 'auto' === $pt_hl_size ) {
-            // Auto / unset → follow the design's bento pattern by position.
+        if ( empty( $pt_hl_size ) || 'auto' === $pt_hl_size ) {
+            // Auto / unset / field not registered in ACF (get_sub_field returns
+            // false) → follow the design's bento pattern by position.
             $pt_hl_size = isset( $pt_hl_pattern[ $pt_hl_i ] ) ? $pt_hl_pattern[ $pt_hl_i ] : '';
         } elseif ( 'regular' === $pt_hl_size ) {
             $pt_hl_size = ''; // explicit plain tile
