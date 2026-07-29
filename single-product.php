@@ -628,16 +628,15 @@ get_header();
     </button>
   </div>
 
+  <?php // Default FAQs always render; ACF "faqs" entries are appended after them. ?>
+  <details class="faq-item"><summary>Do I need planning permission?</summary><div class="ans">Usually not. Our buildings are designed to stay under 2.5m in height and fall under "permitted development," so planning permission typically isn't required. Always check with your local authority if you're in a conservation area, national park or listed building, and note the building shouldn't be used as self-contained accommodation. We don't offer legal advice — please confirm with your local planning authority before ordering.</div></details>
+  <details class="faq-item"><summary>Do I need a base?</summary><div class="ans">Yes — all garden buildings must be assembled on a solid, level foundation. Our purpose-made Eze Base provides a solid, level foundation with minimal groundwork; ask us to add it to your order. Assembling on an unsuitable foundation may invalidate your warranty.</div></details>
+  <details class="faq-item"><summary>Is it difficult to assemble?</summary><div class="ans">No. The panels arrive pre-assembled and pre-insulated and fit through a standard doorway. We recommend two people with basic DIY tools, and every building comes with clear, illustrated instructions. Prefer not to build it? Add our assembly service at checkout.</div></details>
+  <details class="faq-item"><summary>How is it delivered?</summary><div class="ans">Kerbside, by lorry or van. You choose a preferred delivery date at checkout and we do our best to meet it — at busier times we may need to agree an alternative date with you, and we'll keep you informed throughout. Please ensure there's clear access in front of your property on the delivery date.</div></details>
   <?php if ( $pt_has_rows( 'faqs' ) ) : ?>
     <?php while ( have_rows( 'faqs', $pt_pid ) ) : the_row(); ?>
       <details class="faq-item"><summary><?php echo esc_html( get_sub_field( 'question' ) ); ?></summary><div class="ans"><?php echo wp_kses_post( get_sub_field( 'answer' ) ); ?></div></details>
     <?php endwhile; ?>
-  <?php else : ?>
-  <details class="faq-item"><summary>Do I need planning permission?</summary><div class="ans">Usually not. Our buildings are designed to stay under 2.5m in height and fall under "permitted development," so planning permission typically isn't required. Always check with your local authority if you're in a conservation area, national park or listed building, and note the building shouldn't be used as self-contained accommodation. We don't offer legal advice — please confirm with your local planning authority before ordering.</div></details>
-  <details class="faq-item"><summary>Do I need a base?</summary><div class="ans">Yes — all garden buildings must be assembled on a solid, level foundation. Our purpose-made Eze Base provides a solid, level foundation with minimal groundwork; ask us to add it to your order. Assembling on an unsuitable foundation may invalidate your warranty.</div></details>
-  <details class="faq-item"><summary>Is it difficult to assemble?</summary><div class="ans">No. The panels arrive pre-assembled and pre-insulated and fit through a standard doorway. We recommend two people with basic DIY tools, and every building comes with clear, illustrated instructions. Prefer not to build it? Add our assembly service at checkout.</div></details>
-  <details class="faq-item"><summary>Will it stay warm enough to use in winter?</summary><div class="ans">Yes. The walls, floor and roof are fully insulated with multi-foil (U-value comparable to 120mm glass wool), and double glazing comes as standard — so it stays comfortable year-round.</div></details>
-  <details class="faq-item"><summary>How is it delivered?</summary><div class="ans">Kerbside, by lorry or van. You choose a preferred delivery date at checkout and we do our best to meet it — at busier times we may need to agree an alternative date with you, and we'll keep you informed throughout. Please ensure there's clear access in front of your property on the delivery date.</div></details>
   <?php endif; ?>
 </div></section>
 
