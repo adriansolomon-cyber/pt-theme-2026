@@ -45,12 +45,15 @@ if ( empty( $pt_pid ) ) {
 }
 $pt_pid = (int) $pt_pid;
 
-// Validate + gate.
+// Validate. The preview page is publicly reachable (access is controlled by
+// showing the "Preview content" button only to managers); we still restrict it
+// to PUBLISHED products so drafts / unpublished content aren't exposed publicly.
+// Users who can edit the product may preview it in any status.
 if ( ! $pt_pid || 'product' !== get_post_type( $pt_pid ) ) {
 	pt_preview_notice( 'Add a product to preview', 'Append <code>?pid=PRODUCT_ID</code> to this page&#8217;s URL — for example <code>?pid=1234</code>.' );
 }
-if ( ! current_user_can( 'edit_post', $pt_pid ) ) {
-	pt_preview_notice( 'Not permitted', 'You need permission to edit this product to preview it. Please sign in as a manager.', 403 );
+if ( 'publish' !== get_post_status( $pt_pid ) && ! current_user_can( 'edit_post', $pt_pid ) ) {
+	pt_preview_notice( 'Not available', 'This product isn&#8217;t published yet.', 404 );
 }
 
 $pt_is_preview = true; // hides the "Preview content" button inside the preview.
