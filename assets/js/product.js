@@ -245,24 +245,6 @@
       setGallery(fallback?[fallback]:[]);
       fetchAllSizeGalleries().then(function(){ if(sizeId===id) apply(); });
     }
-    // Paint every size CARD thumbnail from that size's gallery first image (real
-    // photo). Cards render with the parent photo as placeholder; this swaps in the
-    // per-size photo once the single batched gallery fetch resolves.
-    function paintSizeThumbs(){
-      if(!elRows) return;
-      fetchAllSizeGalleries().then(function(){
-        var cards=elRows&&elRows.querySelector('.opt-cards[data-mode="size"]');
-        if(!cards) return;
-        Object.keys(scenarios).forEach(function(sid){
-          var g=sizeGalCache[sid]; if(!g||!g.length) return;
-          var card=cards.querySelector('.opt-card[data-opt="'+sid+'"]');
-          var im=card&&card.querySelector('.im'); if(!im) return;
-          var existing=im.querySelector('img');
-          if(existing){ existing.src=g[0]; }
-          else { im.classList.remove('ph'); im.insertAdjacentHTML('afterbegin','<img src="'+esc(g[0])+'" alt="">'); }
-        });
-      });
-    }
 
     // ---- gallery lightbox (click the preview to open · browse · zoom) — shares gal/gi/show ----
     (function initGlb(){
@@ -369,7 +351,7 @@
         if(sizeCid && !config[sizeCid]) config[sizeCid]=[sz.id];
         scenarios[sz.id]={ name:sz.name, config:config };
       });
-      sizeGalCache={}; sizeGalPromise=null; fetchAllSizeGalleries(); // warm size galleries ASAP
+      sizeGalCache={}; sizeGalPromise=null; // reset per-size gallery cache (fetched lazily on first size selection)
     }
     function parseProduct(p){
       product=p; components=[]; scenarios={}; meta={}; sel={}; sizeId=null;
@@ -379,7 +361,7 @@
         (s.configuration||[]).forEach(function(it){ var cid=String(it.component_id); var ids=(it.component_options||[]).map(Number).filter(function(x){ return x>0; }); cfg[cid]=ids; if(cid===sizeCid && ids.length) sid=ids[0]; });
         if(sid!=null) scenarios[sid]={ name:s.name, config:cfg };
       });
-      sizeGalCache={}; sizeGalPromise=null; fetchAllSizeGalleries(); // warm size galleries ASAP
+      sizeGalCache={}; sizeGalPromise=null; // reset per-size gallery cache (fetched lazily on first size selection)
     }
 
     // --- batch fetch (fallback proxy flow): products by id list → fills meta{} ---
@@ -475,10 +457,10 @@
     function sizeSortVal(name){ var n=(String(name).match(/\d+(?:\.\d+)?/g)||[]).map(Number); var w=n[0]||0, h=n[1]||0; return [w*h, w, h]; }
     function sortedSizes(){
       var parentImg=(product&&product.images&&product.images[0]&&product.images[0].src)||'';
-      // Prefer the size's own gallery first image (real photo) once fetched. Until
-      // then use the PARENT product's photo as the placeholder — never the size's
-      // featured image (meta.img), which is a promo banner / blank spacer.
-      var sizes=Object.keys(scenarios).map(function(id){ var m=meta[id]; var g=sizeGalCache[id]; return { id:+id, name:scenarios[id].name||((m&&m.name)||('#'+id)), price:m?m.price:null, img:(g&&g[0])||parentImg }; });
+      // Size CARDS use the native WooCommerce featured image (meta.img = the /config
+      // sz.img), falling back to the parent product photo. The gallery is used only
+      // for the hero when a size is selected (see loadSizeGallery).
+      var sizes=Object.keys(scenarios).map(function(id){ var m=meta[id]; return { id:+id, name:scenarios[id].name||((m&&m.name)||('#'+id)), price:m?m.price:null, img:(m&&m.img)||parentImg }; });
       sizes.sort(function(a,b){ var A=sizeSortVal(a.name),B=sizeSortVal(b.name); return A[0]-B[0]||A[1]-B[1]||A[2]-B[2]; });
       return sizes;
     }
@@ -489,7 +471,6 @@
       if(elRows) elRows.innerHTML=rowHTML(1,'Size','sel-size',sizeCid,'size',cards,stepNote(sizeComp||{key:'size'}));
       initSizeFilter();
       renderSpecSeg();
-      paintSizeThumbs();
     }
 
     function maybePreselect(){
