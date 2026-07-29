@@ -525,9 +525,10 @@
 .vmodal{ position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; padding:24px; }
 .vmodal[hidden]{ display:none; }
 .vmodal-back{ position:absolute; inset:0; background:rgba(20,18,22,.72); backdrop-filter:saturate(140%) blur(6px); -webkit-backdrop-filter:saturate(140%) blur(6px); }
-.vmodal-box{ position:relative; width:min(1040px,100%); border-radius:var(--r); overflow:hidden; box-shadow:var(--e3); background:#000; animation:vmodal-in .28s var(--ease); }
+.vmodal-box{ position:relative; width:min(1040px,100%); animation:vmodal-in .28s var(--ease); }
 @keyframes vmodal-in{ from{ opacity:0; transform:translateY(12px) scale(.98); } to{ opacity:1; transform:none; } }
-.vmodal-frame{ position:relative; width:100%; aspect-ratio:16/9; background:#000; }
+/* rounding + clipping live on the frame so the box doesn't clip the overhanging close button */
+.vmodal-frame{ position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:var(--r); overflow:hidden; box-shadow:var(--e3); }
 .vmodal-frame iframe, .vmodal-frame video{ position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
 .vmodal-x{ position:absolute; top:-14px; right:-14px; z-index:2; width:44px; height:44px; border-radius:50%; border:none; cursor:pointer; background:#fff; color:var(--ink); display:flex; align-items:center; justify-content:center; box-shadow:var(--e2); transition:transform .15s var(--ease); }
 .vmodal-x:hover{ transform:scale(1.06); }
