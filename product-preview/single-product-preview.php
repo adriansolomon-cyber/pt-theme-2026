@@ -68,17 +68,25 @@ require __DIR__ . '/preview-deps.php';
 // $pt_f/$pt_show/$pt_has_rows helpers, $pt_hero_img, etc.
 require __DIR__ . '/single-product-setup.php';
 
-$pt_dir = get_stylesheet_directory();
-$pt_uri = get_stylesheet_directory_uri();
-
-// Inline the theme's product styles/scripts so the preview is self-contained.
-$pt_css = '';
-foreach ( array( '/assets/css/base.css', '/assets/css/product.css' ) as $pt_f_css ) {
-	if ( file_exists( $pt_dir . $pt_f_css ) ) {
-		$pt_css .= file_get_contents( $pt_dir . $pt_f_css ) . "\n"; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+// Inline the product styles/scripts so the preview is self-contained. Prefer the
+// copies bundled INSIDE product-preview/assets/ so the preview always shows the NEW
+// design — even when this folder is installed in a different active theme (e.g. the
+// live "theTimber", whose own assets are the OLD design). Fall back to the active
+// theme's assets if a bundled copy is missing.
+// NOTE: the bundled copies are snapshots of assets/{css,js}. If you change the theme's
+// base.css / product.css / product.js, re-copy them into product-preview/assets/.
+$pt_theme = get_stylesheet_directory();
+$pt_asset = function ( $rel ) use ( $pt_theme ) {
+	$rel     = ltrim( $rel, '/' );
+	$bundled = __DIR__ . '/assets/' . $rel;
+	if ( file_exists( $bundled ) ) {
+		return file_get_contents( $bundled ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 	}
-}
-$pt_js = file_exists( $pt_dir . '/assets/js/product.js' ) ? file_get_contents( $pt_dir . '/assets/js/product.js' ) : ''; // phpcs:ignore
+	$themed = $pt_theme . '/assets/' . $rel;
+	return file_exists( $themed ) ? file_get_contents( $themed ) : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+};
+$pt_css = $pt_asset( 'css/base.css' ) . "\n" . $pt_asset( 'css/product.css' ) . "\n";
+$pt_js  = $pt_asset( 'js/product.js' );
 
 // Config globals product.js expects (mirrors functions.php's is_product() block).
 $pt_pv_disc = function_exists( 'pt_product_discount_pct' ) ? (float) pt_product_discount_pct( $pt_pid ) : 0.0;
