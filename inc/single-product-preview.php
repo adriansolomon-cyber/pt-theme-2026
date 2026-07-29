@@ -1,13 +1,16 @@
 <?php
 /**
- * Self-contained product content previewer.
+ * Template Name: Product Preview
+ *
+ * Self-contained product content previewer. Attach this template to a Page, then
+ * visit that page with ?pid=<product_id> in the URL (also accepts ?product_id
+ * or ?product). Also works via ?pt_preview=<id> on any URL (functions.php route,
+ * which sets $pt_pid before including this file).
  *
  * Renders the EXACT product page body (inc/single-product-body.php) from live
- * ACF + product data for the product id in $pt_pid, as a standalone HTML
- * document with the theme's product CSS and JS inlined — no header/footer/cart
- * chrome, independent of the enqueue system. Reached via ?pt_preview=ID
- * (functions.php gates it to users who can edit the product) so managers can
- * preview content without touching the live template.
+ * ACF + product data, as a standalone HTML document with the theme's product CSS
+ * and JS inlined — no header/footer/cart chrome, independent of the enqueue
+ * system. Restricted to users who can edit the product.
  *
  * @package pt-theme-2026
  */
@@ -16,8 +19,41 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// $pt_pid is provided by the caller (functions.php template_redirect handler).
-$pt_pid        = isset( $pt_pid ) ? (int) $pt_pid : 0;
+/** Minimal standalone notice page (no product id / not permitted), then stop. */
+if ( ! function_exists( 'pt_preview_notice' ) ) {
+	function pt_preview_notice( $title, $msg, $code = 200 ) {
+		if ( $code >= 400 ) {
+			status_header( $code );
+		}
+		nocache_headers();
+		echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' . esc_html( $title ) . '</title>';
+		echo '<div style="max-width:540px;margin:16vh auto;padding:0 24px;font:400 16px/1.6 system-ui,-apple-system,sans-serif;text-align:center;color:#211E24">';
+		echo '<h1 style="font-size:1.4rem;margin:0 0 .5em">' . esc_html( $title ) . '</h1>';
+		echo '<p style="color:#555">' . wp_kses_post( $msg ) . '</p></div>';
+		exit;
+	}
+}
+
+// Product id: from the caller (?pt_preview route), else from the page URL.
+if ( empty( $pt_pid ) ) {
+	$pt_pid = 0;
+	foreach ( array( 'pid', 'product_id', 'product', 'pt_preview' ) as $pt_pv_key ) {
+		if ( ! empty( $_GET[ $pt_pv_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$pt_pid = absint( wp_unslash( $_GET[ $pt_pv_key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+			break;
+		}
+	}
+}
+$pt_pid = (int) $pt_pid;
+
+// Validate + gate.
+if ( ! $pt_pid || 'product' !== get_post_type( $pt_pid ) ) {
+	pt_preview_notice( 'Add a product to preview', 'Append <code>?pid=PRODUCT_ID</code> to this page&#8217;s URL — for example <code>?pid=1234</code>.' );
+}
+if ( ! current_user_can( 'edit_post', $pt_pid ) ) {
+	pt_preview_notice( 'Not permitted', 'You need permission to edit this product to preview it. Please sign in as a manager.', 403 );
+}
+
 $pt_is_preview = true; // hides the "Preview content" button inside the preview.
 
 // Shared setup: defines $pt_name, $pt_product, $pt_line, $pt_from, the
