@@ -203,12 +203,17 @@ add_action(
 				// the real money-off is the auto-applied coupon at checkout.
 				$pt_disc = function_exists( 'pt_product_discount_pct' ) ? (float) pt_product_discount_pct( get_queried_object_id() ) : 0.0;
 
+				// Per-size technical-drawing images (ACF dynamic_sliders → Tech Specs tab),
+				// keyed by size (e.g. "12x8"); the specs diagram switches with the size.
+				$pt_spec_imgs = function_exists( 'pt_spec_size_images' ) ? pt_spec_size_images( get_queried_object_id() ) : array();
+
 				wp_add_inline_script(
 					'pt-product',
 					'window.PT_WC_BASE=' . wp_json_encode( untrailingslashit( home_url() ) ) . ';'
 					. 'window.PT_PRODUCT_ID=' . wp_json_encode( (string) get_queried_object_id() ) . ';'
 					. 'window.PT_BEST_SIZES=' . wp_json_encode( $pt_best_arr ) . ';'
-					. 'window.PT_DISCOUNT_PCT=' . wp_json_encode( $pt_disc ) . ';',
+					. 'window.PT_DISCOUNT_PCT=' . wp_json_encode( $pt_disc ) . ';'
+					. 'window.PT_SPEC_IMAGES=' . wp_json_encode( (object) $pt_spec_imgs ) . ';',
 					'before'
 				);
 			}

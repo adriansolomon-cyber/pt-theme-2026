@@ -110,6 +110,72 @@ function pt_bump_from_price_cache_ver() {
 add_action( 'save_post_product', 'pt_bump_from_price_cache_ver' );
 add_action( 'woocommerce_new_product', 'pt_bump_from_price_cache_ver' );
 
+/**
+ * Per-size technical-drawing images for the Specifications section, from the
+ * product's ACF "dynamic_sliders" repeater (each tab has tab_name + an images
+ * repeater of { image }). We use the "Tech Specs"-style tab and key each image
+ * by the size parsed from its filename/title (e.g. "…12x8…" → "12x8"), so the
+ * specs diagram can switch with the selected size.
+ *
+ * Returns array( '12x8' => url, '12x6' => url, … ) — empty when none.
+ */
+function pt_spec_size_images( $product_id ) {
+	if ( ! function_exists( 'get_field' ) ) {
+		return array();
+	}
+	$sliders = get_field( 'dynamic_sliders', $product_id );
+	if ( ! is_array( $sliders ) || empty( $sliders ) ) {
+		return array();
+	}
+
+	// Prefer a "spec"-named tab; fall back to every tab so it still works if the
+	// tab is named differently — only size-parseable images are ever added.
+	$preferred = array();
+	$others    = array();
+	foreach ( $sliders as $tab ) {
+		$name = isset( $tab['tab_name'] ) ? strtolower( (string) $tab['tab_name'] ) : '';
+		if ( false !== strpos( $name, 'spec' ) ) {
+			$preferred[] = $tab;
+		} else {
+			$others[] = $tab;
+		}
+	}
+
+	$map = array();
+	foreach ( array_merge( $preferred, $others ) as $tab ) {
+		$images = ( isset( $tab['images'] ) && is_array( $tab['images'] ) ) ? $tab['images'] : array();
+		foreach ( $images as $row ) {
+			$img = isset( $row['image'] ) ? $row['image'] : null;
+			if ( ! $img ) {
+				continue;
+			}
+			// Resolve URL + a haystack to parse the size from (handles the image
+			// field's url / array / id return formats).
+			if ( is_array( $img ) ) {
+				$url = isset( $img['url'] ) ? $img['url'] : '';
+				$hay = trim( ( isset( $img['filename'] ) ? $img['filename'] : '' ) . ' ' . ( isset( $img['title'] ) ? $img['title'] : '' ) . ' ' . ( isset( $img['alt'] ) ? $img['alt'] : '' ) . ' ' . $url );
+			} elseif ( is_numeric( $img ) ) {
+				$url = wp_get_attachment_url( (int) $img );
+				$hay = get_the_title( (int) $img ) . ' ' . $url;
+			} else {
+				$url = (string) $img;
+				$hay = $url;
+			}
+			if ( ! $url ) {
+				continue;
+			}
+			// Size like 12x8 / 12 x 8 (× too). Not "-" — filenames use "01-1" suffixes.
+			if ( preg_match( '/(\d+)\s*[x×]\s*(\d+)/i', $hay, $m ) ) {
+				$key = $m[1] . 'x' . $m[2];
+				if ( ! isset( $map[ $key ] ) ) { // first (preferred tab) wins
+					$map[ $key ] = $url;
+				}
+			}
+		}
+	}
+	return $map;
+}
+
 /** "From £1,234" (or empty string if no price). */
 function pt_product_from_price_html( $product ) {
 	$p = pt_product_from_price( $product );

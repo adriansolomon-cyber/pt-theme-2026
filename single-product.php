@@ -552,7 +552,12 @@ get_header();
       </div>
     </div>
   </div>
-  <div class="dim-soon">
+  <!-- Per-size technical drawing (ACF dynamic_sliders → Tech Specs). product.js
+       shows this and hides the placeholder when a drawing exists for the size. -->
+  <figure class="spec-figure" id="specFigure" hidden>
+    <img id="specImg" src="" alt="Technical specification diagram">
+  </figure>
+  <div class="dim-soon" id="dimSoon">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l5-5 12 12-5 5z"/><path d="M8 8l1.8 1.8M11 5l1.8 1.8M14 8l1.8 1.8M5 11l1.8 1.8"/></svg>
     <div><b>Interactive measurements coming soon</b><p>A live, unit-aware dimension diagram is on the way. Full specifications are below.</p></div>
   </div>

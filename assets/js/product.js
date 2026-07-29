@@ -230,6 +230,15 @@
     var specImg=$('specImg'), specSeg=$('sizeseg'), unitSeg=$('unitseg');
     var specCells=document.querySelectorAll('#specs [data-spec]');
     var specFallback={}; specCells.forEach(function(c){ specFallback[c.getAttribute('data-spec')]=c.textContent; });
+    // Per-size technical drawings (ACF dynamic_sliders → Tech Specs), keyed "12x8".
+    var SPEC_IMAGES=(typeof window!=='undefined'&&window.PT_SPEC_IMAGES)||{};
+    function specImgKey(name){ var m=String(name==null?'':name).match(/(\d+)\s*[x×]\s*(\d+)/i); return m ? (m[1]+'x'+m[2]) : ''; }
+    function updateSpecImg(sizeName){
+      var fig=$('specFigure'), dim=$('dimSoon');
+      var url=SPEC_IMAGES[specImgKey(sizeName)]||'';
+      if(url && specImg){ specImg.src=url; specImg.alt=((product&&product.name)||'Product')+' '+sizeName+' technical drawing'; if(fig)fig.hidden=false; if(dim)dim.hidden=true; }
+      else { if(fig)fig.hidden=true; if(dim)dim.hidden=false; }
+    }
     function specVal(raw,isDim){
       if(raw==null||raw==='') return null;
       var s=String(raw).trim();
@@ -262,6 +271,8 @@
       if(!specSeg) return;
       var sizes=sortedSizes();
       specSeg.innerHTML=sizes.map(function(s){ return '<button data-size-id="'+s.id+'"'+(s.id===sizeId?' class="on"':'')+'>'+esc(sizeDisplay(s.name))+'</button>'; }).join('');
+      // Default the spec diagram to the selected size, else the first size.
+      updateSpecImg( ( sizeId!=null && scenarios[sizeId] ) ? scenarios[sizeId].name : ( sizes[0] && sizes[0].name ) );
     }
     function markSpecSeg(id){ if(!specSeg) return; specSeg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', +b.dataset.sizeId===+id); }); }
     if(specSeg){ specSeg.addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; selectSize(+b.dataset.sizeId); }); }
@@ -412,8 +423,7 @@
       sizeId=id; sel={}; sel[sizeCid]=id;
       var sc=scenarios[id]; if(!sc) return Promise.resolve();
       var sm=meta[id];
-      loadSpecs(id); markSpecSeg(id);
-      if(specImg && sm && sm.img){ specImg.src=sm.img; specImg.alt=(product?product.name:'Product')+' '+sc.name+' preview'; }
+      loadSpecs(id); markSpecSeg(id); updateSpecImg(sc.name);
       if(elSize) elSize.textContent=sizeDisplay(sc.name);
       setGallery(galleryFor((sm&&sm.img) || (product&&product.images&&product.images[0]&&product.images[0].src)));
       markSelected(sizeCid,id); setSelLabel('sel-size',sizeDisplay(sc.name)); revealSelectedSize();
