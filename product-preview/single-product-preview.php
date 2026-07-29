@@ -55,6 +55,12 @@ if ( ! current_user_can( 'edit_post', $pt_pid ) ) {
 
 $pt_is_preview = true; // hides the "Preview content" button inside the preview.
 
+// Portable fallbacks for the theme helpers the previewer uses (pt_product_line_singular,
+// pt_product_from_price_*, pt_spec_size_images). Guarded with function_exists(), so this
+// is a no-op when the new theme is active and a safe fallback when this folder is dropped
+// into a different active theme (e.g. the live "theTimber") that doesn't define them.
+require __DIR__ . '/preview-deps.php';
+
 // Shared setup: defines $pt_name, $pt_product, $pt_line, $pt_from, the
 // $pt_f/$pt_show/$pt_has_rows helpers, $pt_hero_img, etc.
 require __DIR__ . '/single-product-setup.php';
