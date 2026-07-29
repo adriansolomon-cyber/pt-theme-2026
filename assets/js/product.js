@@ -212,48 +212,51 @@
       }).catch(function(){ /* keep whatever single image is showing */ });
     }
 
-    // A size sub-product's WooCommerce PRODUCT GALLERY (the real building photos),
+    // Each size sub-product's WooCommerce PRODUCT GALLERY (the real building photos),
     // i.e. everything EXCEPT its featured image. The featured image is unreliable
     // here — often a promo "Special Price" banner, a blank spacer.png, or even a
     // mismatched photo — so we drop it. The Store API returns the featured image
-    // first, then the gallery in order, so gallery = images.slice(1) (fall back to
-    // the single image if that's all there is). Cached per size.
-    var sizeGalCache={};
-    function fetchSizeGallery(id){
-      if(sizeGalCache[id]) return Promise.resolve(sizeGalCache[id]);
-      return getJSON(storeUrl('products/'+id)).then(function(p){
-        var arr=Array.isArray(p)?p[0]:p;
-        var all=(arr&&arr.images)?arr.images.map(function(im){ return im&&(im.src||im.thumbnail); }).filter(Boolean):[];
-        var gallery=(all.length>1)?all.slice(1):all;
-        sizeGalCache[id]=gallery;
-        return gallery;
-      }).catch(function(){ sizeGalCache[id]=[]; return []; });
+    // first then the gallery in order, so gallery = images.slice(1).
+    //
+    // Fetched for ALL sizes in ONE batched Store API call (include=…&_fields=id,images)
+    // and memoised, so there's a single fast round-trip rather than one request per
+    // size. sizeGalCache: id -> array of gallery image srcs.
+    var sizeGalCache={}, sizeGalPromise=null;
+    function fetchAllSizeGalleries(){
+      if(sizeGalPromise) return sizeGalPromise;
+      var ids=Object.keys(scenarios).map(Number).filter(function(x){ return x>0; });
+      if(!ids.length){ sizeGalPromise=Promise.resolve(sizeGalCache); return sizeGalPromise; }
+      sizeGalPromise=getJSON(storeUrl('products?per_page=100&_fields=id,images&include='+ids.join(','))).then(function(list){
+        (Array.isArray(list)?list:[]).forEach(function(p){
+          var all=(p&&p.images)?p.images.map(function(im){ return im&&(im.src||im.thumbnail); }).filter(Boolean):[];
+          sizeGalCache[p.id]=(all.length>1)?all.slice(1):all;
+        });
+        return sizeGalCache;
+      }).catch(function(){ return sizeGalCache; });
+      return sizeGalPromise;
     }
     // Selected-size hero: feature the chosen size's gallery (first gallery image
-    // first). Show a placeholder immediately so the hero never blanks, then swap
-    // in the gallery from the Store API. A stale fetch is ignored (sizeId!==id).
+    // first). Show the parent's photo immediately so the hero never blanks, then
+    // swap in the size gallery. A stale fetch is ignored (sizeId!==id).
     function loadSizeGallery(id){
-      var sm=meta[id];
-      var fallback=(product&&product.images&&product.images[0]&&product.images[0].src)||(sm&&sm.img)||'';
-      var cached=sizeGalCache[id];
-      if(cached){ setGallery(cached.length?cached:(fallback?[fallback]:[])); return; }
+      var fallback=(product&&product.images&&product.images[0]&&product.images[0].src)||'';
+      var apply=function(){ var g=sizeGalCache[id]; setGallery((g&&g.length)?g:(fallback?[fallback]:[])); };
+      if(sizeGalCache[id]){ apply(); return; }
       setGallery(fallback?[fallback]:[]);
-      fetchSizeGallery(id).then(function(g){
-        if(sizeId!==id) return;
-        setGallery(g.length?g:(fallback?[fallback]:[]));
-      });
+      fetchAllSizeGalleries().then(function(){ if(sizeId===id) apply(); });
     }
-    // Paint each size CARD thumbnail from that size's gallery first image (real
-    // photo), replacing the promo/spacer featured image the config hands us.
+    // Paint every size CARD thumbnail from that size's gallery first image (real
+    // photo). Cards render with the parent photo as placeholder; this swaps in the
+    // per-size photo once the single batched gallery fetch resolves.
     function paintSizeThumbs(){
       if(!elRows) return;
-      Object.keys(scenarios).forEach(function(sid){
-        fetchSizeGallery(+sid).then(function(g){
-          if(!g.length || !elRows) return;
-          var cards=elRows.querySelector('.opt-cards[data-mode="size"]');
-          var card=cards&&cards.querySelector('.opt-card[data-opt="'+sid+'"]');
-          var im=card&&card.querySelector('.im');
-          if(!im) return;
+      fetchAllSizeGalleries().then(function(){
+        var cards=elRows&&elRows.querySelector('.opt-cards[data-mode="size"]');
+        if(!cards) return;
+        Object.keys(scenarios).forEach(function(sid){
+          var g=sizeGalCache[sid]; if(!g||!g.length) return;
+          var card=cards.querySelector('.opt-card[data-opt="'+sid+'"]');
+          var im=card&&card.querySelector('.im'); if(!im) return;
           var existing=im.querySelector('img');
           if(existing){ existing.src=g[0]; }
           else { im.classList.remove('ph'); im.insertAdjacentHTML('afterbegin','<img src="'+esc(g[0])+'" alt="">'); }
@@ -366,6 +369,7 @@
         if(sizeCid && !config[sizeCid]) config[sizeCid]=[sz.id];
         scenarios[sz.id]={ name:sz.name, config:config };
       });
+      sizeGalCache={}; sizeGalPromise=null; fetchAllSizeGalleries(); // warm size galleries ASAP
     }
     function parseProduct(p){
       product=p; components=[]; scenarios={}; meta={}; sel={}; sizeId=null;
@@ -375,6 +379,7 @@
         (s.configuration||[]).forEach(function(it){ var cid=String(it.component_id); var ids=(it.component_options||[]).map(Number).filter(function(x){ return x>0; }); cfg[cid]=ids; if(cid===sizeCid && ids.length) sid=ids[0]; });
         if(sid!=null) scenarios[sid]={ name:s.name, config:cfg };
       });
+      sizeGalCache={}; sizeGalPromise=null; fetchAllSizeGalleries(); // warm size galleries ASAP
     }
 
     // --- batch fetch (fallback proxy flow): products by id list → fills meta{} ---
@@ -470,9 +475,10 @@
     function sizeSortVal(name){ var n=(String(name).match(/\d+(?:\.\d+)?/g)||[]).map(Number); var w=n[0]||0, h=n[1]||0; return [w*h, w, h]; }
     function sortedSizes(){
       var parentImg=(product&&product.images&&product.images[0]&&product.images[0].src)||'';
-      // Prefer the size's own gallery first image (real photo) once fetched; the
-      // meta img (featured) is only a placeholder until paintSizeThumbs() runs.
-      var sizes=Object.keys(scenarios).map(function(id){ var m=meta[id]; var g=sizeGalCache[id]; return { id:+id, name:scenarios[id].name||((m&&m.name)||('#'+id)), price:m?m.price:null, img:(g&&g[0])||(m&&m.img)||parentImg }; });
+      // Prefer the size's own gallery first image (real photo) once fetched. Until
+      // then use the PARENT product's photo as the placeholder — never the size's
+      // featured image (meta.img), which is a promo banner / blank spacer.
+      var sizes=Object.keys(scenarios).map(function(id){ var m=meta[id]; var g=sizeGalCache[id]; return { id:+id, name:scenarios[id].name||((m&&m.name)||('#'+id)), price:m?m.price:null, img:(g&&g[0])||parentImg }; });
       sizes.sort(function(a,b){ var A=sizeSortVal(a.name),B=sizeSortVal(b.name); return A[0]-B[0]||A[1]-B[1]||A[2]-B[2]; });
       return sizes;
     }
