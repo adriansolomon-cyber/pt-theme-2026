@@ -12,11 +12,6 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 ?>
 
-<?php // Manager-only link to the self-contained content previewer (hidden in the preview itself). ?>
-<?php if ( ! ( isset( $pt_is_preview ) && $pt_is_preview ) && current_user_can( 'edit_post', (int) $pt_pid ) ) : ?>
-<a class="pt-preview-fab" href="<?php echo esc_url( add_query_arg( 'pt_preview', (int) $pt_pid, home_url( '/' ) ) ); ?>" target="_blank" rel="noopener" style="position:fixed;right:16px;bottom:84px;z-index:9999;display:inline-flex;align-items:center;gap:7px;background:#211E24;color:#fff;font-family:inherit;font-weight:700;font-size:.8rem;padding:10px 15px;border-radius:999px;text-decoration:none;box-shadow:0 8px 22px rgba(0,0,0,.28)">Preview content &#8599;</a>
-<?php endif; ?>
-
 <div class="subnav">
   <span class="brand"><?php echo esc_html( $pt_name ); ?></span>
   <nav class="tabs"><a href="#configure">Configure</a><?php

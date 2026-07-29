@@ -39,28 +39,6 @@ require_once get_stylesheet_directory() . '/inc/product-render.php';
 // Live search suggestions REST endpoint (header typeahead).
 require_once get_stylesheet_directory() . '/inc/search-suggest.php';
 
-/**
- * Content previewer: ?pt_preview=<product_id> on any URL renders the product's
- * page content in a self-contained template (inc/single-product-preview.php),
- * for users who can edit that product. Lets managers preview ACF/product content
- * without affecting the live template.
- */
-add_action(
-	'template_redirect',
-	function () {
-		if ( empty( $_GET['pt_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			return;
-		}
-		$pt_pid = absint( wp_unslash( $_GET['pt_preview'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
-		if ( ! $pt_pid || 'product' !== get_post_type( $pt_pid ) || ! current_user_can( 'edit_post', $pt_pid ) ) {
-			return; // fall through to the normal request when invalid / not permitted
-		}
-		require get_stylesheet_directory() . '/inc/single-product-preview.php';
-		exit;
-	},
-	1
-);
-
 // ── Back-office migration from the old theme (verbatim; loaded in phases) ──
 require_once get_stylesheet_directory() . '/inc/order-statuses.php';   // custom WC order statuses
 
