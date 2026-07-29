@@ -212,23 +212,53 @@
       }).catch(function(){ /* keep whatever single image is showing */ });
     }
 
-    // Selected-size gallery: feature the chosen size sub-product's OWN gallery
-    // (its first image first). Show its known single image immediately so the
-    // hero never blanks, then fetch its full gallery from the Store API. Cached
-    // per size; a stale fetch is ignored if the user moved on (sizeId!==id).
+    // A size sub-product's WooCommerce PRODUCT GALLERY (the real building photos),
+    // i.e. everything EXCEPT its featured image. The featured image is unreliable
+    // here — often a promo "Special Price" banner, a blank spacer.png, or even a
+    // mismatched photo — so we drop it. The Store API returns the featured image
+    // first, then the gallery in order, so gallery = images.slice(1) (fall back to
+    // the single image if that's all there is). Cached per size.
     var sizeGalCache={};
+    function fetchSizeGallery(id){
+      if(sizeGalCache[id]) return Promise.resolve(sizeGalCache[id]);
+      return getJSON(storeUrl('products/'+id)).then(function(p){
+        var arr=Array.isArray(p)?p[0]:p;
+        var all=(arr&&arr.images)?arr.images.map(function(im){ return im&&(im.src||im.thumbnail); }).filter(Boolean):[];
+        var gallery=(all.length>1)?all.slice(1):all;
+        sizeGalCache[id]=gallery;
+        return gallery;
+      }).catch(function(){ sizeGalCache[id]=[]; return []; });
+    }
+    // Selected-size hero: feature the chosen size's gallery (first gallery image
+    // first). Show a placeholder immediately so the hero never blanks, then swap
+    // in the gallery from the Store API. A stale fetch is ignored (sizeId!==id).
     function loadSizeGallery(id){
       var sm=meta[id];
-      var fallback=(sm&&sm.img)||(product&&product.images&&product.images[0]&&product.images[0].src)||'';
-      if(sizeGalCache[id]){ setGallery(sizeGalCache[id]); return; }
+      var fallback=(product&&product.images&&product.images[0]&&product.images[0].src)||(sm&&sm.img)||'';
+      var cached=sizeGalCache[id];
+      if(cached){ setGallery(cached.length?cached:(fallback?[fallback]:[])); return; }
       setGallery(fallback?[fallback]:[]);
-      getJSON(storeUrl('products/'+id)).then(function(p){
-        var arr=Array.isArray(p)?p[0]:p;
-        var imgs=(arr&&arr.images)?arr.images.map(function(im){ return im&&(im.src||im.thumbnail); }).filter(Boolean):[];
-        if(!imgs.length) imgs=fallback?[fallback]:[];
-        sizeGalCache[id]=imgs;
-        if(sizeId===id) setGallery(imgs);
-      }).catch(function(){ /* keep the fallback image showing */ });
+      fetchSizeGallery(id).then(function(g){
+        if(sizeId!==id) return;
+        setGallery(g.length?g:(fallback?[fallback]:[]));
+      });
+    }
+    // Paint each size CARD thumbnail from that size's gallery first image (real
+    // photo), replacing the promo/spacer featured image the config hands us.
+    function paintSizeThumbs(){
+      if(!elRows) return;
+      Object.keys(scenarios).forEach(function(sid){
+        fetchSizeGallery(+sid).then(function(g){
+          if(!g.length || !elRows) return;
+          var cards=elRows.querySelector('.opt-cards[data-mode="size"]');
+          var card=cards&&cards.querySelector('.opt-card[data-opt="'+sid+'"]');
+          var im=card&&card.querySelector('.im');
+          if(!im) return;
+          var existing=im.querySelector('img');
+          if(existing){ existing.src=g[0]; }
+          else { im.classList.remove('ph'); im.insertAdjacentHTML('afterbegin','<img src="'+esc(g[0])+'" alt="">'); }
+        });
+      });
     }
 
     // ---- gallery lightbox (click the preview to open · browse · zoom) — shares gal/gi/show ----
@@ -440,7 +470,9 @@
     function sizeSortVal(name){ var n=(String(name).match(/\d+(?:\.\d+)?/g)||[]).map(Number); var w=n[0]||0, h=n[1]||0; return [w*h, w, h]; }
     function sortedSizes(){
       var parentImg=(product&&product.images&&product.images[0]&&product.images[0].src)||'';
-      var sizes=Object.keys(scenarios).map(function(id){ var m=meta[id]; return { id:+id, name:scenarios[id].name||((m&&m.name)||('#'+id)), price:m?m.price:null, img:(m&&m.img)||parentImg }; });
+      // Prefer the size's own gallery first image (real photo) once fetched; the
+      // meta img (featured) is only a placeholder until paintSizeThumbs() runs.
+      var sizes=Object.keys(scenarios).map(function(id){ var m=meta[id]; var g=sizeGalCache[id]; return { id:+id, name:scenarios[id].name||((m&&m.name)||('#'+id)), price:m?m.price:null, img:(g&&g[0])||(m&&m.img)||parentImg }; });
       sizes.sort(function(a,b){ var A=sizeSortVal(a.name),B=sizeSortVal(b.name); return A[0]-B[0]||A[1]-B[1]||A[2]-B[2]; });
       return sizes;
     }
@@ -451,6 +483,7 @@
       if(elRows) elRows.innerHTML=rowHTML(1,'Size','sel-size',sizeCid,'size',cards,stepNote(sizeComp||{key:'size'}));
       initSizeFilter();
       renderSpecSeg();
+      paintSizeThumbs();
     }
 
     function maybePreselect(){
