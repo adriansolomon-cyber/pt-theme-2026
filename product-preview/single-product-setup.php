@@ -3,7 +3,7 @@
  * Single-product SETUP (shared).
  *
  * Extracted from single-product.php so the content previewer
- * (inc/single-product-preview.php, via ?pt_preview=ID) reuses the exact
+ * (product-preview/single-product-preview.php, via ?pid= on a Page) reuses the exact
  * same rendering. Expects $pt_pid to be set; defines $pt_name/$pt_product/
  * $pt_line/$pt_from and the $pt_f/$pt_show/$pt_has_rows helpers,
  * $pt_hero_img, and generates the product JSON-LD.

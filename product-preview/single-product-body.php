@@ -4,8 +4,8 @@
  *
  * The product page sections (between get_header() and get_footer()).
  * Included by single-product.php AND the self-contained content previewer
- * (inc/single-product-preview.php). Relies on vars/closures from
- * inc/single-product-setup.php ($pt_pid, $pt_name, $pt_f, $pt_show, …).
+ * (product-preview/single-product-preview.php). Relies on vars/closures from
+ * product-preview/single-product-setup.php ($pt_pid, $pt_name, $pt_f, $pt_show, …).
  *
  * @package pt-theme-2026
  */

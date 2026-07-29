@@ -4,10 +4,9 @@
  *
  * Self-contained product content previewer. Attach this template to a Page, then
  * visit that page with ?pid=<product_id> in the URL (also accepts ?product_id
- * or ?product). Also works via ?pt_preview=<id> on any URL (functions.php route,
- * which sets $pt_pid before including this file).
+ * or ?product).
  *
- * Renders the EXACT product page body (inc/single-product-body.php) from live
+ * Renders the EXACT product page body (product-preview/single-product-body.php) from live
  * ACF + product data, as a standalone HTML document with the theme's product CSS
  * and JS inlined — no header/footer/cart chrome, independent of the enqueue
  * system. Restricted to users who can edit the product.
@@ -34,10 +33,10 @@ if ( ! function_exists( 'pt_preview_notice' ) ) {
 	}
 }
 
-// Product id: from the caller (?pt_preview route), else from the page URL.
+// Product id from the page URL (?pid / ?product_id / ?product).
 if ( empty( $pt_pid ) ) {
 	$pt_pid = 0;
-	foreach ( array( 'pid', 'product_id', 'product', 'pt_preview' ) as $pt_pv_key ) {
+	foreach ( array( 'pid', 'product_id', 'product' ) as $pt_pv_key ) {
 		if ( ! empty( $_GET[ $pt_pv_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$pt_pid = absint( wp_unslash( $_GET[ $pt_pv_key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification
 			break;
