@@ -348,7 +348,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <?php endif; ?>
 <!-- ===================== COMPOSITE CLADDING (5) ===================== -->
 <?php if ( $pt_show( 'show_cladding' ) ) : ?>
-<section class="immerse">
+<section class="immerse tall">
   <video class="clad-video" muted playsinline preload="auto">
     <source src="<?php echo esc_url( $pt_f( 'cladding_video_url', 'https://www.projecttimber.com/wp-content/uploads/2026/06/Composite_Cladding_Final.mp4' ) ); ?>" type="video/mp4">
   </video>
@@ -457,7 +457,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <?php endif; ?>
 <!-- ===================== LARGE IMAGE WITH CARD (9) ===================== -->
 <?php if ( $pt_show( 'show_wfh' ) ) : ?>
-<section class="immerse">
+<section class="immerse tall">
   <img src="<?php echo esc_url( $pt_f( 'wfh_image', 'https://www.projecttimber.com/wp-content/uploads/2026/06/10x8_My_Den_Composite_Garden_Office_04.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>">
   <div class="panel">
     <div class="eyebrow" style="color:#fff;opacity:.7"><?php echo esc_html( $pt_f( 'wfh_eyebrow', 'SPACE, DONE PROPERLY' ) ); ?></div>
