@@ -48,7 +48,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <!-- ===================== INLINE CONFIGURATOR (non-popup) ===================== -->
 <section class="configurator" id="configure"><div class="wrap">
   <?php $pt_cfg_heading = $pt_f( 'configurator_heading', '' ); ?>
-  <div class="sec-head"><h2><?php if ( $pt_cfg_heading ) : echo esc_html( $pt_cfg_heading ); else : ?>Build <span class="fade">your <?php echo esc_html( $pt_line ); ?>.</span><?php endif; ?></h2></div>
+  <div class="sec-head"><h2><?php if ( $pt_cfg_heading ) : echo wp_kses_post( $pt_cfg_heading ); else : ?>Build <span class="fade">your <?php echo esc_html( $pt_line ); ?>.</span><?php endif; ?></h2></div>
   <div class="cfg-grid">
 
     <div class="cfg-preview">
@@ -136,7 +136,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
   <div class="sec-head">
     <?php $pt_hl_heading = get_field( 'highlights_heading', $pt_pid ); ?>
     <?php if ( $pt_hl_heading ) : ?>
-      <h2><?php echo esc_html( $pt_hl_heading ); ?></h2>
+      <h2><?php echo wp_kses_post( $pt_hl_heading ); ?></h2>
     <?php else : ?>
       <h2>Get the <span class="fade">highlights.</span></h2>
     <?php endif; ?>
@@ -213,12 +213,12 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
   <div class="eyebrow"><?php echo wp_kses_post( $pt_f( 'included_eyebrow', 'In the box' ) ); ?></div>
   <?php $pt_inc_heading = get_field( 'included_heading', $pt_pid ); ?>
   <?php if ( $pt_inc_heading ) : ?>
-    <h2><?php echo esc_html( $pt_inc_heading ); ?></h2>
+    <h2><?php echo wp_kses_post( $pt_inc_heading ); ?></h2>
   <?php else : ?>
     <h2>Everything you need, <span class="fade">in one delivery.</span></h2>
   <?php endif; ?>
   <?php $pt_inc_lead = get_field( 'included_lead', $pt_pid ); ?>
-  <p class="lead"><?php echo $pt_inc_lead ? esc_html( $pt_inc_lead ) : 'No hidden extras and no surprise add-ons. Your ' . esc_html( $pt_line ) . ' arrives complete — every panel, fixing and fitting ready to go.'; ?></p>
+  <p class="lead"><?php echo $pt_inc_lead ? wp_kses_post( $pt_inc_lead ) : 'No hidden extras and no surprise add-ons. Your ' . esc_html( $pt_line ) . ' arrives complete — every panel, fixing and fitting ready to go.'; ?></p>
   <div class="inc-grid">
     <div class="inc-media"><img src="<?php echo esc_url( $pt_f( 'included_image', 'https://www.projecttimber.com/wp-content/uploads/2024/10/8x8_Evolution_My_Den_Composite_Cladding_Garden_Office_01.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
     <ul class="inc-list">
@@ -243,7 +243,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
     </ul>
   </div>
   <?php $pt_cfg_cta = $pt_f( 'configure_cta_label', '' ); ?>
-  <a class="btn-primary" href="#configure"><?php echo $pt_cfg_cta ? esc_html( $pt_cfg_cta ) : 'Configure your ' . esc_html( $pt_line ); ?> <span class="a">→</span></a>
+  <a class="btn-primary" href="#configure"><?php echo $pt_cfg_cta ? wp_kses_post( $pt_cfg_cta ) : 'Configure your ' . esc_html( $pt_line ); ?> <span class="a">→</span></a>
 </div></section>
 
 <?php endif; ?>
@@ -251,10 +251,10 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <?php if ( $pt_show( 'show_why' ) ) : ?>
 <section class="why-choose"><div class="wrap">
   <?php $pt_why_eyebrow = get_field( 'why_eyebrow', $pt_pid ); ?>
-  <div class="eyebrow"><?php echo $pt_why_eyebrow ? esc_html( $pt_why_eyebrow ) : 'Why the ' . esc_html( $pt_line ); ?></div>
+  <div class="eyebrow"><?php echo $pt_why_eyebrow ? wp_kses_post( $pt_why_eyebrow ) : 'Why the ' . esc_html( $pt_line ); ?></div>
   <?php $pt_why_heading = get_field( 'why_heading', $pt_pid ); ?>
   <?php if ( $pt_why_heading ) : ?>
-    <h2><?php echo esc_html( $pt_why_heading ); ?></h2>
+    <h2><?php echo wp_kses_post( $pt_why_heading ); ?></h2>
   <?php else : ?>
     <h2>Eight reasons it's <span class="fade">built differently.</span></h2>
   <?php endif; ?>
@@ -321,7 +321,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
     <div class="eyebrow"><?php echo wp_kses_post( $pt_f( 'feature_card_eyebrow', 'YOUR GARDEN, YOUR SPACE' ) ); ?></div>
     <?php $pt_ins_heading = get_field( 'feature_card_heading', $pt_pid ); ?>
     <?php if ( $pt_ins_heading ) : ?>
-      <h2><?php echo esc_html( $pt_ins_heading ); ?></h2>
+      <h2><?php echo wp_kses_post( $pt_ins_heading ); ?></h2>
     <?php else : ?>
       <h2>Warm in winter.<br><span class="fade">Cool in summer.</span></h2>
     <?php endif; ?>
@@ -356,7 +356,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
     <div class="eyebrow" style="color:#fff;opacity:.7">Composite cladding</div>
     <h3><?php echo wp_kses_post( $pt_f( 'cladding_heading', 'The look of timber, with far less upkeep.' ) ); ?></h3>
     <?php $pt_clad_body = get_field( 'cladding_body', $pt_pid ); ?>
-    <p><?php echo $pt_clad_body ? esc_html( $pt_clad_body ) : 'LP Strongcore composite is wood fibres bonded with high-quality resins — the natural character of wood with the strength and low maintenance of composite. It resists weather, moisture, fungal growth and decay, and gives the ' . esc_html( $pt_line ) . ' its modern anthracite finish.'; ?></p>
+    <p><?php echo $pt_clad_body ? wp_kses_post( $pt_clad_body ) : 'LP Strongcore composite is wood fibres bonded with high-quality resins — the natural character of wood with the strength and low maintenance of composite. It resists weather, moisture, fungal growth and decay, and gives the ' . esc_html( $pt_line ) . ' its modern anthracite finish.'; ?></p>
   </div>
 </section>
 
@@ -369,7 +369,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
     <div class="eyebrow">Built to last · Made in Britain</div>
     <?php $pt_built_heading = get_field( 'built_heading', $pt_pid ); ?>
     <?php if ( $pt_built_heading ) : ?>
-      <h2><?php echo esc_html( $pt_built_heading ); ?></h2>
+      <h2><?php echo wp_kses_post( $pt_built_heading ); ?></h2>
     <?php else : ?>
       <h2>Engineered stronger <span class="fade">where it counts.</span></h2>
     <?php endif; ?>
@@ -403,7 +403,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
     <div class="eyebrow">Assembly</div>
     <?php $pt_asm_heading = get_field( 'assembly_heading', $pt_pid ); ?>
     <?php if ( $pt_asm_heading ) : ?>
-      <h2><?php echo esc_html( $pt_asm_heading ); ?></h2>
+      <h2><?php echo wp_kses_post( $pt_asm_heading ); ?></h2>
     <?php else : ?>
       <h2>Most of the build is <span class="fade">already done.</span></h2>
     <?php endif; ?>
@@ -425,7 +425,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
   <div class="eyebrow"><?php echo wp_kses_post( $pt_f( 'mk_eyebrow', 'Make it yours' ) ); ?></div>
   <?php $pt_mk_heading = get_field( 'mk_heading', $pt_pid ); ?>
   <?php if ( $pt_mk_heading ) : ?>
-    <h2><?php echo esc_html( $pt_mk_heading ); ?></h2>
+    <h2><?php echo wp_kses_post( $pt_mk_heading ); ?></h2>
   <?php else : ?>
     <h2>Configure it around <span class="fade">how you'll use it.</span></h2>
   <?php endif; ?>
@@ -463,7 +463,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
     <div class="eyebrow" style="color:#fff;opacity:.7"><?php echo wp_kses_post( $pt_f( 'wfh_eyebrow', 'SPACE, DONE PROPERLY' ) ); ?></div>
     <h3><?php echo wp_kses_post( $pt_f( 'wfh_heading', 'Your commute is now the garden path.' ) ); ?></h3>
     <?php $pt_wfh_body = get_field( 'wfh_body', $pt_pid ); ?>
-    <p><?php echo $pt_wfh_body ? esc_html( $pt_wfh_body ) : 'Turn the bottom of your garden into a private, professional workspace — quiet, insulated and distraction-free. Just as at home as a gym, studio, hobby room or therapy space.'; ?></p>
+    <p><?php echo $pt_wfh_body ? wp_kses_post( $pt_wfh_body ) : 'Turn the bottom of your garden into a private, professional workspace — quiet, insulated and distraction-free. Just as at home as a gym, studio, hobby room or therapy space.'; ?></p>
   </div>
 </section>
 
@@ -580,7 +580,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
   <span class="g">★ <?php echo wp_kses_post( $pt_f( 'trust_guarantee', '15-year anti-rot guarantee' ) ); ?></span>
   <?php $pt_trust_heading = get_field( 'trust_heading', $pt_pid ); ?>
   <?php if ( $pt_trust_heading ) : ?>
-    <h2><?php echo esc_html( $pt_trust_heading ); ?></h2>
+    <h2><?php echo wp_kses_post( $pt_trust_heading ); ?></h2>
   <?php else : ?>
     <h2>Bought with <span class="swipe">confidence.</span></h2>
   <?php endif; ?>
