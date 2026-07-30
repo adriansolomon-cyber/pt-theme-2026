@@ -26,14 +26,14 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 <!-- ===================== HERO ===================== -->
 <header class="hero" id="main" tabindex="-1"><div class="wrap">
-  <div class="eyebrow"><?php echo esc_html( $pt_line ); ?> · <?php echo esc_html( $pt_f( 'hero_eyebrow', 'Composite · Fully insulated' ) ); ?></div>
+  <div class="eyebrow"><?php echo esc_html( $pt_line ); ?> · <?php echo wp_kses_post( $pt_f( 'hero_eyebrow', 'Composite · Fully insulated' ) ); ?></div>
   <?php $pt_hero_heading = get_field( 'hero_heading', $pt_pid ); ?>
   <?php if ( $pt_hero_heading ) : ?>
     <h1 class="display"><?php echo wp_kses_post( $pt_hero_heading ); ?></h1>
   <?php else : ?>
     <h1 class="display">Work happens at the<br><span class="fade">bottom of the </span><span class="swipe">garden.</span></h1>
   <?php endif; ?>
-  <p class="lead"><?php echo esc_html( $pt_f( 'hero_lead', 'A year-round, fully insulated garden office — composite cladding, pre-insulated panels, delivered and built in days.' ) ); ?></p>
+  <p class="lead"><?php echo wp_kses_post( $pt_f( 'hero_lead', 'A year-round, fully insulated garden office — composite cladding, pre-insulated panels, delivered and built in days.' ) ); ?></p>
   <?php if ( $pt_show( 'show_hero_image' ) ) : ?>
   <div class="hero-figure">
     <img src="<?php echo esc_url( $pt_hero_img ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>">
@@ -166,7 +166,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
       <div class="<?php echo esc_attr( trim( 'card photo ' . $pt_hl_size ) ); ?>">
         <img src="<?php echo esc_url( get_sub_field( 'image' ) ); ?>" alt="<?php echo esc_attr( get_sub_field( 'title' ) ); ?>">
         <div class="scrim"></div>
-        <div class="ctxt"><h3><?php echo esc_html( get_sub_field( 'title' ) ); ?></h3><p class="sub"><?php echo esc_html( get_sub_field( 'subtitle' ) ); ?></p></div>
+        <div class="ctxt"><h3><?php echo wp_kses_post( get_sub_field( 'title' ) ); ?></h3><p class="sub"><?php echo wp_kses_post( get_sub_field( 'subtitle' ) ); ?></p></div>
       </div>
     <?php endwhile; ?>
   </div>
@@ -210,7 +210,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <!-- ===================== WHAT'S INCLUDED ===================== -->
 <?php if ( $pt_show( 'show_included' ) ) : ?>
 <section class="included"><div class="wrap">
-  <div class="eyebrow"><?php echo esc_html( $pt_f( 'included_eyebrow', 'In the box' ) ); ?></div>
+  <div class="eyebrow"><?php echo wp_kses_post( $pt_f( 'included_eyebrow', 'In the box' ) ); ?></div>
   <?php $pt_inc_heading = get_field( 'included_heading', $pt_pid ); ?>
   <?php if ( $pt_inc_heading ) : ?>
     <h2><?php echo esc_html( $pt_inc_heading ); ?></h2>
@@ -225,7 +225,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
       <?php $pt_ck = '<svg class="ck" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B333D"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; ?>
       <?php if ( $pt_has_rows( 'included_items' ) ) : ?>
         <?php while ( have_rows( 'included_items', $pt_pid ) ) : the_row(); ?>
-          <li><?php echo $pt_ck; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static SVG. ?> <?php echo esc_html( get_sub_field( 'item' ) ); ?></li>
+          <li><?php echo $pt_ck; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static SVG. ?> <?php echo wp_kses_post( get_sub_field( 'item' ) ); ?></li>
         <?php endwhile; ?>
       <?php else : ?>
       <li><svg class="ck" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B333D"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Pre-assembled, pre-insulated wall panels</li>
@@ -263,8 +263,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
       <?php while ( have_rows( 'why_reasons', $pt_pid ) ) : the_row(); ?>
         <div class="wc-card">
           <div class="ic"><img src="<?php echo esc_url( get_sub_field( 'icon' ) ); ?>" alt=""></div>
-          <h3><?php echo esc_html( get_sub_field( 'title' ) ); ?></h3>
-          <p><?php echo esc_html( get_sub_field( 'text' ) ); ?></p>
+          <h3><?php echo wp_kses_post( get_sub_field( 'title' ) ); ?></h3>
+          <p><?php echo wp_kses_post( get_sub_field( 'text' ) ); ?></p>
         </div>
       <?php endwhile; ?>
     <?php else : ?>
@@ -318,7 +318,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <section class="split" id="insulation" style="background:var(--mist)"><div class="wrap"><div class="grid">
   <div class="media"><img src="<?php echo esc_url( $pt_f( 'feature_card_image', 'https://projecttimber.com/wp-content/uploads/2018/09/main_img4th.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>"></div>
   <div class="copy">
-    <div class="eyebrow"><?php echo esc_html( $pt_f( 'feature_card_eyebrow', 'YOUR GARDEN, YOUR SPACE' ) ); ?></div>
+    <div class="eyebrow"><?php echo wp_kses_post( $pt_f( 'feature_card_eyebrow', 'YOUR GARDEN, YOUR SPACE' ) ); ?></div>
     <?php $pt_ins_heading = get_field( 'feature_card_heading', $pt_pid ); ?>
     <?php if ( $pt_ins_heading ) : ?>
       <h2><?php echo esc_html( $pt_ins_heading ); ?></h2>
@@ -335,7 +335,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
     <div class="statrow">
       <?php if ( $pt_has_rows( 'feature_card_stats' ) ) : ?>
         <?php while ( have_rows( 'feature_card_stats', $pt_pid ) ) : the_row(); ?>
-          <div><div class="n"><?php echo esc_html( get_sub_field( 'number' ) ); ?><span style="font-size:1rem"><?php echo esc_html( get_sub_field( 'unit' ) ); ?></span></div><div class="l"><?php echo esc_html( get_sub_field( 'label' ) ); ?></div></div>
+          <div><div class="n"><?php echo wp_kses_post( get_sub_field( 'number' ) ); ?><span style="font-size:1rem"><?php echo wp_kses_post( get_sub_field( 'unit' ) ); ?></span></div><div class="l"><?php echo wp_kses_post( get_sub_field( 'label' ) ); ?></div></div>
         <?php endwhile; ?>
       <?php else : ?>
         <div><div class="n">120<span style="font-size:1rem">mm</span></div><div class="l">Glass-wool U-value equivalent</div></div>
@@ -354,7 +354,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
   </video>
   <div class="panel">
     <div class="eyebrow" style="color:#fff;opacity:.7">Composite cladding</div>
-    <h3><?php echo esc_html( $pt_f( 'cladding_heading', 'The look of timber, with far less upkeep.' ) ); ?></h3>
+    <h3><?php echo wp_kses_post( $pt_f( 'cladding_heading', 'The look of timber, with far less upkeep.' ) ); ?></h3>
     <?php $pt_clad_body = get_field( 'cladding_body', $pt_pid ); ?>
     <p><?php echo $pt_clad_body ? esc_html( $pt_clad_body ) : 'LP Strongcore composite is wood fibres bonded with high-quality resins — the natural character of wood with the strength and low maintenance of composite. It resists weather, moisture, fungal growth and decay, and gives the ' . esc_html( $pt_line ) . ' its modern anthracite finish.'; ?></p>
   </div>
@@ -383,7 +383,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
     <div class="statrow">
       <?php if ( $pt_has_rows( 'built_stats' ) ) : ?>
         <?php while ( have_rows( 'built_stats', $pt_pid ) ) : the_row(); ?>
-          <div><div class="n"><?php echo esc_html( get_sub_field( 'number' ) ); ?><span style="font-size:1rem"><?php echo esc_html( get_sub_field( 'unit' ) ); ?></span></div><div class="l"><?php echo esc_html( get_sub_field( 'label' ) ); ?></div></div>
+          <div><div class="n"><?php echo wp_kses_post( get_sub_field( 'number' ) ); ?><span style="font-size:1rem"><?php echo wp_kses_post( get_sub_field( 'unit' ) ); ?></span></div><div class="l"><?php echo wp_kses_post( get_sub_field( 'label' ) ); ?></div></div>
         <?php endwhile; ?>
       <?php else : ?>
         <div><div class="n">80<span style="font-size:1rem">mm</span></div><div class="l">Total wall thickness</div></div>
@@ -422,7 +422,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <!-- ===================== MAKE IT YOURS (8) ===================== -->
 <?php if ( $pt_show( 'show_makeityours' ) ) : ?>
 <section class="why-choose" style="background:var(--mist)"><div class="wrap">
-  <div class="eyebrow"><?php echo esc_html( $pt_f( 'mk_eyebrow', 'Make it yours' ) ); ?></div>
+  <div class="eyebrow"><?php echo wp_kses_post( $pt_f( 'mk_eyebrow', 'Make it yours' ) ); ?></div>
   <?php $pt_mk_heading = get_field( 'mk_heading', $pt_pid ); ?>
   <?php if ( $pt_mk_heading ) : ?>
     <h2><?php echo esc_html( $pt_mk_heading ); ?></h2>
@@ -437,9 +437,9 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
         $pt_mk_link = get_sub_field( 'link' );
         ?>
         <?php if ( $pt_mk_link ) : ?>
-          <a class="mk-card" href="<?php echo esc_url( $pt_mk_link ); ?>" target="_blank" rel="noopener"><img src="<?php echo esc_url( get_sub_field( 'image' ) ); ?>" alt="<?php echo esc_attr( get_sub_field( 'title' ) ); ?>"><span class="play">▶</span><div class="txt"><h3><?php echo esc_html( get_sub_field( 'title' ) ); ?></h3><p><?php echo esc_html( get_sub_field( 'text' ) ); ?></p></div></a>
+          <a class="mk-card" href="<?php echo esc_url( $pt_mk_link ); ?>" target="_blank" rel="noopener"><img src="<?php echo esc_url( get_sub_field( 'image' ) ); ?>" alt="<?php echo esc_attr( get_sub_field( 'title' ) ); ?>"><span class="play">▶</span><div class="txt"><h3><?php echo wp_kses_post( get_sub_field( 'title' ) ); ?></h3><p><?php echo wp_kses_post( get_sub_field( 'text' ) ); ?></p></div></a>
         <?php else : ?>
-          <div class="mk-card"><img src="<?php echo esc_url( get_sub_field( 'image' ) ); ?>" alt="<?php echo esc_attr( get_sub_field( 'title' ) ); ?>"><div class="txt"><h3><?php echo esc_html( get_sub_field( 'title' ) ); ?></h3><p><?php echo esc_html( get_sub_field( 'text' ) ); ?></p></div></div>
+          <div class="mk-card"><img src="<?php echo esc_url( get_sub_field( 'image' ) ); ?>" alt="<?php echo esc_attr( get_sub_field( 'title' ) ); ?>"><div class="txt"><h3><?php echo wp_kses_post( get_sub_field( 'title' ) ); ?></h3><p><?php echo wp_kses_post( get_sub_field( 'text' ) ); ?></p></div></div>
         <?php endif; ?>
       <?php endwhile; ?>
     <?php else : ?>
@@ -460,8 +460,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <section class="immerse tall">
   <img src="<?php echo esc_url( $pt_f( 'wfh_image', 'https://www.projecttimber.com/wp-content/uploads/2026/06/10x8_My_Den_Composite_Garden_Office_04.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>">
   <div class="panel">
-    <div class="eyebrow" style="color:#fff;opacity:.7"><?php echo esc_html( $pt_f( 'wfh_eyebrow', 'SPACE, DONE PROPERLY' ) ); ?></div>
-    <h3><?php echo esc_html( $pt_f( 'wfh_heading', 'Your commute is now the garden path.' ) ); ?></h3>
+    <div class="eyebrow" style="color:#fff;opacity:.7"><?php echo wp_kses_post( $pt_f( 'wfh_eyebrow', 'SPACE, DONE PROPERLY' ) ); ?></div>
+    <h3><?php echo wp_kses_post( $pt_f( 'wfh_heading', 'Your commute is now the garden path.' ) ); ?></h3>
     <?php $pt_wfh_body = get_field( 'wfh_body', $pt_pid ); ?>
     <p><?php echo $pt_wfh_body ? esc_html( $pt_wfh_body ) : 'Turn the bottom of your garden into a private, professional workspace — quiet, insulated and distraction-free. Just as at home as a gym, studio, hobby room or therapy space.'; ?></p>
   </div>
@@ -568,7 +568,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
   <details class="faq-item"><summary>How is it delivered?</summary><div class="ans">Kerbside, by lorry or van. You choose a preferred delivery date at checkout and we do our best to meet it — at busier times we may need to agree an alternative date with you, and we'll keep you informed throughout. Please ensure there's clear access in front of your property on the delivery date.</div></details>
   <?php if ( $pt_has_rows( 'faqs' ) ) : ?>
     <?php while ( have_rows( 'faqs', $pt_pid ) ) : the_row(); ?>
-      <details class="faq-item"><summary><?php echo esc_html( get_sub_field( 'question' ) ); ?></summary><div class="ans"><?php echo wp_kses_post( get_sub_field( 'answer' ) ); ?></div></details>
+      <details class="faq-item"><summary><?php echo wp_kses_post( get_sub_field( 'question' ) ); ?></summary><div class="ans"><?php echo wp_kses_post( get_sub_field( 'answer' ) ); ?></div></details>
     <?php endwhile; ?>
   <?php endif; ?>
 </div></section>
@@ -577,14 +577,14 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <!-- ===================== TRUST ===================== -->
 <?php if ( $pt_show( 'show_trust' ) ) : ?>
 <section class="trust" id="trust"><div class="wrap">
-  <span class="g">★ <?php echo esc_html( $pt_f( 'trust_guarantee', '15-year anti-rot guarantee' ) ); ?></span>
+  <span class="g">★ <?php echo wp_kses_post( $pt_f( 'trust_guarantee', '15-year anti-rot guarantee' ) ); ?></span>
   <?php $pt_trust_heading = get_field( 'trust_heading', $pt_pid ); ?>
   <?php if ( $pt_trust_heading ) : ?>
     <h2><?php echo esc_html( $pt_trust_heading ); ?></h2>
   <?php else : ?>
     <h2>Bought with <span class="swipe">confidence.</span></h2>
   <?php endif; ?>
-  <p class="lead" style="max-width:48ch;margin:8px auto 0"><?php echo esc_html( $pt_f( 'trust_lead', 'Free delivery to selected postcodes, and Made in Britain.' ) ); ?></p>
+  <p class="lead" style="max-width:48ch;margin:8px auto 0"><?php echo wp_kses_post( $pt_f( 'trust_lead', 'Free delivery to selected postcodes, and Made in Britain.' ) ); ?></p>
   <div class="reviews">
     <?php if ( $pt_has_rows( 'reviews' ) ) : ?>
       <?php
@@ -596,7 +596,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
         }
         ?>
         <?php $pt_rev_img = get_sub_field( 'image' ); ?>
-        <div class="review"><?php if ( $pt_rev_img ) : ?><div class="rev-media"><img src="<?php echo esc_url( $pt_rev_img ); ?>" alt="Customer photo"></div><?php endif; ?><div class="stars"><?php echo str_repeat( '★', $pt_rating ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — literal glyph. ?></div><p><?php echo esc_html( get_sub_field( 'quote' ) ); ?></p><div class="by">— <?php echo esc_html( get_sub_field( 'author' ) ? get_sub_field( 'author' ) : 'Verified buyer' ); ?></div></div>
+        <div class="review"><?php if ( $pt_rev_img ) : ?><div class="rev-media"><img src="<?php echo esc_url( $pt_rev_img ); ?>" alt="Customer photo"></div><?php endif; ?><div class="stars"><?php echo str_repeat( '★', $pt_rating ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — literal glyph. ?></div><p><?php echo wp_kses_post( get_sub_field( 'quote' ) ); ?></p><div class="by">— <?php echo wp_kses_post( get_sub_field( 'author' ) ? get_sub_field( 'author' ) : 'Verified buyer' ); ?></div></div>
       <?php endwhile; ?>
     <?php else : ?>
     <div class="review"><div class="rev-media"><img src="https://www.projecttimber.com/wp-content/uploads/2020/04/My-Den-Customer-Image-1.jpg" alt="Customer photo"></div><div class="stars">★★★★★</div><p>"Genuinely warm in winter — I work in here every day now. Build quality is excellent."</p><div class="by">— Verified buyer</div></div>
