@@ -528,7 +528,7 @@ get_header();
 <section class="immerse">
   <img src="<?php echo esc_url( $pt_f( 'wfh_image', 'https://www.projecttimber.com/wp-content/uploads/2026/06/10x8_My_Den_Composite_Garden_Office_04.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>">
   <div class="panel">
-    <div class="eyebrow" style="color:#fff;opacity:.7">Work from home</div>
+    <div class="eyebrow" style="color:#fff;opacity:.7"><?php echo esc_html( $pt_f( 'wfh_eyebrow', 'SPACE, DONE PROPERLY' ) ); ?></div>
     <h3><?php echo esc_html( $pt_f( 'wfh_heading', 'Your commute is now the garden path.' ) ); ?></h3>
     <?php $pt_wfh_body = get_field( 'wfh_body', $pt_pid ); ?>
     <p><?php echo $pt_wfh_body ? esc_html( $pt_wfh_body ) : 'Turn the bottom of your garden into a private, professional workspace — quiet, insulated and distraction-free. Just as at home as a gym, studio, hobby room or therapy space.'; ?></p>
