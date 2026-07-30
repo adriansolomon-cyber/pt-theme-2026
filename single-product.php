@@ -104,9 +104,11 @@ get_header();
     <h1 class="display">Work happens at the<br><span class="fade">bottom of the </span><span class="swipe">garden.</span></h1>
   <?php endif; ?>
   <p class="lead"><?php echo esc_html( $pt_f( 'hero_lead', 'A year-round, fully insulated garden office — composite cladding, pre-insulated panels, delivered and built in days.' ) ); ?></p>
+  <?php if ( $pt_show( 'show_hero_image' ) ) : ?>
   <div class="hero-figure">
     <img src="<?php echo esc_url( $pt_hero_img ); ?>" alt="<?php echo esc_attr( $pt_name ); ?>">
   </div>
+  <?php endif; ?>
   <div class="pricepill">
     <span class="pl"><b><?php echo wp_kses_post( $pt_from ); ?></b></span>
     <button class="go">Customise &amp; buy</button>

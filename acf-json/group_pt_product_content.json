@@ -21,6 +21,26 @@
             "selected": 0
         },
         {
+            "key": "field_pt_show_hero_image",
+            "label": "Hero image",
+            "name": "show_hero_image",
+            "type": "true_false",
+            "instructions": "Show the large hero image at the top of the page. Turn off for ranges that shouldn't display it.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show the hero image",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
             "key": "field_pt_show_highlights",
             "label": "Highlights",
             "name": "show_highlights",
@@ -2118,5 +2138,5 @@
     "description": "Editable marketing content for the single-product (PDP) template. The configurator, price, sizes and spec values remain API-driven; these fields fill the surrounding copy, images and sections.",
     "show_in_rest": 0,
     "display_title": "",
-    "modified": 1785241128
+    "modified": 1785412542
 }
