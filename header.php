@@ -28,9 +28,193 @@ $pt_cats = array(
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<?php wp_head(); ?>
+	<!-- Google Tag Manager -->
+	<script>
+	window.dataLayer = window.dataLayer || [];
+
+	(function() {
+	    var originalPush = window.dataLayer.push;
+
+	    function looksLikeSize(name) {
+	        name = String(name || '').trim();
+	        return /^\d+\s*x\s*\d+$/i.test(name);
+	    }
+
+	    function isLikelyPart(item) {
+	        var category = String(item.item_category || '').trim().toLowerCase();
+	        return category === 'parts';
+	    }
+
+	    function isParentProduct(item) {
+	        var category = String(item.item_category || '').trim().toLowerCase();
+	        // These are the "header" product rows — they define the building type
+	        return category !== 'parts' && category !== 'bundles' && !looksLikeSize(item.item_name);
+	    }
+
+	    function filterPurchaseStape(obj) {
+	        if (!obj || !obj.ecommerce || !Array.isArray(obj.ecommerce.items)) {
+	            return obj;
+	        }
+
+	        var items = obj.ecommerce.items;
+	        if (!items.length) return obj;
+
+	        // Step 1: Find all parent product rows (the named building products)
+	        var parentIndexes = [];
+	        items.forEach(function(item, i) {
+	            if (isParentProduct(item)) {
+	                parentIndexes.push(i);
+	            }
+	        });
+
+	        // If we can't identify parents, fall back to original behaviour
+	        if (!parentIndexes.length) return obj;
+
+	        // Step 2: Slice items into groups — each group starts at a parent index
+	        var groups = parentIndexes.map(function(startIdx, groupNum) {
+	            var endIdx = parentIndexes[groupNum + 1] !== undefined ?
+	                parentIndexes[groupNum + 1] :
+	                items.length;
+	            return items.slice(startIdx, endIdx);
+	        });
+
+	        // Step 3: For each group, find the size bundle and build a clean item
+	        var cleanItems = [];
+
+	        groups.forEach(function(group) {
+	            var parent = group[0];
+	            var parentName = parent.item_name;
+	            var parentCategory = parent.item_category;
+
+	            // Find the size item: looks like "18 x 10", has price > 0, not a Part
+	            var sizeCandidates = group.filter(function(item) {
+	                var price = parseFloat(item.price || 0);
+	                return looksLikeSize(item.item_name) && price > 0 && !isLikelyPart(item);
+	            });
+
+	            // Fallback: any size-looking item in the group
+	            if (!sizeCandidates.length) {
+	                sizeCandidates = group.filter(function(item) {
+	                    return looksLikeSize(item.item_name);
+	                });
+	            }
+
+	            if (sizeCandidates.length) {
+	                var sizeItem = sizeCandidates[0];
+	                cleanItems.push({
+	                    item_id: sizeItem.item_id,
+	                    item_name: parentName,
+	                    item_variant: sizeItem.item_name,
+	                    item_category: parentCategory,
+	                    item_category2: parent.item_category2 || '',
+	                    price: sizeItem.price,
+	                    quantity: sizeItem.quantity || 1,
+	                    google_business_vertical: 'retail',
+	                });
+	            }
+	        });
+
+	        if (cleanItems.length) {
+	            obj.ecommerce.items = cleanItems;
+	        }
+
+	        return obj;
+	    }
+
+	    window.dataLayer.push = function() {
+	        var args = Array.prototype.slice.call(arguments).map(filterPurchaseStape);
+	        return originalPush.apply(this, args);
+	    };
+	})();
+
+	! function() {
+	    "use strict";
+
+	    function l(e) {
+	        for (var t = e, r = 0, n = document.cookie.split(";"); r < n.length; r++) {
+	            var o = n[r].split("=");
+	            if (o[0].trim() === t) return o[1]
+	        }
+	    }
+
+	    function s(e) {
+	        return localStorage.getItem(e)
+	    }
+
+	    function u(e) {
+	        return window[e]
+	    }
+
+	    function A(e, t) {
+	        e = document.querySelector(e);
+	        return t ? null == e ? void 0 : e.getAttribute(t) : null == e ? void 0 : e.textContent
+	    }
+	    var e = window,
+	        t = document,
+	        r = "script",
+	        n = "dataLayer",
+	        o = "https://order.projecttimber.com",
+	        a = "",
+	        i = "9blvxkoys",
+	        c = "3px2=aWQ9R1RNLTUyNEw5N1I3&page=2",
+	        g = "cookie",
+	        v = "user_identifier",
+	        E = "",
+	        d = !1;
+	    try {
+	        var d = !!g && (m = navigator.userAgent, !!(m = new RegExp("Version/([0-9._]+)(.*Mobile)?.*Safari.*").exec(
+	                m))) && 16.4 <= parseFloat(m[1]),
+	            f = "stapeUserId" === g,
+	            I = d && !f ? function(e, t, r) {
+	                void 0 === t && (t = "");
+	                var n = {
+	                        cookie: l,
+	                        localStorage: s,
+	                        jsVariable: u,
+	                        cssSelector: A
+	                    },
+	                    t = Array.isArray(t) ? t : [t];
+	                if (e && n[e])
+	                    for (var o = n[e], a = 0, i = t; a < i.length; a++) {
+	                        var c = i[a],
+	                            c = r ? o(c, r) : o(c);
+	                        if (c) return c
+	                    } else console.warn("invalid uid source", e)
+	            }(g, v, E) : void 0;
+	        d = d && (!!I || f)
+	    } catch (e) {
+	        console.error(e)
+	    }
+	    var m = e,
+	        g = (m[n] = m[n] || [], m[n].push({
+	            "gtm.start": (new Date).getTime(),
+	            event: "gtm.js"
+	        }), t.getElementsByTagName(r)[0]),
+	        v = I ? "&bi=" + encodeURIComponent(I) : "",
+	        E = t.createElement(r),
+	        f = (d && (i = 8 < i.length ? i.replace(/([a-z]{8}$)/, "kp$1") : "kp" + i), !d && a ? a : o);
+	    E.async = !0, E.src = f + "/" + i + ".js?" + c + v, null != (e = g.parentNode) && e.insertBefore(E, g)
+	}();
+	</script>
+	<!-- End Google Tag Manager -->
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://order.projecttimber.com/ns.html?id=GTM-524L97R7" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<!-- MediaHawk dynamic call tracking -->
+<script type='text/javascript'>
+var _mhct = _mhct || [];
+_mhct.push(['mhCampaignID', 'VA-13595']);
+! function() {
+    var c = document.createElement('script');
+    c.type = 'text/javascript', c.async = !0, c.src = '//www.dynamicnumbers.mediahawk.co.uk/mhct.min.js';
+    var i = document.getElementsByTagName('script')[0];
+    i.parentNode.insertBefore(c, i)
+}();
+</script>
+<!-- End MediaHawk -->
 <a class="skip" href="#main">Skip to content</a>
 
 <div class="promo">FREE DELIVERY — <b>selected postcodes*</b> &nbsp;·&nbsp; 10% OFF GRANDMASTER — CODE <b>GM10</b></div>
