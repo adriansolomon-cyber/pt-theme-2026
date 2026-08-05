@@ -56,6 +56,9 @@ require_once get_stylesheet_directory() . '/includes/woo-lead-time-calculator-co
 // __DIR__-relative includes (inc/*-email.php etc.) resolve as in the old theme.
 require_once get_stylesheet_directory() . '/legacy-functions.php';
 
+// Order-status customer emails: delivery (planned/palletways) + assembly (completed).
+require_once get_stylesheet_directory() . '/emails-handler-functions.php';
+
 /**
  * Theme supports.
  */
