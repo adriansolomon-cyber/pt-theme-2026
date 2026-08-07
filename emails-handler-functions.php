@@ -90,15 +90,18 @@ function adjust_planned_order_send_pdf( $order_id ) {
 		return;
 	}
 
-	// Idempotency: send the delivery email only once per order, even though this
-	// fires on BOTH the 'planned' and 'palletways' transitions. (The old code had
-	// no such guard and could send twice.) Remove this block to restore that.
-	if ( $order->get_meta( '_pt_delivery_email_sent', true ) ) {
+	// Date-aware idempotency: re-send when the delivery date CHANGES (e.g. Optimo
+	// re-plans via the API with a new date), but don't double-send the same date
+	// across the 'planned' and 'palletways' transitions. Manual sends (the "Send
+	// Email" meta box) always send, regardless of this, as a force-resend escape.
+	$current_date = (string) $order->get_meta( '_final_delivery_date', true );
+	$emailed_date = (string) $order->get_meta( '_pt_delivery_email_date', true );
+	if ( '' !== $current_date && $current_date === $emailed_date ) {
 		return;
 	}
 
 	if ( pt_send_order_status_email( $order, 'delivery', "Project Timber's Delivery Update and Assembly Instructions" ) ) {
-		$order->update_meta_data( '_pt_delivery_email_sent', current_time( 'mysql' ) );
+		$order->update_meta_data( '_pt_delivery_email_date', $current_date );
 		$order->save();
 	}
 }
@@ -116,14 +119,16 @@ function pt_send_assembly_email_on_completed( $order_id ) {
 		return;
 	}
 
-	// Idempotency: send the assembly email only once per order, so re-saving or
-	// re-completing the order doesn't re-email the customer.
-	if ( $order->get_meta( '_pt_assembly_email_sent', true ) ) {
+	// Date-aware idempotency: re-send if the delivery date changed since the last
+	// assembly email; don't re-email on a repeat completion with the same date.
+	$current_date = (string) $order->get_meta( '_final_delivery_date', true );
+	$emailed_date = (string) $order->get_meta( '_pt_assembly_email_date', true );
+	if ( '' !== $current_date && $current_date === $emailed_date ) {
 		return;
 	}
 
 	if ( pt_send_order_status_email( $order, 'assembly', 'Your Building Assembly Instructions' ) ) {
-		$order->update_meta_data( '_pt_assembly_email_sent', current_time( 'mysql' ) );
+		$order->update_meta_data( '_pt_assembly_email_date', $current_date );
 		$order->save();
 	}
 }
