@@ -32,7 +32,7 @@
   
   
 
-  .subnav{ position:relative; z-index:50; display:flex; align-items:center; gap:18px; padding:12px 20px;
+  .subnav{ position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:18px; padding:12px 20px;
     border-bottom:1px solid rgba(33,30,36,.08); background:rgba(255,255,255,.72);
     backdrop-filter:saturate(160%) blur(18px); -webkit-backdrop-filter:saturate(160%) blur(18px); }
   @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){ .subnav{ background:#fff; } }
