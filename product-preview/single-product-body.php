@@ -660,12 +660,15 @@ if ( $pt_rec_ids ) :
 	if (!viewed.length) { return; }
 	var rail = document.querySelector('.recommend .rec-rail');
 	if (!rail) { return; }
+	var fallbackHTML = rail.innerHTML;
+	var skCard = '<span class="rec-card is-skeleton" aria-hidden="true"><span class="rec-img sk"></span><span class="rec-body"><span class="sk sk-rng"></span><span class="sk sk-title"></span><span class="sk sk-price"></span></span></span>';
+	rail.innerHTML = skCard + skCard + skCard + skCard;
 	var url = '<?php echo esc_url_raw( rest_url( 'pt/v1/recommended' ) ); ?>';
 	url += (url.indexOf('?') === -1 ? '?' : '&') + 'current=' + current + '&viewed=' + encodeURIComponent(viewed.join(','));
 	fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
 		.then(function (r) { return r.ok ? r.json() : null; })
-		.then(function (d) { if (d && typeof d.html === 'string' && d.html.trim() !== '') { rail.innerHTML = d.html; } })
-		.catch(function () {});
+		.then(function (d) { rail.innerHTML = (d && typeof d.html === 'string' && d.html.trim() !== '') ? d.html : fallbackHTML; })
+		.catch(function () { rail.innerHTML = fallbackHTML; });
 })();
 </script>
 

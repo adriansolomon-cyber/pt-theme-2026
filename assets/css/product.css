@@ -537,6 +537,16 @@
 .rec-card h3{ font-size:1.04rem; line-height:1.15; margin-bottom:8px; }
 .rec-price{ font-weight:700; font-size:.95rem; margin-top:auto; } .rec-price small{ font-weight:300; color:var(--txt-soft); font-size:.76rem; }
 .rec-price.rec-tbc{ color:var(--txt-soft); font-size:.9rem; }
+/* Recently-viewed loading skeleton (reuses .rec-card/.rec-img sizing) */
+.rec-card.is-skeleton{ pointer-events:none; cursor:default; }
+.sk{ position:relative; overflow:hidden; display:block; background:#ececec; border-radius:6px; }
+.rec-card.is-skeleton .rec-img.sk{ border-radius:0; }
+.rec-card.is-skeleton .sk-rng{ width:38%; height:11px; margin-bottom:9px; }
+.rec-card.is-skeleton .sk-title{ width:82%; height:16px; margin-bottom:12px; }
+.rec-card.is-skeleton .sk-price{ width:56%; height:13px; margin-top:auto; }
+.sk::after{ content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent); animation:pt-sk 1.15s ease-in-out infinite; }
+@keyframes pt-sk{ 100%{ transform:translateX(100%); } }
+@media (prefers-reduced-motion:reduce){ .sk::after{ animation:none; } }
 @media(min-width:760px){
   .rec-rail{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; overflow:visible; margin:34px 0 0; padding:0; }
   .rec-card{ flex:none; }

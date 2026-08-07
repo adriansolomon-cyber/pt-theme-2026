@@ -56,7 +56,13 @@
 		return;
 	}
 
-	// --- swap in the recently-viewed cards ------------------------------------
+	// We know synchronously (from localStorage) that the visitor has history, so
+	// show a skeleton straight away instead of letting the default cards flash
+	// and then get swapped. Preserve the default markup to restore if the
+	// request fails or returns nothing.
+	var fallbackHTML = rail.innerHTML;
+	rail.innerHTML = ptRvSkeleton(4);
+
 	var url = PT_RV.rest +
 		(PT_RV.rest.indexOf('?') === -1 ? '?' : '&') +
 		'current=' + encodeURIComponent(current) +
@@ -65,9 +71,22 @@
 	fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
 		.then(function (r) { return r.ok ? r.json() : null; })
 		.then(function (data) {
-			if (data && typeof data.html === 'string' && data.html.trim() !== '') {
-				rail.innerHTML = data.html;
-			}
+			rail.innerHTML = (data && typeof data.html === 'string' && data.html.trim() !== '')
+				? data.html
+				: fallbackHTML;
 		})
-		.catch(function () { /* keep the default rail */ });
+		.catch(function () { rail.innerHTML = fallbackHTML; });
+
+	function ptRvSkeleton(n) {
+		var card = '<span class="rec-card is-skeleton" aria-hidden="true">' +
+			'<span class="rec-img sk"></span>' +
+			'<span class="rec-body">' +
+			'<span class="sk sk-rng"></span>' +
+			'<span class="sk sk-title"></span>' +
+			'<span class="sk sk-price"></span>' +
+			'</span></span>';
+		var out = '';
+		for (var i = 0; i < n; i++) { out += card; }
+		return out;
+	}
 })();
