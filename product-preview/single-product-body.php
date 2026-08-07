@@ -643,6 +643,32 @@ if ( $pt_rec_ids ) :
 </div></section>
 <?php endif; ?>
 
+<!-- Recently-viewed: record this product + (if the visitor has history and the
+     pt/v1/recommended endpoint is reachable) swap the rail for recently-viewed.
+     Self-contained so it works in the preview without the theme's enqueue;
+     degrades to the default rail if the endpoint isn't present. -->
+<script>
+(function () {
+	var current = <?php echo (int) $pt_pid; ?>;
+	if (!current) { return; }
+	var KEY = 'pt_recently_viewed', MAX = 12, list = [];
+	try { list = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) {}
+	if (!Array.isArray(list)) { list = []; }
+	list = list.map(function (id) { return parseInt(id, 10); }).filter(function (id) { return id > 0; });
+	var viewed = list.filter(function (id) { return id !== current; });
+	try { localStorage.setItem(KEY, JSON.stringify([current].concat(viewed).slice(0, MAX))); } catch (e) {}
+	if (!viewed.length) { return; }
+	var rail = document.querySelector('.recommend .rec-rail');
+	if (!rail) { return; }
+	var url = '<?php echo esc_url_raw( rest_url( 'pt/v1/recommended' ) ); ?>';
+	url += (url.indexOf('?') === -1 ? '?' : '&') + 'current=' + current + '&viewed=' + encodeURIComponent(viewed.join(','));
+	fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+		.then(function (r) { return r.ok ? r.json() : null; })
+		.then(function (d) { if (d && typeof d.html === 'string' && d.html.trim() !== '') { rail.innerHTML = d.html; } })
+		.catch(function () {});
+})();
+</script>
+
 <!-- ===================== FINAL CTA ===================== -->
 <?php if ( $pt_show( 'show_final' ) ) : ?>
 <section class="final"><div class="wrap">

@@ -675,41 +675,19 @@ get_header();
 <?php endif; ?>
 <!-- ===================== RECOMMENDED PRODUCTS ===================== -->
 <?php
-// "You might also like" — WooCommerce up-sells if set, otherwise related products.
-$pt_rec_ids = $pt_product ? $pt_product->get_upsell_ids() : array();
-if ( empty( $pt_rec_ids ) && function_exists( 'wc_get_related_products' ) ) {
-	$pt_rec_ids = wc_get_related_products( $pt_pid, 4 );
-}
-$pt_rec_ids = array_slice( array_values( array_filter( array_map( 'intval', (array) $pt_rec_ids ) ) ), 0, 4 );
+// "You might also like" — defaults to WooCommerce up-sells (else related products),
+// server-rendered as the fallback. On the client, recently-viewed.js swaps this
+// rail for the visitor's recently-viewed products when they have history (see
+// includes/pt-recently-viewed.php). Cards come from the shared renderer so the
+// server fallback and the JS-swapped set are identical.
+$pt_rec_ids = function_exists( 'pt_default_recommend_ids' )
+	? pt_default_recommend_ids( $pt_pid, 4 )
+	: array_slice( array_values( array_filter( array_map( 'intval', (array) ( $pt_product ? $pt_product->get_upsell_ids() : array() ) ) ) ), 0, 4 );
 if ( $pt_rec_ids ) :
 	?>
 <section class="recommend"><div class="wrap">
   <div class="sec-head"><h2>You might also <span class="fade">like.</span></h2></div>
-  <div class="rec-rail">
-    <?php
-    foreach ( $pt_rec_ids as $pt_rid ) :
-        $pt_rp = wc_get_product( $pt_rid );
-        if ( ! $pt_rp ) {
-            continue;
-        }
-        $pt_rimg   = get_the_post_thumbnail_url( $pt_rid, 'large' );
-        $pt_rrng   = pt_product_line_singular( $pt_rid );
-        $pt_rprice = pt_product_from_price_html( $pt_rp );
-        ?>
-      <a class="rec-card" href="<?php echo esc_url( get_permalink( $pt_rid ) ); ?>">
-        <div class="rec-img"><?php if ( $pt_rimg ) : ?><img loading="lazy" src="<?php echo esc_url( $pt_rimg ); ?>" alt="<?php echo esc_attr( $pt_rp->get_name() ); ?>"><?php endif; ?></div>
-        <div class="rec-body">
-          <?php if ( $pt_rrng ) : ?><div class="rec-rng"><?php echo esc_html( $pt_rrng ); ?></div><?php endif; ?>
-          <h3><?php echo esc_html( $pt_rp->get_name() ); ?></h3>
-          <?php if ( $pt_rprice ) : ?>
-            <div class="rec-price"><?php echo wp_kses_post( $pt_rprice ); ?> <small>inc. VAT</small></div>
-          <?php else : ?>
-            <div class="rec-price rec-tbc">Price on request</div>
-          <?php endif; ?>
-        </div>
-      </a>
-    <?php endforeach; ?>
-  </div>
+  <div class="rec-rail"><?php echo function_exists( 'pt_render_recommend_rail' ) ? pt_render_recommend_rail( $pt_rec_ids ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- card markup escaped in renderer ?></div>
 </div></section>
 <?php endif; ?>
 
