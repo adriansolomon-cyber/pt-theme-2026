@@ -1,0 +1,44 @@
+/* ============================================================
+   Project Timber — secondary / content pages (shared foundation)
+   Hero + breadcrumb, the "still need help?" CTA band, and the shared
+   typography they use. Loaded AFTER base.css on the content pages (FAQ,
+   Delivery, Returns, Contact, Testimonials, Resources, Building a Base).
+   Each page template adds its own middle sections + an optional per-page
+   stylesheet (assets/css/<slug>.css).
+
+   The header, footer and support modal are the shared PHP chrome
+   (get_header()/get_footer()) — deliberately NOT restyled here so they stay
+   identical across every page. Design tokens come from base.css :root.
+   ============================================================ */
+
+/* Shared typography (also defined in home.css for the homepage). */
+.eyebrow{ font-weight:400; text-transform:uppercase; letter-spacing:.22em; font-size:.7rem; color:var(--txt-soft); }
+.lead{ font-weight:300; font-size:1.14rem; color:var(--txt-soft); line-height:1.5; }
+.fade{ background:linear-gradient(100deg,var(--charcoal) 35%,#9b96a1); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+/* Section rhythm — scoped to the secondary <main> so it never touches chrome. */
+.pt-secondary section{ padding:56px 0; }
+
+/* Hero + breadcrumb (template-parts/page-hero.php). */
+.hero{ text-align:center; padding:26px 0 8px; }
+.hero h1{ font-size:clamp(2.2rem,6vw,3.6rem); letter-spacing:-.03em; }
+.hero .lead{ max-width:56ch; margin:16px auto 0; }
+.crumb{ font-size:.8rem; color:var(--txt-soft); padding:16px 0 0; }
+.crumb a{ text-decoration:none; }
+.crumb .sep{ opacity:.4; margin:0 6px; }
+
+/* "Still need help?" CTA band (template-parts/help-cta.php). */
+.helpcta{ background:var(--ink); color:var(--on-dark); }
+.helpcta .wrap{ text-align:center; }
+.helpcta .eyebrow{ color:var(--on-dark-soft); }
+.helpcta h2{ color:#fff; font-size:clamp(1.8rem,4.4vw,2.6rem); margin-top:8px; }
+.helpcta p{ color:var(--on-dark-soft); font-weight:300; max-width:52ch; margin:14px auto 0; }
+.helpcta .btns{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:26px; }
+
+/* Pill buttons used in the CTA band (and reusable on secondary pages). */
+.btn{ display:inline-flex; align-items:center; gap:9px; text-decoration:none; font-weight:700; font-size:.95rem; border-radius:999px; padding:14px 24px; transition:transform .2s var(--ease); }
+.btn:active{ transform:scale(.97); }
+.btn svg{ width:18px; height:18px; }
+.btn-y{ background:var(--accent); color:var(--ink); }
+.btn-o{ background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.5); }
+@media(hover:hover){ .btn-y:hover{ filter:brightness(.97); } .btn-o:hover{ background:rgba(255,255,255,.08); } }

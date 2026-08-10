@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Delivery — Project Timber</title>
+
+<!-- ============================================================
+     PROJECT TIMBER · Delivery page — redesigned in the new system.
+     Centrepiece: a postcode checker (front-end simulation) returning
+     delivery availability + cost by zone (A free · B £99 · C £199 · D none).
+     NOTE: zone postcode lists transcribed from the live delivery page and
+     may contain OCR/overlap artifacts — confirm the exact mapping with ops.
+     No fast-delivery claims (per brand rule).
+     ============================================================ -->
+
+<style>
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerbold.otf") format("opentype"); font-weight:700; font-display:swap; }
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerregular.otf") format("opentype"); font-weight:400; font-display:swap; }
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerlight.otf") format("opentype"); font-weight:300; font-display:swap; }
+
+  :root{
+    --ink:#211E24; --charcoal:#3B333D; --clay:#8A6A4F;
+    --paper:#F5F5F5; --mist:#F5F5F5; --white:#FFFFFF;
+    --accent:#FFFF00;
+    --txt:#211E24; --txt-soft:#6E6A74; --on-dark:#F7F4EF; --on-dark-soft:#B7B2BB;
+    --ok:#2A8F57; --ok-bg:#EAF6EF; --warn:#B26A12; --warn-bg:#FBF2E4; --no:#C0392B; --no-bg:#FBECEA;
+    --r:26px; --r-sm:16px; --maxw:1180px;
+    --ease:cubic-bezier(.2,.7,.3,1);
+    --e1:0 1px 2px rgba(33,30,36,.06), 0 6px 16px rgba(33,30,36,.06);
+    --e2:0 2px 6px rgba(33,30,36,.08), 0 18px 40px rgba(33,30,36,.10);
+    --e3:0 10px 30px rgba(33,30,36,.14), 0 30px 70px rgba(33,30,36,.16);
+    --font:"F37 Jagger","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body{ margin:0; background:var(--white); color:var(--txt); font-family:var(--font); font-weight:400; line-height:1.55; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,h4{ font-weight:700; line-height:1.05; letter-spacing:-.02em; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+  .eyebrow{ font-weight:400; text-transform:uppercase; letter-spacing:.22em; font-size:.7rem; color:var(--txt-soft); }
+  .lead{ font-weight:300; font-size:1.14rem; color:var(--txt-soft); line-height:1.5; }
+  .fade{ background:linear-gradient(100deg,var(--charcoal) 35%,#9b96a1); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  section{ padding:56px 0; }
+  :focus-visible{ outline:3px solid #3B333D; outline-offset:2px; }
+  :focus:not(:focus-visible){ outline:none; }
+
+  .promo{ background:var(--ink); color:var(--on-dark); text-align:center; font-size:.74rem; letter-spacing:.05em; padding:8px 14px; }
+  .promo b{ color:#fff; }
+
+  /* ---- global header ---- */
+  .mainhead{ display:flex; align-items:center; gap:14px; padding:10px 20px; border-bottom:1px solid rgba(33,30,36,.07); background:var(--white); position:sticky; top:0; z-index:40; }
+  .mainhead .menu{ display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:none; background:none; cursor:pointer; color:var(--ink); padding:0; }
+  .mainhead .menu svg{ width:24px; height:24px; }
+  @media(min-width:860px){ .mainhead .menu{ display:none; } }
+  .mainhead .logo img{ height:44px; width:auto; display:block; }
+  .mainhead .search{ margin-left:auto; flex:0 1 360px; display:none; align-items:center; gap:9px; border:1px solid rgba(33,30,36,.15); border-radius:999px; padding:11px 16px; color:var(--txt-soft); font-size:.85rem; font-family:inherit; text-align:left; cursor:pointer; }
+  .mainhead .search svg{ width:16px; height:16px; }
+  @media(min-width:860px){ .mainhead .search{ display:flex; } }
+  .mainhead .icons{ margin-left:auto; display:flex; gap:2px; align-items:center; }
+  @media(min-width:860px){ .mainhead .icons{ margin-left:18px; } }
+  @media(max-width:859px){ .mainhead{ position:relative; gap:6px; } .mainhead .logo{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); } .mainhead .menu{ order:1; } .mainhead .icons{ margin-left:auto; } }
+  .mainhead .ic{ position:relative; cursor:pointer; color:var(--ink); display:inline-flex; align-items:center; justify-content:center; min-width:40px; min-height:40px; border:none; background:none; padding:0; text-decoration:none; }
+  .mainhead .ic svg{ width:22px; height:22px; } .mainhead .ic img{ width:22px; height:22px; display:block; }
+  .mainhead .ic .badge{ position:absolute; top:-2px; right:-2px; background:var(--accent); color:var(--ink); font-size:.6rem; font-weight:700; border-radius:999px; padding:1px 5px; }
+
+  .primnav{ border-bottom:1px solid rgba(33,30,36,.07); background:var(--white); }
+  .primnav ul{ list-style:none; margin:0; padding:9px 20px; display:flex; gap:26px; justify-content:center; font-size:.9rem; font-weight:400; }
+  .primnav a{ color:var(--ink); text-decoration:none; white-space:nowrap; }
+  @media(max-width:860px){ .primnav{ display:none; } .primnav.open{ display:block; } .primnav ul{ flex-direction:column; align-items:flex-start; gap:0; padding:6px 20px 12px; } .primnav li{ width:100%; padding:11px 0; border-bottom:1px solid rgba(33,30,36,.06); } }
+
+  /* ---- breadcrumb + hero ---- */
+  .crumb{ font-size:.8rem; color:var(--txt-soft); padding:16px 0 0; } .crumb a{ text-decoration:none; } .crumb .sep{ opacity:.4; margin:0 6px; }
+  .hero{ text-align:center; padding:26px 0 8px; }
+  .hero h1{ font-size:clamp(2.2rem,6vw,3.6rem); letter-spacing:-.03em; }
+  .hero .lead{ max-width:56ch; margin:16px auto 0; }
+
+  /* ---- postcode checker ---- */
+  .checker{ padding-top:34px; }
+  .pc-card{ background:var(--paper); border:1px solid rgba(33,30,36,.1); border-radius:var(--r); padding:30px 26px; max-width:640px; margin:0 auto; box-shadow:var(--e1); }
+  .pc-card h2{ font-size:clamp(1.4rem,3.6vw,1.9rem); text-align:center; }
+  .pc-card .sub{ text-align:center; font-weight:300; color:var(--txt-soft); font-size:.92rem; margin:8px auto 20px; max-width:44ch; }
+  .pc-form{ display:flex; gap:10px; flex-wrap:wrap; }
+  .pc-form input{ flex:1 1 200px; font-family:var(--font); font-size:1.05rem; padding:15px 18px; border:1.5px solid rgba(33,30,36,.2); border-radius:12px; background:#fff; color:var(--ink); text-transform:uppercase; }
+  .pc-form input:focus{ outline:none; border-color:var(--charcoal); }
+  .pc-form button{ flex:0 0 auto; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1rem; padding:15px 28px; border-radius:12px; transition:transform .2s var(--ease); }
+  .pc-form button:active{ transform:scale(.98); }
+  .pc-result{ margin-top:16px; border-radius:14px; padding:16px 18px; display:none; gap:12px; align-items:flex-start; }
+  .pc-result.show{ display:flex; }
+  .pc-result svg{ width:22px; height:22px; flex:0 0 auto; margin-top:1px; }
+  .pc-result b{ display:block; font-size:1.02rem; margin-bottom:2px; }
+  .pc-result p{ font-weight:300; font-size:.9rem; line-height:1.45; }
+  .pc-result.r-free{ background:var(--ok-bg); color:#1c6b41; } .pc-result.r-free svg{ color:var(--ok); }
+  .pc-result.r-surcharge{ background:var(--warn-bg); color:#8a5210; } .pc-result.r-surcharge svg{ color:var(--warn); }
+  .pc-result.r-none{ background:var(--no-bg); color:#9a2c20; } .pc-result.r-none svg{ color:var(--no); }
+  .pc-result.r-invalid{ background:var(--mist); color:var(--txt-soft); } .pc-result.r-invalid svg{ color:var(--charcoal); }
+  .pc-note{ text-align:center; font-size:.72rem; font-weight:300; color:var(--txt-soft); margin-top:14px; }
+
+  /* ---- zones + map ---- */
+  .zones{ background:var(--paper); }
+  .zones .zgrid{ display:grid; gap:28px; align-items:start; }
+  @media(min-width:900px){ .zones .zgrid{ grid-template-columns:1fr 1fr; gap:44px; } }
+  .zmap img{ width:100%; border-radius:var(--r); box-shadow:var(--e2); display:block; background:#fff; }
+  .zlist{ display:grid; gap:12px; }
+  .zone{ background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); padding:16px 18px; box-shadow:var(--e1); }
+  .zone summary{ list-style:none; cursor:pointer; display:flex; align-items:center; gap:12px; }
+  .zone summary::-webkit-details-marker{ display:none; }
+  .zdot{ width:14px; height:14px; border-radius:50%; flex:0 0 auto; }
+  .zdot.a{ background:var(--ok); } .zdot.b{ background:var(--warn); } .zdot.c{ background:#8a5210; } .zdot.d{ background:var(--no); }
+  .zone .zt{ font-weight:700; font-size:1rem; } .zone .zc{ margin-left:auto; font-weight:700; font-size:.9rem; color:var(--txt-soft); }
+  .zone .zchev{ width:16px; height:16px; color:var(--txt-soft); transition:transform .3s var(--ease); } .zone[open] .zchev{ transform:rotate(180deg); }
+  .zone .zcodes{ margin-top:12px; padding-top:12px; border-top:1px solid rgba(33,30,36,.08); font-weight:300; font-size:.86rem; color:var(--txt-soft); line-height:1.7; }
+  .zone .zcodes b{ color:var(--ink); font-weight:700; }
+
+  /* ---- how it works ---- */
+  .how h2{ font-size:clamp(2rem,5vw,2.8rem); text-align:center; }
+  .how .lead{ text-align:center; max-width:60ch; margin:12px auto 0; }
+  .feat{ display:grid; gap:16px; grid-template-columns:1fr 1fr; margin-top:36px; }
+  @media(min-width:760px){ .feat{ grid-template-columns:repeat(4,1fr); gap:20px; } }
+  .feat .f{ background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); padding:22px 20px; box-shadow:var(--e1); text-align:center; }
+  .feat .f .ic{ width:46px; height:46px; margin:0 auto 12px; border-radius:12px; background:var(--mist); display:flex; align-items:center; justify-content:center; color:var(--charcoal); }
+  .feat .f .ic svg{ width:24px; height:24px; }
+  .feat .f h3{ font-size:1rem; margin-bottom:5px; } .feat .f p{ font-weight:300; font-size:.85rem; color:var(--txt-soft); line-height:1.4; }
+  .steps{ display:grid; gap:16px; margin-top:34px; }
+  @media(min-width:760px){ .steps{ grid-template-columns:repeat(3,1fr); gap:22px; } }
+  .step{ display:flex; gap:14px; align-items:flex-start; }
+  .step .n{ flex:0 0 auto; width:34px; height:34px; border-radius:50%; background:var(--charcoal); color:#fff; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:.95rem; }
+  .step h3{ font-size:1rem; margin-bottom:4px; } .step p{ font-weight:300; font-size:.88rem; color:var(--txt-soft); line-height:1.45; }
+
+  /* ---- faq ---- */
+  .faq{ background:var(--paper); } .faq .wrap{ max-width:820px; }
+  .faq h2{ font-size:clamp(2rem,5vw,2.8rem); margin-bottom:22px; text-align:center; }
+  .faq-item{ border-bottom:1px solid rgba(33,30,36,.12); }
+  .faq-item summary{ list-style:none; cursor:pointer; padding:18px 36px 18px 0; position:relative; font-weight:700; font-size:1.02rem; }
+  .faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-item summary::after{ content:"+"; position:absolute; right:4px; top:15px; font-weight:300; font-size:1.5rem; color:var(--txt-soft); }
+  .faq-item[open] summary::after{ content:"\2013"; }
+  .faq-item .ans{ padding:0 36px 20px 0; font-weight:300; color:var(--txt-soft); line-height:1.6; font-size:.94rem; }
+
+  /* ---- footer ---- */
+  .site-foot{ background:var(--ink); color:var(--on-dark-soft); padding:52px 0 26px; }
+  .site-foot .top{ display:grid; gap:32px; }
+  @media(min-width:760px){ .site-foot .top{ grid-template-columns:1.5fr 1fr 1fr 1fr; gap:40px; } }
+  .site-foot .logo img{ height:36px; width:auto; display:block; filter:brightness(0) invert(1); }
+  .site-foot .reg{ font-size:.78rem; font-weight:300; line-height:1.6; margin-top:16px; max-width:44ch; }
+  .site-foot h4{ color:#fff; font-size:.74rem; text-transform:uppercase; letter-spacing:.16em; font-weight:700; margin-bottom:14px; }
+  .site-foot ul{ list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+  .site-foot a{ color:var(--on-dark-soft); text-decoration:none; font-weight:300; font-size:.9rem; }
+  .site-foot .copy{ margin-top:28px; border-top:1px solid rgba(255,255,255,.12); padding-top:20px; font-size:.74rem; font-weight:300; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+</style>
+</head>
+<body>
+<div class="promo">FREE DELIVERY — <b>selected postcodes*</b> &nbsp;·&nbsp; 10% OFF GRANDMASTER — CODE <b>GM10</b></div>
+
+<header class="mainhead">
+  <button class="menu" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="logo" href="projecttimber-home.html" aria-label="Project Timber home"><img src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/tplogo.svg" alt="Project Timber"></a>
+  <button class="search" type="button" aria-label="Search Project Timber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg> Search Project Timber</button>
+  <div class="icons">
+    <a class="ic" href="projecttimber-account.html" aria-label="My account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a>
+    <a class="ic" href="projecttimber-cart.html" aria-label="Basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.3 12.3a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L22 8H6"/></svg><span class="badge">1</span></a>
+  </div>
+</header>
+<nav class="primnav" id="primnav"><ul>
+  <li><a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds</a></li>
+  <li><a href="https://www.projecttimber.com/summerhouses/">Summerhouses</a></li>
+  <li><a href="projecttimber-garden-offices.html">Garden Offices</a></li>
+  <li><a href="https://www.projecttimber.com/garden-workshops/">Garden Workshops</a></li>
+  <li><a href="https://www.projecttimber.com/insulated-garden-buildings/">Insulated Garden Buildings</a></li>
+  <li><a href="https://www.projecttimber.com/log-cabins/">Log Cabins</a></li>
+  <li><a href="https://www.projecttimber.com/greenhouses/">Greenhouses</a></li>
+</ul></nav>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero"><div class="wrap">
+  <div class="crumb"><a href="projecttimber-home.html">Home</a><span class="sep">/</span>Delivery</div>
+  <div class="eyebrow" style="margin-top:18px">Delivery</div>
+  <h1>Getting it to <span class="fade">your garden.</span></h1>
+  <p class="lead">Free kerbside delivery to most UK mainland postcodes. Check yours below, then pick a delivery date that suits you at checkout.</p>
+</div></header>
+
+<!-- ===================== POSTCODE CHECKER ===================== -->
+<section class="checker"><div class="wrap">
+  <div class="pc-card">
+    <h2>Check delivery to your postcode</h2>
+    <p class="sub">Enter your postcode to see availability and any delivery charge for your area.</p>
+    <form class="pc-form" id="pcForm" novalidate>
+      <input id="pcInput" type="text" inputmode="text" autocomplete="postal-code" placeholder="e.g. NG23 6QX" aria-label="Your postcode" maxlength="8">
+      <button type="submit">Check</button>
+    </form>
+    <div class="pc-result" id="pcResult" role="status" aria-live="polite">
+      <svg id="pcIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>
+      <div><b id="pcTitle"></b><p id="pcMsg"></p></div>
+    </div>
+    <p class="pc-note">Indicative only — your exact delivery cost and available dates are confirmed at checkout.</p>
+  </div>
+</div></section>
+
+<!-- ===================== ZONES + MAP ===================== -->
+<section class="zones"><div class="wrap">
+  <div style="text-align:center;margin-bottom:30px">
+    <div class="eyebrow">Where we deliver</div>
+    <h2 style="font-size:clamp(2rem,5vw,2.8rem);margin-top:8px">Four delivery zones.</h2>
+  </div>
+  <div class="zgrid">
+    <div class="zmap"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2025/05/deliver_map_2025.webp" alt="Project Timber UK delivery zone map"></div>
+    <div class="zlist">
+      <details class="zone" open>
+        <summary><span class="zdot a"></span><span class="zt">Zone A — Free delivery</span><span class="zc">FREE</span><svg class="zchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="zcodes"><b>Free pick-a-day delivery</b> on selected buildings and postcodes: AL · B · BA · BB · BD · BH · BL · BN · BR · BS · CA · CB · CF · CH · CM · CO · CR · CT · CV · CW · DA · DE · DH · DL · DN · DT · DY · E · EC · EN · FY · GL · GU · HA · HD · HG · HP · HR · HU · HX · IG · IP · KT · L · LA · LD · LE · LL · LN · LS · LU · M · ME · MK · N · NE · NG · NN · NP · NR · NW · OL · OX · PE · PR · PO1–29 · RG · RH · RM · S · SE · SG · SK · SL · SM · SN · SO · SP · SR · SS · ST · SW · SY · SA1–20 · TA · TF · TN · TS · TW · UB · W · WA · WC · WD · WF · WN · WR · WS · WV · YO</div>
+      </details>
+      <details class="zone">
+        <summary><span class="zdot b"></span><span class="zt">Zone B — £99 surcharge</span><span class="zc">£99</span><svg class="zchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="zcodes">FK · G · KA · ML · EH · DG · TD · SA31–73 · TR · PL · EX · TQ</div>
+      </details>
+      <details class="zone">
+        <summary><span class="zdot c"></span><span class="zt">Zone C — £199 surcharge</span><span class="zc">£199</span><svg class="zchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="zcodes">Typically 15–20 working days: AB · PH · DD · KY · PA</div>
+      </details>
+      <details class="zone">
+        <summary><span class="zdot d"></span><span class="zt">Zone D — Not available</span><span class="zc">—</span><svg class="zchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="zcodes">KW · IV · PO30–41 · Channel Islands · Orkney &amp; Shetland · Ireland · Northern Ireland · all other offshore islands</div>
+      </details>
+    </div>
+  </div>
+</div></section>
+
+<!-- ===================== HOW IT WORKS ===================== -->
+<section class="how"><div class="wrap">
+  <div class="eyebrow" style="text-align:center">How delivery works</div>
+  <h2>Kerbside, on a day <span class="fade">that suits you.</span></h2>
+  <p class="lead">Your building arrives flat-packed as pre-made panels, delivered kerbside by lorry or van. Please make sure there's clear access in front of your property on the day.</p>
+  <div class="feat">
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="18" r="1.7"/><circle cx="17.5" cy="18" r="1.7"/></svg></div><h3>Free UK delivery</h3><p>To most mainland postcodes (Zone A).</p></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="11" rx="2"/><path d="M3 9l3-5h12l3 5"/></svg></div><h3>Kerbside delivery</h3><p>Delivered to the kerb by lorry or van.</p></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg></div><h3>Pick your day</h3><p>Choose a delivery date at checkout.</p></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>8am – 5pm</h3><p>We schedule deliveries through the day.</p></div>
+  </div>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><div><h3>Order &amp; confirm</h3><p>You'll get an order confirmation by email with everything you've bought.</p></div></div>
+    <div class="step"><span class="n">2</span><div><h3>We book your date</h3><p>We'll be in touch to agree a delivery day that works for you — no fixed rush.</p></div></div>
+    <div class="step"><span class="n">3</span><div><h3>Kerbside drop-off</h3><p>Your driver aims to call ahead, and delivers to the kerb. Please check the parts on arrival.</p></div></div>
+  </div>
+</div></section>
+
+<!-- ===================== FAQ ===================== -->
+<section class="faq"><div class="wrap">
+  <h2>Delivery questions, <span class="fade">answered.</span></h2>
+  <details class="faq-item"><summary>How much does delivery cost?</summary><div class="ans">For most of the UK mainland it's free (Zone A). Some areas carry a £99 or £199 surcharge, and a few locations we're unable to reach — use the postcode checker above to see your area. Your exact cost is always shown at checkout.</div></details>
+  <details class="faq-item"><summary>Where do you deliver?</summary><div class="ans">We deliver to most UK mainland postcodes. We're unable to deliver to Northern Ireland, the Republic of Ireland, the Channel Islands and some Scottish islands (Zone D).</div></details>
+  <details class="faq-item"><summary>What time do you deliver?</summary><div class="ans">Deliveries are scheduled between 8am and 5pm. Your driver will usually try to call when they're on their way.</div></details>
+  <details class="faq-item"><summary>Can I choose my delivery date?</summary><div class="ans">Yes — you pick a preferred delivery date at checkout, and we'll do our best to meet it. At busier times we may need to agree an alternative day with you, and we'll keep you informed throughout.</div></details>
+  <details class="faq-item"><summary>How is it delivered and packaged?</summary><div class="ans">Your building arrives as pre-made, flat-packed panels — on a pallet, or on a van for larger buildings. Delivery is kerbside, so please ensure there's suitable access in front of your property.</div></details>
+  <details class="faq-item"><summary>What if parts are damaged or missing?</summary><div class="ans">Please check the delivery on arrival before signing. If anything is damaged or missing, note it on the receipt and call our sales team so we can put it right. Full details are in the delivery section of our <a href="https://www.projecttimber.com/terms/" style="color:var(--charcoal);font-weight:700">terms and conditions</a>.</div></details>
+</div></section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-foot"><div class="wrap">
+  <div class="top">
+    <div>
+      <a class="logo" href="projecttimber-home.html"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2026/02/ProjectTimber-Logo-2-1.svg" alt="Project Timber"></a>
+      <p class="reg">Project Timber Limited is a company registered in England and Wales with registration number 05126131. Our registered office is at Parry Works, Grassthorpe Road, Sutton-on-Trent, Newark NG23 6QX.</p>
+    </div>
+    <div><h4>Products</h4><ul><li><a href="https://www.projecttimber.com/summerhouses/">Summerhouses</a></li><li><a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds</a></li><li><a href="https://www.projecttimber.com/garden-workshops/">Garden Workshops</a></li><li><a href="projecttimber-garden-offices.html">Garden Offices</a></li></ul></div>
+    <div><h4>Help</h4><ul><li><a href="https://www.projecttimber.com/faq">FAQ</a></li><li><a href="projecttimber-delivery.html">Delivery</a></li><li><a href="https://www.projecttimber.com/returns">Returns</a></li><li><a href="https://www.projecttimber.com/contact">Contact</a></li><li><a href="https://www.projecttimber.com/building-base-garden-building/">Building a Base</a></li></ul></div>
+    <div><h4>Links</h4><ul><li><a href="https://www.projecttimber.com/terms">Terms</a></li><li><a href="https://www.projecttimber.com/privacy">Privacy</a></li><li><a href="https://www.projecttimber.com/resources">Blog</a></li><li><a href="projecttimber-checkout.html">Checkout</a></li></ul></div>
+  </div>
+  <p style="font-size:.74rem;font-weight:300;color:var(--on-dark-soft);margin:22px 0 0">* Free delivery on selected postcodes and buildings. Terms and conditions apply.</p>
+  <div class="copy"><span>© 2026 All Rights Reserved, Project Timber</span><span>Concept mockup · postcode data indicative</span></div>
+</div></footer>
+
+<script>
+  /* mobile menu */
+  (function(){ var m=document.querySelector('.mainhead .menu'), p=document.getElementById('primnav'); if(m&&p){ m.addEventListener('click',function(){ var o=p.classList.toggle('open'); m.setAttribute('aria-expanded',o); }); } })();
+
+  /* postcode checker — front-end simulation (zones per the live delivery page) */
+  (function(){
+    var form=document.getElementById('pcForm'), input=document.getElementById('pcInput');
+    var box=document.getElementById('pcResult'), ic=document.getElementById('pcIcon'), tt=document.getElementById('pcTitle'), msg=document.getElementById('pcMsg');
+    var ICON={ ok:'<path d="M20 6L9 17l-5-5"/>', warn:'<path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>', no:'<circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/>', info:'<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>' };
+    var D=['KW','IV','BT','JE','GY','IM','HS','ZE'], C=['AB','PH','DD','KY','PA'], B=['FK','G','KA','ML','EH','DG','TD','TR','PL','EX','TQ'];
+    function zoneFor(pc){
+      pc=pc.toUpperCase().replace(/\s+/g,'');
+      var m=pc.match(/^([A-Z]{1,2})(\d{1,2})/); if(!m) return null;
+      var a=m[1], n=parseInt(m[2],10);
+      if(D.indexOf(a)>=0) return 'D';
+      if(a==='PO' && n>=30 && n<=41) return 'D';
+      if(C.indexOf(a)>=0) return 'C';
+      if(B.indexOf(a)>=0) return 'B';
+      if(a==='SA' && n>=31 && n<=73) return 'B';
+      return 'A';
+    }
+    function paint(cls, icon, title, message){
+      box.className='pc-result show '+cls; ic.innerHTML=ICON[icon]; tt.textContent=title; msg.textContent=message;
+    }
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var raw=(input.value||'').trim(); var z=zoneFor(raw); var up=raw.toUpperCase();
+      if(!z){ paint('r-invalid','info','Enter a valid UK postcode','Please include the area and district — for example NG23 or PO12.'); return; }
+      if(z==='A') paint('r-free','ok','Free delivery to '+up,'Good news — your area qualifies for free kerbside delivery. Choose your preferred delivery date at checkout.');
+      else if(z==='B') paint('r-surcharge','warn','We deliver to '+up+' · £99','Delivery is available to your area with a £99 surcharge, applied at checkout.');
+      else if(z==='C') paint('r-surcharge','warn','We deliver to '+up+' · £199','Delivery is available with a £199 surcharge and typically takes 15–20 working days. Confirmed at checkout.');
+      else paint('r-none','no','Sorry — we can\'t deliver to '+up,'Your area is outside our current delivery network. Please contact our team to discuss options.');
+    });
+  })();
+</script>
+</body>
+</html>

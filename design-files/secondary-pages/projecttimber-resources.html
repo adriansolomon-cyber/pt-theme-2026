@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resources — Project Timber</title>
+
+<!-- ============================================================
+     PROJECT TIMBER · Resources / Blog — redesigned in the new system.
+     Post titles, excerpts, images and links transcribed from the live
+     /resources/ page. Article links point to the live posts. Finance
+     mention removed from one excerpt (brand rule). Images load from
+     the live site.
+     ============================================================ -->
+
+<style>
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerbold.otf") format("opentype"); font-weight:700; font-display:swap; }
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerregular.otf") format("opentype"); font-weight:400; font-display:swap; }
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerlight.otf") format("opentype"); font-weight:300; font-display:swap; }
+
+  :root{
+    --ink:#211E24; --charcoal:#3B333D; --clay:#8A6A4F;
+    --paper:#F5F5F5; --mist:#F5F5F5; --white:#FFFFFF;
+    --accent:#FFFF00;
+    --txt:#211E24; --txt-soft:#6E6A74; --on-dark:#F7F4EF; --on-dark-soft:#B7B2BB;
+    --ok:#2A8F57; --ok-bg:#EAF6EF; --warn:#B26A12; --warn-bg:#FBF2E4; --no:#C0392B; --no-bg:#FBECEA;
+    --r:26px; --r-sm:16px; --maxw:1180px;
+    --ease:cubic-bezier(.2,.7,.3,1);
+    --e1:0 1px 2px rgba(33,30,36,.06), 0 6px 16px rgba(33,30,36,.06);
+    --e2:0 2px 6px rgba(33,30,36,.08), 0 18px 40px rgba(33,30,36,.10);
+    --e3:0 10px 30px rgba(33,30,36,.14), 0 30px 70px rgba(33,30,36,.16);
+    --font:"F37 Jagger","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body{ margin:0; background:var(--white); color:var(--txt); font-family:var(--font); font-weight:400; line-height:1.55; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,h4{ font-weight:700; line-height:1.05; letter-spacing:-.02em; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+  .eyebrow{ font-weight:400; text-transform:uppercase; letter-spacing:.22em; font-size:.7rem; color:var(--txt-soft); }
+  .lead{ font-weight:300; font-size:1.14rem; color:var(--txt-soft); line-height:1.5; }
+  .fade{ background:linear-gradient(100deg,var(--charcoal) 35%,#9b96a1); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  section{ padding:56px 0; }
+  :focus-visible{ outline:3px solid #3B333D; outline-offset:2px; }
+  :focus:not(:focus-visible){ outline:none; }
+
+  .promo{ background:var(--ink); color:var(--on-dark); text-align:center; font-size:.74rem; letter-spacing:.05em; padding:8px 14px; }
+  .promo b{ color:#fff; }
+
+  /* ---- global header ---- */
+  .mainhead{ display:flex; align-items:center; gap:14px; padding:10px 20px; border-bottom:1px solid rgba(33,30,36,.07); background:var(--white); position:sticky; top:0; z-index:40; }
+  .mainhead .menu{ display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:none; background:none; cursor:pointer; color:var(--ink); padding:0; }
+  .mainhead .menu svg{ width:24px; height:24px; }
+  @media(min-width:860px){ .mainhead .menu{ display:none; } }
+  .mainhead .logo img{ height:44px; width:auto; display:block; }
+  .mainhead .search{ margin-left:auto; flex:0 1 360px; display:none; align-items:center; gap:9px; border:1px solid rgba(33,30,36,.15); border-radius:999px; padding:11px 16px; color:var(--txt-soft); font-size:.85rem; font-family:inherit; text-align:left; cursor:pointer; }
+  .mainhead .search svg{ width:16px; height:16px; }
+  @media(min-width:860px){ .mainhead .search{ display:flex; } }
+  .mainhead .icons{ margin-left:auto; display:flex; gap:2px; align-items:center; }
+  @media(min-width:860px){ .mainhead .icons{ margin-left:18px; } }
+  @media(max-width:859px){ .mainhead{ position:relative; gap:6px; } .mainhead .logo{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); } .mainhead .menu{ order:1; } .mainhead .icons{ margin-left:auto; } }
+  .mainhead .ic{ position:relative; cursor:pointer; color:var(--ink); display:inline-flex; align-items:center; justify-content:center; min-width:40px; min-height:40px; border:none; background:none; padding:0; text-decoration:none; }
+  .mainhead .ic svg{ width:22px; height:22px; } .mainhead .ic img{ width:22px; height:22px; display:block; }
+  .mainhead .ic .badge{ position:absolute; top:-2px; right:-2px; background:var(--accent); color:var(--ink); font-size:.6rem; font-weight:700; border-radius:999px; padding:1px 5px; }
+
+  .primnav{ border-bottom:1px solid rgba(33,30,36,.07); background:var(--white); }
+  .primnav ul{ list-style:none; margin:0; padding:9px 20px; display:flex; gap:26px; justify-content:center; font-size:.9rem; font-weight:400; }
+  .primnav a{ color:var(--ink); text-decoration:none; white-space:nowrap; }
+  @media(max-width:860px){ .primnav{ display:none; } .primnav.open{ display:block; } .primnav ul{ flex-direction:column; align-items:flex-start; gap:0; padding:6px 20px 12px; } .primnav li{ width:100%; padding:11px 0; border-bottom:1px solid rgba(33,30,36,.06); } }
+
+  /* ---- breadcrumb + hero ---- */
+  .crumb{ font-size:.8rem; color:var(--txt-soft); padding:16px 0 0; } .crumb a{ text-decoration:none; } .crumb .sep{ opacity:.4; margin:0 6px; }
+  .hero{ text-align:center; padding:26px 0 8px; }
+  .hero h1{ font-size:clamp(2.2rem,6vw,3.6rem); letter-spacing:-.03em; }
+  .hero .lead{ max-width:56ch; margin:16px auto 0; }
+
+  /* ---- featured post ---- */
+  .feat-sec{ padding-top:34px; }
+  .feat{ display:grid; gap:0; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r); overflow:hidden; box-shadow:var(--e2); text-decoration:none; color:inherit; transition:transform .25s var(--ease), box-shadow .25s var(--ease); }
+  .feat:hover{ transform:translateY(-3px); box-shadow:var(--e3); }
+  @media(min-width:820px){ .feat{ grid-template-columns:1.1fr 1fr; } }
+  .feat .img{ aspect-ratio:16/10; background:var(--mist); overflow:hidden; }
+  .feat .img img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .feat .body{ padding:32px 30px; display:flex; flex-direction:column; justify-content:center; }
+  .feat .tag{ align-self:flex-start; font-size:.68rem; text-transform:uppercase; letter-spacing:.14em; font-weight:700; color:var(--clay); background:var(--sand,#E6D9C7); border-radius:999px; padding:5px 12px; margin-bottom:14px; }
+  .feat h2{ font-size:clamp(1.6rem,3.6vw,2.3rem); line-height:1.08; }
+  .feat p{ font-weight:300; color:var(--txt-soft); line-height:1.6; margin-top:12px; font-size:1rem; }
+  .readmore{ display:inline-flex; align-items:center; gap:8px; font-weight:700; margin-top:18px; font-size:.95rem; }
+  .readmore svg{ width:16px; height:16px; transition:transform .2s var(--ease); }
+  .feat:hover .readmore svg, .pcard:hover .readmore svg{ transform:translateX(3px); }
+
+  /* ---- post grid ---- */
+  .grid-sec .head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:26px; flex-wrap:wrap; }
+  .grid-sec h2{ font-size:clamp(1.6rem,4vw,2.2rem); }
+  .pgrid{ display:grid; gap:22px; grid-template-columns:1fr; }
+  @media(min-width:600px){ .pgrid{ grid-template-columns:1fr 1fr; } }
+  @media(min-width:980px){ .pgrid{ grid-template-columns:1fr 1fr 1fr; } }
+  .pcard{ display:flex; flex-direction:column; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); overflow:hidden; box-shadow:var(--e1); text-decoration:none; color:inherit; transition:transform .2s var(--ease), box-shadow .2s var(--ease); }
+  .pcard:hover{ transform:translateY(-3px); box-shadow:var(--e2); }
+  .pcard .img{ aspect-ratio:16/10; background:var(--mist); overflow:hidden; }
+  .pcard .img img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .pcard .body{ padding:20px 20px 22px; display:flex; flex-direction:column; flex:1; }
+  .pcard h3{ font-size:1.12rem; line-height:1.18; }
+  .pcard p{ font-weight:300; color:var(--txt-soft); line-height:1.55; font-size:.9rem; margin-top:9px; flex:1; }
+  .pcard .readmore{ margin-top:16px; font-size:.9rem; }
+
+  /* ---- footer ---- */
+  .site-foot{ background:var(--ink); color:var(--on-dark-soft); padding:52px 0 26px; }
+  .site-foot .top{ display:grid; gap:32px; }
+  @media(min-width:760px){ .site-foot .top{ grid-template-columns:1.5fr 1fr 1fr 1fr; gap:40px; } }
+  .site-foot .logo img{ height:36px; width:auto; display:block; }
+  .site-foot .reg{ font-size:.78rem; font-weight:300; line-height:1.6; margin-top:16px; max-width:44ch; }
+  .site-foot h4{ color:#fff; font-size:.74rem; text-transform:uppercase; letter-spacing:.16em; font-weight:700; margin-bottom:14px; }
+  .site-foot ul{ list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+  .site-foot a{ color:var(--on-dark-soft); text-decoration:none; font-weight:300; font-size:.9rem; }
+  .site-foot .copy{ margin-top:28px; border-top:1px solid rgba(255,255,255,.12); padding-top:20px; font-size:.74rem; font-weight:300; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+</style>
+</head>
+<body>
+<div class="promo">FREE DELIVERY — <b>selected postcodes*</b> &nbsp;·&nbsp; 10% OFF GRANDMASTER — CODE <b>GM10</b></div>
+
+<header class="mainhead">
+  <button class="menu" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="logo" href="projecttimber-home.html" aria-label="Project Timber home"><img src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/tplogo.svg" alt="Project Timber"></a>
+  <button class="search" type="button" aria-label="Search Project Timber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg> Search Project Timber</button>
+  <div class="icons">
+    <a class="ic" href="projecttimber-account.html" aria-label="My account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a>
+    <a class="ic" href="projecttimber-cart.html" aria-label="Basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.3 12.3a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L22 8H6"/></svg><span class="badge">1</span></a>
+  </div>
+</header>
+<nav class="primnav" id="primnav"><ul>
+  <li><a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds</a></li>
+  <li><a href="https://www.projecttimber.com/summerhouses/">Summerhouses</a></li>
+  <li><a href="projecttimber-garden-offices.html">Garden Offices</a></li>
+  <li><a href="https://www.projecttimber.com/garden-workshops/">Garden Workshops</a></li>
+  <li><a href="https://www.projecttimber.com/insulated-garden-buildings/">Insulated Garden Buildings</a></li>
+  <li><a href="https://www.projecttimber.com/log-cabins/">Log Cabins</a></li>
+  <li><a href="https://www.projecttimber.com/greenhouses/">Greenhouses</a></li>
+</ul></nav>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero"><div class="wrap">
+  <div class="crumb"><a href="projecttimber-home.html">Home</a><span class="sep">/</span>Resources</div>
+  <div class="eyebrow" style="margin-top:18px">Resources &amp; ideas</div>
+  <h1>Tips, guides &amp; <span class="fade">garden inspiration.</span></h1>
+  <p class="lead">Keep up to date with the latest garden tips and news — from weatherproofing and maintenance to ideas for making the most of your building.</p>
+</div></header>
+
+<!-- ===================== FEATURED ===================== -->
+<section class="feat-sec"><div class="wrap">
+  <a class="feat" href="https://www.projecttimber.com/keeping-the-elements-out-the-ultimate-guide-to-weatherproofing-your-project-timber-building/">
+    <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2026/03/how-to-waterproof-you-shed-building.png" alt="Weatherproofing a timber garden building"></div>
+    <div class="body">
+      <span class="tag">Latest guide</span>
+      <h2>Keeping the elements out: the ultimate guide to weatherproofing your building</h2>
+      <p>Your new Project Timber building has arrived — whether it's a garden office, a studio or a hobbyist retreat. Timber is a natural, living material, so here's how to keep your new space dry, sturdy and looking its best.</p>
+      <span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </div>
+  </a>
+</div></section>
+
+<!-- ===================== POST GRID ===================== -->
+<section class="grid-sec" style="padding-top:20px"><div class="wrap">
+  <div class="head">
+    <h2>More from the blog</h2>
+  </div>
+  <div class="pgrid">
+
+    <a class="pcard" href="https://www.projecttimber.com/top-5-winter-garden-room-ideas/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/11/Cover-1-1.jpg" alt="Winter garden room"></div>
+      <div class="body"><h3>Top 5 Winter Garden Room Ideas</h3><p>During winter we spend more time indoors, which can leave the home feeling cramped. A fully insulated garden room is a great way to enjoy your garden all year round.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/man-cave-ideas/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/10/Featured-Image-1.jpg" alt="Man cave garden building"></div>
+      <div class="body"><h3>Man Cave Ideas</h3><p>A man cave in your garden is a great way to create a dedicated space for fun, relaxation, entertainment and hobbies that everyone can enjoy.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/damp-proof-shed/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/10/0.-hOW-TO-DAMP-rOOF-YOUR-SHED.jpg" alt="Damp proofing a shed"></div>
+      <div class="body"><h3>How To Damp Proof Your Shed</h3><p>With winter approaching, damp-proofing your shed, summerhouse or workshop helps stop moisture damaging the fabric of your building and protects your belongings inside.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/work-home-ideas/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/10/0.Work-From-Home-Ideas.jpg" alt="Work from home garden office"></div>
+      <div class="body"><h3>Work From Home Ideas</h3><p>Working from home has become far more popular, with an impact on living space and motivation. Here are ideas for creating a productive space of your own.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/garden-bar-ideas/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/09/Featured-images-1.jpg" alt="Garden bar"></div>
+      <div class="body"><h3>Garden Bar Ideas</h3><p>A bar in your garden is becoming more and more popular — great for entertaining friends and family, adding value to your home, and enjoying yourself.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/how-to-look-after-your-garden/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/09/cover-01.jpg" alt="Looking after your garden"></div>
+      <div class="body"><h3>How to Look After Your Garden</h3><p>A healthy, beautiful garden transforms the feel of your home. Here are some of our top tips for keeping it well maintained and looking its best.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/preparing-garden-winter/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/09/Featured-images.jpg" alt="Preparing your garden for winter"></div>
+      <div class="body"><h3>Preparing Your Garden For Winter</h3><p>Preparing your garden for winter can be a big task, so here are tips and tricks to make it easier — and to help your garden thrive when summer returns.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/easy-garden-vegetables-grow/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/09/cover-1.jpg" alt="Easy garden vegetables to grow"></div>
+      <div class="body"><h3>Easy Garden Vegetables To Grow</h3><p>You can't beat home-grown vegetables. A garden shed is a great way to organise your hobby, store your tools and keep healthy while you grow.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/top-tips-maintaining-garden-shed/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/08/cover-2.jpg" alt="Maintaining a garden shed"></div>
+      <div class="body"><h3>Top Tips for Maintaining Your Garden Shed</h3><p>Keeping the surroundings clear and maintained helps protect your building from rot and decay. Here are our top tips for keeping your shed in great shape.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/5-ways-use-garden-shed/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/08/Cover-01-1-1.jpg" alt="Ways to use a garden shed"></div>
+      <div class="body"><h3>5 Ways to Use Your Garden Shed</h3><p>From extra storage to a tidier home and garden, there are plenty of ways to make the most of your garden shed and keep your belongings safe and dry.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/how-to-assemble-a-shed/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/08/Cover-how-to-assemble-a-shed.jpg" alt="How to assemble a shed"></div>
+      <div class="body"><h3>How to Assemble a Shed</h3><p>It's all about the base. A solid, level base is essential before you start — paving slabs suit smaller budgets, while a concrete base is ideal for larger buildings.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/top-10-reasons-workshop-shed/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/08/Have-your-own-personal-workspace-in-your-own-garden-1.jpg" alt="Workshop shed"></div>
+      <div class="body"><h3>Top 10 Reasons for a Workshop Shed</h3><p>Have your own workspace in the garden, away from distractions and noise. A perfect place for DIY enthusiasts and hobbyists to work on their own projects.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/apex-vs-pent-shed/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/07/Apex_vs_Contemporary.jpg" alt="Apex versus pent shed roof styles"></div>
+      <div class="body"><h3>Apex vs Pent Shed</h3><p>Different roof styles suit different needs. An apex roof gives more headroom in the centre; a pent roof offers a contemporary look — here's how to choose.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/top-10-reasons-garden-office/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/07/Top-10-Reasons-to-buy-a-Garden-Office.jpg" alt="Garden office"></div>
+      <div class="body"><h3>Top 10 Reasons to Have a Garden Office</h3><p>Cheaper than renting office space and free of the daily commute — a garden office is a smart way to work from home with a dedicated, comfortable space.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/top-10-reasons-buy-summerhouse/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/07/Top-10-Reasons-to-buy-a-Summerhouse.jpg" alt="Summerhouse"></div>
+      <div class="body"><h3>Top 10 Reasons to Buy a Summerhouse</h3><p>Spend more time in your garden with your own private space — a sheltered spot to relax and enjoy the garden in comfort, away from the heat or the rain.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/the-cannes-summerhouse-blog/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/07/Cannes-Summerhouse-Header-2.jpg" alt="Cannes summerhouse"></div>
+      <div class="body"><h3>The Cannes Summerhouse Blog</h3><p>Treating yourself to a summerhouse is a great way to enjoy the summer in classic British style — extra space to relax, entertain or simply unwind.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="pcard" href="https://www.projecttimber.com/the-my-den-work-from-home-garden-office/">
+      <div class="img"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2021/07/10x8_Evolution_My_Den_Pressure_Treated_Cladding_Garden_Office_Small.jpg" alt="My Den garden office"></div>
+      <div class="body"><h3>The My Den Work From Home Garden Office</h3><p>Our My Den range gives you a unique home garden office to create your perfect work-from-home space, as more companies change the way their teams work.</p><span class="readmore">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+  </div>
+</div></section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-foot"><div class="wrap">
+  <div class="top">
+    <div>
+      <a class="logo" href="projecttimber-home.html"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2026/02/ProjectTimber-Logo-2-1.svg" alt="Project Timber"></a>
+      <p class="reg">Project Timber Limited is a company registered in England and Wales with registration number 05126131. Our registered office is at Parry Works, Grassthorpe Road, Sutton-on-Trent, Newark NG23 6QX.</p>
+    </div>
+    <div><h4>Products</h4><ul><li><a href="https://www.projecttimber.com/summerhouses/">Summerhouses</a></li><li><a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds</a></li><li><a href="https://www.projecttimber.com/garden-workshops/">Garden Workshops</a></li><li><a href="projecttimber-garden-offices.html">Garden Offices</a></li></ul></div>
+    <div><h4>Help</h4><ul><li><a href="projecttimber-faq.html">FAQ</a></li><li><a href="projecttimber-delivery.html">Delivery</a></li><li><a href="projecttimber-returns.html">Returns</a></li><li><a href="projecttimber-contact.html">Contact</a></li><li><a href="projecttimber-building-a-base.html">Building a Base</a></li><li><a href="projecttimber-testimonials.html">Testimonials</a></li></ul></div>
+    <div><h4>Links</h4><ul><li><a href="https://www.projecttimber.com/terms">Terms</a></li><li><a href="https://www.projecttimber.com/privacy">Privacy</a></li><li><a href="projecttimber-resources.html">Blog</a></li><li><a href="projecttimber-checkout.html">Checkout</a></li></ul></div>
+  </div>
+  <p style="font-size:.74rem;font-weight:300;color:var(--on-dark-soft);margin:22px 0 0">* Free delivery on selected postcodes and buildings. Terms and conditions apply.</p>
+  <div class="copy"><span>© 2026 All Rights Reserved, Project Timber</span><span>Concept mockup · articles link to the live site</span></div>
+</div></footer>
+
+<script>
+  /* mobile menu */
+  (function(){ var m=document.querySelector('.mainhead .menu'), p=document.getElementById('primnav'); if(m&&p){ m.addEventListener('click',function(){ var o=p.classList.toggle('open'); m.setAttribute('aria-expanded',o); }); } })();
+</script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contact — Project Timber</title>
+
+<!-- ============================================================
+     PROJECT TIMBER · Contact — redesigned in the new system.
+     Content transcribed from the live /contact/ page and cleaned to
+     brand rules: phone split by department — Sales 01777 801214,
+     Customer Care 01777 801215; emails @projecttimber.co.uk,
+     delivery expectation-set (no "next day"). The enquiry form is a
+     front-end mockup only — it does not submit anywhere.
+     ============================================================ -->
+
+<style>
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerbold.otf") format("opentype"); font-weight:700; font-display:swap; }
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerregular.otf") format("opentype"); font-weight:400; font-display:swap; }
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerlight.otf") format("opentype"); font-weight:300; font-display:swap; }
+
+  :root{
+    --ink:#211E24; --charcoal:#3B333D; --clay:#8A6A4F;
+    --paper:#F5F5F5; --mist:#F5F5F5; --white:#FFFFFF;
+    --accent:#FFFF00;
+    --txt:#211E24; --txt-soft:#6E6A74; --on-dark:#F7F4EF; --on-dark-soft:#B7B2BB;
+    --ok:#2A8F57; --ok-bg:#EAF6EF; --warn:#B26A12; --warn-bg:#FBF2E4; --no:#C0392B; --no-bg:#FBECEA;
+    --r:26px; --r-sm:16px; --maxw:1180px;
+    --ease:cubic-bezier(.2,.7,.3,1);
+    --e1:0 1px 2px rgba(33,30,36,.06), 0 6px 16px rgba(33,30,36,.06);
+    --e2:0 2px 6px rgba(33,30,36,.08), 0 18px 40px rgba(33,30,36,.10);
+    --e3:0 10px 30px rgba(33,30,36,.14), 0 30px 70px rgba(33,30,36,.16);
+    --font:"F37 Jagger","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body{ margin:0; background:var(--white); color:var(--txt); font-family:var(--font); font-weight:400; line-height:1.55; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,h4{ font-weight:700; line-height:1.05; letter-spacing:-.02em; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+  .eyebrow{ font-weight:400; text-transform:uppercase; letter-spacing:.22em; font-size:.7rem; color:var(--txt-soft); }
+  .lead{ font-weight:300; font-size:1.14rem; color:var(--txt-soft); line-height:1.5; }
+  .fade{ background:linear-gradient(100deg,var(--charcoal) 35%,#9b96a1); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  section{ padding:56px 0; }
+  :focus-visible{ outline:3px solid #3B333D; outline-offset:2px; }
+  :focus:not(:focus-visible){ outline:none; }
+
+  .promo{ background:var(--ink); color:var(--on-dark); text-align:center; font-size:.74rem; letter-spacing:.05em; padding:8px 14px; }
+  .promo b{ color:#fff; }
+
+  /* ---- global header ---- */
+  .mainhead{ display:flex; align-items:center; gap:14px; padding:10px 20px; border-bottom:1px solid rgba(33,30,36,.07); background:var(--white); position:sticky; top:0; z-index:40; }
+  .mainhead .menu{ display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:none; background:none; cursor:pointer; color:var(--ink); padding:0; }
+  .mainhead .menu svg{ width:24px; height:24px; }
+  @media(min-width:860px){ .mainhead .menu{ display:none; } }
+  .mainhead .logo img{ height:44px; width:auto; display:block; }
+  .mainhead .search{ margin-left:auto; flex:0 1 360px; display:none; align-items:center; gap:9px; border:1px solid rgba(33,30,36,.15); border-radius:999px; padding:11px 16px; color:var(--txt-soft); font-size:.85rem; font-family:inherit; text-align:left; cursor:pointer; }
+  .mainhead .search svg{ width:16px; height:16px; }
+  @media(min-width:860px){ .mainhead .search{ display:flex; } }
+  .mainhead .icons{ margin-left:auto; display:flex; gap:2px; align-items:center; }
+  @media(min-width:860px){ .mainhead .icons{ margin-left:18px; } }
+  @media(max-width:859px){ .mainhead{ position:relative; gap:6px; } .mainhead .logo{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); } .mainhead .menu{ order:1; } .mainhead .icons{ margin-left:auto; } }
+  .mainhead .ic{ position:relative; cursor:pointer; color:var(--ink); display:inline-flex; align-items:center; justify-content:center; min-width:40px; min-height:40px; border:none; background:none; padding:0; text-decoration:none; }
+  .mainhead .ic svg{ width:22px; height:22px; } .mainhead .ic img{ width:22px; height:22px; display:block; }
+  .mainhead .ic .badge{ position:absolute; top:-2px; right:-2px; background:var(--accent); color:var(--ink); font-size:.6rem; font-weight:700; border-radius:999px; padding:1px 5px; }
+
+  .primnav{ border-bottom:1px solid rgba(33,30,36,.07); background:var(--white); }
+  .primnav ul{ list-style:none; margin:0; padding:9px 20px; display:flex; gap:26px; justify-content:center; font-size:.9rem; font-weight:400; }
+  .primnav a{ color:var(--ink); text-decoration:none; white-space:nowrap; }
+  @media(max-width:860px){ .primnav{ display:none; } .primnav.open{ display:block; } .primnav ul{ flex-direction:column; align-items:flex-start; gap:0; padding:6px 20px 12px; } .primnav li{ width:100%; padding:11px 0; border-bottom:1px solid rgba(33,30,36,.06); } }
+
+  /* ---- breadcrumb + hero ---- */
+  .crumb{ font-size:.8rem; color:var(--txt-soft); padding:16px 0 0; } .crumb a{ text-decoration:none; } .crumb .sep{ opacity:.4; margin:0 6px; }
+  .hero{ text-align:center; padding:26px 0 8px; }
+  .hero h1{ font-size:clamp(2.2rem,6vw,3.6rem); letter-spacing:-.03em; }
+  .hero .lead{ max-width:58ch; margin:16px auto 0; }
+  .hero .lead a{ color:var(--charcoal); font-weight:700; text-decoration:none; }
+
+  /* ---- contact grid ---- */
+  .cgrid{ display:grid; gap:26px; align-items:start; }
+  @media(min-width:900px){ .cgrid{ grid-template-columns:1fr 1.1fr; gap:44px; } }
+
+  .methods{ display:grid; gap:14px; }
+  .method{ display:flex; gap:16px; align-items:flex-start; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); padding:20px 20px; box-shadow:var(--e1); }
+  .method .ic{ flex:0 0 auto; width:44px; height:44px; border-radius:12px; background:var(--mist); color:var(--charcoal); display:flex; align-items:center; justify-content:center; }
+  .method .ic svg{ width:22px; height:22px; }
+  .method h3{ font-size:.72rem; text-transform:uppercase; letter-spacing:.16em; color:var(--txt-soft); font-weight:700; margin-bottom:5px; }
+  .method .val{ font-size:1.12rem; font-weight:700; } .method .val a{ text-decoration:none; }
+  .method .sub{ font-weight:300; font-size:.86rem; color:var(--txt-soft); margin-top:3px; line-height:1.4; }
+  .method .mail{ margin-top:4px; } .method .mail a{ font-size:.95rem; font-weight:700; color:var(--charcoal); text-decoration:none; }
+
+  .hours{ background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); padding:20px 22px; box-shadow:var(--e1); margin-top:14px; }
+  .hours h3{ font-size:.72rem; text-transform:uppercase; letter-spacing:.16em; color:var(--txt-soft); font-weight:700; margin-bottom:12px; }
+  .hours ul{ list-style:none; margin:0; padding:0; display:grid; gap:9px; }
+  .hours li{ display:flex; justify-content:space-between; font-size:.95rem; border-bottom:1px dashed rgba(33,30,36,.12); padding-bottom:9px; }
+  .hours li:last-child{ border-bottom:none; padding-bottom:0; }
+  .hours .d{ font-weight:700; } .hours .t{ color:var(--txt-soft); font-weight:300; }
+  .hours .open{ color:var(--ok); font-weight:700; }
+
+  /* ---- enquiry form ---- */
+  .fcard{ background:var(--paper); border:1px solid rgba(33,30,36,.1); border-radius:var(--r); padding:28px 26px; box-shadow:var(--e1); }
+  .fcard h2{ font-size:clamp(1.5rem,3.4vw,2rem); }
+  .fcard .fsub{ font-weight:300; color:var(--txt-soft); font-size:.92rem; margin:8px 0 20px; }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:.82rem; font-weight:700; margin-bottom:6px; }
+  .field label .req{ color:var(--no); }
+  .field input, .field textarea{ width:100%; font-family:var(--font); font-size:1rem; padding:13px 15px; border:1.5px solid rgba(33,30,36,.2); border-radius:12px; background:#fff; color:var(--ink); }
+  .field input:focus, .field textarea:focus{ outline:none; border-color:var(--charcoal); }
+  .field textarea{ min-height:110px; resize:vertical; }
+  .times{ display:grid; gap:8px; margin:2px 0 4px; }
+  .times label{ display:flex; align-items:center; gap:10px; font-size:.9rem; font-weight:400; background:#fff; border:1px solid rgba(33,30,36,.15); border-radius:10px; padding:11px 13px; cursor:pointer; }
+  .times input{ width:18px; height:18px; accent-color:var(--charcoal); }
+  .fbtn{ width:100%; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1.02rem; padding:15px 20px; border-radius:999px; transition:transform .2s var(--ease); }
+  .fbtn:active{ transform:scale(.98); }
+  .fnote{ font-size:.72rem; font-weight:300; color:var(--txt-soft); margin-top:12px; text-align:center; }
+  .fnote a{ color:var(--charcoal); font-weight:700; text-decoration:none; }
+  .fdone{ display:none; margin-top:16px; background:var(--ok-bg); color:#1c6b41; border-radius:12px; padding:16px 18px; gap:12px; align-items:flex-start; }
+  .fdone.show{ display:flex; } .fdone svg{ width:22px; height:22px; flex:0 0 auto; color:var(--ok); margin-top:1px; }
+  .fdone b{ display:block; margin-bottom:2px; } .fdone p{ font-weight:300; font-size:.9rem; line-height:1.45; }
+
+  /* ---- delivery strip ---- */
+  .dstrip{ background:var(--paper); }
+  .dstrip .zgrid{ display:grid; gap:28px; align-items:center; }
+  @media(min-width:900px){ .dstrip .zgrid{ grid-template-columns:1fr 1fr; gap:44px; } }
+  .dstrip .zmap img{ width:100%; border-radius:var(--r); box-shadow:var(--e2); display:block; background:#fff; }
+  .dstrip h2{ font-size:clamp(1.8rem,4.4vw,2.4rem); }
+  .dstrip .lead{ margin:12px 0 20px; }
+  .zrow{ display:grid; gap:10px; }
+  .zr{ display:flex; align-items:center; gap:12px; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:12px; padding:12px 15px; box-shadow:var(--e1); }
+  .zr .dot{ width:12px; height:12px; border-radius:50%; flex:0 0 auto; }
+  .zr .zt{ font-weight:700; font-size:.95rem; } .zr .zc{ margin-left:auto; font-weight:700; font-size:.9rem; color:var(--txt-soft); }
+  .dot.a{ background:var(--ok); } .dot.b{ background:var(--warn); } .dot.c{ background:#8a5210; } .dot.d{ background:var(--no); }
+  .dstrip .btn-link{ display:inline-flex; align-items:center; gap:8px; margin-top:18px; font-weight:700; text-decoration:none; color:var(--ink); }
+  .dstrip .btn-link svg{ width:16px; height:16px; }
+
+  /* ---- footer ---- */
+  .site-foot{ background:var(--ink); color:var(--on-dark-soft); padding:52px 0 26px; }
+  .site-foot .top{ display:grid; gap:32px; }
+  @media(min-width:760px){ .site-foot .top{ grid-template-columns:1.5fr 1fr 1fr 1fr; gap:40px; } }
+  .site-foot .logo img{ height:36px; width:auto; display:block; }
+  .site-foot .reg{ font-size:.78rem; font-weight:300; line-height:1.6; margin-top:16px; max-width:44ch; }
+  .site-foot h4{ color:#fff; font-size:.74rem; text-transform:uppercase; letter-spacing:.16em; font-weight:700; margin-bottom:14px; }
+  .site-foot ul{ list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+  .site-foot a{ color:var(--on-dark-soft); text-decoration:none; font-weight:300; font-size:.9rem; }
+  .site-foot .copy{ margin-top:28px; border-top:1px solid rgba(255,255,255,.12); padding-top:20px; font-size:.74rem; font-weight:300; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+</style>
+</head>
+<body>
+<div class="promo">FREE DELIVERY — <b>selected postcodes*</b> &nbsp;·&nbsp; 10% OFF GRANDMASTER — CODE <b>GM10</b></div>
+
+<header class="mainhead">
+  <button class="menu" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="logo" href="projecttimber-home.html" aria-label="Project Timber home"><img src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/tplogo.svg" alt="Project Timber"></a>
+  <button class="search" type="button" aria-label="Search Project Timber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg> Search Project Timber</button>
+  <div class="icons">
+    <a class="ic" href="projecttimber-account.html" aria-label="My account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a>
+    <a class="ic" href="projecttimber-cart.html" aria-label="Basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.3 12.3a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L22 8H6"/></svg><span class="badge">1</span></a>
+  </div>
+</header>
+<nav class="primnav" id="primnav"><ul>
+  <li><a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds</a></li>
+  <li><a href="https://www.projecttimber.com/summerhouses/">Summerhouses</a></li>
+  <li><a href="projecttimber-garden-offices.html">Garden Offices</a></li>
+  <li><a href="https://www.projecttimber.com/garden-workshops/">Garden Workshops</a></li>
+  <li><a href="https://www.projecttimber.com/insulated-garden-buildings/">Insulated Garden Buildings</a></li>
+  <li><a href="https://www.projecttimber.com/log-cabins/">Log Cabins</a></li>
+  <li><a href="https://www.projecttimber.com/greenhouses/">Greenhouses</a></li>
+</ul></nav>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero"><div class="wrap">
+  <div class="crumb"><a href="projecttimber-home.html">Home</a><span class="sep">/</span>Contact</div>
+  <div class="eyebrow" style="margin-top:18px">Get in touch</div>
+  <h1>We're here to <span class="fade">help.</span></h1>
+  <p class="lead">Our friendly, knowledgeable team is on hand to answer any pre- or post-sales questions. We're available Monday to Friday, 8:30am–7:00pm. Outside those hours, we'll get back to you as quickly as we can — or browse our <a href="projecttimber-faq.html">FAQs</a>.</p>
+</div></header>
+
+<!-- ===================== CONTACT + FORM ===================== -->
+<section style="padding-top:34px"><div class="wrap">
+  <div class="cgrid">
+
+    <!-- methods -->
+    <div>
+      <div class="methods">
+        <div class="method">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/></svg></div>
+          <div><h3>Sales &amp; enquiries</h3><div class="val"><a href="tel:01777801214">01777 801214</a></div><p class="mail"><a href="mailto:sales@projecttimber.co.uk">sales@projecttimber.co.uk</a></p><p class="sub">New orders, quotes and bespoke buildings · Mon–Fri, 8:30am–7:00pm</p></div>
+        </div>
+        <div class="method">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 16 0v5a2 2 0 0 1-2 2h-2v-6h4"/><path d="M4 13v4a2 2 0 0 0 2 2h2v-6H4"/></svg></div>
+          <div><h3>Customer care &amp; support</h3><div class="val"><a href="tel:01777801215">01777 801215</a></div><p class="mail"><a href="mailto:care@projecttimber.co.uk">care@projecttimber.co.uk</a></p><p class="sub">After-sales help, returns and cancellations · Mon–Fri, 8:30am–7:00pm</p></div>
+        </div>
+        <div class="method">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></div>
+          <div><h3>Address</h3><div class="val" style="font-size:1rem">Parry Works, Grassthorpe Road</div><p class="sub">Sutton-on-Trent, Newark, Nottinghamshire, NG23 6QX</p></div>
+        </div>
+      </div>
+
+      <div class="hours">
+        <h3>Business hours</h3>
+        <ul>
+          <li><span class="d">Monday–Friday</span><span class="open">8:30am – 7:00pm</span></li>
+          <li><span class="d">Saturday</span><span class="t">Closed</span></li>
+          <li><span class="d">Sunday</span><span class="t">Closed</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- enquiry form (mockup) -->
+    <div class="fcard">
+      <h2>Send us a message</h2>
+      <p class="fsub">Leave a few details and our team will get back to you — usually the same working day if you're in touch before 6pm.</p>
+      <form id="cForm" novalidate>
+        <div class="field"><label for="cName">Name <span class="req">*</span></label><input id="cName" type="text" autocomplete="name" required></div>
+        <div class="field"><label for="cEmail">Email <span class="req">*</span></label><input id="cEmail" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="cPhone">Contact number</label><input id="cPhone" type="tel" autocomplete="tel"></div>
+        <div class="field"><label for="cProd">What product are you interested in?</label><input id="cProd" type="text" placeholder="e.g. My Den garden office, 10x8 shed"></div>
+        <div class="field"><label for="cMsg">Message</label><textarea id="cMsg" placeholder="How can we help?"></textarea></div>
+        <div class="field" style="margin-bottom:18px">
+          <label>Best time to call you back</label>
+          <div class="times">
+            <label><input type="radio" name="cTime" value="asap">As soon as possible</label>
+            <label><input type="radio" name="cTime" value="am">Any weekday, 8:30am – 1pm</label>
+            <label><input type="radio" name="cTime" value="pm">Any weekday afternoon, 1pm – 5pm</label>
+            <label><input type="radio" name="cTime" value="eve">Any weekday evening, 5pm – 7pm</label>
+          </div>
+        </div>
+        <button class="fbtn" type="submit">Send message</button>
+        <p class="fnote">We'll never sell your details to third parties. See our <a href="https://www.projecttimber.com/privacy/">privacy policy</a>.</p>
+      </form>
+      <div class="fdone" id="cDone" role="status" aria-live="polite">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        <div><b>Thanks — we've got your message.</b><p>Our team will be in touch soon. Prefer to talk now? Call our sales team on 01777 801214.</p></div>
+      </div>
+    </div>
+
+  </div>
+</div></section>
+
+<!-- ===================== DELIVERY STRIP ===================== -->
+<section class="dstrip"><div class="wrap">
+  <div class="zgrid">
+    <div class="zmap"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2025/05/deliver_map_2025.webp" alt="Project Timber UK delivery zone map"></div>
+    <div>
+      <div class="eyebrow">Delivery time &amp; cost</div>
+      <h2 style="margin-top:8px">Where we deliver</h2>
+      <p class="lead">Free kerbside delivery to most UK mainland postcodes, with a surcharge for some areas and a few we're unable to reach. You'll choose your delivery date at checkout.</p>
+      <div class="zrow">
+        <div class="zr"><span class="dot a"></span><span class="zt">Zone A — Free delivery</span><span class="zc">FREE</span></div>
+        <div class="zr"><span class="dot b"></span><span class="zt">Zone B — Surcharge</span><span class="zc">£99</span></div>
+        <div class="zr"><span class="dot c"></span><span class="zt">Zone C — Surcharge</span><span class="zc">£199</span></div>
+        <div class="zr"><span class="dot d"></span><span class="zt">Zone D — Not available</span><span class="zc">—</span></div>
+      </div>
+      <a class="btn-link" href="projecttimber-delivery.html">Check your postcode <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+  </div>
+</div></section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-foot"><div class="wrap">
+  <div class="top">
+    <div>
+      <a class="logo" href="projecttimber-home.html"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2026/02/ProjectTimber-Logo-2-1.svg" alt="Project Timber"></a>
+      <p class="reg">Project Timber Limited is a company registered in England and Wales with registration number 05126131. Our registered office is at Parry Works, Grassthorpe Road, Sutton-on-Trent, Newark NG23 6QX.</p>
+    </div>
+    <div><h4>Products</h4><ul><li><a href="https://www.projecttimber.com/summerhouses/">Summerhouses</a></li><li><a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds</a></li><li><a href="https://www.projecttimber.com/garden-workshops/">Garden Workshops</a></li><li><a href="projecttimber-garden-offices.html">Garden Offices</a></li></ul></div>
+    <div><h4>Help</h4><ul><li><a href="projecttimber-faq.html">FAQ</a></li><li><a href="projecttimber-delivery.html">Delivery</a></li><li><a href="projecttimber-returns.html">Returns</a></li><li><a href="projecttimber-contact.html">Contact</a></li><li><a href="projecttimber-building-a-base.html">Building a Base</a></li><li><a href="projecttimber-testimonials.html">Testimonials</a></li></ul></div>
+    <div><h4>Links</h4><ul><li><a href="https://www.projecttimber.com/terms">Terms</a></li><li><a href="https://www.projecttimber.com/privacy">Privacy</a></li><li><a href="projecttimber-resources.html">Blog</a></li><li><a href="projecttimber-checkout.html">Checkout</a></li></ul></div>
+  </div>
+  <p style="font-size:.74rem;font-weight:300;color:var(--on-dark-soft);margin:22px 0 0">* Free delivery on selected postcodes and buildings. Terms and conditions apply.</p>
+  <div class="copy"><span>© 2026 All Rights Reserved, Project Timber</span><span>Concept mockup · form does not submit</span></div>
+</div></footer>
+
+<script>
+  /* mobile menu */
+  (function(){ var m=document.querySelector('.mainhead .menu'), p=document.getElementById('primnav'); if(m&&p){ m.addEventListener('click',function(){ var o=p.classList.toggle('open'); m.setAttribute('aria-expanded',o); }); } })();
+
+  /* enquiry form — front-end mockup only, does not submit anywhere */
+  (function(){
+    var f=document.getElementById('cForm'), done=document.getElementById('cDone');
+    if(!f) return;
+    f.addEventListener('submit', function(e){
+      e.preventDefault();
+      var name=document.getElementById('cName'), email=document.getElementById('cEmail');
+      if(!name.value.trim()){ name.focus(); return; }
+      if(!email.value.trim()){ email.focus(); return; }
+      f.style.display='none'; done.classList.add('show'); done.scrollIntoView({behavior:'smooth', block:'center'});
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Building a Base — Project Timber</title>
+
+<!-- ============================================================
+     PROJECT TIMBER · Building a Base — redesigned in the new system.
+     Content transcribed from the live /building-base-garden-building/
+     page. Measurements kept exactly as published. Phone 01777 553392.
+     Placeholder used for the concrete shuttering diagram (supply art).
+     ============================================================ -->
+
+<style>
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerbold.otf") format("opentype"); font-weight:700; font-display:swap; }
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerregular.otf") format("opentype"); font-weight:400; font-display:swap; }
+  @font-face{ font-family:"F37 Jagger"; src:url("fonts/f37_jaggerlight.otf") format("opentype"); font-weight:300; font-display:swap; }
+
+  :root{
+    --ink:#211E24; --charcoal:#3B333D; --clay:#8A6A4F;
+    --paper:#F5F5F5; --mist:#F5F5F5; --white:#FFFFFF;
+    --accent:#FFFF00;
+    --txt:#211E24; --txt-soft:#6E6A74; --on-dark:#F7F4EF; --on-dark-soft:#B7B2BB;
+    --ok:#2A8F57; --ok-bg:#EAF6EF; --warn:#B26A12; --warn-bg:#FBF2E4; --no:#C0392B; --no-bg:#FBECEA;
+    --r:26px; --r-sm:16px; --maxw:1180px;
+    --ease:cubic-bezier(.2,.7,.3,1);
+    --e1:0 1px 2px rgba(33,30,36,.06), 0 6px 16px rgba(33,30,36,.06);
+    --e2:0 2px 6px rgba(33,30,36,.08), 0 18px 40px rgba(33,30,36,.10);
+    --e3:0 10px 30px rgba(33,30,36,.14), 0 30px 70px rgba(33,30,36,.16);
+    --font:"F37 Jagger","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body{ margin:0; background:var(--white); color:var(--txt); font-family:var(--font); font-weight:400; line-height:1.55; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,h4{ font-weight:700; line-height:1.05; letter-spacing:-.02em; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+  .eyebrow{ font-weight:400; text-transform:uppercase; letter-spacing:.22em; font-size:.7rem; color:var(--txt-soft); }
+  .lead{ font-weight:300; font-size:1.14rem; color:var(--txt-soft); line-height:1.5; }
+  .fade{ background:linear-gradient(100deg,var(--charcoal) 35%,#9b96a1); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  section{ padding:56px 0; }
+  :focus-visible{ outline:3px solid #3B333D; outline-offset:2px; }
+  :focus:not(:focus-visible){ outline:none; }
+
+  .promo{ background:var(--ink); color:var(--on-dark); text-align:center; font-size:.74rem; letter-spacing:.05em; padding:8px 14px; }
+  .promo b{ color:#fff; }
+
+  /* ---- global header ---- */
+  .mainhead{ display:flex; align-items:center; gap:14px; padding:10px 20px; border-bottom:1px solid rgba(33,30,36,.07); background:var(--white); position:sticky; top:0; z-index:40; }
+  .mainhead .menu{ display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:none; background:none; cursor:pointer; color:var(--ink); padding:0; }
+  .mainhead .menu svg{ width:24px; height:24px; }
+  @media(min-width:860px){ .mainhead .menu{ display:none; } }
+  .mainhead .logo img{ height:44px; width:auto; display:block; }
+  .mainhead .search{ margin-left:auto; flex:0 1 360px; display:none; align-items:center; gap:9px; border:1px solid rgba(33,30,36,.15); border-radius:999px; padding:11px 16px; color:var(--txt-soft); font-size:.85rem; font-family:inherit; text-align:left; cursor:pointer; }
+  .mainhead .search svg{ width:16px; height:16px; }
+  @media(min-width:860px){ .mainhead .search{ display:flex; } }
+  .mainhead .icons{ margin-left:auto; display:flex; gap:2px; align-items:center; }
+  @media(min-width:860px){ .mainhead .icons{ margin-left:18px; } }
+  @media(max-width:859px){ .mainhead{ position:relative; gap:6px; } .mainhead .logo{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); } .mainhead .menu{ order:1; } .mainhead .icons{ margin-left:auto; } }
+  .mainhead .ic{ position:relative; cursor:pointer; color:var(--ink); display:inline-flex; align-items:center; justify-content:center; min-width:40px; min-height:40px; border:none; background:none; padding:0; text-decoration:none; }
+  .mainhead .ic svg{ width:22px; height:22px; } .mainhead .ic img{ width:22px; height:22px; display:block; }
+  .mainhead .ic .badge{ position:absolute; top:-2px; right:-2px; background:var(--accent); color:var(--ink); font-size:.6rem; font-weight:700; border-radius:999px; padding:1px 5px; }
+
+  .primnav{ border-bottom:1px solid rgba(33,30,36,.07); background:var(--white); }
+  .primnav ul{ list-style:none; margin:0; padding:9px 20px; display:flex; gap:26px; justify-content:center; font-size:.9rem; font-weight:400; }
+  .primnav a{ color:var(--ink); text-decoration:none; white-space:nowrap; }
+  @media(max-width:860px){ .primnav{ display:none; } .primnav.open{ display:block; } .primnav ul{ flex-direction:column; align-items:flex-start; gap:0; padding:6px 20px 12px; } .primnav li{ width:100%; padding:11px 0; border-bottom:1px solid rgba(33,30,36,.06); } }
+
+  /* ---- breadcrumb + hero ---- */
+  .crumb{ font-size:.8rem; color:var(--txt-soft); padding:16px 0 0; } .crumb a{ text-decoration:none; } .crumb .sep{ opacity:.4; margin:0 6px; }
+  .hero{ text-align:center; padding:26px 0 8px; }
+  .hero h1{ font-size:clamp(2.2rem,6vw,3.6rem); letter-spacing:-.03em; }
+  .hero .lead{ max-width:60ch; margin:16px auto 0; }
+
+  /* ---- intro / prose ---- */
+  .prose .wrap{ max-width:820px; }
+  .prose h2{ font-size:clamp(1.7rem,4vw,2.3rem); margin:0 0 14px; }
+  .prose p{ font-weight:300; color:var(--txt-soft); line-height:1.7; margin:0 0 14px; }
+  .prose ul{ margin:0 0 14px; padding-left:0; list-style:none; display:grid; gap:12px; }
+  .prose ul li{ position:relative; padding-left:30px; font-weight:300; color:var(--txt-soft); line-height:1.6; }
+  .prose ul li::before{ content:""; position:absolute; left:6px; top:.55em; width:8px; height:8px; border-radius:50%; background:var(--clay); }
+  .prose strong{ color:var(--ink); font-weight:700; }
+
+  /* ---- warning callout ---- */
+  .callout{ display:flex; gap:14px; align-items:flex-start; background:var(--warn-bg); border:1px solid rgba(178,106,18,.25); border-radius:var(--r-sm); padding:18px 20px; margin:6px 0 8px; }
+  .callout svg{ width:22px; height:22px; flex:0 0 auto; color:var(--warn); margin-top:1px; }
+  .callout p{ color:#8a5210; font-weight:400; font-size:.95rem; line-height:1.55; margin:0; }
+  .callout strong{ color:#6e420d; }
+
+  /* ---- tip callout ---- */
+  .tip{ display:flex; gap:14px; align-items:flex-start; background:var(--ok-bg); border:1px solid rgba(42,143,87,.25); border-radius:var(--r-sm); padding:18px 20px; margin:8px 0; }
+  .tip svg{ width:22px; height:22px; flex:0 0 auto; color:var(--ok); margin-top:1px; }
+  .tip img{ height:34px; width:auto; flex:0 0 auto; margin-top:1px; object-fit:contain; }
+  .tip p{ color:#1c6b41; font-weight:400; font-size:.95rem; line-height:1.55; margin:0; }
+
+  /* ---- method tabs ---- */
+  .methods{ background:var(--paper); }
+  .methods .wrap{ max-width:900px; }
+  .methods .head{ text-align:center; margin-bottom:26px; }
+  .mtabs{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:26px; }
+  .mtab{ font-family:var(--font); font-size:.92rem; font-weight:700; color:var(--ink); background:#fff; border:1px solid rgba(33,30,36,.14); border-radius:999px; padding:11px 20px; cursor:pointer; transition:background .2s var(--ease), color .2s var(--ease); }
+  .mtab[aria-selected="true"]{ background:var(--charcoal); color:#fff; border-color:var(--charcoal); }
+  .mpanel{ display:none; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r); padding:30px 28px; box-shadow:var(--e1); }
+  .mpanel.show{ display:block; }
+  .mpanel h3{ font-size:clamp(1.4rem,3.2vw,1.8rem); margin-bottom:6px; }
+  .mpanel .rec{ display:inline-block; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ok); background:var(--ok-bg); border-radius:999px; padding:4px 12px; margin-bottom:14px; }
+  .mpanel .mintro{ font-weight:300; color:var(--txt-soft); margin-bottom:20px; line-height:1.6; }
+  ol.blist{ list-style:none; counter-reset:step; margin:0; padding:0; display:grid; gap:16px; }
+  ol.blist li{ counter-increment:step; position:relative; padding-left:46px; font-weight:300; color:var(--txt-soft); line-height:1.6; font-size:.95rem; }
+  ol.blist li::before{ content:counter(step); position:absolute; left:0; top:-2px; width:30px; height:30px; border-radius:50%; background:var(--charcoal); color:#fff; font-weight:700; font-size:.85rem; display:flex; align-items:center; justify-content:center; }
+  ol.blist li strong{ color:var(--ink); font-weight:700; }
+
+  /* ---- diagram placeholder ---- */
+  .diagram{ margin-top:24px; border:2px dashed rgba(33,30,36,.22); border-radius:var(--r-sm); background:var(--mist); padding:40px 20px; text-align:center; color:var(--txt-soft); }
+  .diagram svg{ width:40px; height:40px; color:var(--charcoal); opacity:.5; margin-bottom:10px; }
+  .diagram b{ display:block; color:var(--ink); font-size:.95rem; margin-bottom:3px; }
+  .diagram span{ font-weight:300; font-size:.82rem; }
+
+  /* ---- help cta band ---- */
+  .helpcta{ background:var(--ink); color:var(--on-dark); }
+  .helpcta .wrap{ text-align:center; }
+  .helpcta .eyebrow{ color:var(--on-dark-soft); }
+  .helpcta h2{ color:#fff; font-size:clamp(1.8rem,4.4vw,2.6rem); margin-top:8px; }
+  .helpcta p{ color:var(--on-dark-soft); font-weight:300; max-width:54ch; margin:14px auto 0; }
+  .helpcta .btns{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:26px; }
+  .btn{ display:inline-flex; align-items:center; gap:9px; text-decoration:none; font-weight:700; font-size:.95rem; border-radius:999px; padding:14px 24px; transition:transform .2s var(--ease); }
+  .btn:active{ transform:scale(.97); }
+  .btn-y{ background:var(--accent); color:var(--ink); }
+  .btn-o{ background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.5); }
+  .btn svg{ width:18px; height:18px; }
+
+  /* ---- footer ---- */
+  .site-foot{ background:var(--ink); color:var(--on-dark-soft); padding:52px 0 26px; }
+  .site-foot .top{ display:grid; gap:32px; }
+  @media(min-width:760px){ .site-foot .top{ grid-template-columns:1.5fr 1fr 1fr 1fr; gap:40px; } }
+  .site-foot .logo img{ height:36px; width:auto; display:block; }
+  .site-foot .reg{ font-size:.78rem; font-weight:300; line-height:1.6; margin-top:16px; max-width:44ch; }
+  .site-foot h4{ color:#fff; font-size:.74rem; text-transform:uppercase; letter-spacing:.16em; font-weight:700; margin-bottom:14px; }
+  .site-foot ul{ list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+  .site-foot a{ color:var(--on-dark-soft); text-decoration:none; font-weight:300; font-size:.9rem; }
+  .site-foot .copy{ margin-top:28px; border-top:1px solid rgba(255,255,255,.12); padding-top:20px; font-size:.74rem; font-weight:300; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+</style>
+</head>
+<body>
+<div class="promo">FREE DELIVERY — <b>selected postcodes*</b> &nbsp;·&nbsp; 10% OFF GRANDMASTER — CODE <b>GM10</b></div>
+
+<header class="mainhead">
+  <button class="menu" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="logo" href="projecttimber-home.html" aria-label="Project Timber home"><img src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/tplogo.svg" alt="Project Timber"></a>
+  <button class="search" type="button" aria-label="Search Project Timber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg> Search Project Timber</button>
+  <div class="icons">
+    <a class="ic" href="projecttimber-account.html" aria-label="My account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a>
+    <a class="ic" href="projecttimber-cart.html" aria-label="Basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.3 12.3a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L22 8H6"/></svg><span class="badge">1</span></a>
+  </div>
+</header>
+<nav class="primnav" id="primnav"><ul>
+  <li><a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds</a></li>
+  <li><a href="https://www.projecttimber.com/summerhouses/">Summerhouses</a></li>
+  <li><a href="projecttimber-garden-offices.html">Garden Offices</a></li>
+  <li><a href="https://www.projecttimber.com/garden-workshops/">Garden Workshops</a></li>
+  <li><a href="https://www.projecttimber.com/insulated-garden-buildings/">Insulated Garden Buildings</a></li>
+  <li><a href="https://www.projecttimber.com/log-cabins/">Log Cabins</a></li>
+  <li><a href="https://www.projecttimber.com/greenhouses/">Greenhouses</a></li>
+</ul></nav>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero"><div class="wrap">
+  <div class="crumb"><a href="projecttimber-home.html">Home</a><span class="sep">/</span>Building a Base</div>
+  <div class="eyebrow" style="margin-top:18px">Preparation guide</div>
+  <h1>Building a base for <span class="fade">your garden building.</span></h1>
+  <p class="lead">A solid, level base is the single most important step for a smooth build and a long-lasting building. Here's how to choose a spot and prepare the ground — concrete, paving slabs or timber bearers.</p>
+</div></header>
+
+<!-- ===================== WHY IT MATTERS ===================== -->
+<section class="prose" style="padding-bottom:24px"><div class="wrap">
+  <h2>Why the base matters</h2>
+  <p>It is essential that all garden buildings are assembled on a solid, level base. This ensures the construction goes smoothly and deters future issues such as doors and windows dropping out of alignment and becoming difficult to operate — which can also become a source of water leakage.</p>
+  <div class="callout">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+    <p>Assembling a garden building on an incorrect base is likely to <strong>invalidate any warranty</strong> provided with your building.</p>
+  </div>
+</div></section>
+
+<!-- ===================== WHERE TO PLACE ===================== -->
+<section class="prose" style="padding-top:24px"><div class="wrap">
+  <h2>Where to place your base</h2>
+  <p>When deciding where to locate your garden building, there are a few things to pay attention to:</p>
+  <ul>
+    <li><strong>Boundary walls, fences and other buildings</strong> — allow for any roof overhang your building may have, as this can extend beyond the base. You'll also need to reach all points of the building to apply wood treatments and preservatives.</li>
+    <li><strong>Trees and large bushes</strong> — installing close to trees or bushes can cause problems from overhanging branches. Cut these back before assembly, and check overhanging foliage regularly afterwards, as rubbing on the roofing material can cause damage, leading to water leakage and voiding any guarantees.</li>
+    <li><strong>Access and use</strong> — try to visualise the building in position. You may not want to transport large or heavy items into hard-to-reach areas of the garden.</li>
+    <li><strong>Light and outlook</strong> — consider a spot with good natural light or a nice view, especially for buildings such as summerhouses.</li>
+    <li><strong>Services</strong> — if you intend to fit electricity or water, choose a location that suits this, taking into account where the mains supplies are.</li>
+  </ul>
+</div></section>
+
+<!-- ===================== METHODS ===================== -->
+<section class="methods"><div class="wrap">
+  <div class="head">
+    <div class="eyebrow">How to construct your base</div>
+    <h2 style="font-size:clamp(1.8rem,4.4vw,2.4rem);margin-top:8px">Three proven methods</h2>
+  </div>
+
+  <div class="tip" style="max-width:820px;margin:0 auto 24px">
+    <img src="https://www.projecttimber.com/wp-content/uploads/2018/06/Easy-Self-Assembly.png" alt="Easy self-assembly">
+    <p>We recommend using a reputable local builder or handyman, but if you're confident it's relatively straightforward to build your own. <strong>Build your base slightly larger than the building — add approximately 30–40mm to each side.</strong></p>
+  </div>
+
+  <div class="mtabs" role="tablist" aria-label="Base construction methods">
+    <button class="mtab" role="tab" id="tab-concrete" aria-selected="true" aria-controls="panel-concrete">Concrete</button>
+    <button class="mtab" role="tab" id="tab-paving" aria-selected="false" aria-controls="panel-paving" tabindex="-1">Paving slabs</button>
+    <button class="mtab" role="tab" id="tab-bearers" aria-selected="false" aria-controls="panel-bearers" tabindex="-1">Timber bearers</button>
+  </div>
+
+  <!-- concrete -->
+  <div class="mpanel show" id="panel-concrete" role="tabpanel" aria-labelledby="tab-concrete">
+    <span class="rec">Recommended for larger buildings</span>
+    <h3>Concrete base</h3>
+    <p class="mintro">A concrete base gives the most solid, durable foundation and is strongly recommended for larger garden buildings.</p>
+    <ol class="blist">
+      <li>Remove any vegetation from the area where you've chosen to construct your base.</li>
+      <li>Use pegs and string to mark out the area. Measure the lengths between opposite corners to check the area is square — these will be equal if the base is square.</li>
+      <li>Excavate the marked area to around <strong>6" (150mm)</strong> deep.</li>
+      <li>Lay approximately <strong>3" (75mm)</strong> of firmly compacted hardcore, scalping or brick rubble as a foundation, levelling with compacted sand if appropriate. A rake helps with levelling. Remove the pegs and string.</li>
+      <li>Measure, cut and fit timber rails or steel shuttering to the shape of the base. Use a tape measure, spirit level and tri-square to make sure the shuttered base is 100% level and square.</li>
+      <li>Lay approximately <strong>3" (75mm)</strong> of concrete. Use bags of dry-mixed concrete with small amounts of water added at a time, or mix 'all-in' ballast, cement and water in a ratio of <strong>1 part cement to 5 parts 'all-in' ballast</strong>. (Around 1.25 bags of 40kg 'all-in' ballast produces roughly 1 cubic foot of concrete.) Don't let the mix get too wet, as this weakens the concrete.</li>
+      <li>Spread the concrete evenly in the shuttering, pushing it well into the corners and edges. Lay it a layer at a time and compact it until the frame is full. Leave it flush with the top of the framework and smooth with a wooden or plastic float.</li>
+      <li>Cover the concrete with sheets to let it dry naturally. Don't let it dry too quickly — in warm, dry weather you may need to spray it with water.</li>
+      <li>Once firm and dry, the base is ready for you to begin assembly.</li>
+    </ol>
+  </div>
+
+  <!-- paving -->
+  <div class="mpanel" id="panel-paving" role="tabpanel" aria-labelledby="tab-paving" hidden>
+    <h3>Paving slab base</h3>
+    <p class="mintro">A neat, budget-friendly option that's well within reach for a confident DIYer.</p>
+    <ol class="blist">
+      <li>Remove any vegetation from the chosen area.</li>
+      <li>Use pegs and string to mark out the area. Measure between opposite corners to check it's square — the lengths will be equal if it is.</li>
+      <li>Excavate the marked area to around <strong>2.5" (63.5mm)</strong> deep. Remove the pegs and string.</li>
+      <li>Lay approximately <strong>1.5" (40mm)</strong> of a dry mix of <strong>1 part cement to 8 parts building sand</strong>. Level the mix — a rake and spirit level help.</li>
+      <li>Starting from a corner, lay the paving slabs and tap down with a rubber mallet. The slab surface should sit slightly higher than the surrounding ground to encourage rainwater drainage. Use a spirit level to keep all slabs square, level and firmly butted together.</li>
+      <li>Brush off any excess sand and cement mix — the base is now ready for assembly.</li>
+    </ol>
+  </div>
+
+  <!-- bearers -->
+  <div class="mpanel" id="panel-bearers" role="tabpanel" aria-labelledby="tab-bearers" hidden>
+    <h3>Timber bearers base</h3>
+    <p class="mintro">A quicker method using bearers laid over a levelled sub-base.</p>
+    <ol class="blist">
+      <li>Remove any vegetation from the chosen area.</li>
+      <li>Use pegs and string to mark out the area. Measure between opposite corners to check it's square. Excavate to around <strong>2" (50mm)</strong> deep, then remove the pegs and string.</li>
+      <li>Lay approximately <strong>1.5" (40mm)</strong> of gravel or soil. Level the mix — a rake and spirit level help.</li>
+      <li>Lay either concrete floor bearers or pressure-treated (tanalised) timber bearers across the gravel/soil, equally spaced at intervals of approximately <strong>400–600mm</strong>, running perpendicular to the floor joists already built into your building. If you're installing the base before your building arrives, ask our team which direction the bearers should run.</li>
+      <li>Make sure all bearers are level with one another using a spirit level. Tap down with a rubber mallet if needed.</li>
+      <li><strong>How many bearers?</strong> This depends on the size of your building. All of our buildings come with bearers attached to the floor panels — check the instructions for your floor plan, or call us and we'll advise where the bearers run.</li>
+    </ol>
+  </div>
+</div></section>
+
+<!-- ===================== HELP CTA ===================== -->
+<section class="helpcta"><div class="wrap">
+  <div class="eyebrow">Need a hand with your base?</div>
+  <h2>We'll point you in the right direction.</h2>
+  <p>For further advice on constructing or installing your new garden building or base, give us a call and one of our friendly team will be happy to help.</p>
+  <div class="btns">
+    <a class="btn btn-y" href="tel:01777553392"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/></svg>01777 553392</a>
+    <a class="btn btn-o" href="projecttimber-faq.html">Read the FAQs</a>
+  </div>
+</div></section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-foot"><div class="wrap">
+  <div class="top">
+    <div>
+      <a class="logo" href="projecttimber-home.html"><img loading="lazy" src="https://www.projecttimber.com/wp-content/uploads/2026/02/ProjectTimber-Logo-2-1.svg" alt="Project Timber"></a>
+      <p class="reg">Project Timber Limited is a company registered in England and Wales with registration number 05126131. Our registered office is at Parry Works, Grassthorpe Road, Sutton-on-Trent, Newark NG23 6QX.</p>
+    </div>
+    <div><h4>Products</h4><ul><li><a href="https://www.projecttimber.com/summerhouses/">Summerhouses</a></li><li><a href="https://www.projecttimber.com/garden-sheds/">Garden Sheds</a></li><li><a href="https://www.projecttimber.com/garden-workshops/">Garden Workshops</a></li><li><a href="projecttimber-garden-offices.html">Garden Offices</a></li></ul></div>
+    <div><h4>Help</h4><ul><li><a href="projecttimber-faq.html">FAQ</a></li><li><a href="projecttimber-delivery.html">Delivery</a></li><li><a href="projecttimber-returns.html">Returns</a></li><li><a href="projecttimber-contact.html">Contact</a></li><li><a href="projecttimber-building-a-base.html">Building a Base</a></li><li><a href="projecttimber-testimonials.html">Testimonials</a></li></ul></div>
+    <div><h4>Links</h4><ul><li><a href="https://www.projecttimber.com/terms">Terms</a></li><li><a href="https://www.projecttimber.com/privacy">Privacy</a></li><li><a href="projecttimber-resources.html">Blog</a></li><li><a href="projecttimber-checkout.html">Checkout</a></li></ul></div>
+  </div>
+  <p style="font-size:.74rem;font-weight:300;color:var(--on-dark-soft);margin:22px 0 0">* Free delivery on selected postcodes and buildings. Terms and conditions apply.</p>
+  <div class="copy"><span>© 2026 All Rights Reserved, Project Timber</span><span>Concept mockup</span></div>
+</div></footer>
+
+<script>
+  /* mobile menu */
+  (function(){ var m=document.querySelector('.mainhead .menu'), p=document.getElementById('primnav'); if(m&&p){ m.addEventListener('click',function(){ var o=p.classList.toggle('open'); m.setAttribute('aria-expanded',o); }); } })();
+
+  /* method tabs — keyboard accessible (arrow keys + home/end) */
+  (function(){
+    var tabs=Array.prototype.slice.call(document.querySelectorAll('.mtab'));
+    var panels=Array.prototype.slice.call(document.querySelectorAll('.mpanel'));
+    function select(i){
+      tabs.forEach(function(t,j){
+        var on=(j===i);
+        t.setAttribute('aria-selected', on?'true':'false');
+        t.tabIndex = on?0:-1;
+        panels[j].classList.toggle('show', on);
+        if(on){ panels[j].removeAttribute('hidden'); } else { panels[j].setAttribute('hidden',''); }
+      });
+    }
+    tabs.forEach(function(t,i){
+      t.addEventListener('click', function(){ select(i); });
+      t.addEventListener('keydown', function(e){
+        var n=null;
+        if(e.key==='ArrowRight'||e.key==='ArrowDown') n=(i+1)%tabs.length;
+        else if(e.key==='ArrowLeft'||e.key==='ArrowUp') n=(i-1+tabs.length)%tabs.length;
+        else if(e.key==='Home') n=0;
+        else if(e.key==='End') n=tabs.length-1;
+        if(n!==null){ e.preventDefault(); select(n); tabs[n].focus(); }
+      });
+    });
+  })();
+</script>
+</body>
+</html>
