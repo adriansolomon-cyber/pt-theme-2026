@@ -2105,7 +2105,7 @@
             "type": "textarea",
             "rows": 2,
             "new_lines": "br",
-            "default_value": "Your office is\nready when you are.",
+            "default_value": "Your building is\nready when you are.",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
@@ -2158,5 +2158,5 @@
     "description": "Editable marketing content for the single-product (PDP) template. The configurator, price, sizes and spec values remain API-driven; these fields fill the surrounding copy, images and sections.",
     "show_in_rest": 0,
     "display_title": "",
-    "modified": 1786500000
+    "modified": 1786600000
 }
