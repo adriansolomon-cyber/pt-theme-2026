@@ -154,9 +154,9 @@ a{ color:inherit; }
    .show-phone so it wins the tie and the idle chat/phone swap can't peek through. */
 .support.chat-open .launch .chat, .support.chat-open .launch .phone{ opacity:0; }
 .support.chat-open .launch .x{ opacity:1; }
-/* While chatting, lift the launcher above Intercom's own high-z-index layers so
-   the X stays clickable to close the Messenger. */
-.support.chat-open{ z-index:2147483003; }
+/* While chatting, keep the launcher (X) at the same stacking level as normal;
+   the Messenger opens above the button so no extreme z-index is needed. */
+.support.chat-open{ z-index:299; }
 .support .panel .ttl img{ height:34px; width:auto; display:block; }
 .support .panel .sub{ font-weight:400; font-size:.9rem; margin:10px 0 16px; line-height:1.35; }
 .support .sheet{ background:#fff; border-radius:16px; padding:12px; }
