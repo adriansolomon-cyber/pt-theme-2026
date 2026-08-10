@@ -171,14 +171,13 @@ add_action(
 			wp_enqueue_script( 'pt-callback-modal', $uri . '/assets/js/callback-modal.js', array(), $ver( 'assets/js/callback-modal.js' ), true );
 		}
 
-		// Intercom support-modal integration DISABLED (2026-08-10). We now let the
-		// official Intercom plugin load its OWN default launcher instead of opening
-		// the Messenger from the support widget's "Chat to Us" option. To re-enable,
-		// uncomment this enqueue, the pt_intercom_* block + add_action below, and the
-		// id="chat-us" data-intercom attributes in template-parts/support.php.
-		// if ( file_exists( $dir . '/assets/js/intercom.js' ) ) {
-		// 	wp_enqueue_script( 'pt-intercom', $uri . '/assets/js/intercom.js', array(), $ver( 'assets/js/intercom.js' ), true );
-		// }
+		// Intercom Messenger trigger wiring: the support widget's "Chat to Us"
+		// option opens the Intercom Messenger (booted by the official Intercom
+		// plugin) via Intercom('show') in assets/js/intercom.js. Loaded site-wide
+		// so the click is always handled (never a #-anchor jump).
+		if ( file_exists( $dir . '/assets/js/intercom.js' ) ) {
+			wp_enqueue_script( 'pt-intercom', $uri . '/assets/js/intercom.js', array(), $ver( 'assets/js/intercom.js' ), true );
+		}
 
 		// --- Homepage only ----------------------------------------------------
 		if ( is_front_page() ) {

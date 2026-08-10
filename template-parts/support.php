@@ -17,10 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
       <div class="lab">Select</div>
       <a class="opt" href="tel:01777553392"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/call.png" alt=""> Call</a>
       <a class="opt" href="#" data-callback><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/callback.png" alt=""> Request a Callback</a>
-      <?php // "Chat to Us" → Intercom integration DISABLED (2026-08-10): chat now
-      // uses the Intercom plugin's own default launcher, not this modal option.
-      // To re-enable, uncomment the anchor below (id/data-intercom drive intercom.js). ?>
-      <!-- <a class="opt" href="#" id="chat-us" data-intercom><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""> Chat to Us</a> -->
+      <a class="opt" href="#" id="chat-us" data-intercom><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""> Chat to Us</a>
       <a class="opt" href="#"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/whatsapp.png" alt=""> WhatsApp Us</a>
     </div>
   </div>
