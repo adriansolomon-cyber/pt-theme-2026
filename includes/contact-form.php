@@ -18,7 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'PT_CONTACT_TO' ) ) {
-	define( 'PT_CONTACT_TO', 'sales@projecttimber.co.uk' );
+	// TEMPORARY (testing): route enquiries to Adrian to confirm delivery.
+	// TODO: revert to 'sales@projecttimber.co.uk' once mail is verified.
+	define( 'PT_CONTACT_TO', 'adrian.solomon@projecttimber.co.uk' );
 }
 
 /**
