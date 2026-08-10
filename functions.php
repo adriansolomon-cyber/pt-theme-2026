@@ -171,6 +171,14 @@ add_action(
 			wp_enqueue_script( 'pt-callback-modal', $uri . '/assets/js/callback-modal.js', array(), $ver( 'assets/js/callback-modal.js' ), true );
 		}
 
+		// Intercom Messenger trigger wiring: the support widget's "Chat to Us"
+		// option opens Intercom (ported from the old theTimber #chat-us link).
+		// Loaded site-wide so the click is always handled (never a #-anchor jump);
+		// it only calls Intercom('show') when the Messenger is actually booted.
+		if ( file_exists( $dir . '/assets/js/intercom.js' ) ) {
+			wp_enqueue_script( 'pt-intercom', $uri . '/assets/js/intercom.js', array(), $ver( 'assets/js/intercom.js' ), true );
+		}
+
 		// --- Homepage only ----------------------------------------------------
 		if ( is_front_page() ) {
 			if ( file_exists( $dir . '/assets/css/home.css' ) ) {
@@ -629,3 +637,83 @@ add_action(
 	},
 	15
 );
+/**
+ * Intercom Messenger — ported from the old theTimber setup.
+ *
+ * On the old site the official Intercom WordPress plugin injected the Messenger
+ * boot snippet in wp_footer (App ID stored in the DB), and the theme wired a
+ * "Chat to us" link to Intercom('show'). We reproduce that here so the 2026
+ * theme works with OR without that plugin:
+ *
+ *   - Plugin active  → it still boots the Messenger; we skip our snippet (to
+ *     avoid a double boot) and just let assets/js/intercom.js open it from the
+ *     support widget's "Chat to Us" option.
+ *   - Plugin absent  → if an App ID is configured we print the standard boot
+ *     snippet ourselves.
+ *
+ * Configure the App ID (public value, safe in client JS) via, in order:
+ *   1. define( 'PT_INTERCOM_APP_ID', 'xxxxxxxx' ); in wp-config.php
+ *   2. the official Intercom plugin's saved `intercom` option (app_id)
+ *   3. the `pt_intercom_app_id` filter
+ *
+ * By default the Messenger's own launcher bubble is hidden so it only opens
+ * from our support widget; return false from `pt_intercom_hide_launcher` to
+ * show Intercom's default launcher as well.
+ */
+function pt_intercom_app_id() {
+	$app_id = '';
+	if ( defined( 'PT_INTERCOM_APP_ID' ) && PT_INTERCOM_APP_ID ) {
+		$app_id = PT_INTERCOM_APP_ID;
+	} else {
+		$opt = get_option( 'intercom' );
+		if ( is_array( $opt ) && ! empty( $opt['app_id'] ) ) {
+			$app_id = $opt['app_id'];
+		}
+	}
+	return trim( (string) apply_filters( 'pt_intercom_app_id', $app_id ) );
+}
+
+/**
+ * Whether Intercom is wired up (an App ID resolves). Gates the trigger script.
+ */
+function pt_intercom_is_active() {
+	return '' !== pt_intercom_app_id();
+}
+
+/**
+ * Print the Intercom Messenger boot snippet in the footer (standalone path).
+ * No-op when the official plugin is active (it prints its own) or no App ID.
+ */
+function pt_intercom_snippet() {
+	// The official Intercom plugin already boots the Messenger — don't double-load.
+	if ( has_action( 'wp_footer', 'add_intercom_snippet' ) ) {
+		return;
+	}
+	$app_id = pt_intercom_app_id();
+	if ( '' === $app_id ) {
+		return;
+	}
+
+	$settings = array( 'app_id' => $app_id );
+	if ( apply_filters( 'pt_intercom_hide_launcher', true ) ) {
+		$settings['hide_default_launcher'] = true;
+	}
+
+	// Identify logged-in users (name + email), like the old plugin did.
+	$user = wp_get_current_user();
+	if ( $user && $user->exists() ) {
+		if ( $user->user_email ) {
+			$settings['email'] = $user->user_email;
+		}
+		if ( $user->display_name ) {
+			$settings['name'] = $user->display_name;
+		}
+	}
+
+	$settings = apply_filters( 'pt_intercom_settings', $settings );
+	?>
+	<script>window.intercomSettings = <?php echo wp_json_encode( $settings ); ?>;</script>
+	<script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/<?php echo esc_js( $app_id ); ?>';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();</script>
+	<?php
+}
+add_action( 'wp_footer', 'pt_intercom_snippet', 20 );
