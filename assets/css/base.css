@@ -19,6 +19,7 @@
   --accent:#FFFF00;
   --txt:#211E24; --txt-soft:#6E6A74; --on-dark:#F7F4EF; --on-dark-soft:#B7B2BB;
   --line:#e6e2e6;
+  --ok:#2A8F57; --ok-bg:#EAF6EF; --warn:#B26A12; --warn-bg:#FBF2E4; --no:#C0392B; --no-bg:#FBECEA; --danger:#a3402c;
   --r:26px; --r-sm:16px; --maxw:1180px;
   --ease:cubic-bezier(.2,.7,.3,1);
   --e1:0 1px 2px rgba(33,30,36,.06), 0 6px 16px rgba(33,30,36,.06);

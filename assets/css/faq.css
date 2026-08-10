@@ -17,12 +17,5 @@
 .faqcat .cathead .n{ flex:0 0 auto; width:34px; height:34px; border-radius:10px; background:var(--charcoal); color:#fff; display:flex; align-items:center; justify-content:center; }
 .faqcat .cathead .n svg{ width:18px; height:18px; }
 .faqcat h2{ font-size:clamp(1.5rem,3.4vw,2rem); }
-.faq-item{ border-bottom:1px solid rgba(33,30,36,.12); }
-.faq-item summary{ list-style:none; cursor:pointer; padding:18px 36px 18px 0; position:relative; font-weight:700; font-size:1.02rem; }
-.faq-item summary::-webkit-details-marker{ display:none; }
-.faq-item summary::after{ content:"+"; position:absolute; right:4px; top:15px; font-weight:300; font-size:1.5rem; color:var(--txt-soft); }
-.faq-item[open] summary::after{ content:"\2013"; }
-.faq-item .ans{ padding:0 36px 20px 0; font-weight:300; color:var(--txt-soft); line-height:1.65; font-size:.94rem; }
-.faq-item .ans a{ color:var(--charcoal); font-weight:700; text-decoration:none; }
-.faq-item .ans strong{ color:var(--ink); font-weight:700; }
+/* .faq-item accordion lives in secondary.css (shared across pages). */
 .finep{ font-size:.72rem; font-weight:300; color:var(--txt-soft); max-width:840px; margin:22px auto 52px; padding:0 20px; }

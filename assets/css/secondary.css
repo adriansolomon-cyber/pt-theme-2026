@@ -30,6 +30,17 @@ section{ padding:56px 0; }
 .crumb a{ text-decoration:none; }
 .crumb .sep{ opacity:.4; margin:0 6px; }
 
+/* Accordion (native <details>/<summary>) — shared by FAQ, Returns, Delivery…
+   The category/section wrapper (.faqcat / .faq) is styled per page. */
+.faq-item{ border-bottom:1px solid rgba(33,30,36,.12); }
+.faq-item summary{ list-style:none; cursor:pointer; padding:18px 36px 18px 0; position:relative; font-weight:700; font-size:1.02rem; }
+.faq-item summary::-webkit-details-marker{ display:none; }
+.faq-item summary::after{ content:"+"; position:absolute; right:4px; top:15px; font-weight:300; font-size:1.5rem; color:var(--txt-soft); }
+.faq-item[open] summary::after{ content:"\2013"; }
+.faq-item .ans{ padding:0 36px 20px 0; font-weight:300; color:var(--txt-soft); line-height:1.65; font-size:.94rem; }
+.faq-item .ans a{ color:var(--charcoal); font-weight:700; text-decoration:none; }
+.faq-item .ans strong{ color:var(--ink); font-weight:700; }
+
 /* "Still need help?" CTA band (template-parts/help-cta.php). */
 .helpcta{ background:var(--ink); color:var(--on-dark); }
 .helpcta .wrap{ text-align:center; }
