@@ -6,8 +6,9 @@
    (by functions.php pt_intercom_snippet, or the official Intercom WP plugin);
    this file only opens it from our support widget's "Chat to Us" option.
 
-   Enqueued site-wide (only when Intercom is configured) because the support
-   widget is global chrome present in the footer on every page. */
+   Enqueued site-wide because the support widget is global chrome present in the
+   footer on every page. The click is always intercepted (no #-anchor scroll);
+   it only calls Intercom('show') when the Messenger is actually booted. */
 (function () {
 	'use strict';
 

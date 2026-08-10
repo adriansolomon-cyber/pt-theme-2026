@@ -171,13 +171,14 @@ add_action(
 			wp_enqueue_script( 'pt-callback-modal', $uri . '/assets/js/callback-modal.js', array(), $ver( 'assets/js/callback-modal.js' ), true );
 		}
 
-		// Intercom Messenger trigger wiring: the support widget's "Chat to Us"
-		// option opens Intercom (ported from the old theTimber #chat-us link).
-		// Loaded site-wide so the click is always handled (never a #-anchor jump);
-		// it only calls Intercom('show') when the Messenger is actually booted.
-		if ( file_exists( $dir . '/assets/js/intercom.js' ) ) {
-			wp_enqueue_script( 'pt-intercom', $uri . '/assets/js/intercom.js', array(), $ver( 'assets/js/intercom.js' ), true );
-		}
+		// Intercom support-modal integration DISABLED (2026-08-10). We now let the
+		// official Intercom plugin load its OWN default launcher instead of opening
+		// the Messenger from the support widget's "Chat to Us" option. To re-enable,
+		// uncomment this enqueue, the pt_intercom_* block + add_action below, and the
+		// id="chat-us" data-intercom attributes in template-parts/support.php.
+		// if ( file_exists( $dir . '/assets/js/intercom.js' ) ) {
+		// 	wp_enqueue_script( 'pt-intercom', $uri . '/assets/js/intercom.js', array(), $ver( 'assets/js/intercom.js' ), true );
+		// }
 
 		// --- Homepage only ----------------------------------------------------
 		if ( is_front_page() ) {
@@ -716,4 +717,7 @@ function pt_intercom_snippet() {
 	<script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/<?php echo esc_js( $app_id ); ?>';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();</script>
 	<?php
 }
-add_action( 'wp_footer', 'pt_intercom_snippet', 20 );
+// DISABLED (2026-08-10): Intercom now loads via its own default launcher (the
+// official Intercom plugin), not from our support modal. The pt_intercom_*
+// helpers above are left in place but are dead code while this hook is commented.
+// add_action( 'wp_footer', 'pt_intercom_snippet', 20 );
