@@ -353,7 +353,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
     <source src="<?php echo esc_url( $pt_f( 'cladding_video_url', 'https://www.projecttimber.com/wp-content/uploads/2026/06/Composite_Cladding_Final.mp4' ) ); ?>" type="video/mp4">
   </video>
   <div class="panel">
-    <div class="eyebrow" style="color:#fff;opacity:.7">Composite cladding</div>
+    <div class="eyebrow" style="color:#fff;opacity:.7"><?php echo wp_kses_post( $pt_f( 'cladding_eyebrow', 'Composite cladding' ) ); ?></div>
     <h3><?php echo wp_kses_post( $pt_f( 'cladding_heading', 'The look of timber, with far less upkeep.' ) ); ?></h3>
     <?php $pt_clad_body = get_field( 'cladding_body', $pt_pid ); ?>
     <p><?php echo $pt_clad_body ? wp_kses_post( $pt_clad_body ) : 'LP Strongcore composite is wood fibres bonded with high-quality resins — the natural character of wood with the strength and low maintenance of composite. It resists weather, moisture, fungal growth and decay, and gives the ' . esc_html( $pt_line ) . ' its modern anthracite finish.'; ?></p>

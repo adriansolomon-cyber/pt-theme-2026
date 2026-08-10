@@ -1252,6 +1252,26 @@
             "placeholder": ""
         },
         {
+            "key": "field_pt_cladding_eyebrow",
+            "label": "Cladding — eyebrow",
+            "name": "cladding_eyebrow",
+            "type": "text",
+            "instructions": "Small kicker above the cladding heading.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "Composite cladding",
+            "prepend": "",
+            "append": ""
+        },
+        {
             "key": "field_pt_cladding_heading",
             "label": "Cladding — heading",
             "name": "cladding_heading",
@@ -2138,5 +2158,5 @@
     "description": "Editable marketing content for the single-product (PDP) template. The configurator, price, sizes and spec values remain API-driven; these fields fill the surrounding copy, images and sections.",
     "show_in_rest": 0,
     "display_title": "",
-    "modified": 1785412542
+    "modified": 1786500000
 }
