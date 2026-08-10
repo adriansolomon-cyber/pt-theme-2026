@@ -16,8 +16,11 @@
 .lead{ font-weight:300; font-size:1.14rem; color:var(--txt-soft); line-height:1.5; }
 .fade{ background:linear-gradient(100deg,var(--charcoal) 35%,#9b96a1); -webkit-background-clip:text; background-clip:text; color:transparent; }
 
-/* Section rhythm — scoped to the secondary <main> so it never touches chrome. */
-.pt-secondary section{ padding:56px 0; }
+/* Section rhythm. Bare `section` (specificity 0,0,1) so per-page section
+   classes like .jump / .faqcat can override the padding, exactly as in the
+   mockups. Safe: secondary.css only loads on these template pages, and the
+   chrome (header/footer/support) contains no <section>. */
+section{ padding:56px 0; }
 
 /* Hero + breadcrumb (template-parts/page-hero.php). */
 .hero{ text-align:center; padding:26px 0 8px; }

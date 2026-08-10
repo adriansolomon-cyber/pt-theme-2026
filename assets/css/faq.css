@@ -1,0 +1,28 @@
+/* Project Timber — FAQ page (templates/page-faq.php).
+   Loaded after base.css + secondary.css. Only the FAQ-unique sections live
+   here; hero/breadcrumb/help-CTA/typography come from secondary.css and the
+   design tokens from base.css :root. The accordion is native <details>/<summary>
+   — no JavaScript. */
+
+/* Category jump nav */
+.jump{ padding:26px 0 0; }
+.jump .row{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+.jump a{ text-decoration:none; font-size:.85rem; font-weight:400; color:var(--ink); background:var(--paper); border:1px solid rgba(33,30,36,.1); border-radius:999px; padding:9px 16px; transition:background .2s var(--ease), transform .2s var(--ease); }
+@media(hover:hover){ .jump a:hover{ background:#ededed; transform:translateY(-1px); } }
+
+/* FAQ categories + accordion */
+.faqcat{ padding:44px 0 8px; }
+.faqcat .wrap{ max-width:840px; }
+.faqcat .cathead{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.faqcat .cathead .n{ flex:0 0 auto; width:34px; height:34px; border-radius:10px; background:var(--charcoal); color:#fff; display:flex; align-items:center; justify-content:center; }
+.faqcat .cathead .n svg{ width:18px; height:18px; }
+.faqcat h2{ font-size:clamp(1.5rem,3.4vw,2rem); }
+.faq-item{ border-bottom:1px solid rgba(33,30,36,.12); }
+.faq-item summary{ list-style:none; cursor:pointer; padding:18px 36px 18px 0; position:relative; font-weight:700; font-size:1.02rem; }
+.faq-item summary::-webkit-details-marker{ display:none; }
+.faq-item summary::after{ content:"+"; position:absolute; right:4px; top:15px; font-weight:300; font-size:1.5rem; color:var(--txt-soft); }
+.faq-item[open] summary::after{ content:"\2013"; }
+.faq-item .ans{ padding:0 36px 20px 0; font-weight:300; color:var(--txt-soft); line-height:1.65; font-size:.94rem; }
+.faq-item .ans a{ color:var(--charcoal); font-weight:700; text-decoration:none; }
+.faq-item .ans strong{ color:var(--ink); font-weight:700; }
+.finep{ font-size:.72rem; font-weight:300; color:var(--txt-soft); max-width:840px; margin:22px auto 0; padding:0 20px; }
