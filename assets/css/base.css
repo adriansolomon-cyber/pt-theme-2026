@@ -149,6 +149,11 @@ a{ color:inherit; }
 .support.open .launch .x{ opacity:1; }
 @media (prefers-reduced-motion: reduce){ .support .launch .phone{ display:none; } }
 .support.open .panel{ opacity:1; transform:none; pointer-events:auto; }
+/* chat-open: the Intercom Messenger is open (opened from "Chat to Us"). The panel
+   is collapsed but the launcher stays an X so it can close the chat. Placed after
+   .show-phone so it wins the tie and the idle chat/phone swap can't peek through. */
+.support.chat-open .launch .chat, .support.chat-open .launch .phone{ opacity:0; }
+.support.chat-open .launch .x{ opacity:1; }
 .support .panel .ttl img{ height:34px; width:auto; display:block; }
 .support .panel .sub{ font-weight:400; font-size:.9rem; margin:10px 0 16px; line-height:1.35; }
 .support .sheet{ background:#fff; border-radius:16px; padding:12px; }
