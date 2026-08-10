@@ -15,11 +15,12 @@
 	var launch = support ? support.querySelector('.launch') : null;
 
 	// The workspace aligns the Messenger to the bottom-left — the same corner as
-	// our support button. Lift the Messenger off the bottom so the two don't
-	// crowd each other (vertical_padding is the gap from the viewport bottom).
+	// our support button. Lift the Messenger off the bottom by the same offset the
+	// support panel uses (.support .panel { bottom:70px } in base.css) so the
+	// Messenger sits exactly where the panel does, above the launcher button.
 	function applyPadding() {
 		if (typeof window.Intercom === 'function') {
-			window.Intercom('update', { vertical_padding: 80 });
+			window.Intercom('update', { vertical_padding: 70 });
 		}
 	}
 
