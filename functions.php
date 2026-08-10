@@ -261,11 +261,21 @@ add_action(
 			if ( file_exists( $dir . '/assets/css/category.css' ) ) {
 				wp_enqueue_style( 'pt-category', $uri . '/assets/css/category.css', array( 'pt-base' ), $ver( 'assets/css/category.css' ) );
 			}
-			// search.php loads none of the per-page scripts, so wire the header
-			// search toggle here (other templates carry their own copy).
-			if ( file_exists( $dir . '/assets/js/header.js' ) ) {
-				wp_enqueue_script( 'pt-header', $uri . '/assets/js/header.js', array(), $ver( 'assets/js/header.js' ), true );
-			}
+		}
+
+		// --- Header chrome fallback -------------------------------------------
+		// The header search toggle + mobile menu + support widget are wired
+		// inside the per-template scripts (home/product/category.js). Templates
+		// that load none of those — Cart, Checkout, My Account, CMS pages
+		// (page.php), product search (search.php), and the blog/archive/404
+		// fallback (index.php) — get header.js so the header stays interactive
+		// everywhere. Mutually exclusive with the per-page scripts, so nothing
+		// double-binds (and header.js also carries its own per-element guards).
+		$pt_has_page_script = is_front_page()
+			|| ( function_exists( 'is_product' ) && is_product() )
+			|| ( function_exists( 'is_product_category' ) && is_product_category() );
+		if ( ! $pt_has_page_script && file_exists( $dir . '/assets/js/header.js' ) ) {
+			wp_enqueue_script( 'pt-header', $uri . '/assets/js/header.js', array(), $ver( 'assets/js/header.js' ), true );
 		}
 	}
 );

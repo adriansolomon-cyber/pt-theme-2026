@@ -1,39 +1,87 @@
 <?php
 /**
- * Project Timber — index.php
+ * Fallback template.
  *
- * Minimal, safe fallback template (stage-1 scaffold). Its only job right now is
- * to let the theme ACTIVATE cleanly — WordPress requires an index.php and will
- * refuse to activate a theme without one. The real front end still lives in the
- * projecttimber-*.html prototypes; converting those into WP templates
- * (header.php, footer.php, front-page.php, WooCommerce templates, …) is stage-2.
- *
- * Deliberately uses only core WP functions (no custom calls) so activation
- * cannot fatal.
+ * Renders anything without a more specific template — the posts/blog index,
+ * date/category/tag/author archives, and single blog posts — inside the full
+ * theme chrome (get_header()/get_footer() + site-wide base.css). This replaces
+ * the old bare "scaffold installed" placeholder so no front-end URL can ever
+ * fall through to an unstyled page.
  *
  * @package pt-theme-2026
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // No direct access.
+	exit;
 }
-?><!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<?php wp_head(); ?>
-</head>
-<body <?php body_class(); ?>>
-<?php wp_body_open(); ?>
-	<main style="max-width:720px;margin:12vh auto;padding:0 24px;font-family:system-ui,-apple-system,sans-serif;text-align:center;line-height:1.6">
-		<h1 style="margin-bottom:.5em"><?php bloginfo( 'name' ); ?></h1>
-		<p><?php echo esc_html( get_bloginfo( 'description' ) ); ?></p>
-		<p style="color:#666;margin-top:1.5em">
-			Project Timber 2026 theme scaffold is installed and active.
-			Front-end templates are pending the WordPress conversion stage.
-		</p>
-	</main>
-<?php wp_footer(); ?>
-</body>
-</html>
+
+get_header();
+?>
+
+<main class="wrap pt-page" id="main" tabindex="-1">
+	<?php if ( have_posts() ) : ?>
+
+		<?php if ( is_singular() ) : ?>
+			<?php
+			while ( have_posts() ) :
+				the_post();
+				?>
+				<article <?php post_class( 'pt-post pt-single' ); ?>>
+					<header class="pt-page-head"><h1 class="pt-page-title"><?php the_title(); ?></h1></header>
+					<div class="pt-post-content"><?php the_content(); ?></div>
+				</article>
+				<?php
+			endwhile;
+			?>
+		<?php else : ?>
+
+			<header class="pt-page-head">
+				<?php if ( is_home() ) : ?>
+					<h1 class="pt-page-title"><?php echo esc_html( get_the_title( (int) get_option( 'page_for_posts' ) ) ?: 'Latest' ); ?></h1>
+				<?php elseif ( is_archive() ) : ?>
+					<h1 class="pt-page-title"><?php the_archive_title(); ?></h1>
+					<?php the_archive_description( '<div class="pt-archive-desc">', '</div>' ); ?>
+				<?php else : ?>
+					<h1 class="pt-page-title"><?php bloginfo( 'name' ); ?></h1>
+				<?php endif; ?>
+			</header>
+
+			<div class="pt-post-list">
+				<?php
+				while ( have_posts() ) :
+					the_post();
+					?>
+					<article <?php post_class( 'pt-post' ); ?>>
+						<h2 class="pt-post-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+						<div class="pt-post-excerpt"><?php the_excerpt(); ?></div>
+						<p><a class="btn-primary" href="<?php the_permalink(); ?>">Read more <span class="a">&rarr;</span></a></p>
+					</article>
+					<?php
+				endwhile;
+				?>
+			</div>
+
+			<?php
+			the_posts_pagination(
+				array(
+					'prev_text' => '&lsaquo; Prev',
+					'next_text' => 'Next &rsaquo;',
+				)
+			);
+			?>
+
+		<?php endif; ?>
+
+	<?php else : ?>
+
+		<div class="pt-page-content" style="text-align:center;padding:6vh 0">
+			<h1 class="pt-page-title">Nothing found</h1>
+			<p>There's nothing here yet. Try a search, or browse our range of garden buildings.</p>
+			<p><a class="btn-primary" href="<?php echo esc_url( home_url( '/' ) ); ?>">Back to home <span class="a">&rarr;</span></a></p>
+		</div>
+
+	<?php endif; ?>
+</main>
+
+<?php
+get_footer();
