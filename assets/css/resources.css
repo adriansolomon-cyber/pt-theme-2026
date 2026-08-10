@@ -1,0 +1,36 @@
+/* Project Timber — Resources / blog index (templates/page-resources.php).
+   Loaded after base.css + secondary.css. Only the page-unique sections live
+   here; hero/breadcrumb/typography come from secondary.css and tokens from
+   base.css :root. */
+
+.feat-sec{ padding-top:34px; }
+
+/* Featured post */
+.feat{ display:grid; gap:0; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r); overflow:hidden; box-shadow:var(--e2); text-decoration:none; color:inherit; transition:transform .25s var(--ease), box-shadow .25s var(--ease); }
+@media(min-width:820px){ .feat{ grid-template-columns:1.1fr 1fr; } }
+.feat .img{ aspect-ratio:16/10; background:var(--mist); overflow:hidden; }
+.feat .img img{ width:100%; height:100%; object-fit:cover; display:block; }
+.feat .body{ padding:32px 30px; display:flex; flex-direction:column; justify-content:center; }
+.feat .tag{ align-self:flex-start; font-size:.68rem; text-transform:uppercase; letter-spacing:.14em; font-weight:700; color:var(--clay); background:var(--sand,#E6D9C7); border-radius:999px; padding:5px 12px; margin-bottom:14px; }
+.feat h2{ font-size:clamp(1.6rem,3.6vw,2.3rem); line-height:1.08; }
+.feat p{ font-weight:300; color:var(--txt-soft); line-height:1.6; margin-top:12px; font-size:1rem; }
+@media(hover:hover){ .feat:hover{ transform:translateY(-3px); box-shadow:var(--e3); } }
+
+.readmore{ display:inline-flex; align-items:center; gap:8px; font-weight:700; margin-top:18px; font-size:.95rem; }
+.readmore svg{ width:16px; height:16px; transition:transform .2s var(--ease); }
+@media(hover:hover){ .feat:hover .readmore svg, .pcard:hover .readmore svg{ transform:translateX(3px); } }
+
+/* Post grid */
+.grid-sec .head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:26px; flex-wrap:wrap; }
+.grid-sec h2{ font-size:clamp(1.6rem,4vw,2.2rem); }
+.pgrid{ display:grid; gap:22px; grid-template-columns:1fr; }
+@media(min-width:600px){ .pgrid{ grid-template-columns:1fr 1fr; } }
+@media(min-width:980px){ .pgrid{ grid-template-columns:1fr 1fr 1fr; } }
+.pcard{ display:flex; flex-direction:column; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); overflow:hidden; box-shadow:var(--e1); text-decoration:none; color:inherit; transition:transform .2s var(--ease), box-shadow .2s var(--ease); }
+@media(hover:hover){ .pcard:hover{ transform:translateY(-3px); box-shadow:var(--e2); } }
+.pcard .img{ aspect-ratio:16/10; background:var(--mist); overflow:hidden; }
+.pcard .img img{ width:100%; height:100%; object-fit:cover; display:block; }
+.pcard .body{ padding:20px 20px 22px; display:flex; flex-direction:column; flex:1; }
+.pcard h3{ font-size:1.12rem; line-height:1.18; }
+.pcard p{ font-weight:300; color:var(--txt-soft); line-height:1.55; font-size:.9rem; margin-top:9px; flex:1; }
+.pcard .readmore{ margin-top:16px; font-size:.9rem; }
