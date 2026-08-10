@@ -133,6 +133,25 @@
   .dstrip .btn-link{ display:inline-flex; align-items:center; gap:8px; margin-top:18px; font-weight:700; text-decoration:none; color:var(--ink); }
   .dstrip .btn-link svg{ width:16px; height:16px; }
 
+  /* ---- customer support widget ---- */
+  .support{ position:fixed; left:18px; bottom:18px; z-index:200; }
+  .support .launch{ position:relative; width:56px; height:56px; border-radius:50%; border:none; cursor:pointer; background:var(--accent); color:var(--charcoal); box-shadow:var(--e2); }
+  .support .launch span{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .support .launch svg{ width:26px; height:26px; } .support .launch img{ width:26px; height:26px; display:block; }
+  .support .launch .chat, .support .launch .phone{ transition:opacity .4s var(--ease), transform .4s var(--ease); } .support .launch .phone{ opacity:0; transform:scale(.7); } .support .launch .x{ opacity:0; }
+  .support .launch.show-phone .chat{ opacity:0; transform:scale(.7); } .support .launch.show-phone .phone{ opacity:1; transform:scale(1); }
+  .support.open .launch .chat, .support.open .launch .phone{ opacity:0; } .support.open .launch .x{ opacity:1; }
+  @media (prefers-reduced-motion: reduce){ .support .launch .phone{ display:none; } }
+  .support .panel{ position:absolute; left:0; bottom:70px; width:300px; max-width:calc(100vw - 36px); max-height:calc(100vh - 170px); overflow-y:auto; background:var(--accent); color:var(--charcoal); border-radius:22px; box-shadow:var(--e3); padding:22px 20px 18px; opacity:0; transform:translateY(10px) scale(.98); transform-origin:0 100%; pointer-events:none; transition:opacity .25s var(--ease), transform .25s var(--ease); }
+  .support.open .panel{ opacity:1; transform:none; pointer-events:auto; }
+  .support .panel .ttl img{ height:34px; width:auto; display:block; }
+  .support .panel .sub{ font-weight:400; font-size:.9rem; margin:10px 0 16px; line-height:1.35; }
+  .support .sheet{ background:#fff; border-radius:16px; padding:12px; }
+  .support .sheet .lab{ font-size:.82rem; color:#9a948f; padding:2px 6px 10px; }
+  .support .opt{ display:flex; align-items:center; gap:11px; background:#FCFBE9; border:1px solid #EFEECB; border-radius:11px; padding:11px 14px; margin-bottom:8px; text-decoration:none; color:var(--charcoal); font-size:.92rem; }
+  .support .opt svg{ width:18px; height:18px; flex:0 0 auto; } .support .opt img{ width:20px; height:20px; flex:0 0 auto; object-fit:contain; display:block; }
+  @media(hover:hover){ .support .opt:hover{ background:#F6F4D6; } }
+
   /* ---- footer ---- */
   .site-foot{ background:var(--ink); color:var(--on-dark-soft); padding:52px 0 26px; }
   .site-foot .top{ display:grid; gap:32px; }
@@ -256,6 +275,26 @@
   </div>
 </div></section>
 
+<!-- ===================== CUSTOMER SUPPORT WIDGET ===================== -->
+<div class="support" id="support">
+  <div class="panel" role="dialog" aria-label="Customer support">
+    <div class="ttl"><img src="https://www.projecttimber.com/wp-content/uploads/2026/02/ProjectTimber-Logo-2-1.svg" alt="Project Timber"></div>
+    <p class="sub">British-made garden buildings, designed and built in Nottinghamshire.</p>
+    <div class="sheet">
+      <div class="lab">Select</div>
+      <a class="opt" href="tel:01777553392"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/call.png" alt=""> Call</a>
+      <a class="opt" href="#" data-callback><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/callback.png" alt=""> Request a Callback</a>
+      <a class="opt" href="#"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""> Chat to Us</a>
+      <a class="opt" href="#"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/whatsapp.png" alt=""> WhatsApp Us</a>
+    </div>
+  </div>
+  <button class="launch" type="button" aria-label="Customer support" aria-expanded="false">
+    <span class="chat"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""></span>
+    <span class="phone"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/call.png" alt=""></span>
+    <span class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+  </button>
+</div>
+
 <!-- ===================== FOOTER ===================== -->
 <footer class="site-foot"><div class="wrap">
   <div class="top">
@@ -287,6 +326,81 @@
       f.style.display='none'; done.classList.add('show'); done.scrollIntoView({behavior:'smooth', block:'center'});
     });
   })();
+
+  // customer support widget
+  (function(){
+    var sup=document.getElementById('support'); if(!sup) return;
+    var launch=sup.querySelector('.launch');
+    function toggle(force){ var open=(force!==undefined)?force:!sup.classList.contains('open'); sup.classList.toggle('open',open); if(launch) launch.setAttribute('aria-expanded',open); }
+    if(launch) launch.addEventListener('click',function(){ toggle(); });
+    document.querySelectorAll('.supporttrigger').forEach(function(b){ b.addEventListener('click',function(){ toggle(true); }); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape' && sup.classList.contains('open')){ toggle(false); if(launch) launch.focus(); } });
+    if(launch && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){ setInterval(function(){ if(!sup.classList.contains('open')) launch.classList.toggle('show-phone'); }, 3000); }
+  })();
+</script>
+<!-- ===================== REQUEST-A-CALLBACK POPUP (front-end mockup) ===================== -->
+<style>
+  .pcb-ov{ position:fixed; inset:0; background:rgba(33,30,36,.55); display:none; align-items:flex-start; justify-content:center; padding:24px 16px; z-index:300; overflow-y:auto; }
+  .pcb-ov.open{ display:flex; }
+  .pcb{ position:relative; background:#fff; border-radius:26px; box-shadow:0 10px 30px rgba(33,30,36,.14),0 30px 70px rgba(33,30,36,.16); max-width:720px; width:100%; margin:auto; padding:36px 30px 28px; font-family:"F37 Jagger","Trebuchet MS","Segoe UI",system-ui,sans-serif; color:#211E24; line-height:1.55; }
+  .pcb *{ box-sizing:border-box; }
+  .pcb-x{ position:absolute; top:16px; right:16px; width:40px; height:40px; border:none; background:#F0F0F0; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#211E24; }
+  .pcb-x:hover{ background:#e7e7e7; } .pcb-x svg{ width:20px; height:20px; }
+  .pcb-eb{ text-align:center; text-transform:uppercase; letter-spacing:.22em; font-size:.7rem; color:#6E6A74; font-weight:400; }
+  .pcb h2{ text-align:center; font-size:clamp(1.6rem,4.4vw,2.2rem); font-weight:700; letter-spacing:-.02em; line-height:1.05; margin:8px 0 0; }
+  .pcb-fade{ background:linear-gradient(100deg,#3B333D 35%,#9b96a1); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .pcb-intro{ text-align:center; font-weight:300; color:#6E6A74; font-size:.92rem; line-height:1.55; max-width:54ch; margin:12px auto 24px; }
+  .pcb-grid{ display:grid; gap:0; } @media(min-width:600px){ .pcb-grid{ grid-template-columns:1fr 1fr; gap:26px; } }
+  .pcb-f{ margin-bottom:16px; } .pcb-f label{ display:block; font-size:.82rem; font-weight:700; margin-bottom:6px; } .pcb-f .rq{ color:#C0392B; }
+  .pcb-f input{ width:100%; font-family:inherit; font-size:1rem; padding:13px 15px; border:1.5px solid rgba(33,30,36,.2); border-radius:12px; background:#fff; color:#211E24; } .pcb-f input:focus{ outline:none; border-color:#3B333D; }
+  .pcb-times{ display:grid; gap:8px; } .pcb-times label{ display:flex; align-items:center; gap:10px; font-size:.9rem; font-weight:400; background:#F5F5F5; border-radius:10px; padding:11px 13px; cursor:pointer; } .pcb-times input{ width:18px; height:18px; accent-color:#3B333D; }
+  .pcb-btn{ width:100%; border:none; cursor:pointer; font-family:inherit; font-weight:700; background:#FFFF00; color:#211E24; font-size:1.02rem; padding:15px 20px; border-radius:999px; margin-top:8px; } .pcb-btn:active{ transform:scale(.98); }
+  .pcb-note{ font-size:.72rem; font-weight:300; color:#6E6A74; margin-top:12px; text-align:center; } .pcb-note a{ color:#3B333D; font-weight:700; text-decoration:none; }
+  .pcb-done{ display:none; margin-top:16px; background:#EAF6EF; color:#1c6b41; border-radius:12px; padding:16px 18px; gap:12px; align-items:flex-start; } .pcb-done.show{ display:flex; } .pcb-done svg{ width:22px; height:22px; flex:0 0 auto; color:#2A8F57; margin-top:1px; } .pcb-done b{ display:block; margin-bottom:2px; } .pcb-done p{ font-weight:300; font-size:.9rem; line-height:1.45; }
+  .pcb :focus-visible{ outline:3px solid #3B333D; outline-offset:2px; }
+</style>
+<div class="pcb-ov" id="pcbOverlay" role="dialog" aria-modal="true" aria-labelledby="pcbTitle" aria-hidden="true">
+  <div class="pcb">
+    <button class="pcb-x" type="button" id="pcbClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="pcb-eb">Request a callback</div>
+    <h2 id="pcbTitle">We'll call you <span class="pcb-fade">back.</span></h2>
+    <p class="pcb-intro">Our friendly sales team would be happy to talk through any questions about our products or services. Leave a few details and we'll call you back &mdash; the same day if you request before 6pm, otherwise the next working day or whenever suits you.</p>
+    <form id="pcbForm" novalidate>
+      <div class="pcb-grid">
+        <div>
+          <div class="pcb-f"><label for="pcbName">Name <span class="rq">*</span></label><input id="pcbName" type="text" autocomplete="name" required></div>
+          <div class="pcb-f"><label for="pcbPhone">Contact number <span class="rq">*</span></label><input id="pcbPhone" type="tel" autocomplete="tel" required></div>
+          <div class="pcb-f"><label for="pcbProd">What product are you interested in?</label><input id="pcbProd" type="text" placeholder="e.g. My Den garden office, 10x8 shed"></div>
+        </div>
+        <div>
+          <div class="pcb-f"><label>Best time to call you back</label>
+            <div class="pcb-times">
+              <label><input type="radio" name="pcbTime" value="asap">As soon as possible</label>
+              <label><input type="radio" name="pcbTime" value="am">Any weekday, 8:30am &ndash; 1pm</label>
+              <label><input type="radio" name="pcbTime" value="pm">Any weekday afternoon, 1pm &ndash; 5pm</label>
+              <label><input type="radio" name="pcbTime" value="eve">Any weekday evening, 5pm &ndash; 7pm</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="pcb-btn" type="submit">Send request</button>
+      <p class="pcb-note">We'll never sell your details to third parties. See our <a href="https://www.projecttimber.com/privacy/">privacy policy</a>.</p>
+    </form>
+    <div class="pcb-done" id="pcbDone" role="status" aria-live="polite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><div><b>Thanks &mdash; we'll be in touch.</b><p>Our sales team will call you back at your chosen time. Prefer to talk now? Call 01777 553392.</p></div></div>
+  </div>
+</div>
+<script>
+(function(){
+  var ov=document.getElementById('pcbOverlay'); if(!ov) return;
+  var close=document.getElementById('pcbClose'), form=document.getElementById('pcbForm'), done=document.getElementById('pcbDone'), sup=document.getElementById('support'), last=null;
+  function show(){ last=document.activeElement; if(sup) sup.classList.remove('open'); ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; var n=document.getElementById('pcbName'); if(n) n.focus(); }
+  function hide(){ ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); document.body.style.overflow=''; if(last&&last.focus) last.focus(); }
+  document.querySelectorAll('[data-callback]').forEach(function(b){ b.addEventListener('click', function(e){ e.preventDefault(); show(); }); });
+  close.addEventListener('click', hide);
+  ov.addEventListener('click', function(e){ if(e.target===ov) hide(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && ov.classList.contains('open')) hide(); });
+  form.addEventListener('submit', function(e){ e.preventDefault(); var n=document.getElementById('pcbName'), p=document.getElementById('pcbPhone'); if(!n.value.trim()){ n.focus(); return; } if(!p.value.trim()){ p.focus(); return; } form.style.display='none'; done.classList.add('show'); });
+})();
 </script>
 </body>
 </html>

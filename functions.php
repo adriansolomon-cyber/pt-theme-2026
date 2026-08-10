@@ -165,6 +165,12 @@ add_action(
 			);
 		}
 
+		// Request-a-callback modal — global chrome (support widget → modal),
+		// output in the footer on every page, so wire it site-wide.
+		if ( file_exists( $dir . '/assets/js/callback-modal.js' ) ) {
+			wp_enqueue_script( 'pt-callback-modal', $uri . '/assets/js/callback-modal.js', array(), $ver( 'assets/js/callback-modal.js' ), true );
+		}
+
 		// --- Homepage only ----------------------------------------------------
 		if ( is_front_page() ) {
 			if ( file_exists( $dir . '/assets/css/home.css' ) ) {

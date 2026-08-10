@@ -42,6 +42,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Global chrome present on every page (were data-include partials).
 get_template_part( 'template-parts/support' );
 get_template_part( 'template-parts/cart-drawer' );
+get_template_part( 'template-parts/callback-modal' );
 
 wp_footer();
 ?>

@@ -256,6 +256,44 @@ a{ color:inherit; }
 [data-include*="header"]{ min-height:96px; }
 @media(min-width:860px){ [data-include*="header"]{ min-height:134px; } }
 
+/* Hidden honeypot field (contact + callback forms). */
+.pt-hp{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+
+/* --- Request-a-callback modal (global; template-parts/callback-modal.php) --
+   Triggered from the support widget's "Request a Callback" option. Self-contained
+   pcb-* namespace so it can't clash with page styles. */
+.pcb-ov{ position:fixed; inset:0; background:rgba(33,30,36,.55); display:none; align-items:flex-start; justify-content:center; padding:24px 16px; z-index:2147483001; overflow-y:auto; }
+.pcb-ov.open{ display:flex; }
+.pcb{ position:relative; background:#fff; border-radius:26px; box-shadow:0 10px 30px rgba(33,30,36,.14),0 30px 70px rgba(33,30,36,.16); max-width:720px; width:100%; margin:auto; padding:36px 30px 28px; color:var(--ink); line-height:1.55; }
+.pcb *{ box-sizing:border-box; }
+.pcb-x{ position:absolute; top:16px; right:16px; width:40px; height:40px; border:none; background:#F0F0F0; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--ink); }
+.pcb-x svg{ width:20px; height:20px; }
+@media(hover:hover){ .pcb-x:hover{ background:#e7e7e7; } }
+.pcb-eb{ text-align:center; text-transform:uppercase; letter-spacing:.22em; font-size:.7rem; color:var(--txt-soft); font-weight:400; }
+.pcb h2{ text-align:center; font-size:clamp(1.6rem,4.4vw,2.2rem); font-weight:700; letter-spacing:-.02em; line-height:1.05; margin:8px 0 0; }
+.pcb-fade{ background:linear-gradient(100deg,var(--charcoal) 35%,#9b96a1); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.pcb-intro{ text-align:center; font-weight:300; color:var(--txt-soft); font-size:.92rem; line-height:1.55; max-width:54ch; margin:12px auto 24px; }
+.pcb-grid{ display:grid; gap:0; }
+@media(min-width:600px){ .pcb-grid{ grid-template-columns:1fr 1fr; gap:26px; } }
+.pcb-f{ margin-bottom:16px; }
+.pcb-f label{ display:block; font-size:.82rem; font-weight:700; margin-bottom:6px; }
+.pcb-f .rq{ color:var(--no); }
+.pcb-f input{ width:100%; font-family:var(--font); font-size:1rem; padding:13px 15px; border:1.5px solid rgba(33,30,36,.2); border-radius:12px; background:#fff; color:var(--ink); }
+.pcb-f input:focus{ outline:none; border-color:var(--charcoal); }
+.pcb-times{ display:grid; gap:8px; }
+.pcb-times label{ display:flex; align-items:center; gap:10px; font-size:.9rem; font-weight:400; background:var(--paper); border-radius:10px; padding:11px 13px; cursor:pointer; }
+.pcb-times input{ width:18px; height:18px; accent-color:var(--charcoal); }
+.pcb-btn{ width:100%; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1.02rem; padding:15px 20px; border-radius:999px; margin-top:8px; }
+.pcb-btn:active{ transform:scale(.98); }
+.pcb-btn:disabled{ opacity:.7; cursor:default; }
+.pcb-note{ font-size:.72rem; font-weight:300; color:var(--txt-soft); margin-top:12px; text-align:center; }
+.pcb-note a{ color:var(--charcoal); font-weight:700; text-decoration:none; }
+.pcb-done{ display:none; margin-top:16px; background:var(--ok-bg); color:#1c6b41; border-radius:12px; padding:16px 18px; gap:12px; align-items:flex-start; }
+.pcb-done.show{ display:flex; }
+.pcb-done svg{ width:22px; height:22px; flex:0 0 auto; color:var(--ok); margin-top:1px; }
+.pcb-done b{ display:block; margin-bottom:2px; }
+.pcb-done p{ font-weight:300; font-size:.9rem; line-height:1.45; }
+
 /* --- Generic pages & fallbacks -------------------------------------------
    Light styling for templates that load base.css ONLY: page.php (CMS pages —
    Cart/Checkout/Account bring their own CSS), index.php (blog/archive fallback)
