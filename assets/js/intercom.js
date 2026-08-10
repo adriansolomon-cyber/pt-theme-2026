@@ -19,7 +19,7 @@
 	// crowd each other (vertical_padding is the gap from the viewport bottom).
 	function applyPadding() {
 		if (typeof window.Intercom === 'function') {
-			window.Intercom('update', { vertical_padding: 100 });
+			window.Intercom('update', { vertical_padding: 40 });
 		}
 	}
 
