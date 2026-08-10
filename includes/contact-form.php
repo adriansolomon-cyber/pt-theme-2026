@@ -104,10 +104,24 @@ function pt_contact_handle() {
 		'Reply-To: ' . $name . ' <' . $email . '>',
 	);
 
+	// Capture the underlying transport error (shown to admins only, for diagnostics).
+	$mail_error = '';
+	add_action(
+		'wp_mail_failed',
+		function ( $err ) use ( &$mail_error ) {
+			$mail_error = is_wp_error( $err ) ? $err->get_error_message() : 'unknown error';
+		}
+	);
+
 	$sent = wp_mail( PT_CONTACT_TO, $subject, implode( "\n", $lines ), $headers );
 
 	if ( ! $sent ) {
-		pt_contact_respond( $ajax, false, "Sorry — we couldn't send your message. Please call us on 01777 801214." );
+		$msg = "Sorry — we couldn't send your message. Please call us on 01777 801214.";
+		// Surface the real reason to logged-in admins only (safe for visitors).
+		if ( '' !== $mail_error && current_user_can( 'manage_options' ) ) {
+			$msg .= ' [admin debug: ' . $mail_error . ']';
+		}
+		pt_contact_respond( $ajax, false, $msg );
 	}
 
 	pt_contact_respond( $ajax, true );

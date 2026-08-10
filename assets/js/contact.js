@@ -12,6 +12,10 @@
 	}
 
 	var btn = form.querySelector('.fbtn');
+	// NOTE: read the action via getAttribute — the form has a hidden
+	// <input name="action"> (required by admin-post.php), and a named control
+	// shadows the form's .action property (which would return that input).
+	var actionUrl = form.getAttribute('action');
 
 	form.addEventListener('submit', function (e) {
 		// Let the browser handle native required-field validation first.
@@ -30,7 +34,7 @@
 			btn.textContent = 'Sending…';
 		}
 
-		fetch(form.action, {
+		fetch(actionUrl, {
 			method: 'POST',
 			body: data,
 			credentials: 'same-origin',
