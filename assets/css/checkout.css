@@ -140,7 +140,7 @@
   .site-foot .cp{ width:100%; border-top:1px solid rgba(255,255,255,.12); padding-top:16px; margin-top:6px; font-size:.74rem; font-weight:300; }
 
   /* support widget */
-  .support{ position:fixed; left:18px; bottom:18px; z-index:120; }
+  .support{ position:fixed; left:18px; bottom:18px; z-index:299; }
   
     
     

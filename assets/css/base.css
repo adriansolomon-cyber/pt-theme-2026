@@ -134,7 +134,7 @@ a{ color:inherit; }
 .intercom-lightweight-app-launcher,
 .intercom-launcher-frame{ display:none !important; }
 
-.support{ position:fixed; left:18px; bottom:18px; z-index:200; }
+.support{ position:fixed; left:18px; bottom:18px; z-index:299; }
 .support .panel{ position:absolute; left:0; bottom:70px; width:300px; max-width:calc(100vw - 36px); max-height:calc(100vh - 170px); overflow-y:auto; background:var(--accent); color:var(--charcoal); border-radius:22px; box-shadow:var(--e3); padding:22px 20px 18px; opacity:0; transform:translateY(10px) scale(.98); transform-origin:0 100%; pointer-events:none; transition:opacity .25s var(--ease), transform .25s var(--ease); }
 .support .launch{ position:relative; width:56px; height:56px; border-radius:50%; border:none; cursor:pointer; background:var(--accent); color:var(--charcoal); box-shadow:var(--e2); }
 .support .launch span{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
