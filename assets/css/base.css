@@ -45,6 +45,12 @@ a{ color:inherit; }
 .wsc_share_cart:active{ transform:scale(.99); }
 .promo{ background:var(--ink); color:var(--on-dark); text-align:center; font-size:.74rem; letter-spacing:.05em; padding:8px 14px; }
 .promo b{ color:#fff; }
+/* Header container. MUST be in base.css: base.css carries all the .mainhead
+   child rules (which rely on flex — e.g. margin-left:auto on .search/.icons),
+   but the flex container itself lived only in the per-page stylesheets. On
+   base-only pages (Cart, My Account, CMS pages, index/404) the header lost its
+   flex layout and the logo/search/icons scattered. */
+.mainhead{ display:flex; align-items:center; gap:14px; padding:10px 20px; border-bottom:1px solid rgba(33,30,36,.07); position:sticky; top:0; z-index:50; background:rgba(255,255,255,.82); backdrop-filter:saturate(160%) blur(18px); -webkit-backdrop-filter:saturate(160%) blur(18px); }
 .mainhead .menu{ display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:none; background:none; cursor:pointer; color:var(--ink); padding:0; }
 .mainhead .menu svg{ width:24px; height:24px; }
 @media(min-width:860px){ .mainhead .menu{ display:none; } }
