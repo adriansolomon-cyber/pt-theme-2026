@@ -346,6 +346,12 @@
 .co-grid > .woocommerce-message,
 .co-grid > .woocommerce-info{ grid-column:1 / -1; margin:0 0 22px; }
 
+/* Side gutter for the checkout: the .wrap 20px padding is overridden by
+   .pt-page { padding:40px 0 72px } (same specificity, later in base.css), so the
+   content had no horizontal gutter and fields touched the screen edges. Restore
+   it on the WooCommerce wrapper for the checkout. */
+.woocommerce-checkout .pt-page-content .woocommerce{ padding-left:20px; padding-right:20px; }
+
 /* Notices printed ABOVE the checkout form (the persistent voucher message,
    add-to-basket / validation errors) render flush under the header nav — give
    the first one clearance so it doesn't touch the menu. Later stacked notices
