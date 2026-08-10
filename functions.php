@@ -570,10 +570,15 @@ add_action(
 
 /**
  * Secondary / content pages (FAQ, Delivery, Returns, Contact, Testimonials,
- * Resources, Building a Base). They share the hero/breadcrumb + help-CTA
- * components styled by secondary.css. This also auto-loads a per-page
- * stylesheet/script — assets/css/<slug>.css and assets/js/<slug>.js — when one
- * exists, so building each page template later needs no functions.php change.
+ * Resources, Building a Base). Each uses a NAMED page template in templates/
+ * (Template Name: … assigned via Page Attributes → Template), so it doesn't
+ * depend on the page slug. They share the hero/breadcrumb + help-CTA components
+ * styled by secondary.css.
+ *
+ * This detects our secondary templates by their path (templates/page-*.php) and
+ * auto-loads a per-template stylesheet/script derived from the filename —
+ * templates/page-faq.php → assets/css/faq.css + assets/js/faq.js — so adding
+ * each page later needs no functions.php change.
  *
  * The chrome (header/footer/support) is untouched; header.js is already
  * enqueued on these pages by the header-chrome fallback above.
@@ -581,17 +586,12 @@ add_action(
 add_action(
 	'wp_enqueue_scripts',
 	function () {
-		$pt_secondary_slugs = array(
-			'faq',
-			'delivery',
-			'returns',
-			'contact',
-			'testimonials',
-			'resources',
-			'building-base-garden-building',
-		);
-		if ( ! is_page( $pt_secondary_slugs ) ) {
+		if ( ! is_page() ) {
 			return;
+		}
+		$tpl = (string) get_page_template_slug( get_queried_object_id() );
+		if ( 0 !== strpos( $tpl, 'templates/page-' ) ) {
+			return; // Not one of our secondary templates.
 		}
 
 		$dir     = get_stylesheet_directory();
@@ -607,16 +607,16 @@ add_action(
 			wp_enqueue_style( 'pt-secondary', $uri . '/assets/css/secondary.css', array( 'pt-base' ), $ver( 'assets/css/secondary.css' ) );
 		}
 
-		// Per-page assets, keyed by the page slug (added as each page is built).
-		$slug = get_post_field( 'post_name', get_queried_object_id() );
-		if ( $slug ) {
-			$css_rel = 'assets/css/' . $slug . '.css';
+		// Per-template assets: templates/page-faq.php → "faq".
+		$name = preg_replace( '/^page-/', '', basename( $tpl, '.php' ) );
+		if ( $name ) {
+			$css_rel = 'assets/css/' . $name . '.css';
 			if ( file_exists( $dir . '/' . $css_rel ) ) {
-				wp_enqueue_style( 'pt-page-' . $slug, $uri . '/' . $css_rel, array( 'pt-secondary' ), $ver( $css_rel ) );
+				wp_enqueue_style( 'pt-page-' . $name, $uri . '/' . $css_rel, array( 'pt-secondary' ), $ver( $css_rel ) );
 			}
-			$js_rel = 'assets/js/' . $slug . '.js';
+			$js_rel = 'assets/js/' . $name . '.js';
 			if ( file_exists( $dir . '/' . $js_rel ) ) {
-				wp_enqueue_script( 'pt-page-' . $slug, $uri . '/' . $js_rel, array(), $ver( $js_rel ), true );
+				wp_enqueue_script( 'pt-page-' . $name, $uri . '/' . $js_rel, array(), $ver( $js_rel ), true );
 			}
 		}
 	},
