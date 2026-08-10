@@ -679,7 +679,7 @@ if ( $pt_rec_ids ) :
   <?php if ( $pt_final_heading ) : ?>
     <h2><?php echo wp_kses_post( $pt_final_heading ); ?></h2>
   <?php else : ?>
-    <h2>Your office is<br>ready when you are.</h2>
+    <h2>Your building is<br>ready when you are.</h2>
   <?php endif; ?>
   <button class="go">Customise &amp; buy →</button>
 </div></section>
