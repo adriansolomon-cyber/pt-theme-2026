@@ -1,0 +1,73 @@
+/* Project Timber — Contact page (templates/page-contact.php).
+   Loaded after base.css + secondary.css. Only the Contact-unique sections live
+   here; hero/breadcrumb/typography come from secondary.css and tokens from
+   base.css :root. Form behaviour is assets/js/contact.js (progressive). */
+
+.hero .lead a{ color:var(--charcoal); font-weight:700; text-decoration:none; }
+
+/* Contact grid: methods/hours + enquiry form */
+.cgrid{ display:grid; gap:26px; align-items:start; }
+@media(min-width:900px){ .cgrid{ grid-template-columns:1fr 1.1fr; gap:44px; } }
+
+.methods{ display:grid; gap:14px; }
+.method{ display:flex; gap:16px; align-items:flex-start; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); padding:20px 20px; box-shadow:var(--e1); }
+.method .ic{ flex:0 0 auto; width:44px; height:44px; border-radius:12px; background:var(--mist); color:var(--charcoal); display:flex; align-items:center; justify-content:center; }
+.method .ic svg{ width:22px; height:22px; }
+.method h3{ font-size:.72rem; text-transform:uppercase; letter-spacing:.16em; color:var(--txt-soft); font-weight:700; margin-bottom:5px; }
+.method .val{ font-size:1.12rem; font-weight:700; }
+.method .val a{ text-decoration:none; }
+.method .sub{ font-weight:300; font-size:.86rem; color:var(--txt-soft); margin-top:3px; line-height:1.4; }
+.method .mail{ margin-top:4px; }
+.method .mail a{ font-size:.95rem; font-weight:700; color:var(--charcoal); text-decoration:none; }
+
+.hours{ background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); padding:20px 22px; box-shadow:var(--e1); margin-top:14px; }
+.hours h3{ font-size:.72rem; text-transform:uppercase; letter-spacing:.16em; color:var(--txt-soft); font-weight:700; margin-bottom:12px; }
+.hours ul{ list-style:none; margin:0; padding:0; display:grid; gap:9px; }
+.hours li{ display:flex; justify-content:space-between; font-size:.95rem; border-bottom:1px dashed rgba(33,30,36,.12); padding-bottom:9px; }
+.hours li:last-child{ border-bottom:none; padding-bottom:0; }
+.hours .d{ font-weight:700; }
+.hours .t{ color:var(--txt-soft); font-weight:300; }
+.hours .open{ color:var(--ok); font-weight:700; }
+
+/* Enquiry form */
+.fcard{ background:var(--paper); border:1px solid rgba(33,30,36,.1); border-radius:var(--r); padding:28px 26px; box-shadow:var(--e1); }
+.fcard h2{ font-size:clamp(1.5rem,3.4vw,2rem); }
+.fcard .fsub{ font-weight:300; color:var(--txt-soft); font-size:.92rem; margin:8px 0 20px; }
+.field{ margin-bottom:16px; }
+.field label{ display:block; font-size:.82rem; font-weight:700; margin-bottom:6px; }
+.field label .req{ color:var(--no); }
+.field input, .field textarea{ width:100%; font-family:var(--font); font-size:1rem; padding:13px 15px; border:1.5px solid rgba(33,30,36,.2); border-radius:12px; background:#fff; color:var(--ink); }
+.field input:focus, .field textarea:focus{ outline:none; border-color:var(--charcoal); }
+.field textarea{ min-height:110px; resize:vertical; }
+.times{ display:grid; gap:8px; margin:2px 0 4px; }
+.times label{ display:flex; align-items:center; gap:10px; font-size:.9rem; font-weight:400; background:#fff; border:1px solid rgba(33,30,36,.15); border-radius:10px; padding:11px 13px; cursor:pointer; }
+.times input{ width:18px; height:18px; accent-color:var(--charcoal); }
+.fbtn{ width:100%; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1.02rem; padding:15px 20px; border-radius:999px; transition:transform .2s var(--ease); }
+.fbtn:active{ transform:scale(.98); }
+.fbtn:disabled{ opacity:.7; cursor:default; }
+.fnote{ font-size:.72rem; font-weight:300; color:var(--txt-soft); margin-top:12px; text-align:center; }
+.fnote a{ color:var(--charcoal); font-weight:700; text-decoration:none; }
+.fdone{ display:none; margin-top:16px; background:var(--ok-bg); color:#1c6b41; border-radius:12px; padding:16px 18px; gap:12px; align-items:flex-start; }
+.fdone.show{ display:flex; }
+.fdone svg{ width:22px; height:22px; flex:0 0 auto; color:var(--ok); margin-top:1px; }
+.fdone b{ display:block; margin-bottom:2px; }
+.fdone p{ font-weight:300; font-size:.9rem; line-height:1.45; }
+
+/* Honeypot — hidden from users, catches bots. */
+.pt-hp{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+
+/* Delivery strip */
+.dstrip{ background:var(--paper); }
+.dstrip .zgrid{ display:grid; gap:28px; align-items:center; }
+@media(min-width:900px){ .dstrip .zgrid{ grid-template-columns:1fr 1fr; gap:44px; } }
+.dstrip .zmap img{ width:100%; border-radius:var(--r); box-shadow:var(--e2); display:block; background:#fff; }
+.dstrip h2{ font-size:clamp(1.8rem,4.4vw,2.4rem); }
+.dstrip .lead{ margin:12px 0 20px; }
+.zrow{ display:grid; gap:10px; }
+.zr{ display:flex; align-items:center; gap:12px; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:12px; padding:12px 15px; box-shadow:var(--e1); }
+.zr .dot{ width:12px; height:12px; border-radius:50%; flex:0 0 auto; }
+.zr .zt{ font-weight:700; font-size:.95rem; }
+.zr .zc{ margin-left:auto; font-weight:700; font-size:.9rem; color:var(--txt-soft); }
+.dot.a{ background:var(--ok); } .dot.b{ background:var(--warn); } .dot.c{ background:#8a5210; } .dot.d{ background:var(--no); }
+.dstrip .btn-link{ display:inline-flex; align-items:center; gap:8px; margin-top:18px; font-weight:700; text-decoration:none; color:var(--ink); }
+.dstrip .btn-link svg{ width:16px; height:16px; }

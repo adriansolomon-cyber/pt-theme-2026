@@ -39,6 +39,7 @@ require_once get_stylesheet_directory() . '/inc/product-render.php';
 // Live search suggestions REST endpoint (header typeahead).
 require_once get_stylesheet_directory() . '/inc/search-suggest.php';
 require_once get_stylesheet_directory() . '/includes/pt-recently-viewed.php'; // "You might also like" recently-viewed
+require_once get_stylesheet_directory() . '/includes/contact-form.php';        // Contact page enquiry form handler
 
 // ── Back-office migration from the old theme (verbatim; loaded in phases) ──
 require_once get_stylesheet_directory() . '/inc/order-statuses.php';   // custom WC order statuses
