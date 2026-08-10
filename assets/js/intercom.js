@@ -19,8 +19,23 @@
 	// crowd each other (vertical_padding is the gap from the viewport bottom).
 	function applyPadding() {
 		if (typeof window.Intercom === 'function') {
-			window.Intercom('update', { vertical_padding: 40 });
+			window.Intercom('update', { vertical_padding: 80 });
 		}
+	}
+
+	// Register Intercom('onHide') exactly once, and only when Intercom is really
+	// loaded. Both this script and the plugin's boot snippet print in the footer,
+	// so at initial run Intercom may not exist yet — binding onHide eagerly would
+	// silently no-op, leaving chat-open stuck after the user closes the Messenger
+	// from its own X (which is what makes the support button "stop working").
+	// Binding lazily on first open guarantees Intercom is present.
+	var hideBound = false;
+	function bindHideSync() {
+		if (hideBound || typeof window.Intercom !== 'function') { return; }
+		hideBound = true;
+		window.Intercom('onHide', function () {
+			if (support) { support.classList.remove('chat-open'); }
+		});
 	}
 
 	function openChat(e) {
@@ -29,6 +44,7 @@
 		// so 'show' is safe even before the widget finishes loading. If Intercom
 		// isn't present at all (not configured / blocked) we just do nothing.
 		if (typeof window.Intercom !== 'function') { return; }
+		bindHideSync();
 		// Collapse the support panel but keep the launcher as an X (chat-open) so
 		// the user keeps a clear control to close the chat again.
 		if (support) {
@@ -65,12 +81,10 @@
 		}, true);
 	}
 
-	// Sync our launcher state when the chat is closed from Intercom's own controls,
-	// and apply the spacing once the Messenger is ready.
+	// If Intercom is already loaded at run time, bind the close-sync + spacing now
+	// too; otherwise the first openChat() handles it (see bindHideSync above).
 	if (typeof window.Intercom === 'function') {
-		window.Intercom('onHide', function () {
-			if (support) { support.classList.remove('chat-open'); }
-		});
+		bindHideSync();
 		applyPadding();
 	}
 })();
