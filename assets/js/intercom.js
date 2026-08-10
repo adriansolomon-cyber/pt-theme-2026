@@ -14,16 +14,6 @@
 	var support = document.getElementById('support');
 	var launch = support ? support.querySelector('.launch') : null;
 
-	// The workspace aligns the Messenger to the bottom-left — the same corner as
-	// our support button. Lift the Messenger off the bottom by the same offset the
-	// support panel uses (.support .panel { bottom:70px } in base.css) so the
-	// Messenger sits exactly where the panel does, above the launcher button.
-	function applyPadding() {
-		if (typeof window.Intercom === 'function') {
-			window.Intercom('update', { vertical_padding: 70 });
-		}
-	}
-
 	// Register Intercom('onHide') exactly once, and only when Intercom is really
 	// loaded. Both this script and the plugin's boot snippet print in the footer,
 	// so at initial run Intercom may not exist yet — binding onHide eagerly would
@@ -52,7 +42,6 @@
 			support.classList.remove('open');
 			support.classList.add('chat-open');
 		}
-		applyPadding();
 		window.Intercom('show');
 	}
 
@@ -82,10 +71,9 @@
 		}, true);
 	}
 
-	// If Intercom is already loaded at run time, bind the close-sync + spacing now
-	// too; otherwise the first openChat() handles it (see bindHideSync above).
+	// If Intercom is already loaded at run time, bind the close-sync now too;
+	// otherwise the first openChat() handles it (see bindHideSync above).
 	if (typeof window.Intercom === 'function') {
 		bindHideSync();
-		applyPadding();
 	}
 })();
