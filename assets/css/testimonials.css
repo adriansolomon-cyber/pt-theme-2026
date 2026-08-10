@@ -1,0 +1,28 @@
+/* Project Timber — Testimonials (templates/page-testimonials.php).
+   Loaded after base.css + secondary.css. Only the page-unique sections live
+   here; hero/breadcrumb/help-CTA/typography come from secondary.css and tokens
+   (incl. --star) from base.css :root. Stars are rendered server-side (no JS). */
+
+/* Hero — slightly deeper bottom padding than the shared default. */
+.hero{ padding:26px 0 48px; }
+
+/* Review wall (CSS masonry columns) */
+.wall{ padding-top:34px; }
+.wall.alt{ background:var(--paper); }
+.wall .whead{ text-align:center; margin-bottom:28px; }
+.wall .whead .eyebrow{ margin-bottom:8px; }
+.wall .whead h2{ font-size:clamp(1.7rem,4vw,2.3rem); }
+.cols{ columns:1; column-gap:20px; }
+@media(min-width:640px){ .cols{ columns:2; } }
+@media(min-width:1000px){ .cols{ columns:3; } }
+
+.tcard{ break-inside:avoid; margin:0 0 20px; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); padding:22px 22px; box-shadow:var(--e1); }
+.tcard .stars{ display:flex; gap:3px; color:var(--star); margin-bottom:12px; }
+.tcard .stars svg{ width:17px; height:17px; }
+.tcard .tt{ font-size:1.05rem; margin-bottom:8px; line-height:1.2; }
+.tcard blockquote{ margin:0; font-weight:300; color:var(--txt-soft); line-height:1.6; font-size:.94rem; }
+.tcard figcaption{ margin-top:14px; padding-top:12px; border-top:1px solid rgba(33,30,36,.08); display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+.tcard .name{ font-weight:700; font-size:.92rem; }
+.tcard .date{ font-weight:300; font-size:.78rem; color:var(--txt-soft); }
+
+.selnote{ text-align:center; font-size:.74rem; font-weight:300; color:var(--txt-soft); margin-top:8px; }
