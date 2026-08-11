@@ -132,7 +132,7 @@
     // parsing changes so every stale client cache is dropped on the next load (no
     // manual sessionStorage.clear() needed). CACHE_TTL also expires entries so a
     // server-side product edit self-heals within the session.
-    var CACHE_VER='2';                 // v2 = /config now returns Any-Option components + images[]
+    var CACHE_VER='3';                 // v3 = /config unions all material scenarios per size (front-window fix); v2 = Any-Option components + images[]
     var CACHE_TTL=10*60*1000;          // 10 minutes
     function ckey(pid){ return 'ptCfg:'+CACHE_VER+':'+DEFAULT_BASE+':'+pid; }
     function saveCache(pid){
@@ -359,7 +359,12 @@
       (p.composite_scenarios||[]).forEach(function(s){
         var cfg={}, sid=null;
         (s.configuration||[]).forEach(function(it){ var cid=String(it.component_id); var ids=(it.component_options||[]).map(Number).filter(function(x){ return x>0; }); cfg[cid]=ids; if(cid===sizeCid && ids.length) sid=ids[0]; });
-        if(sid!=null) scenarios[sid]={ name:s.name, config:cfg };
+        if(sid==null) return;
+        // MERGE, don't overwrite: several scenarios can share one size option (e.g.
+        // one per material, differing only in Front Window Style) — assigning here made
+        // the last win and dropped every other material. Union options per component.
+        if(!scenarios[sid]) scenarios[sid]={ name:s.name, config:{} };
+        for(var mc in cfg){ var prev=scenarios[sid].config[mc]||[]; cfg[mc].forEach(function(x){ if(prev.indexOf(x)<0) prev.push(x); }); scenarios[sid].config[mc]=prev; }
       });
       sizeGalCache={}; sizeGalPromise=null; // reset per-size gallery cache (fetched lazily on first size selection)
     }
