@@ -392,6 +392,36 @@ function pt_cat_product_entry( $product ) {
  * WC getters, so the category grid renders even without the mu-plugin — including
  * proper composite "from" pricing (pt_cat_product_from_price). Cached per term.
  */
+/**
+ * Cache-busting salt for the native category build transients. Bumped whenever a
+ * product is created/updated/trashed/deleted (see hooks below), so removing or
+ * hiding a product invalidates every cached category list at once — otherwise the
+ * 1-hour transient would keep serving the stale list (product still showing).
+ */
+function pt_cat_cache_version() {
+	return (int) get_option( 'pt_catn_ver', 1 );
+}
+
+function pt_cat_bump_cache_version() {
+	update_option( 'pt_catn_ver', pt_cat_cache_version() + 1, false );
+}
+
+/** Bump on product save/create/trash/delete (product-scoped hooks). */
+add_action( 'woocommerce_update_product', 'pt_cat_bump_cache_version' );
+add_action( 'woocommerce_new_product', 'pt_cat_bump_cache_version' );
+add_action( 'woocommerce_trash_product', 'pt_cat_bump_cache_version' );
+add_action( 'woocommerce_delete_product', 'pt_cat_bump_cache_version' );
+
+/** Generic post hooks fire for all types — only bump for products. */
+function pt_cat_bump_cache_version_for_product( $post_id ) {
+	if ( 'product' === get_post_type( $post_id ) ) {
+		pt_cat_bump_cache_version();
+	}
+}
+add_action( 'trashed_post', 'pt_cat_bump_cache_version_for_product' );
+add_action( 'untrashed_post', 'pt_cat_bump_cache_version_for_product' );
+add_action( 'before_delete_post', 'pt_cat_bump_cache_version_for_product' );
+
 function pt_cat_native_build( $term ) {
 	$empty = array( 'category' => array( 'name' => '', 'description' => '' ), 'products' => array() );
 	if ( ! $term || is_wp_error( $term ) || ! function_exists( 'wc_get_product' ) ) {
@@ -400,7 +430,7 @@ function pt_cat_native_build( $term ) {
 
 	// Cache the (price-resolving) build — composite from-pricing walks every size
 	// option, so recomputing on every request is wasteful.
-	$cache_key = 'pt_catn_' . (int) $term->term_id;
+	$cache_key = 'pt_catn_' . pt_cat_cache_version() . '_' . (int) $term->term_id;
 	if ( ! isset( $_GET['nocache'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 		$cached = get_transient( $cache_key );
 		if ( is_array( $cached ) ) {
