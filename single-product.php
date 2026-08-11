@@ -632,7 +632,7 @@ get_header();
 <?php if ( $pt_show( 'show_faq' ) ) : ?>
 <section class="faq" id="faq"><div class="wrap">
   <h2>Questions, <span class="fade">answered.</span></h2>
-  <div class="faq-video" id="faqVideo">
+  <div class="faq-video" id="faqVideo" data-fv-src="<?php echo esc_url( $pt_f( 'faq_video_url', 'https://www.youtube.com/watch?v=gOu01FhR6BA' ) ); ?>">
     <button class="fv-play" type="button" aria-label="Play the <?php echo esc_attr( $pt_line ); ?> FAQ video">
       <img src="<?php echo esc_url( $pt_f( 'faq_video_image', 'https://www.projecttimber.com/wp-content/uploads/2020/04/faq-2.jpg' ) ); ?>" alt="<?php echo esc_attr( $pt_name ); ?> FAQ video">
       <span class="fv-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>

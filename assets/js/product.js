@@ -11,8 +11,20 @@
   })();
 
 
-    (function(){ var v=document.getElementById('faqVideo'); if(!v) return; var b=v.querySelector('.fv-play');
-      if(b) b.addEventListener('click',function(){ v.innerHTML='<iframe src="https://www.youtube.com/embed/gOu01FhR6BA?autoplay=1&rel=0&modestbranding=1&controls=0&disablekb=1&fs=0&iv_load_policy=3" title="My Den FAQ" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>'; }); })();
+    // FAQ video: source comes from the ACF faq_video_url field (data-fv-src on
+    // #faqVideo), falling back to the default clip. Supports YouTube URLs and
+    // direct video files.
+    (function(){
+      var v=document.getElementById('faqVideo'); if(!v) return;
+      var b=v.querySelector('.fv-play'); if(!b) return;
+      var src=v.getAttribute('data-fv-src')||'https://www.youtube.com/watch?v=gOu01FhR6BA';
+      function ytId(u){ var m=String(u||'').match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i); return m?m[1]:''; }
+      b.addEventListener('click',function(){
+        var id=ytId(src);
+        if(id){ v.innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&rel=0&modestbranding=1&controls=0&disablekb=1&fs=0&iv_load_policy=3" title="FAQ video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>'; }
+        else { v.innerHTML='<video src="'+String(src).replace(/"/g,'&quot;')+'" controls autoplay playsinline></video>'; }
+      });
+    })();
 
     // Video modal — routes [data-video] triggers (showcase, paint & trim) into an
     // on-brand lightbox instead of a new tab. Falls back to the link when JS is off.
