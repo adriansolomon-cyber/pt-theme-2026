@@ -15,10 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $pt_offices = esc_url( home_url( '/garden-offices/' ) );
-// The "Shop Evolution" tier card links to the My Den Composite product page in the
-// mockup. Set this to that product's permalink once known; defaults to the garden
-// offices archive so the link is never broken.
-$pt_myden = esc_url( home_url( '/garden-offices/' ) );
+// The "Shop Evolution" tier card links to the Evolution range page (/evolution/).
+$pt_myden = esc_url( home_url( '/evolution/' ) );
 
 get_header();
 ?>
