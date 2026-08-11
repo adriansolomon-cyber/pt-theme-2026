@@ -24,7 +24,7 @@
 			window.Intercom('update', {
 				alignment: 'left',
 				horizontal_padding: 18,
-				vertical_padding: 90
+				vertical_padding: 94
 			});
 		}
 	}
