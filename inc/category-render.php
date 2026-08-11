@@ -330,21 +330,34 @@ function pt_cat_product_entry( $product ) {
 	$pid   = (int) $product->get_id();
 	$price = pt_cat_product_from_price( $product );
 
+	// Tile images: prefer the ACF product images (product_image_1 = main tile,
+	// product_image_2 = hover/scene); fall back per slot to the WooCommerce
+	// featured image and first gallery image when the ACF field is empty.
 	$imgs = array();
-	$main = $product->get_image_id();
-	if ( $main ) {
-		$u = wp_get_attachment_image_url( $main, 'woocommerce_single' );
-		if ( $u ) {
-			$imgs[] = array( 'src' => $u );
+
+	$acf1 = function_exists( 'get_field' ) ? get_field( 'product_image_1', $pid ) : '';
+	if ( is_string( $acf1 ) && '' !== $acf1 ) {
+		$imgs[] = array( 'src' => $acf1 );
+	} else {
+		$main = $product->get_image_id();
+		if ( $main ) {
+			$u = wp_get_attachment_image_url( $main, 'woocommerce_single' );
+			if ( $u ) {
+				$imgs[] = array( 'src' => $u );
+			}
 		}
 	}
-	foreach ( (array) $product->get_gallery_image_ids() as $g ) {
-		if ( count( $imgs ) >= 2 ) {
-			break;
-		}
-		$u = wp_get_attachment_image_url( $g, 'woocommerce_single' );
-		if ( $u ) {
-			$imgs[] = array( 'src' => $u );
+
+	$acf2 = function_exists( 'get_field' ) ? get_field( 'product_image_2', $pid ) : '';
+	if ( is_string( $acf2 ) && '' !== $acf2 ) {
+		$imgs[] = array( 'src' => $acf2 );
+	} else {
+		foreach ( (array) $product->get_gallery_image_ids() as $g ) {
+			$u = wp_get_attachment_image_url( $g, 'woocommerce_single' );
+			if ( $u ) {
+				$imgs[] = array( 'src' => $u );
+				break;
+			}
 		}
 	}
 
