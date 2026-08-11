@@ -1214,9 +1214,9 @@ function wc_checkout_email_js_validation() {
         outline: none;
     }
 
-    /* Valid state */
+    /* Valid state — matches WooCommerce's validated green (--wc-green: #7ad03a) */
     .wc-email-field-wrap.wc-email--valid #billing_email {
-        border-color: #00fe6c !important;
+        border-color: #7ad03a !important;
         outline: none;
     }
 
@@ -1252,7 +1252,7 @@ function wc_checkout_email_js_validation() {
     }
 
     .wc-email-icon--valid {
-        background: #00fe6c;
+        background: #7ad03a;
         color: #fff;
     }
 
@@ -1325,7 +1325,7 @@ function wc_checkout_email_js_validation() {
                     '<path d="M7.25 13.5C8.07091 13.501 8.88393 13.3398 9.64235 13.0257C10.4008 12.7115 11.0896 12.2506 11.6694 11.6694C12.2506 11.0896 12.7115 10.4008 13.0257 9.64235C13.3398 8.88393 13.501 8.07091 13.5 7.25C13.501 6.4291 13.3398 5.61608 13.0257 4.85766C12.7115 4.09924 12.2506 3.41037 11.6694 2.83063C11.0896 2.24943 10.4008 1.78851 9.64235 1.47435C8.88393 1.1602 8.07091 0.998992 7.25 1C6.4291 0.998992 5.61608 1.1602 4.85766 1.47435C4.09924 1.78851 3.41037 2.24943 2.83063 2.83063C2.24943 3.41037 1.78851 4.09924 1.47435 4.85766C1.1602 5.61608 0.998992 6.4291 1 7.25C0.998992 8.07091 1.1602 8.88393 1.47435 9.64235C1.78851 10.4008 2.24943 11.0896 2.83063 11.6694C3.41037 12.2506 4.09924 12.7115 4.85766 13.0257C5.61608 13.3398 6.4291 13.501 7.25 13.5Z" fill="white" stroke="white" stroke-width="2" stroke-linejoin="round"/>' +
                 '</mask>' +
                 '<g mask="url(#mask0_779_3580)">' +
-                    '<path d="M0 0H15V15H0V0Z" fill="#00FE6C"/>' +
+                    '<path d="M0 0H15V15H0V0Z" fill="#7AD03A"/>' +
                     '<line x1="6" y1="9.29289" x2="10.2929" y2="5" stroke="white" stroke-linecap="round"/>' +
                     '<line x1="3.70711" y1="7" x2="5" y2="8.29289" stroke="white" stroke-linecap="round"/>' +
                 '</g>' +
