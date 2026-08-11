@@ -32,6 +32,21 @@ $pt_from = $pt_product ? pt_product_from_price_display( $pt_product ) : '';
 if ( '' === $pt_from ) {
 	$pt_from = 'From £—';
 }
+// Earliest delivery date — from the real business-day calculator (weekends +
+// blackout dates excluded, per-product `delivery_time`). Same value used in order
+// emails / checkout, so the PDP stays consistent. product.js keeps a today+42
+// fallback if this is empty. Uses the parent product's lead time (static default).
+$pt_deliv_from = '';
+if ( function_exists( 'pt_delivery_date_calculator' ) ) {
+	try {
+		$pt_dd = pt_delivery_date_calculator( $pt_pid );
+		if ( $pt_dd instanceof DateTime ) {
+			$pt_deliv_from = $pt_dd->format( 'M, jS D' );
+		}
+	} catch ( \Throwable $e ) {
+		$pt_deliv_from = '';
+	}
+}
 // --- Editable content (ACF field group "Product Page Content") -------------
 // pt_f() returns an ACF field value, or the supplied static fallback when the
 // field is empty / ACF is inactive — so a product with no content filled still
@@ -185,7 +200,7 @@ get_header();
       <div class="cfg-summary">
         <div class="cfg-deliv-group">
           <div class="cfg-di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h11v9H3z"/><path d="M14 9h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.7"/><circle cx="17.5" cy="18" r="1.7"/></svg> Free delivery to most mainland UK postcodes*</div>
-          <div class="cfg-di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg> <span>Delivery available from <b id="delivFrom">—</b> · <span class="soft">choose your delivery date at checkout</span></span></div>
+          <div class="cfg-di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg> <span>Delivery available from <b id="delivFrom"><?php echo esc_html( '' !== $pt_deliv_from ? $pt_deliv_from : '—' ); ?></b> · <span class="soft">choose your delivery date at checkout</span></span></div>
         </div>
         <!-- FINANCE HIDDEN (re-enable when a finance provider is in place):
         <div class="ptoggle"><button class="on" data-pay="cash">Cash</button><button data-pay="finance">Finance</button></div>

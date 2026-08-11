@@ -275,9 +275,13 @@
       glb.addEventListener('touchend',function(e){ if(sx===null||img.classList.contains('zoom')){ sx=null; return; } var dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40){ show(dx<0?gi+1:gi-1); upd(); } sx=null; });
     })();
 
-    // ---- earliest delivery date in the summary (auto-computed so it never goes stale) ----
+    // ---- earliest delivery date in the summary ----
+    // Prefer the server value (real business-day calculator, rendered into #delivFrom
+    // by single-product.php). This today+42 estimate is only a fallback for when the
+    // server couldn't compute it (placeholder "—" left in place).
     (function(){
       var el=document.getElementById('delivFrom'); if(!el) return;
+      var cur=(el.textContent||'').trim(); if(cur && cur!=='—') return; // server already filled it
       var LEAD_DAYS=42;
       var d=new Date(); d.setDate(d.getDate()+LEAD_DAYS);
       var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
