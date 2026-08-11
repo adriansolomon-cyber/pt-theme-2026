@@ -14,8 +14,10 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 if ( ! isset( $pt_pid ) ) { $pt_pid = get_queried_object_id(); }
 $pt_name    = get_the_title( $pt_pid );                       // product title (e.g. "Consort Summerhouse")
-// Short name for the sub-nav: everything before the first spaced dash.
-$pt_name_short = trim( preg_split( '/\s+[–—-]\s+/u', $pt_name, 2 )[0] );
+// Short name for the sub-nav: everything before the first spaced dash. Use the
+// RAW post title — get_the_title() texturizes the dash into &#8211; which a
+// character-class split would miss.
+$pt_name_short = trim( preg_split( '/\s+[-–—]\s+/u', get_post_field( 'post_title', $pt_pid ), 2 )[0] );
 if ( '' === $pt_name_short ) {
 	$pt_name_short = $pt_name;
 }

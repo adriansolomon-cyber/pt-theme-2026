@@ -24,9 +24,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 $pt_pid     = get_queried_object_id();
 $pt_name    = get_the_title( $pt_pid );                       // product title (e.g. "Consort Summerhouse")
 // Short name for the sub-nav: everything before the first spaced dash
-// (en/em/hyphen), e.g. "… Summerhouse – Pressure Treated…" → "… Summerhouse".
-// Spaced dash only, so hyphenated words (Pressure-Treated) are left intact.
-$pt_name_short = trim( preg_split( '/\s+[–—-]\s+/u', $pt_name, 2 )[0] );
+// (hyphen/en/em), e.g. "… Summerhouse – Pressure Treated…" → "… Summerhouse".
+// Use the RAW post title — get_the_title() runs wptexturize, which turns the
+// dash into the entity &#8211; that a character-class split would miss. Spaced
+// dash only, so hyphenated words (Pressure-Treated) are left intact.
+$pt_name_short = trim( preg_split( '/\s+[-–—]\s+/u', get_post_field( 'post_title', $pt_pid ), 2 )[0] );
 if ( '' === $pt_name_short ) {
 	$pt_name_short = $pt_name;
 }
