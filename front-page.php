@@ -24,7 +24,7 @@ get_header();
 <!-- ===================== HERO ===================== -->
 <header class="hero" id="main" tabindex="-1">
   <video id="heroVideo" autoplay muted loop playsinline preload="metadata" poster="https://www.projecttimber.com/wp-content/uploads/2026/06/8x6_My_Den_Composite_Garden_Office_01.jpg" aria-label="A Project Timber garden building in a landscaped garden">
-    <source src="https://www.projecttimber.com/wp-content/uploads/2026/08/Home_Page_Vid.mp4" type="video/mp4">
+    <source src="https://www.projecttimber.com/wp-content/uploads/2026/08/08102.mp4" type="video/mp4">
   </video>
   <button class="hero-vtoggle" id="heroVtoggle" type="button" aria-label="Pause background video"><svg class="ip" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="ipl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
   <div class="scrim"></div>
