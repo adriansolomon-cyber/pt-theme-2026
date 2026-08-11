@@ -99,7 +99,31 @@
     function resetFlow(){ selDate=null; selTime=null; view=new Date(minMonth); slots.hidden=true; form.hidden=true; done.hidden=true; renderCal(); }
     prevBtn.addEventListener('click',function(){ if(sameMonth(view,minMonth))return; view.setMonth(view.getMonth()-1); renderCal(); });
     nextBtn.addEventListener('click',function(){ view.setMonth(view.getMonth()+1); renderCal(); });
-    form.addEventListener('submit',function(e){ e.preventDefault(); doneMsg.textContent='Thanks — we’ll email you to confirm your visit for '+fmt(selDate)+' at '+selTime+'.'; slots.hidden=true; form.hidden=true; done.hidden=false; done.scrollIntoView({behavior:'smooth',block:'nearest'}); });
+    var ssDateEl=document.getElementById('ssDate'), ssTimeEl=document.getElementById('ssTime');
+    // Read the action via getAttribute — the hidden <input name="action"> shadows form.action.
+    var actionUrl=form.getAttribute('action');
+    function fail(btn,message){ if(btn){ btn.disabled=false; if(btn._html!=null) btn.innerHTML=btn._html; } alert(message||"Sorry — we couldn't send your booking request. Please call us on 01777 553392."); }
+    form.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(typeof form.reportValidity==='function' && !form.reportValidity()) return;
+      if(!selDate || !selTime) return;
+      if(ssDateEl) ssDateEl.value=fmt(selDate);
+      if(ssTimeEl) ssTimeEl.value=selTime;
+      var btn=form.querySelector('button[type="submit"]');
+      if(btn){ btn.disabled=true; btn._html=btn.innerHTML; btn.textContent='Sending…'; }
+      var data=new FormData(form); data.append('pt_ajax','1');
+      fetch(actionUrl,{method:'POST',body:data,credentials:'same-origin',headers:{Accept:'application/json'}})
+        .then(function(r){ return r.json().catch(function(){ return null; }); })
+        .then(function(res){
+          if(res && res.success){
+            doneMsg.textContent='Thanks — we’ll email you to confirm your visit for '+fmt(selDate)+' at '+selTime+'.';
+            slots.hidden=true; form.hidden=true; done.hidden=false; done.scrollIntoView({behavior:'smooth',block:'nearest'});
+            return;
+          }
+          fail(btn, res && res.data && res.data.message);
+        })
+        .catch(function(){ fail(btn); });
+    });
     renderCal();
   })();
 

@@ -295,7 +295,13 @@ get_header();
         <div class="slots-lbl">Available times · <b id="slotDate"></b></div>
         <div class="slot-list" id="slotList"></div>
       </div>
-      <form class="book-form" id="bookForm" hidden>
+      <form class="book-form" id="bookForm" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" hidden novalidate>
+        <input type="hidden" name="action" value="pt_showsite">
+        <input type="hidden" name="pt_source" value="<?php echo esc_url( ( is_ssl() ? 'https://' : 'http://' ) . ( isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) ); ?>">
+        <?php wp_nonce_field( 'pt_showsite', 'pt_showsite_nonce' ); ?>
+        <input type="hidden" name="ssDate" id="ssDate" value="">
+        <input type="hidden" name="ssTime" id="ssTime" value="">
+        <div class="pt-hp" aria-hidden="true"><label>Website<input type="text" name="pt_website" tabindex="-1" autocomplete="off"></label></div>
         <div class="book-sum" id="bookSum"></div>
         <label>Name<input type="text" name="name" required autocomplete="name"></label>
         <label>Email<input type="email" name="email" required autocomplete="email"></label>

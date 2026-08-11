@@ -216,3 +216,96 @@ function pt_callback_handle() {
 }
 add_action( 'admin_post_pt_callback', 'pt_callback_handle' );
 add_action( 'admin_post_nopriv_pt_callback', 'pt_callback_handle' );
+
+/**
+ * Validate + process a "Book a showsite visit" submission (homepage booking
+ * modal, front-page.php). The date + time are chosen in a JS calendar, so this
+ * form is submitted via fetch only. Name + email required; the chosen slot
+ * (ssDate/ssTime) is passed as hidden fields. Emails PT_CONTACT_TO with
+ * Reply-To set to the visitor. Nonce + honeypot guarded.
+ */
+function pt_showsite_handle() {
+	$ajax = ! empty( $_POST['pt_ajax'] );
+
+	$respond = function ( $ok, $message = '' ) use ( $ajax ) {
+		if ( $ajax ) {
+			if ( $ok ) {
+				wp_send_json_success();
+			}
+			wp_send_json_error( array( 'message' => $message ) );
+		}
+		$back = wp_get_referer() ? wp_get_referer() : home_url( '/' );
+		$back = remove_query_arg( array( 'pt_showsite', 'pt_msg' ), $back );
+		$back = add_query_arg( 'pt_showsite', $ok ? 'sent' : 'err', $back );
+		if ( ! $ok && '' !== $message ) {
+			$back = add_query_arg( 'pt_msg', rawurlencode( $message ), $back );
+		}
+		wp_safe_redirect( $back );
+		exit;
+	};
+
+	$nonce = isset( $_POST['pt_showsite_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['pt_showsite_nonce'] ) ) : '';
+	if ( ! wp_verify_nonce( $nonce, 'pt_showsite' ) ) {
+		$respond( false, 'Security check failed — please reload the page and try again.' );
+	}
+
+	// Honeypot.
+	if ( ! empty( $_POST['pt_website'] ) ) {
+		$respond( true );
+	}
+
+	$name  = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
+	$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+	$phone = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '';
+	$date  = isset( $_POST['ssDate'] ) ? sanitize_text_field( wp_unslash( $_POST['ssDate'] ) ) : '';
+	$time  = isset( $_POST['ssTime'] ) ? sanitize_text_field( wp_unslash( $_POST['ssTime'] ) ) : '';
+
+	if ( '' === $name || '' === $email || ! is_email( $email ) ) {
+		$respond( false, 'Please enter your name and a valid email address.' );
+	}
+	if ( '' === $date || '' === $time ) {
+		$respond( false, 'Please choose a date and time for your visit.' );
+	}
+
+	$source = isset( $_POST['pt_source'] ) ? esc_url_raw( wp_unslash( $_POST['pt_source'] ) ) : home_url( '/' );
+
+	$lines = array(
+		'Name: ' . $name,
+		'Email: ' . $email,
+		'Phone: ' . ( '' !== $phone ? $phone : '—' ),
+		'',
+		'Requested visit: ' . $date . ' at ' . $time,
+		'',
+		'—',
+		'Showsite visit request from the website booking form.',
+		'Page: ' . $source,
+	);
+
+	$subject = 'Showsite visit request — ' . $name;
+	$headers = array(
+		'Content-Type: text/plain; charset=UTF-8',
+		'Reply-To: ' . $name . ' <' . $email . '>',
+	);
+
+	$mail_error = '';
+	add_action(
+		'wp_mail_failed',
+		function ( $err ) use ( &$mail_error ) {
+			$mail_error = is_wp_error( $err ) ? $err->get_error_message() : 'unknown error';
+		}
+	);
+
+	$sent = wp_mail( PT_CONTACT_TO, $subject, implode( "\n", $lines ), $headers );
+
+	if ( ! $sent ) {
+		$err = "Sorry — we couldn't send your booking request. Please call us on 01777 553392.";
+		if ( '' !== $mail_error && current_user_can( 'manage_options' ) ) {
+			$err .= ' [admin debug: ' . $mail_error . ']';
+		}
+		$respond( false, $err );
+	}
+
+	$respond( true );
+}
+add_action( 'admin_post_pt_showsite', 'pt_showsite_handle' );
+add_action( 'admin_post_nopriv_pt_showsite', 'pt_showsite_handle' );
