@@ -531,10 +531,21 @@
     }
     // Build the option cards for one component from a list of option ids, keeping
     // the current selection if still valid else defaulting to the cheapest.
+    // Options hidden from the configurator by NAME (not offered right now). The
+    // composite product config is unchanged server-side — we simply don't render
+    // these cards, so add-to-cart with the remaining options stays valid. To hide
+    // another option, add a pattern here.
+    var HIDDEN_OPTION_PATTERNS=[ /28mm\s*T&G\s*Floor/i ];
+    function isHiddenOption(o){ var n=(o&&o.name)||''; return HIDDEN_OPTION_PATTERNS.some(function(re){ return re.test(n); }); }
+
     function optsFromIds(c, ids){
       var opts=ids.map(function(oid){ return meta[oid]||{id:oid,name:'#'+oid,price:0,img:''}; });
+      opts=opts.filter(function(o){ return !isHiddenOption(o); });   // drop name-blocked options
       opts.sort(function(a,b){ return (a.price||0)-(b.price||0); });
-      if(sel[c.id]==null || ids.indexOf(sel[c.id])<0) sel[c.id]=opts.length?opts[0].id:null;
+      var visIds=opts.map(function(o){ return o.id; });
+      // Default to (or fall back to) the cheapest VISIBLE option if the current
+      // selection is unset or now points at a hidden option.
+      if(sel[c.id]==null || visIds.indexOf(sel[c.id])<0) sel[c.id]=opts.length?opts[0].id:null;
       return opts;
     }
 
