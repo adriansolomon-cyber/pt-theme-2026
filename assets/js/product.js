@@ -72,9 +72,11 @@
     function urlSize(){
       try{ var q=new URLSearchParams(location.search); var v=q.get('size')||q.get('size_id')||q.get('sid'); if(v) return v; }catch(e){}
       var path=(location.pathname||'');
-      // size-filter path segment, e.g. /summerhouses/f/8-x-8/product-slug/
-      try{ var m=path.match(/\/f\/([^\/]+)/i); if(m&&m[1]) return decodeURIComponent(m[1]); }catch(e){}
-      // bare size segment anywhere in the path, e.g. /8-x-8/ or /.../8-x-8/product-slug/
+      // size-filter segment right after /f/, e.g. /summerhouses/f/8-x-8/product-slug/.
+      // Constrain to a real size pattern so we don't capture a product slug when the
+      // URL is /<size>/f/<product-slug>/ (where /f/ precedes the slug, not the size).
+      try{ var m=path.match(/\/f\/(\d+-x-\d+)(?:\/|$)/i); if(m&&m[1]) return m[1]; }catch(e){}
+      // bare size segment anywhere in the path, e.g. /8-x-8/ or /.../12-x-8/f/product-slug/
       try{ var m2=path.match(/(?:^|\/)(\d+-x-\d+)(?:\/|$)/i); if(m2&&m2[1]) return m2[1]; }catch(e){}
       return '';
     }
