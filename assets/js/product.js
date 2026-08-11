@@ -110,6 +110,10 @@
 
     // --- runtime state ---
     var product=null, components=[], sizeCid=null, scenarios={}, meta={}, sel={}, sizeId=null, curPid=null, pendingSize=null;
+    // rawScenarios: the individual composite scenarios (each a map cid -> [allowed option ids]),
+    // used to FILTER downstream options by prior selections (Material -> Front Window, etc.).
+    // `scenarios` (merged per size) still drives the size list + prefetch. Empty => no filtering.
+    var rawScenarios=[];
 
     // --- el refs (match the page markup) ---
     var $=function(id){ return document.getElementById(id); };
@@ -132,12 +136,12 @@
     // parsing changes so every stale client cache is dropped on the next load (no
     // manual sessionStorage.clear() needed). CACHE_TTL also expires entries so a
     // server-side product edit self-heals within the session.
-    var CACHE_VER='3';                 // v3 = /config unions all material scenarios per size (front-window fix); v2 = Any-Option components + images[]
+    var CACHE_VER='4';                 // v4 = payload carries raw scenarios; options filter by prior selections. v3 = union material scenarios; v2 = Any-Option + images[]
     var CACHE_TTL=10*60*1000;          // 10 minutes
     function ckey(pid){ return 'ptCfg:'+CACHE_VER+':'+DEFAULT_BASE+':'+pid; }
     function saveCache(pid){
       if(!pid||!product) return;
-      try{ sessionStorage.setItem(ckey(pid), JSON.stringify({ t:Date.now(), product:product, components:components, scenarios:scenarios, sizeCid:sizeCid, meta:meta })); }catch(e){}
+      try{ sessionStorage.setItem(ckey(pid), JSON.stringify({ t:Date.now(), product:product, components:components, scenarios:scenarios, rawScenarios:rawScenarios, sizeCid:sizeCid, meta:meta })); }catch(e){}
     }
     function loadCache(pid){
       try{
@@ -351,10 +355,12 @@
         if(sizeCid && !config[sizeCid]) config[sizeCid]=[sz.id];
         scenarios[sz.id]={ name:sz.name, config:config };
       });
+      // Raw per-scenario configs (cid -> [option ids]) for downstream filtering.
+      rawScenarios=(cfg.scenarios||[]).map(function(S){ var o={}; Object.keys(S||{}).forEach(function(cid){ o[String(cid)]=(S[cid]||[]).map(Number); }); return o; });
       sizeGalCache={}; sizeGalPromise=null; // reset per-size gallery cache (fetched lazily on first size selection)
     }
     function parseProduct(p){
-      product=p; components=[]; scenarios={}; meta={}; sel={}; sizeId=null;
+      product=p; components=[]; scenarios={}; meta={}; sel={}; sizeId=null; rawScenarios=[];
       p.composite_components.forEach(function(c){ var key=TITLE_KEY[c.title]||String(c.title||'').toLowerCase().replace(/\s+/g,'_'); components.push({ id:String(c.id), title:c.title, key:key, optional:!!c.optional, description:c.description||c.desc||'' }); if(key==='size') sizeCid=String(c.id); });
       (p.composite_scenarios||[]).forEach(function(s){
         var cfg={}, sid=null;
@@ -502,23 +508,67 @@
       return fetchProducts(need).then(function(){ renderOptionRows(sc); status('Configured for '+sc.name+'.'); saveCache(curPid); }).catch(function(err){ console.error(err); status(err.message||'Failed to load options.',true); });
     }
 
+    // Valid option ids for component `cid` given the already-locked upstream
+    // selections in `active` (cid -> optId). Union over every raw scenario whose
+    // config matches ALL of `active`. Falls back to the selected size's union when
+    // no raw scenarios are available (proxy path / older payloads) — i.e. no filtering.
+    function optionsForActive(cid, active){
+      if(rawScenarios && rawScenarios.length){
+        var out=[], seen={};
+        rawScenarios.forEach(function(S){
+          for(var c in active){ var al=S[c]; if(al && al.indexOf(active[c])<0) return; }
+          (S[cid]||[]).forEach(function(id){ if(!seen[id]){ seen[id]=1; out.push(id); } });
+        });
+        return out;
+      }
+      var sc=scenarios[sizeId]; return sc ? (sc.config[cid]||[]).slice() : [];
+    }
+    // Build the option cards for one component from a list of option ids, keeping
+    // the current selection if still valid else defaulting to the cheapest.
+    function optsFromIds(c, ids){
+      var opts=ids.map(function(oid){ return meta[oid]||{id:oid,name:'#'+oid,price:0,img:''}; });
+      opts.sort(function(a,b){ return (a.price||0)-(b.price||0); });
+      if(sel[c.id]==null || ids.indexOf(sel[c.id])<0) sel[c.id]=opts.length?opts[0].id:null;
+      return opts;
+    }
+
+    // Full (re)build of the option rows. Cascades top-down: each component is
+    // filtered by the upstream selections locked so far, so picking a Material
+    // narrows Front Window Style / Side Panels etc. (scenario branching).
     function renderOptionRows(sc){
       if(!elRows) return;
       var rows=elRows.querySelectorAll('.cfg-row'); for(var i=rows.length-1;i>=1;i--) rows[i].remove();
-      var idx=1, html='';
+      var idx=1, html='', active={}; if(sizeId!=null && sizeCid) active[sizeCid]=sizeId;
       components.forEach(function(c){
         if(c.id===sizeCid) return;
-        var ids=(sc.config[c.id]||[]); if(!ids.length) return;
+        var ids=optionsForActive(c.id, active); if(!ids.length) return;
         idx++;
-        var opts=ids.map(function(oid){ return meta[oid]||{id:oid,name:'#'+oid,price:0,img:''}; });
-        opts.sort(function(a,b){ return (a.price||0)-(b.price||0); });
-        var first=opts[0]; sel[c.id]=first.id;
+        var opts=optsFromIds(c, ids);
+        if(sel[c.id]!=null) active[c.id]=sel[c.id];   // lock this choice for downstream filtering
         var colour=isColourComp(c);
-        var cards=opts.map(function(o,n){ return cardHTML(c.id,o,n===0,colour); }).join('');
+        var cards=opts.map(function(o){ return cardHTML(c.id,o,o.id===sel[c.id],colour); }).join('');
         html+=rowHTML(idx,c.title,'sel-'+c.key,c.id,'',cards,stepNote(c));
       });
       elRows.insertAdjacentHTML('beforeend',html);
       components.forEach(function(c){ if(c.id===sizeCid) return; if(sel[c.id]!=null){ var m=meta[sel[c.id]]; setSelLabel('sel-'+c.key, m?m.name:('#'+sel[c.id])); } });
+      recalc();
+    }
+
+    // Re-filter option cards IN PLACE after a selection changes (keeps the accordion
+    // structure; only each component's cards + selection refresh). Same cascade.
+    function refilter(){
+      if(!elRows) return;
+      var active={}; if(sizeId!=null && sizeCid) active[sizeCid]=sizeId;
+      components.forEach(function(c){
+        if(c.id===sizeCid) return;
+        var box=elRows.querySelector('.opt-cards[data-group="'+c.id+'"]');
+        var ids=optionsForActive(c.id, active);
+        if(!ids.length){ if(box) box.innerHTML=''; return; }
+        var opts=optsFromIds(c, ids);
+        if(sel[c.id]!=null) active[c.id]=sel[c.id];
+        if(box){ var colour=isColourComp(c); box.innerHTML=opts.map(function(o){ return cardHTML(c.id,o,o.id===sel[c.id],colour); }).join(''); }
+        var m=meta[sel[c.id]]; setSelLabel('sel-'+c.key, m?m.name:('#'+sel[c.id]));
+      });
       recalc();
     }
 
@@ -578,7 +628,7 @@
       if(!pid){ status('No product configured.',true); return; }
       curPid=pid; pendingSize=urlSize();
       var cached=loadCache(pid);
-      if(cached){ product=cached.product; components=cached.components; scenarios=cached.scenarios; sizeCid=cached.sizeCid; meta=cached.meta||{}; sel={}; sizeId=null; afterParse(pid,true); return; }
+      if(cached){ product=cached.product; components=cached.components; scenarios=cached.scenarios; rawScenarios=cached.rawScenarios||[]; sizeCid=cached.sizeCid; meta=cached.meta||{}; sel={}; sizeId=null; afterParse(pid,true); return; }
       status('Loading…',false,true); if(elAdd) elAdd.disabled=true; showSkeleton();
       loadViaConfig(pid).catch(function(e){ if(e&&e.message) console.warn('config endpoint unavailable → proxy flow:', e.message); return loadViaProxy(pid); })
         .catch(function(err){ console.error(err); status(err.message||'Failed to load. Check the product / connection.',true); });
@@ -614,11 +664,10 @@
       var group=card.dataset.group, optId=+card.dataset.opt;
       // size re-renders the option steps; advance once the (async) render settles
       if(group===sizeCid){ var p=selectSize(optId); var go=function(){ cfgAdvance(cfgRowsList()[0]); }; if(p&&p.then){ p.then(go); } else { go(); } return; }
-      sel[group]=optId; markSelected(group,optId);
-      var comp=components.filter(function(c){ return c.id===group; })[0];
-      var m=meta[optId]; if(comp) setSelLabel('sel-'+comp.key, m?m.name:('#'+optId));
-      recalc();
-      cfgAdvance(card.closest('.cfg-row'));   // collapse this step, open the next
+      var row=card.closest('.cfg-row');       // capture before refilter rebuilds the cards
+      sel[group]=optId;
+      refilter();                             // cascade: re-filter downstream options + fix selections (also recalcs + labels)
+      cfgAdvance(row);                        // collapse this step, open the next
     });
     // add to basket → native composite add-to-cart URL
     if(elAdd) elAdd.addEventListener('click',function(){ var u=cartUrl(); if(u) window.location.href=u; });
