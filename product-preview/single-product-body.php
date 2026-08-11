@@ -29,9 +29,9 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
   <div class="eyebrow"><?php echo esc_html( $pt_line ); ?> · <?php echo wp_kses_post( $pt_f( 'hero_eyebrow', 'Composite · Fully insulated' ) ); ?></div>
   <?php $pt_hero_heading = get_field( 'hero_heading', $pt_pid ); ?>
   <?php if ( $pt_hero_heading ) : ?>
-    <h1 class="display"><?php echo wp_kses_post( $pt_hero_heading ); ?></h1>
+    <h2 class="display"><?php echo wp_kses_post( $pt_hero_heading ); ?></h2>
   <?php else : ?>
-    <h1 class="display">Work happens at the<br><span class="fade">bottom of the </span><span class="swipe">garden.</span></h1>
+    <h2 class="display">Work happens at the<br><span class="fade">bottom of the </span><span class="swipe">garden.</span></h2>
   <?php endif; ?>
   <p class="lead"><?php echo wp_kses_post( $pt_f( 'hero_lead', 'A year-round, fully insulated garden office — composite cladding, pre-insulated panels, delivered and built in days.' ) ); ?></p>
   <?php if ( $pt_show( 'show_hero_image' ) ) : ?>
@@ -64,7 +64,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
       </div>
       <div class="cfg-info">
         <div class="cfg-titlerow">
-          <h2 class="cfg-title" id="cfgProdName"><?php echo esc_html( $pt_name ); ?></h2>
+          <h1 class="cfg-title" id="cfgProdName"><?php echo esc_html( $pt_name ); ?></h1>
           <img class="cfg-mib" loading="lazy" src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/made-in-britain.jpg" alt="Made in Britain">
         </div>
         <div class="cfg-size-cap">Selected size: <b id="cfgSize">8 × 6</b></div>
