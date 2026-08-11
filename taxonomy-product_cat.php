@@ -71,7 +71,7 @@ get_header();
         // Promo banner as the 2nd grid item (matches category.js placePromo()).
         if ( 0 === $pt_i ) {
             ?>
-            <a class="promo-card" href="#" aria-label="Current promotion">
+            <a class="promo-card" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>" aria-label="Current promotion">
               <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Square.png" alt="Current promotion">
             </a>
             <?php
@@ -79,7 +79,7 @@ get_header();
     }
     if ( 0 === $pt_count ) {
         ?>
-        <a class="promo-card" href="#" aria-label="Current promotion">
+        <a class="promo-card" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>" aria-label="Current promotion">
           <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Square.png" alt="Current promotion">
         </a>
         <?php
