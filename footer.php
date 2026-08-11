@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     <div class="chips"><span class="chip">Revolut Pay</span><span class="chip">Visa</span><span class="chip">Mastercard</span><span class="chip">Amex</span><span class="chip">Apple Pay</span><span class="chip">Google Pay</span><span class="chip">PayPal</span></div>
   </div>
   <p style="font-size:.74rem;font-weight:300;color:var(--on-dark-soft);margin:0 0 14px;padding-top:24px">* Terms and conditions apply.</p>
-  <div class="copy"><span>© 2026 All Rights Reserved, Project Timber</span><span>Concept mockup · imagery © Project Timber</span></div>
+  <div class="copy"><span>© 2026 All Rights Reserved, Project Timber</span></div>
 </div></footer>
 
 <?php
