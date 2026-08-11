@@ -125,6 +125,29 @@ function pt_composite_size_thumbnail( $thumbnail, $cart_item, $cart_item_key ) {
 }
 
 /**
+ * Round coupon / voucher discounts to whole pounds.
+ *
+ * Product prices are whole pounds, so the site reads as "rounded" — but a
+ * percentage voucher (e.g. 10% of £1,751 = £175.10) reintroduces pennies, which
+ * then show as floating decimals on the discount line and order total at
+ * checkout / in the cart drawer. Rounding the discount itself (not just the
+ * display) keeps the discount, the total AND the charged amount whole and
+ * consistent — no display-vs-charge mismatch. Applies to every coupon,
+ * including the auto-applied vouchers (av_* in wc-custom-checkout-functions.php).
+ *
+ * @param float      $discount           Discount amount for this line/item.
+ * @param float      $discounting_amount Amount being discounted.
+ * @param array|null $cart_item          Cart item (null for order-level).
+ * @param bool       $single             Whether this is a single-item amount.
+ * @param WC_Coupon  $coupon             The coupon.
+ * @return float
+ */
+add_filter( 'woocommerce_coupon_get_discount_amount', 'pt_round_coupon_discount_amount', 10, 5 );
+function pt_round_coupon_discount_amount( $discount, $discounting_amount, $cart_item, $single, $coupon ) {
+    return round( (float) $discount );
+}
+
+/**
  * Force WooCommerce Database Update
  */
 function pt_update_woocommerce_version() {
