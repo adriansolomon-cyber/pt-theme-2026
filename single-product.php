@@ -23,6 +23,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 // --- Dynamic bits (design-only pass) --------------------------------------
 $pt_pid     = get_queried_object_id();
 $pt_name    = get_the_title( $pt_pid );                       // product title (e.g. "Consort Summerhouse")
+// Short name for the sub-nav: everything before the first spaced dash
+// (en/em/hyphen), e.g. "… Summerhouse – Pressure Treated…" → "… Summerhouse".
+// Spaced dash only, so hyphenated words (Pressure-Treated) are left intact.
+$pt_name_short = trim( preg_split( '/\s+[–—-]\s+/u', $pt_name, 2 )[0] );
+if ( '' === $pt_name_short ) {
+	$pt_name_short = $pt_name;
+}
 $pt_product = function_exists( 'wc_get_product' ) ? wc_get_product( $pt_pid ) : null;
 $pt_line    = pt_product_line_singular( $pt_pid );            // singular category (e.g. "Summerhouse")
 if ( '' === $pt_line ) {
@@ -98,7 +105,7 @@ get_header();
 ?>
 
 <div class="subnav">
-  <span class="brand"><?php echo esc_html( $pt_name ); ?></span>
+  <span class="brand"><?php echo esc_html( $pt_name_short ); ?></span>
   <nav class="tabs"><a href="#configure">Configure</a><?php
     if ( $pt_show( 'show_highlights' ) ) { echo '<a href="#highlights">Highlights</a>'; }
     if ( $pt_show( 'show_feature_card' ) ) { echo '<a href="#insulation">Insulation</a>'; }

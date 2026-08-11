@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 ?>
 
 <div class="subnav">
-  <span class="brand"><?php echo esc_html( $pt_name ); ?></span>
+  <span class="brand"><?php echo esc_html( $pt_name_short ); ?></span>
   <nav class="tabs"><a href="#configure">Configure</a><?php
     if ( $pt_show( 'show_highlights' ) ) { echo '<a href="#highlights">Highlights</a>'; }
     if ( $pt_show( 'show_feature_card' ) ) { echo '<a href="#insulation">Insulation</a>'; }

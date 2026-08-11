@@ -14,6 +14,11 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 if ( ! isset( $pt_pid ) ) { $pt_pid = get_queried_object_id(); }
 $pt_name    = get_the_title( $pt_pid );                       // product title (e.g. "Consort Summerhouse")
+// Short name for the sub-nav: everything before the first spaced dash.
+$pt_name_short = trim( preg_split( '/\s+[–—-]\s+/u', $pt_name, 2 )[0] );
+if ( '' === $pt_name_short ) {
+	$pt_name_short = $pt_name;
+}
 $pt_product = function_exists( 'wc_get_product' ) ? wc_get_product( $pt_pid ) : null;
 $pt_line    = pt_product_line_singular( $pt_pid );            // singular category (e.g. "Summerhouse")
 if ( '' === $pt_line ) {
