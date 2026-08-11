@@ -300,7 +300,7 @@ get_header();
   <?php if ( $pt_inc_heading ) : ?>
     <h2><?php echo wp_kses_post( $pt_inc_heading ); ?></h2>
   <?php else : ?>
-    <h2>Everything you need, <span class="fade">in one delivery.</span></h2>
+    <h2>Everything you need, in <span class="fade">one delivery. </span></h2>
   <?php endif; ?>
   <?php $pt_inc_lead = get_field( 'included_lead', $pt_pid ); ?>
   <p class="lead"><?php echo $pt_inc_lead ? wp_kses_post( $pt_inc_lead ) : 'No hidden extras and no surprise add-ons. Your ' . esc_html( $pt_line ) . ' arrives complete — every panel, fixing and fitting ready to go.'; ?></p>
@@ -341,7 +341,7 @@ get_header();
   <?php if ( $pt_why_heading ) : ?>
     <h2><?php echo wp_kses_post( $pt_why_heading ); ?></h2>
   <?php else : ?>
-    <h2>Eight reasons it's <span class="fade">built differently.</span></h2>
+    <h2>Eight reasons it's <span class="fade">built differently. </span></h2>
   <?php endif; ?>
   <div class="wc-grid">
     <?php if ( $pt_has_rows( 'why_reasons' ) ) : ?>
