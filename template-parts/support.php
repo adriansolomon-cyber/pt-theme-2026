@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
       <a class="opt" href="tel:01777553392"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/call.png" alt=""> Call</a>
       <a class="opt" href="#" data-callback><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/callback.png" alt=""> Request a Callback</a>
       <a class="opt" href="#" id="chat-us" data-intercom><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""> Chat to Us</a>
-      <a class="opt" href="#"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/whatsapp.png" alt=""> WhatsApp Us</a>
+      <a class="opt" href="https://wa.me/447761639123" target="_blank" rel="noopener noreferrer"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/whatsapp.png" alt=""> WhatsApp Us</a>
     </div>
   </div>
   <button class="launch" type="button" aria-label="Customer support" aria-expanded="false">
