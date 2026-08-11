@@ -134,12 +134,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <?php if ( $pt_show( 'show_highlights' ) ) : ?>
 <section id="highlights"><div class="wrap">
   <div class="sec-head">
-    <?php $pt_hl_heading = get_field( 'highlights_heading', $pt_pid ); ?>
-    <?php if ( $pt_hl_heading ) : ?>
-      <h2><?php echo wp_kses_post( $pt_hl_heading ); ?></h2>
-    <?php else : ?>
-      <h2>Get the <span class="fade">highlights.</span></h2>
-    <?php endif; ?>
+    <?php // Heading forced static so the fade effect always shows (ACF highlights_heading override disabled for now). ?>
+    <h2>Get the <span class="fade">highlights.</span></h2>
     <a class="filmlink" href="<?php echo esc_url( $pt_f( 'showcase_video_url', 'https://www.youtube.com/watch?v=1AidYysfFB4&t=7s' ) ); ?>" data-video target="_blank" rel="noopener"><span class="pp">▶</span> Watch the showcase</a>
   </div>
   <?php if ( $pt_has_rows( 'highlights' ) ) : ?>
@@ -211,12 +207,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <?php if ( $pt_show( 'show_included' ) ) : ?>
 <section class="included"><div class="wrap">
   <div class="eyebrow"><?php echo wp_kses_post( $pt_f( 'included_eyebrow', 'In the box' ) ); ?></div>
-  <?php $pt_inc_heading = get_field( 'included_heading', $pt_pid ); ?>
-  <?php if ( $pt_inc_heading ) : ?>
-    <h2><?php echo wp_kses_post( $pt_inc_heading ); ?></h2>
-  <?php else : ?>
-    <h2>Everything you need, in <span class="fade">one delivery. </span></h2>
-  <?php endif; ?>
+  <?php // Heading forced static so the fade effect always shows (ACF included_heading override disabled for now). ?>
+  <h2>Everything you need, in <span class="fade">one delivery. </span></h2>
   <?php $pt_inc_lead = get_field( 'included_lead', $pt_pid ); ?>
   <p class="lead"><?php echo $pt_inc_lead ? wp_kses_post( $pt_inc_lead ) : 'No hidden extras and no surprise add-ons. Your ' . esc_html( $pt_line ) . ' arrives complete — every panel, fixing and fitting ready to go.'; ?></p>
   <div class="inc-grid">
@@ -252,12 +244,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <section class="why-choose"><div class="wrap">
   <?php $pt_why_eyebrow = get_field( 'why_eyebrow', $pt_pid ); ?>
   <div class="eyebrow"><?php echo $pt_why_eyebrow ? wp_kses_post( $pt_why_eyebrow ) : 'Why the ' . esc_html( $pt_line ); ?></div>
-  <?php $pt_why_heading = get_field( 'why_heading', $pt_pid ); ?>
-  <?php if ( $pt_why_heading ) : ?>
-    <h2><?php echo wp_kses_post( $pt_why_heading ); ?></h2>
-  <?php else : ?>
-    <h2>Eight reasons it's <span class="fade">built differently. </span></h2>
-  <?php endif; ?>
+  <?php // Heading forced static so the fade effect always shows (ACF why_heading override disabled for now). ?>
+  <h2>Eight reasons it's <span class="fade">built differently. </span></h2>
   <div class="wc-grid">
     <?php if ( $pt_has_rows( 'why_reasons' ) ) : ?>
       <?php while ( have_rows( 'why_reasons', $pt_pid ) ) : the_row(); ?>
