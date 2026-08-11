@@ -1224,7 +1224,7 @@ function wc_checkout_email_js_validation() {
     .wc-email-icon {
         position: absolute;
         right: 0;
-        bottom: 20px;
+        bottom: 11px;
         width: 28px;
         height: 28px;
         border-radius: 50%;
