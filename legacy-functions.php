@@ -1534,11 +1534,25 @@ function custom_shop_order_column($columns)
     return $new_columns;
 }
 
-add_action('manage_shop_order_posts_custom_column', 'custom_orders_list_column_content', 10);
-function custom_orders_list_column_content($column)
+add_action('manage_shop_order_posts_custom_column', 'custom_orders_list_column_content', 10, 2);
+function custom_orders_list_column_content($column, $post_id = 0)
 {
     global $post, $woocommerce, $the_order;
-    $order_id = $the_order->id;
+
+    // Resolve the order id robustly. The column hook passes the post id as the
+    // 2nd arg; the $the_order global can be null (e.g. during order searches) and
+    // its ->id property is deprecated, so prefer the passed id / $post->ID.
+    if (!$post_id) {
+        if ($the_order instanceof WC_Order) {
+            $post_id = $the_order->get_id();
+        } elseif (isset($post->ID)) {
+            $post_id = (int) $post->ID;
+        }
+    }
+    if (!$post_id) {
+        return;
+    }
+    $order_id = $post_id;
 
     switch ($column) {
         case 'expected-delivery-date':
