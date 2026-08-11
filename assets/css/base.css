@@ -93,8 +93,11 @@ a{ color:inherit; }
     .mainhead .menu{ order:1; }
     .mainhead .searchic{ order:2; }
     .mainhead .icons .supporttrigger{ display:none; order:8; }
-    .mainhead a.ic[aria-label="My account"]{ order:8; margin-left:auto; }
-    .mainhead .cartopen{ order:9; }
+    .mainhead a.ic[aria-label="My account"]{ order:8; }
+    /* Push the right-hand icons to the edge so the absolutely-centered logo has
+       clear space. This auto-margin used to live on the account icon, but that's
+       hidden now — anchor it on the cart (the first visible right-side icon). */
+    .mainhead .cartopen{ order:9; margin-left:auto; }
   }
 .mainhead .ic{ position:relative; cursor:pointer; color:var(--ink); display:inline-flex; align-items:center; justify-content:center; min-width:40px; min-height:40px; border:none; background:none; padding:0; }
 .mainhead .ic svg{ width:22px; height:22px; }
