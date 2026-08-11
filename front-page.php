@@ -328,7 +328,7 @@ get_header();
   <h2>Talk it through with a real person.</h2>
   <p>Our friendly sales team can help you choose the right building, size and options. Lines open Mon–Fri until 7pm.</p>
   <div class="row">
-    <a class="btn-primary" href="#">Request a callback <span class="a">→</span></a>
+    <a class="btn-primary" href="#" data-callback>Request a callback <span class="a">→</span></a>
     <a class="phone" href="tel:01777553392">01777 553392</a>
   </div>
 </div></section>
