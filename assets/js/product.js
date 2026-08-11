@@ -535,7 +535,7 @@
     // composite product config is unchanged server-side — we simply don't render
     // these cards, so add-to-cart with the remaining options stays valid. To hide
     // another option, add a pattern here.
-    var HIDDEN_OPTION_PATTERNS=[ /28mm\s*T&G\s*Floor/i ];
+    var HIDDEN_OPTION_PATTERNS=[ /28\s*mm/i ];   // hide every 28mm option (floor, etc.)
     function isHiddenOption(o){ var n=(o&&o.name)||''; return HIDDEN_OPTION_PATTERNS.some(function(re){ return re.test(n); }); }
 
     function optsFromIds(c, ids){
