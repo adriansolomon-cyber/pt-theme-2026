@@ -418,11 +418,20 @@ function pt_cat_native_build( $term ) {
 			'orderby'        => 'menu_order title',
 			'order'          => 'ASC',
 			'tax_query'      => array(
+				'relation' => 'AND',
 				array(
 					'taxonomy'         => 'product_cat',
 					'field'            => 'term_id',
 					'terms'            => (int) $term->term_id,
 					'include_children' => false,
+				),
+				// Exclude products hidden from the catalog (Catalog visibility set to
+				// "Hidden" or "Search results only" carries the exclude-from-catalog term).
+				array(
+					'taxonomy' => 'product_visibility',
+					'field'    => 'slug',
+					'terms'    => array( 'exclude-from-catalog' ),
+					'operator' => 'NOT IN',
 				),
 			),
 		)
@@ -456,8 +465,41 @@ function pt_cat_get_data( $term ) {
 	if ( $slug && function_exists( 'timber_catp_build' ) ) {
 		$built = timber_catp_build( $slug );
 		if ( ! is_wp_error( $built ) && is_array( $built ) ) {
+			// The mu-plugin build isn't guaranteed to drop unpublished/hidden
+			// products, so enforce it here: only published, catalog-visible ones.
+			if ( isset( $built['products'] ) && is_array( $built['products'] ) ) {
+				$built['products'] = pt_cat_filter_visible( $built['products'] );
+			}
 			return $built;
 		}
 	}
 	return pt_cat_native_build( $term );
+}
+
+/**
+ * Keep only products that are published AND visible in the catalog. Used to
+ * guard the mu-plugin category build (the native build already filters via the
+ * WP_Query). Catalog-visible = catalog_visibility of 'visible' or 'catalog'
+ * (i.e. not 'search' or 'hidden'). Entries are the pt_cat_product_entry() shape.
+ */
+function pt_cat_filter_visible( $products ) {
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return $products;
+	}
+	$out = array();
+	foreach ( (array) $products as $entry ) {
+		$pid = ( is_array( $entry ) && isset( $entry['id'] ) ) ? (int) $entry['id'] : 0;
+		if ( ! $pid ) {
+			continue;
+		}
+		$product = wc_get_product( $pid );
+		if ( ! $product || 'publish' !== $product->get_status() ) {
+			continue;
+		}
+		if ( ! in_array( $product->get_catalog_visibility(), array( 'visible', 'catalog' ), true ) ) {
+			continue;
+		}
+		$out[] = $entry;
+	}
+	return $out;
 }
