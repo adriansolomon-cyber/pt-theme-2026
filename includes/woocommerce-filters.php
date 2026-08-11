@@ -79,6 +79,52 @@ function woocommerce_header_add_to_cart_fragment($fragments) {
     return $fragments;
 }
 /**
+ * Cart / checkout thumbnail: show the SELECTED SIZE's image, not the parent.
+ *
+ * A composite building in the cart is a container line item with child line
+ * items (size, floor, windows…). The size child is the sub-product whose title
+ * is "N x N" and it carries its own product image. This swaps the container's
+ * thumbnail for the size child's image so the basket/checkout shows the exact
+ * size the customer configured. Falls back to the parent image when the size
+ * child has no image of its own. Applies to the WC cart page and the custom
+ * checkout review-order.php (both run the woocommerce_cart_item_thumbnail
+ * filter). The cart drawer is handled client-side in assets/js/mini-cart.js.
+ *
+ * @param string $thumbnail      Existing thumbnail HTML (parent image).
+ * @param array  $cart_item      Cart item (the composite container).
+ * @param string $cart_item_key  Cart item key.
+ * @return string
+ */
+add_filter( 'woocommerce_cart_item_thumbnail', 'pt_composite_size_thumbnail', 10, 3 );
+function pt_composite_size_thumbnail( $thumbnail, $cart_item, $cart_item_key ) {
+
+    if ( empty( $cart_item['composite_children'] ) || ! is_array( $cart_item['composite_children'] ) ) {
+        return $thumbnail;
+    }
+    if ( ! WC()->cart ) {
+        return $thumbnail;
+    }
+
+    $cart = WC()->cart->get_cart();
+
+    foreach ( $cart_item['composite_children'] as $child_key ) {
+        if ( empty( $cart[ $child_key ]['data'] ) ) {
+            continue;
+        }
+        $child = $cart[ $child_key ]['data'];
+        // Size sub-products are titled "N x N" (e.g. "12 x 8").
+        if ( preg_match( '/^\d+\s*x\s*\d+$/i', trim( $child->get_title() ) ) ) {
+            if ( $child->get_image_id() ) {
+                return $child->get_image( 'woocommerce_thumbnail' );
+            }
+            break; // size found but has no image — keep the parent thumbnail.
+        }
+    }
+
+    return $thumbnail;
+}
+
+/**
  * Force WooCommerce Database Update
  */
 function pt_update_woocommerce_version() {

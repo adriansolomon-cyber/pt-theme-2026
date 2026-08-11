@@ -81,7 +81,8 @@
   var TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>';
 
   function itemHTML(it) {
-    var im = (it.images && it.images[0] && (it.images[0].thumbnail || it.images[0].src)) || '';
+    // Prefer the configured size's image (set in renderCart) over the parent's.
+    var im = it._sizeImg || (it.images && it.images[0] && (it.images[0].thumbnail || it.images[0].src)) || '';
     var data = it.item_data || [];
     var key = function (d) { return d.key || d.name || ''; };
     var rng = ''; data.forEach(function (d) { if (String(key(d)).toLowerCase() === 'range') rng = d.value; });
@@ -114,7 +115,18 @@
 
   function renderCart(cart) {
     var all = (cart && cart.items) || [];
+    // Map each composite/bundle parent to its SIZE child's image (child titled
+    // "N x N"), so the drawer thumbnail shows the configured size, not the parent.
+    var SIZE_RE = /^\d+\s*x\s*\d+$/i;
+    var sizeImgByParent = {};
+    all.forEach(function (it) {
+      var pk = parentKeyOf(it);
+      if (!pk || !SIZE_RE.test(String(it.name || '').trim())) return;
+      var im = (it.images && it.images[0] && (it.images[0].thumbnail || it.images[0].src)) || '';
+      if (im) sizeImgByParent[pk] = im;
+    });
     var items = all.filter(function (it) { return !parentKeyOf(it); });
+    items.forEach(function (it) { if (sizeImgByParent[it.key]) it._sizeImg = sizeImgByParent[it.key]; });
     var n = cart.items_count || items.reduce(function (a, b) { return a + (b.quantity || 0); }, 0);
     setBadges(n);
     if (!items.length) { show('empty'); return; }
