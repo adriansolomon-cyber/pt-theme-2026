@@ -100,7 +100,7 @@
   .prod .ph svg{ width:40px; height:40px; } .prod .ph img{ width:100%; height:100%; object-fit:cover; display:block; }
   .prod .ph.duo{ position:relative; background:linear-gradient(180deg,#FFFFFF,#F1EFEA); }
   .prod .ph.duo img{ position:absolute; inset:0; width:100%; height:100%; display:block; transition:opacity .45s var(--ease); }
-  .prod .ph.duo .pimg{ object-fit:contain; padding:7%; opacity:1; }
+  .prod .ph.duo .pimg{ object-fit:cover; padding:0; opacity:1; }
   .prod .ph.duo .pscene{ object-fit:cover; opacity:0; }
   .prod .ph.duo.cover{ background:var(--mist); } .prod .ph.duo.cover .pimg{ object-fit:cover; padding:0; }
   @media(hover:hover){ .prod:hover .ph.duo .pimg{ opacity:0; } .prod:hover .ph.duo .pscene{ opacity:1; } }
