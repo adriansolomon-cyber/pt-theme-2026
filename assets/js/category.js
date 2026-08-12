@@ -311,3 +311,28 @@
     })();
   })();
 
+  // dataLayer select_item — category product cards are custom links, so the Stape
+  // plugin (which tracks standard WC loop items) doesn't fire select_item. Push it
+  // here on card click, fire-and-forget (GA4 beacon transport survives the page
+  // navigation). Discounted whole-£ price + list name come from server data.
+  (function(){
+    document.addEventListener('click', function(e){
+      var a = e.target.closest && e.target.closest('a.prod'); if(!a) return;
+      var id = a.getAttribute('data-item-id'); if(!id) return; // server-rendered cards only
+      var cards = document.querySelectorAll('a.prod[data-item-id]');
+      var index = Array.prototype.indexOf.call(cards, a) + 1;
+      var item = {
+        item_id: String(id),
+        item_name: a.getAttribute('data-item-name') || '',
+        price: (parseFloat(a.getAttribute('data-track-price')) || 0).toFixed(2),
+        item_list_name: (window.PT_LIST_NAME || document.title || ''),
+        index: index > 0 ? index : 1,
+        quantity: 1
+      };
+      var ev = (typeof window.ptDlEvent === 'function') ? window.ptDlEvent('select_item') : 'select_item';
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ ecommerce: null });
+      window.dataLayer.push({ event: ev, ecommerce: { items: [item] } });
+    });
+  })();
+

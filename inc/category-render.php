@@ -185,7 +185,12 @@ function pt_cat_card_html( $p ) {
 		? '<div class="pbadge"><b>' . esc_html( round( $disc ) ) . '% off</b>' . ( '' !== $dcode ? '<span>Code ' . esc_html( $dcode ) . '</span>' : '' ) . '</div>'
 		: '';
 
-	$h  = '<a class="prod" href="' . esc_url( $href ) . '" data-price="' . esc_attr( $price ) . '"' . $facets . '>';
+	// Discounted, whole-£ tracking price for the select_item dataLayer event
+	// (category.js), matching view_item_list / view_item.
+	$track_price = ( $price > 0 ) ? round( $disc > 0 ? ( $price - $price * $disc / 100 ) : $price ) : 0;
+
+	$h  = '<a class="prod" href="' . esc_url( $href ) . '" data-price="' . esc_attr( $price ) . '"'
+		. ' data-item-id="' . esc_attr( $pid ) . '" data-item-name="' . esc_attr( $name ) . '" data-track-price="' . esc_attr( $track_price ) . '"' . $facets . '>';
 	$h .= '<div class="ph duo">';
 	if ( $img0 ) {
 		$h .= '<img class="pimg" src="' . esc_url( $img0 ) . '" alt="' . esc_attr( $name ) . '">';

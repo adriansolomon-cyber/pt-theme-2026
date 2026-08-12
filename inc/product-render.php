@@ -290,10 +290,11 @@ function pt_output_list_prices() {
 			$map[ (string) $p->get_id() ] = $price;
 		}
 	}
-	if ( empty( $map ) ) {
-		return;
+	$out = 'window.PT_LIST_NAME=' . wp_json_encode( $term->name ) . ';';
+	if ( ! empty( $map ) ) {
+		$out .= 'window.PT_LIST_PRICES=' . wp_json_encode( $map ) . ';';
 	}
-	echo '<script>window.PT_LIST_PRICES=' . wp_json_encode( $map ) . ';</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo '<script>' . $out . '</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 
 /**
