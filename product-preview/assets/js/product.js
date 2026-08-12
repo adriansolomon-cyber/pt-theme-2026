@@ -199,16 +199,26 @@
     if(galPrev) galPrev.addEventListener('click',function(){ show(gi-1); });
     if(galNext) galNext.addEventListener('click',function(){ show(gi+1); });
     if(galWrap){ var sx=null; galWrap.addEventListener('touchstart',function(e){ sx=e.touches[0].clientX; },{passive:true}); galWrap.addEventListener('touchend',function(e){ if(sx===null)return; var dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40) show(dx<0?gi+1:gi-1); sx=null; }); }
+    // Parent product images. REST returns the FEATURED image first then the
+    // gallery (same convention the size galleries rely on), and the featured
+    // image is often a promo "Special Price" banner — so the preview leads with
+    // the first GALLERY image, not the featured one. parentImgs() is the raw
+    // list; parentGalleryList() drops the featured image when a real gallery
+    // exists; parentLead() is the first gallery image (else the single image).
+    function parentImgs(){ return (product&&product.images)?product.images.map(function(im){ return im&&im.src; }).filter(Boolean):[]; }
+    function parentGalleryList(){ var a=parentImgs(); return a.length>1?a.slice(1):a; }
+    function parentLead(){ return parentGalleryList()[0]||''; }
     // Parent product's gallery — shown ONLY as the default before a size is
     // selected. Once a size is chosen, loadSizeGallery() owns the hero, so this
     // must not clobber it (guard on sizeId==null).
     function loadGallery(pid){
-      galleryBase=(product&&product.images)?product.images.map(function(im){ return im&&im.src; }).filter(Boolean):[];
-      if(galleryBase.length>1){ if(sizeId==null) setGallery(galleryFor((product.images[0]||{}).src)); return; }
+      galleryBase=parentGalleryList();
+      if(parentImgs().length>1){ if(sizeId==null) setGallery(galleryFor(parentLead())); return; }
       getJSON(storeUrl('products/'+pid)).then(function(p){
         var arr=Array.isArray(p)?p[0]:p;
-        galleryBase=(arr&&arr.images)?arr.images.map(function(im){ return im&&(im.src||im.thumbnail); }).filter(Boolean):galleryBase;
-        if(sizeId==null) setGallery(galleryFor(galleryBase[0]||(product&&product.images&&product.images[0]&&product.images[0].src)));
+        var all=(arr&&arr.images)?arr.images.map(function(im){ return im&&(im.src||im.thumbnail); }).filter(Boolean):parentImgs();
+        galleryBase=all.length>1?all.slice(1):all;
+        if(sizeId==null) setGallery(galleryFor(galleryBase[0]||parentImgs()[0]));
       }).catch(function(){ /* keep whatever single image is showing */ });
     }
 
@@ -239,7 +249,7 @@
     // first). Show the parent's photo immediately so the hero never blanks, then
     // swap in the size gallery. A stale fetch is ignored (sizeId!==id).
     function loadSizeGallery(id){
-      var fallback=(product&&product.images&&product.images[0]&&product.images[0].src)||'';
+      var fallback=parentLead()||(product&&product.images&&product.images[0]&&product.images[0].src)||'';
       var apply=function(){ var g=sizeGalCache[id]; setGallery((g&&g.length)?g:(fallback?[fallback]:[])); };
       if(sizeGalCache[id]){ apply(); return; }
       setGallery(fallback?[fallback]:[]);
@@ -544,8 +554,9 @@
     // ====================== load ======================
     function afterParse(pid,cached){
       if(elName) elName.textContent=(product&&product.name)||('Product '+pid);
-      if(elImg && product&&product.images&&product.images[0]&&product.images[0].src) elImg.src=product.images[0].src;
-      setGallery(galleryFor(product&&product.images&&product.images[0]&&product.images[0].src));
+      galleryBase=parentGalleryList();
+      if(elImg && parentLead()) elImg.src=parentLead();
+      setGallery(galleryFor(parentLead()));
       loadGallery(pid);
       renderSizeRow();
       status((cached?'Ready (cached) · ':'')+Object.keys(scenarios).length+' sizes. Choose a size.');
