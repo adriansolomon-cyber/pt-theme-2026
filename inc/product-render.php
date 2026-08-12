@@ -102,23 +102,30 @@ function pt_product_from_price_cached( $product ) {
  *
  * For a composite: if the URL names a size (e.g. 12-x-8, incl. the /f/ path)
  * that size's sub-product supplies the id, variant and price; otherwise the
- * cheapest size does. item_name / item_category are left to the caller — they
- * stay the PARENT's, matching filterPurchaseStape. Mirrors
- * fix_composite_product_price_schema() so JSON-LD and dataLayer agree. Not
- * cached — the result depends on the request URL.
+ * cheapest size does. The price is the campaign-DISCOUNTED size price, rounded
+ * to whole £ (matching the on-page price + the site's whole-pound convention),
+ * so view_item and add_to_cart agree. `category` is the parent's primary
+ * product category. Mirrors fix_composite_product_price_schema(). Not cached —
+ * the result depends on the request URL.
  *
  * @param WC_Product $product Product.
- * @return array{price:float,item_id:string,variant:string}
+ * @return array{price:float,item_id:string,variant:string,category:string}
  */
 function pt_product_tracking_item( $product ) {
-	$out = array( 'price' => 0.0, 'item_id' => '', 'variant' => '' );
+	$out = array(
+		'price'    => 0.0,
+		'item_id'  => '',
+		'variant'  => '',
+		'category' => '',
+	);
 	if ( ! $product || ! function_exists( 'wc_get_product' ) || ! is_callable( array( $product, 'get_id' ) ) ) {
 		return $out;
 	}
-	$out['item_id'] = (string) $product->get_id(); // parent by default.
+	$out['item_id']  = (string) $product->get_id(); // parent by default.
+	$out['category'] = pt_product_primary_category_name( $product );
 
 	if ( ! $product->is_type( 'composite' ) ) {
-		$out['price'] = (float) pt_product_from_price( $product );
+		$out['price'] = pt_apply_tracking_discount( $product, (float) pt_product_from_price( $product ) );
 		return $out;
 	}
 
@@ -171,18 +178,66 @@ function pt_product_tracking_item( $product ) {
 		}
 	}
 
+	$raw = 0.0;
 	if ( null !== $matched ) {
-		$out['price']   = $matched;
+		$raw            = $matched;
 		$out['item_id'] = $matched_id;
 		$out['variant'] = $matched_name;
 	} elseif ( INF !== $min ) {
-		$out['price']   = $min;
+		$raw            = $min;
 		$out['item_id'] = $min_id;
 		$out['variant'] = $min_name;
 	} else {
-		$out['price'] = (float) pt_product_from_price( $product ); // item_id stays parent.
+		$raw = (float) pt_product_from_price( $product ); // item_id stays parent.
 	}
+
+	$out['price'] = pt_apply_tracking_discount( $product, $raw );
 	return $out;
+}
+
+/**
+ * Apply the campaign display discount to a tracking price and round to whole £.
+ * Keeps view_item / add_to_cart consistent with the on-page (rounded) price.
+ *
+ * @param WC_Product $product Product (for its discount %).
+ * @param float      $price   Regular price.
+ * @return float
+ */
+function pt_apply_tracking_discount( $product, $price ) {
+	$price = (float) $price;
+	if ( $price <= 0 ) {
+		return 0.0;
+	}
+	$pct = ( function_exists( 'pt_product_discount_pct' ) && is_object( $product ) && is_callable( array( $product, 'get_id' ) ) )
+		? (float) pt_product_discount_pct( $product->get_id() )
+		: 0.0;
+	if ( $pct > 0 ) {
+		$price = $price * ( 1 - $pct / 100 );
+	}
+	return (float) round( $price ); // whole £, matches the displayed price.
+}
+
+/**
+ * Primary product-category name (first non-"uncategorized" term), used as
+ * item_category in tracking. Empty string when none.
+ *
+ * @param WC_Product $product Product.
+ * @return string
+ */
+function pt_product_primary_category_name( $product ) {
+	if ( ! is_object( $product ) || ! is_callable( array( $product, 'get_id' ) ) ) {
+		return '';
+	}
+	$terms = get_the_terms( $product->get_id(), 'product_cat' );
+	if ( ! $terms || is_wp_error( $terms ) ) {
+		return '';
+	}
+	foreach ( $terms as $t ) {
+		if ( isset( $t->slug ) && 'uncategorized' !== $t->slug ) {
+			return (string) $t->name;
+		}
+	}
+	return isset( $terms[0]->name ) ? (string) $terms[0]->name : '';
 }
 
 /**

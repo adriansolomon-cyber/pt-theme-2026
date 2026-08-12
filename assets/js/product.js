@@ -698,8 +698,46 @@
       refilter();                             // cascade: re-filter downstream options + fix selections (also recalcs + labels)
       cfgAdvance(row);                        // collapse this step, open the next
     });
-    // add to basket → native composite add-to-cart URL
-    if(elAdd) elAdd.addEventListener('click',function(){ var u=cartUrl(); if(u) window.location.href=u; });
+    // dataLayer add_to_cart. The configurator uses a custom button that redirects
+    // to the native add-to-cart URL, so neither the Stape plugin (it only tracks
+    // standard WC buttons) nor the removed legacy script fires this event — push it
+    // here. Reports the SELECTED size's DISCOUNTED, whole-£ price (matches the page
+    // + view_item). Uses eventCallback so the event is dispatched before we
+    // navigate, with a hard timeout fallback if GTM is blocked. The header cleaner
+    // passes this through untouched (single parent-named item, price > 0).
+    function atcPush(done){
+      var fired=false; function fin(){ if(fired) return; fired=true; if(done) done(); }
+      try{
+        if(sizeId==null){ fin(); return; }
+        var m=meta[sizeId]||{};
+        var price=Math.round(disc(m.price||0));            // discounted, whole £.
+        var dl=(typeof window.PT_PRODUCT_DL==='object'&&window.PT_PRODUCT_DL)?window.PT_PRODUCT_DL:{};
+        var item={
+          item_id: String((m.id!=null)?m.id:sizeId),
+          item_name: (product&&product.name)||'',
+          item_variant: m.name||'',
+          price: (price||0).toFixed(2),
+          quantity: 1
+        };
+        if(dl.category) item.item_category=dl.category;
+        var ev=(typeof window.PT_DL_ATC_EVENT==='string'&&window.PT_DL_ATC_EVENT)?window.PT_DL_ATC_EVENT:'add_to_cart';
+        window.dataLayer=window.dataLayer||[];
+        window.dataLayer.push({
+          event: ev,
+          ecomm_pagetype: 'product',
+          ecommerce: { currency:'GBP', value:(price||0).toFixed(2), items:[item] },
+          eventCallback: fin,
+          eventTimeout: 1200
+        });
+      }catch(e){ fin(); }
+      setTimeout(fin, 1300); // hard fallback if eventCallback never fires (GTM blocked).
+    }
+    // add to basket → fire add_to_cart, then go to the native composite add-to-cart URL
+    if(elAdd) elAdd.addEventListener('click',function(){
+      var u=cartUrl(); if(!u) return;
+      elAdd.disabled=true;
+      atcPush(function(){ window.location.href=u; });
+    });
     // finance / cash toggle (hidden by default)
     document.querySelectorAll('.cfg-summary .ptoggle button').forEach(function(b){ b.addEventListener('click',function(){ document.querySelectorAll('.cfg-summary .ptoggle button').forEach(function(x){ x.classList.remove('on'); }); b.classList.add('on'); recalc(); }); });
     // route page CTAs to configurator (add-to-basket excluded via .cfgadd)

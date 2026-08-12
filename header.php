@@ -34,11 +34,18 @@ $pt_cats = array(
 	// price. The dataLayer cleaner below backfills it into single-item events (e.g.
 	// view_item) where a composite parent reports 0.00. Emitted head-level so it's
 	// set before any tracking event fires.
-	$pt_dl = array( 'price' => 0, 'item_id' => '', 'variant' => '' );
+	$pt_dl     = array( 'price' => 0, 'item_id' => '', 'variant' => '', 'category' => '' );
+	$pt_dl_atc = 'add_to_cart';
 	if ( is_singular( 'product' ) && function_exists( 'pt_product_tracking_item' ) && function_exists( 'wc_get_product' ) ) {
 		$pt_dl_prod = wc_get_product( get_queried_object_id() );
 		if ( $pt_dl_prod ) {
 			$pt_dl = pt_product_tracking_item( $pt_dl_prod );
+		}
+		// Match the Stape plugin's event-name convention (adds "_stape" when custom
+		// event names are enabled), so the configurator's add_to_cart push lands on
+		// the same GTM trigger as the plugin's other events.
+		if ( class_exists( 'GTM_Server_Side_Helpers' ) && method_exists( 'GTM_Server_Side_Helpers', 'get_data_layer_event_name' ) ) {
+			$pt_dl_atc = GTM_Server_Side_Helpers::get_data_layer_event_name( 'add_to_cart' );
 		}
 	}
 	?>
@@ -46,6 +53,7 @@ $pt_cats = array(
 	<script>
 	window.dataLayer = window.dataLayer || [];
 	window.PT_PRODUCT_DL = <?php echo wp_json_encode( $pt_dl ); ?>;
+	window.PT_DL_ATC_EVENT = <?php echo wp_json_encode( $pt_dl_atc ); ?>;
 
 	(function() {
 	    var originalPush = window.dataLayer.push;
