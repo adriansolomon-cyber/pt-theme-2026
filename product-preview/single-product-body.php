@@ -53,7 +53,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 
     <div class="cfg-preview">
       <div class="cfg-gallery" id="cfgGallery">
-        <img id="cfgImg" src="https://www.projecttimber.com/wp-content/uploads/2024/10/8x6_Evolution_My_Den_Composite_Cladding_Garden_Office_09-1.jpg" alt="<?php echo esc_attr( $pt_name ); ?> preview">
+        <img id="cfgImg" src="<?php echo esc_url( $pt_cfg_img ); ?>" alt="<?php echo esc_attr( $pt_name ); ?> preview">
         <div class="cfg-disc" id="cfgDisc">
           <button class="cfg-disc-btn" type="button" aria-label="Image disclaimer" aria-expanded="false">i</button>
           <div class="cfg-disc-panel" role="tooltip"><b>Disclaimer:</b> Painted buildings are shown for illustration only. All buildings are delivered in their standard or pressure-treated colour, which may vary from those shown. Please keep adequate distance between your building and the boundary to allow access for the annual treatment required to comply with the anti-rot guarantee*.</div>

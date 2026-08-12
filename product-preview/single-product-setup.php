@@ -68,6 +68,12 @@ $pt_hero_img = $pt_f(
 		: 'https://www.projecttimber.com/wp-content/uploads/2026/06/My_Den_Composite_Garden_Office-scaled.webp'
 );
 
+// Configurator preview initial image — the product's own image, not a My Den placeholder.
+$pt_cfg_img = function_exists( 'get_field' ) ? get_field( 'product_image_1', $pt_pid ) : '';
+if ( ! is_string( $pt_cfg_img ) || '' === $pt_cfg_img ) {
+	$pt_cfg_img = has_post_thumbnail( $pt_pid ) ? get_the_post_thumbnail_url( $pt_pid, 'large' ) : $pt_hero_img;
+}
+
 // Product structured data (JSON-LD). This custom template fires none of WooCommerce's
 // single-product hooks, so WC never generates it — trigger it here. WooCommerce outputs
 // the assembled markup on wp_footer (footer.php calls wp_footer), and the migrated

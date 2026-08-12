@@ -94,6 +94,14 @@ $pt_hero_img = $pt_f(
 		: 'https://www.projecttimber.com/wp-content/uploads/2026/06/My_Den_Composite_Garden_Office-scaled.webp'
 );
 
+// Configurator preview: initial image is the product's OWN image (ACF
+// product_image_1, else featured, else the hero) so first paint isn't a generic
+// My Den placeholder. product.js swaps in the size-specific gallery once loaded.
+$pt_cfg_img = function_exists( 'get_field' ) ? get_field( 'product_image_1', $pt_pid ) : '';
+if ( ! is_string( $pt_cfg_img ) || '' === $pt_cfg_img ) {
+	$pt_cfg_img = has_post_thumbnail( $pt_pid ) ? get_the_post_thumbnail_url( $pt_pid, 'large' ) : $pt_hero_img;
+}
+
 // Product structured data (JSON-LD). This custom template fires none of WooCommerce's
 // single-product hooks, so WC never generates it — trigger it here. WooCommerce outputs
 // the assembled markup on wp_footer (footer.php calls wp_footer), and the migrated
@@ -147,7 +155,7 @@ get_header();
 
     <div class="cfg-preview">
       <div class="cfg-gallery" id="cfgGallery">
-        <img id="cfgImg" src="https://www.projecttimber.com/wp-content/uploads/2024/10/8x6_Evolution_My_Den_Composite_Cladding_Garden_Office_09-1.jpg" alt="<?php echo esc_attr( $pt_name ); ?> preview">
+        <img id="cfgImg" src="<?php echo esc_url( $pt_cfg_img ); ?>" alt="<?php echo esc_attr( $pt_name ); ?> preview">
         <div class="cfg-disc" id="cfgDisc">
           <button class="cfg-disc-btn" type="button" aria-label="Image disclaimer" aria-expanded="false">i</button>
           <div class="cfg-disc-panel" role="tooltip"><b>Disclaimer:</b> Painted buildings are shown for illustration only. All buildings are delivered in their standard or pressure-treated colour, which may vary from those shown. Please keep adequate distance between your building and the boundary to allow access for the annual treatment required to comply with the anti-rot guarantee*.</div>
