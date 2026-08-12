@@ -536,7 +536,6 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
       <tr><td>Fixtures &amp; fittings</td><td data-spec="_specs_supplied_with_fixtures_and_fittings">Yes</td></tr>
     </table></div>
   </div>
-  <p style="font-weight:300;font-size:.74rem;color:var(--txt-soft);margin-top:20px">Dimensions shown for the 8 × 6; imperial values are converted from metric. 15-year anti-rot guarantee on composite — annual treatment required; terms apply.</p>
 </div></section>
 
 <?php endif; ?>
