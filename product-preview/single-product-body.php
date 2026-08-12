@@ -473,6 +473,12 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
       </div>
     </div>
   </div>
+  <!-- Empty state shown until a size is chosen. product.js adds .has-size to the
+       section on selection, which hides this and reveals the figure + cards (CSS). -->
+  <div class="spec-empty" id="specEmpty">
+    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M7.5 3v4M12 3v6M16.5 3v4M3 12h6M3 16.5h4"/></svg>
+    <p>Select a size above to see the full specifications.</p>
+  </div>
   <!-- Per-size technical drawing (ACF dynamic_sliders → Tech Specs). product.js
        shows this when a drawing exists for the size, and hides it otherwise. -->
   <figure class="spec-figure" id="specFigure" hidden>

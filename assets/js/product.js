@@ -373,13 +373,20 @@
     if(unitSeg){ unitSeg.querySelectorAll('button').forEach(function(b){
       b.addEventListener('click',function(){ unitSeg.querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); }); b.classList.add('on'); specUnit=(b.dataset.unit==='imperial')?'imperial':'metric'; renderSpecs(); });
     }); }
+    // Toggle the specs empty state: with no size chosen, the section shows a "select
+    // a size" prompt (CSS hides the cards + diagram); selecting a size reveals them.
+    function updateSpecsEmpty(){
+      var sec=document.getElementById('specs'); if(!sec) return;
+      sec.classList.toggle('has-size', sizeId!=null);
+    }
     // Size selector under the spec table is rendered live and kept in sync with the configurator.
     function renderSpecSeg(){
       if(!specSeg) return;
       var sizes=sortedSizes();
       specSeg.innerHTML=sizes.map(function(s){ return '<button data-size-id="'+s.id+'"'+(s.id===sizeId?' class="on"':'')+'>'+esc(sizeDisplay(s.name))+'</button>'; }).join('');
-      // Default the spec diagram to the selected size, else the first size.
-      updateSpecImg( ( sizeId!=null && scenarios[sizeId] ) ? scenarios[sizeId].name : ( sizes[0] && sizes[0].name ) );
+      // Diagram tracks the selected size only — no size, no default drawing (empty state).
+      if(sizeId!=null && scenarios[sizeId]) updateSpecImg(scenarios[sizeId].name);
+      updateSpecsEmpty();
     }
     function markSpecSeg(id){ if(!specSeg) return; specSeg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', +b.dataset.sizeId===+id); }); }
     if(specSeg){ specSeg.addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; selectSize(+b.dataset.sizeId); }); }
@@ -598,7 +605,7 @@
     function selectSize(id){
       sizeId=id; sel={}; sel[sizeCid]=id;
       var sc=scenarios[id]; if(!sc) return Promise.resolve();
-      loadSpecs(id); markSpecSeg(id); updateSpecImg(sc.name);
+      loadSpecs(id); markSpecSeg(id); updateSpecImg(sc.name); updateSpecsEmpty();
       if(elSize) elSize.textContent=sizeDisplay(sc.name);
       // Feature the SELECTED SIZE's own gallery (its first image first), not the
       // parent product's — each size sub-product has its own images.
