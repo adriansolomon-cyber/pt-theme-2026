@@ -238,7 +238,12 @@
 
   /* ---------------- SPECIFICATIONS ---------------- */
   .specs{ background:var(--paper); color:var(--txt); }
-  .specs .spec-controls{ display:flex; flex-wrap:wrap; gap:20px 40px; align-items:center; justify-content:space-between; margin-bottom:32px; }
+  .specs .spec-controls{ display:flex; flex-wrap:wrap; gap:20px 40px; align-items:flex-start; justify-content:space-between; margin-bottom:32px; }
+  /* Size box (1st selset) grows and wraps its buttons on the left; the Measurements
+     control (2nd selset) stays a fixed block on the right — so many sizes wrap in
+     place instead of pushing Measurements onto its own row. They stack on mobile. */
+  .specs .spec-controls > .selset:first-child{ flex:1 1 360px; min-width:0; }
+  .specs .spec-controls > .selset:last-child{ flex:0 0 auto; }
   .specs .selset{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
   .specs .selset .lbl b{ display:block; font-weight:700; font-size:.92rem; } .specs .selset .lbl span{ font-weight:300; color:var(--txt-soft); font-size:.72rem; }
   .specs .seg{ display:inline-flex; background:#fff; border:1px solid rgba(33,30,36,.14); border-radius:12px; padding:4px; gap:4px; flex-wrap:wrap; }
