@@ -348,11 +348,8 @@
     }
     // Round to 1 dp and drop a trailing ".0" (56.0 -> "56", 94.3 -> "94.3").
     function trimDec(n){ n=Math.round(n*10)/10; return (n%1===0)?String(Math.round(n)):String(n); }
-    // Compound metric: a cm value -> "3m 56cm" (>=1m) or "56cm".
-    function fmtMetric(cm){
-      if(cm>=100){ var m=Math.floor(cm/100), rem=Math.round((cm-m*100)*10)/10; return rem>0?(m+'m '+trimDec(rem)+'cm'):(m+'m'); }
-      return trimDec(cm)+'cm';
-    }
+    // Metric: plain centimetres, e.g. "356 cm" (no metres).
+    function fmtMetric(cm){ return trimDec(cm)+' cm'; }
     // Compound imperial: a cm value -> inches -> "2ft 10in" (>=1ft) or "10in".
     function fmtImperial(cm){
       var inch=cm*CM2IN;
