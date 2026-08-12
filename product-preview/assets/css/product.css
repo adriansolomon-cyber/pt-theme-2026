@@ -242,7 +242,11 @@
   /* Size box (1st selset) grows and wraps its buttons on the left; the Measurements
      control (2nd selset) stays a fixed block on the right — so many sizes wrap in
      place instead of pushing Measurements onto its own row. They stack on mobile. */
-  .specs .spec-controls > .selset:first-child{ flex:1 1 360px; min-width:0; }
+  .specs .spec-controls > .selset:first-child{ flex:1 1 360px; min-width:0; flex-wrap:nowrap; align-items:flex-start; }
+  /* Keep the "Select Size" label to the LEFT of the box: nowrap stops the (wide)
+     seg from wrapping under the label; the seg shrinks and wraps its buttons inside. */
+  .specs .spec-controls > .selset:first-child .lbl{ flex:0 0 auto; padding-top:5px; }
+  .specs .spec-controls > .selset:first-child .seg{ min-width:0; }
   .specs .spec-controls > .selset:last-child{ flex:0 0 auto; }
   .specs .selset{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
   .specs .selset .lbl b{ display:block; font-weight:700; font-size:.92rem; } .specs .selset .lbl span{ font-weight:300; color:var(--txt-soft); font-size:.72rem; }
