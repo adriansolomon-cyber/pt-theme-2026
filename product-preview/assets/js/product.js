@@ -485,11 +485,15 @@
 
     function sizeSortVal(name){ var n=(String(name).match(/\d+(?:\.\d+)?/g)||[]).map(Number); var w=n[0]||0, h=n[1]||0; return [w*h, w, h]; }
     function sortedSizes(){
-      var parentImg=(product&&product.images&&product.images[0]&&product.images[0].src)||'';
-      // Size CARDS use the native WooCommerce featured image (meta.img = the /config
-      // sz.img), falling back to the parent product photo. The gallery is used only
-      // for the hero when a size is selected (see loadSizeGallery).
-      var sizes=Object.keys(scenarios).map(function(id){ var m=meta[id]; return { id:+id, name:scenarios[id].name||((m&&m.name)||('#'+id)), price:m?m.price:null, img:(m&&m.img)||parentImg }; });
+      var parentImg=parentLead()||(product&&product.images&&product.images[0]&&product.images[0].src)||'';
+      // Size CARDS show each size's OWN photo: its first GALLERY image when the
+      // batched galleries have loaded (sizeGalCache), else its featured image
+      // (meta.img = /config sz.img), else the parent product photo. Most sizes have
+      // no featured image, so without the gallery every card would fall back to the
+      // same parent photo — patchSizeCardImages() swaps in the real per-size images
+      // once fetchAllSizeGalleries() resolves.
+      var sizes=Object.keys(scenarios).map(function(id){ var m=meta[id]; var g=sizeGalCache[id];
+        return { id:+id, name:scenarios[id].name||((m&&m.name)||('#'+id)), price:m?m.price:null, img:(g&&g.length&&g[0])||(m&&m.img)||parentImg }; });
       sizes.sort(function(a,b){ var A=sizeSortVal(a.name),B=sizeSortVal(b.name); return A[0]-B[0]||A[1]-B[1]||A[2]-B[2]; });
       return sizes;
     }
@@ -500,6 +504,23 @@
       if(elRows) elRows.innerHTML=rowHTML(1,'Size','sel-size',sizeCid,'size',cards,stepNote(sizeComp||{key:'size'}));
       initSizeFilter();
       renderSpecSeg();
+      patchSizeCardImages();
+    }
+    // Once the batched per-size galleries load, swap each size card's thumbnail to
+    // that size's OWN first gallery image (cards render immediately with a fallback
+    // so they never blank). Memoised fetch — safe to call on every size re-render.
+    function patchSizeCardImages(){
+      if(!elRows) return;
+      fetchAllSizeGalleries().then(function(){
+        var grid=elRows.querySelector('.opt-cards[data-group="'+sizeCid+'"]'); if(!grid) return;
+        grid.querySelectorAll('.opt-card').forEach(function(card){
+          var g=sizeGalCache[+card.dataset.opt]; if(!g||!g.length) return;
+          var box=card.querySelector('.im'); if(!box) return;
+          var im=box.querySelector('img');
+          if(im){ if(im.getAttribute('src')!==g[0]) im.src=g[0]; }
+          else { box.classList.remove('ph'); var nm=card.querySelector('.nm'); box.insertAdjacentHTML('afterbegin','<img src="'+esc(g[0])+'" alt="'+esc(nm?nm.textContent:'')+'">'); }
+        });
+      }).catch(function(){});
     }
 
     function maybePreselect(){
