@@ -313,8 +313,10 @@
 
   // dataLayer select_item — category product cards are custom links, so the Stape
   // plugin (which tracks standard WC loop items) doesn't fire select_item. Push it
-  // here on card click, fire-and-forget (GA4 beacon transport survives the page
-  // navigation). Discounted whole-£ price + list name come from server data.
+  // here on card click. Plain left-clicks use eventCallback send-then-navigate so
+  // the event reaches the container before the page unloads (hard timeout fallback
+  // if GTM is blocked); modified/middle clicks (new tab) are left fire-and-forget.
+  // Discounted whole-£ price + list name come from server data.
   (function(){
     document.addEventListener('click', function(e){
       var a = e.target.closest && e.target.closest('a.prod'); if(!a) return;
@@ -330,9 +332,22 @@
         quantity: 1
       };
       var ev = (typeof window.ptDlEvent === 'function') ? window.ptDlEvent('select_item') : 'select_item';
+      var payload = { event: ev, ecommerce: { items: [item] } };
       window.dataLayer = window.dataLayer || [];
+      var href = a.getAttribute('href');
+      // Modified/middle click (opens a new tab/window) or no href → fire-and-forget.
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || !href) {
+        window.dataLayer.push({ ecommerce: null });
+        window.dataLayer.push(payload);
+        return;
+      }
+      // Plain click → send, then navigate once GTM acknowledges (or after a fallback).
+      e.preventDefault();
+      var went = false; function go(){ if (went) return; went = true; window.location.href = href; }
+      payload.eventCallback = go; payload.eventTimeout = 900;
       window.dataLayer.push({ ecommerce: null });
-      window.dataLayer.push({ event: ev, ecommerce: { items: [item] } });
+      window.dataLayer.push(payload);
+      setTimeout(go, 1000); // hard fallback if eventCallback never fires (GTM blocked).
     });
   })();
 
