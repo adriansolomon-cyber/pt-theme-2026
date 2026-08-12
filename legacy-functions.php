@@ -5389,23 +5389,23 @@ add_action('wp_enqueue_scripts', function () {
 
     $single_product_template = get_field('layout_type', get_the_ID());
 
-    if ($single_product_template === 'composite-simplified') {
-        wp_enqueue_script(
-            'extras-handler',
-            get_stylesheet_directory_uri() . '/assets/js/simplified-product-page-scripts.js',
-            ['jquery'],
-            '1.53',
-            true
-        );
-    }else{
-        wp_enqueue_script(
-            'extras-handler',
-            get_stylesheet_directory_uri() . '/assets/js/product-page-scripts.js',
-            ['jquery'],
-            '1.63',
-            true
-        );
-    }
+    // Legacy "extras" handler from theTimber. These files were NOT ported to
+    // this theme — the composite configurator (assets/js/product.js) replaces
+    // them — so guard on existence to avoid a 404 + "MIME type not executable"
+    // console error. If a file is ever added, it enqueues normally.
+    $rel = ($single_product_template === 'composite-simplified')
+        ? '/assets/js/simplified-product-page-scripts.js'
+        : '/assets/js/product-page-scripts.js';
+
+    if (!file_exists(get_stylesheet_directory() . $rel)) return;
+
+    wp_enqueue_script(
+        'extras-handler',
+        get_stylesheet_directory_uri() . $rel,
+        ['jquery'],
+        ($single_product_template === 'composite-simplified') ? '1.53' : '1.63',
+        true
+    );
 });
 
 

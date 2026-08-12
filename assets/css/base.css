@@ -4,9 +4,9 @@
    (header, nav, footer, support widget, cart drawer) — every whole
    CSS rule common to 4+ pages. Per-page CSS loads AFTER this and wins.
    ============================================================ */
-@font-face{ font-family:"F37 Jagger"; src:url("../../fonts/f37_jaggerbold.otf") format("opentype"); font-weight:700; font-display:swap; }
-@font-face{ font-family:"F37 Jagger"; src:url("../../fonts/f37_jaggerregular.otf") format("opentype"); font-weight:400; font-display:swap; }
-@font-face{ font-family:"F37 Jagger"; src:url("../../fonts/f37_jaggerlight.otf") format("opentype"); font-weight:300; font-display:swap; }
+@font-face{ font-family:"F37 Jagger"; src:url("../../fonts/f37_jaggerbold-webfont.woff2") format("woff2"),url("../../fonts/f37_jaggerbold-webfont.woff") format("woff"); font-weight:700; font-display:swap; }
+@font-face{ font-family:"F37 Jagger"; src:url("../../fonts/f37_jaggerregular-webfont.woff2") format("woff2"),url("../../fonts/f37_jaggerregular-webfont.woff") format("woff"); font-weight:400; font-display:swap; }
+@font-face{ font-family:"F37 Jagger"; src:url("../../fonts/f37_jaggerlight-webfont.woff2") format("woff2"),url("../../fonts/f37_jaggerlight-webfont.woff") format("woff"); font-weight:300; font-display:swap; }
 
 /* Design tokens — defined here so they resolve site-wide, including on pages
    that load base.css ALONE (Cart, My Account, generic CMS pages, index.php
