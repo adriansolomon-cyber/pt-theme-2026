@@ -67,7 +67,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
           <h1 class="cfg-title" id="cfgProdName"><?php echo esc_html( $pt_name ); ?></h1>
           <img class="cfg-mib" loading="lazy" src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/made-in-britain.jpg" alt="Made in Britain">
         </div>
-        <div class="cfg-size-cap">Selected size: <b id="cfgSize">8 × 6</b></div>
+        <div class="cfg-size-cap">Selected size: <b id="cfgSize">None</b></div>
         <?php
         $pt_cfg_desc  = function_exists( 'get_field' ) ? get_field( 'cfg_description', $pt_pid ) : '';           // ACF override (preferred)
         $pt_cfg_short = $pt_product ? apply_filters( 'woocommerce_short_description', $pt_product->get_short_description() ) : ''; // WooCommerce short description
