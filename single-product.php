@@ -734,12 +734,7 @@ if ( $pt_rec_ids ) :
 <!-- ===================== FINAL CTA ===================== -->
 <?php if ( $pt_show( 'show_final' ) ) : ?>
 <section class="final"><div class="wrap">
-  <?php $pt_final_heading = get_field( 'final_heading', $pt_pid ); ?>
-  <?php if ( $pt_final_heading ) : ?>
-    <h2><?php echo wp_kses_post( $pt_final_heading ); ?></h2>
-  <?php else : ?>
-    <h2>Your building is<br>ready when you are.</h2>
-  <?php endif; ?>
+  <h2>Your building is<br>ready when you are.</h2>
   <button class="go">Customise &amp; buy →</button>
 </div></section>
 
