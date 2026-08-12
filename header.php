@@ -152,25 +152,32 @@ $pt_cats = array(
 	    function backfillZeroPrice(obj) {
 	        if (!obj || !obj.ecommerce || !Array.isArray(obj.ecommerce.items)) return obj;
 	        var dl = (typeof window.PT_PRODUCT_DL === 'object' && window.PT_PRODUCT_DL) ? window.PT_PRODUCT_DL : null;
-	        var fromPrice = (dl && typeof dl.price === 'number') ? dl.price : 0;
-	        if (!(fromPrice > 0)) return obj;
+	        var single = (dl && typeof dl.price === 'number' && dl.price > 0) ? dl.price : 0;   // current product page
+	        var listMap = (typeof window.PT_LIST_PRICES === 'object' && window.PT_LIST_PRICES) ? window.PT_LIST_PRICES : null; // category list
+	        if (!single && !listMap) return obj;
 	        var pid = (typeof window.PT_PRODUCT_ID !== 'undefined' && window.PT_PRODUCT_ID != null) ? String(window.PT_PRODUCT_ID) : '';
 	        var patched = false;
 	        obj.ecommerce.items.forEach(function(item) {
 	            var price = parseFloat(item.price || 0);
-	            if ((!price || price <= 0) && (!pid || String(item.item_id) === pid)) {
-	                item.price = fromPrice.toFixed(2);
-	                // Point id + variant at the size sub-product (matches add_to_cart/
-	                // purchase); item_name and item_category stay the parent's.
+	            if (price > 0) return;
+	            // 1) Current product page (view_item): set price + point id/variant at the size.
+	            if (single && (!pid || String(item.item_id) === pid)) {
+	                item.price = single.toFixed(2);
 	                if (dl.item_id) item.item_id = String(dl.item_id);
 	                if (dl.variant) item.item_variant = String(dl.variant);
 	                patched = true;
+	                return;
+	            }
+	            // 2) Category list (view_item_list): set price by product id, keep the item as-is.
+	            if (listMap) {
+	                var lp = listMap[String(item.item_id)];
+	                if (lp > 0) { item.price = (+lp).toFixed(2); patched = true; }
 	            }
 	        });
 	        // Fix the event-level value too when a single-item event was zero.
-	        if (patched && obj.ecommerce.items.length === 1) {
+	        if (patched && single && obj.ecommerce.items.length === 1) {
 	            var v = parseFloat(obj.ecommerce.value || 0);
-	            if (!v || v <= 0) obj.ecommerce.value = fromPrice.toFixed(2);
+	            if (!v || v <= 0) obj.ecommerce.value = single.toFixed(2);
 	        }
 	        return obj;
 	    }

@@ -252,6 +252,51 @@ function pt_product_tracking_price( $product ) {
 }
 
 /**
+ * On product-category pages, output window.PT_LIST_PRICES = { productId: price }
+ * so the dataLayer cleaner can backfill the Stape view_item_list, whose composite
+ * items otherwise report 0.00 (get_price() = 0 for composites). Matches the
+ * plugin's list query (limit 10, title ASC) and uses the cached, discounted
+ * "from" price. Emitted at wp_footer priority 1 — before the plugin's push (10).
+ */
+add_action( 'wp_footer', 'pt_output_list_prices', 1 );
+function pt_output_list_prices() {
+	if ( ! function_exists( 'is_product_category' ) || ! is_product_category() ) {
+		return;
+	}
+	if ( ! function_exists( 'wc_get_products' ) || ! function_exists( 'pt_product_from_price_cached' ) ) {
+		return;
+	}
+	$term = get_queried_object();
+	if ( ! ( $term instanceof WP_Term ) ) {
+		return;
+	}
+
+	$products = wc_get_products(
+		array(
+			'product_category_id' => $term->term_id,
+			'limit'               => 10,
+			'orderby'             => 'title',
+			'order'               => 'ASC',
+		)
+	);
+
+	$map = array();
+	foreach ( (array) $products as $p ) {
+		if ( ! is_object( $p ) || ! is_callable( array( $p, 'get_id' ) ) ) {
+			continue;
+		}
+		$price = pt_apply_tracking_discount( $p, (float) pt_product_from_price_cached( $p ) );
+		if ( $price > 0 ) {
+			$map[ (string) $p->get_id() ] = $price;
+		}
+	}
+	if ( empty( $map ) ) {
+		return;
+	}
+	echo '<script>window.PT_LIST_PRICES=' . wp_json_encode( $map ) . ';</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+
+/**
  * Bump the from-price cache version on any product change. Composite prices
  * depend on their size-option products, so a version bump (rather than deleting
  * one key) is the simple correct way to invalidate all of them at once.
