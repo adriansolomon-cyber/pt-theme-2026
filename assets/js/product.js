@@ -346,13 +346,29 @@
       if(url && specImg){ specImg.src=url; specImg.alt=((product&&product.name)||'Product')+' '+sizeName+' technical drawing'; if(fig)fig.hidden=false; if(dim)dim.hidden=true; }
       else { if(fig)fig.hidden=true; if(dim)dim.hidden=false; }
     }
+    // Round to 1 dp and drop a trailing ".0" (56.0 -> "56", 94.3 -> "94.3").
+    function trimDec(n){ n=Math.round(n*10)/10; return (n%1===0)?String(Math.round(n)):String(n); }
+    // Compound metric: a cm value -> "3m 56cm" (>=1m) or "56cm".
+    function fmtMetric(cm){
+      if(cm>=100){ var m=Math.floor(cm/100), rem=Math.round((cm-m*100)*10)/10; return rem>0?(m+'m '+trimDec(rem)+'cm'):(m+'m'); }
+      return trimDec(cm)+'cm';
+    }
+    // Compound imperial: a cm value -> inches -> "2ft 10in" (>=1ft) or "10in".
+    function fmtImperial(cm){
+      var inch=cm*CM2IN;
+      if(inch>=12){ var ft=Math.floor(inch/12), rem=Math.round((inch-ft*12)*10)/10; return rem>0?(ft+'ft '+trimDec(rem)+'in'):(ft+'ft'); }
+      return trimDec(inch)+'in';
+    }
+    // Dimension cells hold cm (possibly composite, e.g. "H180 × W73", "249 × 194.3").
+    // Format each number as a compound unit for the active system; strip any authored
+    // unit words first so each number carries its own (m/cm or ft/in).
     function specVal(raw,isDim){
       if(raw==null||raw==='') return null;
       var s=String(raw).trim();
       if(!isDim || !/\d/.test(s)) return s;
-      var out=s.replace(/\d+(?:\.\d+)?/g,function(m){ return specUnit==='imperial'?(parseFloat(m)*CM2IN).toFixed(1):m; });
-      out=out.replace(/\s*x\s*/gi,' × ');
-      return out+(specUnit==='imperial'?' in':' cm');
+      s=s.replace(/\s*(cm|mm|in(?:ches)?|ft)\b/gi,'');
+      var out=s.replace(/\d+(?:\.\d+)?/g,function(m){ var cm=parseFloat(m); return specUnit==='imperial'?fmtImperial(cm):fmtMetric(cm); });
+      return out.replace(/\s*x\s*/gi,' × ');
     }
     function renderSpecs(){
       var map={}; if(curSpecs){ ['dimensions','materials','features'].forEach(function(g){ (curSpecs[g]||[]).forEach(function(it){ map[it.key]=it.value; }); }); }
