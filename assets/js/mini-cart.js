@@ -21,7 +21,12 @@
   function open() {
     root.classList.add('open'); root.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-    loadCart(); // always refresh on open
+    loadCart().then(function () { // always refresh on open, then fire view_cart
+      if (_dlItems.length) {
+        var val = majorAmt(_lastCart && _lastCart.totals && _lastCart.totals.total_price, _lastCart && _lastCart.totals);
+        pushCartEvent('view_cart', _dlItems.slice(), val);
+      }
+    });
   }
   function close() {
     root.classList.remove('open'); root.setAttribute('aria-hidden', 'true');
@@ -64,6 +69,26 @@
   function withTax(base, tax) {
     var b = parseInt(base, 10) || 0;
     return INCL_TAX ? b + (parseInt(tax, 10) || 0) : b;
+  }
+
+  // ---- dataLayer ecommerce events for the drawer (view_cart / remove_from_cart) ----
+  // The drawer is Store API-driven, so the Stape plugin (which hooks the standard
+  // WC cart page / remove link) never fires these. We push them from here, matching
+  // the funnel item shape (item_id = size sub-product, item_name = parent, variant =
+  // size). _dlItems/_dlByKey are rebuilt on every renderCart from the live cart.
+  var _lastCart = null, _dlByKey = {}, _dlItems = [];
+  function majorAmt(minor, cur) { cur = cur || {}; var u = (cur.currency_minor_unit == null) ? 2 : cur.currency_minor_unit; return (parseInt(minor, 10) || 0) / Math.pow(10, u); }
+  function priceMajor(it) {
+    if (it && it.prices && it.prices.price != null) return majorAmt(it.prices.price, it.prices);
+    if (it && it.totals) return majorAmt(it.totals.line_subtotal, it.totals);
+    return 0;
+  }
+  function pushCartEvent(name, items, value) {
+    if (!items || !items.length) return;
+    var ev = (typeof window.ptDlEvent === 'function') ? window.ptDlEvent(name) : name;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ ecommerce: null });
+    window.dataLayer.push({ event: ev, ecomm_pagetype: 'cart', ecommerce: { currency: 'GBP', value: (value || 0).toFixed(2), items: items } });
   }
 
   function cartFetch(path, opts) {
@@ -118,15 +143,29 @@
     // Map each composite/bundle parent to its SIZE child's image (child titled
     // "N x N"), so the drawer thumbnail shows the configured size, not the parent.
     var SIZE_RE = /^\d+\s*x\s*\d+$/i;
-    var sizeImgByParent = {};
+    var sizeImgByParent = {}, dlByParent = {};
     all.forEach(function (it) {
       var pk = parentKeyOf(it);
       if (!pk || !SIZE_RE.test(String(it.name || '').trim())) return;
       var im = (it.images && it.images[0] && (it.images[0].thumbnail || it.images[0].src)) || '';
       if (im) sizeImgByParent[pk] = im;
+      dlByParent[pk] = { item_id: String(it.id != null ? it.id : ''), item_variant: stripTags(decode(it.name || '')), price: priceMajor(it) };
     });
     var items = all.filter(function (it) { return !parentKeyOf(it); });
     items.forEach(function (it) { if (sizeImgByParent[it.key]) it._sizeImg = sizeImgByParent[it.key]; });
+    // Rebuild the dataLayer item map from the live cart (used by view_cart / remove_from_cart).
+    _lastCart = cart; _dlByKey = {}; _dlItems = [];
+    items.forEach(function (it) {
+      var d = dlByParent[it.key] || {};
+      var item = {
+        item_id: String(d.item_id || it.id || ''),
+        item_name: stripTags(decode(it.name || '')),
+        item_variant: d.item_variant || '',
+        price: (d.price != null ? d.price : priceMajor(it)).toFixed(2),
+        quantity: it.quantity || 1
+      };
+      _dlByKey[it.key] = item; _dlItems.push(item);
+    });
     var n = cart.items_count || items.reduce(function (a, b) { return a + (b.quantity || 0); }, 0);
     setBadges(n);
     if (!items.length) { show('empty'); return; }
@@ -183,6 +222,8 @@
     var key = rm.getAttribute('data-key'); if (!key) return;
     var line = rm.closest && rm.closest('.ptc-line'), nameEl = line && line.querySelector('h3');
     var name = (nameEl && nameEl.textContent.trim()) || 'Item';
+    var dlItem = _dlByKey[key];
+    if (dlItem) pushCartEvent('remove_from_cart', [ { item_id: dlItem.item_id, item_name: dlItem.item_name, item_variant: dlItem.item_variant, price: dlItem.price, quantity: dlItem.quantity } ], (parseFloat(dlItem.price) || 0) * (dlItem.quantity || 1));
     rm.disabled = true;
     cartFetch('/cart/items/' + encodeURIComponent(key), { method: 'DELETE' })
       .then(function (cart) { renderCart(cart); toast(name + ' removed'); })
@@ -196,7 +237,7 @@
   if (clist) clist.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('.cx'); if (b) removeCoupon(b.getAttribute('data-coupon')); });
 
   function loadCart() {
-    cartFetch('/cart').then(renderCart).catch(function (err) {
+    return cartFetch('/cart').then(renderCart).catch(function (err) {
       if (!loadedOnce) console.warn('[mini-cart] live cart unavailable —', err && err.message);
       loadedOnce = true; show('empty'); setBadges(0);
     });

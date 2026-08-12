@@ -720,7 +720,7 @@
           quantity: 1
         };
         if(dl.category) item.item_category=dl.category;
-        var ev=(typeof window.PT_DL_ATC_EVENT==='string'&&window.PT_DL_ATC_EVENT)?window.PT_DL_ATC_EVENT:'add_to_cart';
+        var ev=(typeof window.ptDlEvent==='function')?window.ptDlEvent('add_to_cart'):'add_to_cart';
         window.dataLayer=window.dataLayer||[];
         window.dataLayer.push({
           event: ev,
