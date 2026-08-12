@@ -34,18 +34,18 @@ $pt_cats = array(
 	// price. The dataLayer cleaner below backfills it into single-item events (e.g.
 	// view_item) where a composite parent reports 0.00. Emitted head-level so it's
 	// set before any tracking event fires.
-	$pt_dl_price = 0;
-	if ( is_singular( 'product' ) && function_exists( 'pt_product_tracking_price' ) && function_exists( 'wc_get_product' ) ) {
+	$pt_dl = array( 'price' => 0, 'item_id' => '', 'variant' => '' );
+	if ( is_singular( 'product' ) && function_exists( 'pt_product_tracking_item' ) && function_exists( 'wc_get_product' ) ) {
 		$pt_dl_prod = wc_get_product( get_queried_object_id() );
 		if ( $pt_dl_prod ) {
-			$pt_dl_price = (float) pt_product_tracking_price( $pt_dl_prod );
+			$pt_dl = pt_product_tracking_item( $pt_dl_prod );
 		}
 	}
 	?>
 	<!-- Google Tag Manager -->
 	<script>
 	window.dataLayer = window.dataLayer || [];
-	window.PT_PRODUCT_DL_PRICE = <?php echo wp_json_encode( $pt_dl_price ); ?>;
+	window.PT_PRODUCT_DL = <?php echo wp_json_encode( $pt_dl ); ?>;
 
 	(function() {
 	    var originalPush = window.dataLayer.push;
@@ -141,7 +141,8 @@ $pt_cats = array(
 	    // Multi-item events already get the size price via filterPurchaseStape.
 	    function backfillZeroPrice(obj) {
 	        if (!obj || !obj.ecommerce || !Array.isArray(obj.ecommerce.items)) return obj;
-	        var fromPrice = (typeof window.PT_PRODUCT_DL_PRICE === 'number') ? window.PT_PRODUCT_DL_PRICE : 0;
+	        var dl = (typeof window.PT_PRODUCT_DL === 'object' && window.PT_PRODUCT_DL) ? window.PT_PRODUCT_DL : null;
+	        var fromPrice = (dl && typeof dl.price === 'number') ? dl.price : 0;
 	        if (!(fromPrice > 0)) return obj;
 	        var pid = (typeof window.PT_PRODUCT_ID !== 'undefined' && window.PT_PRODUCT_ID != null) ? String(window.PT_PRODUCT_ID) : '';
 	        var patched = false;
@@ -149,6 +150,10 @@ $pt_cats = array(
 	            var price = parseFloat(item.price || 0);
 	            if ((!price || price <= 0) && (!pid || String(item.item_id) === pid)) {
 	                item.price = fromPrice.toFixed(2);
+	                // Point id + variant at the size sub-product (matches add_to_cart/
+	                // purchase); item_name and item_category stay the parent's.
+	                if (dl.item_id) item.item_id = String(dl.item_id);
+	                if (dl.variant) item.item_variant = String(dl.variant);
 	                patched = true;
 	            }
 	        });

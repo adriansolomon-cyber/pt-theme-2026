@@ -98,22 +98,28 @@ function pt_product_from_price_cached( $product ) {
 }
 
 /**
- * Price to report in tracking (dataLayer view_item) for the CURRENT request.
+ * Tracking item data (dataLayer view_item) for the CURRENT request.
  *
- * If the URL names a size (e.g. 12-x-8, including the /f/ filter path), returns
- * that size sub-product's price; otherwise the composite "from" (cheapest size)
- * price. Mirrors fix_composite_product_price_schema() so the JSON-LD and the
- * dataLayer agree. Not cached — the result depends on the request URL.
+ * For a composite: if the URL names a size (e.g. 12-x-8, incl. the /f/ path)
+ * that size's sub-product supplies the id, variant and price; otherwise the
+ * cheapest size does. item_name / item_category are left to the caller — they
+ * stay the PARENT's, matching filterPurchaseStape. Mirrors
+ * fix_composite_product_price_schema() so JSON-LD and dataLayer agree. Not
+ * cached — the result depends on the request URL.
  *
  * @param WC_Product $product Product.
- * @return float
+ * @return array{price:float,item_id:string,variant:string}
  */
-function pt_product_tracking_price( $product ) {
-	if ( ! $product || ! function_exists( 'wc_get_product' ) ) {
-		return 0.0;
+function pt_product_tracking_item( $product ) {
+	$out = array( 'price' => 0.0, 'item_id' => '', 'variant' => '' );
+	if ( ! $product || ! function_exists( 'wc_get_product' ) || ! is_callable( array( $product, 'get_id' ) ) ) {
+		return $out;
 	}
+	$out['item_id'] = (string) $product->get_id(); // parent by default.
+
 	if ( ! $product->is_type( 'composite' ) ) {
-		return (float) pt_product_from_price( $product );
+		$out['price'] = (float) pt_product_from_price( $product );
+		return $out;
 	}
 
 	// Size in the URL? e.g. /summerhouses/12-x-8/f/slug/ or /12-x-8/slug/.
@@ -135,8 +141,12 @@ function pt_product_tracking_price( $product ) {
 		}
 	}
 
-	$min     = INF;
-	$matched = null;
+	$min          = INF;
+	$min_id       = '';
+	$min_name     = '';
+	$matched      = null;
+	$matched_id   = '';
+	$matched_name = '';
 	foreach ( $size_ids as $oid ) {
 		$o = wc_get_product( (int) $oid );
 		if ( ! $o ) {
@@ -147,23 +157,43 @@ function pt_product_tracking_price( $product ) {
 			continue;
 		}
 		if ( $p < $min ) {
-			$min = $p;
+			$min      = $p;
+			$min_id   = (string) $o->get_id();
+			$min_name = $o->get_name();
 		}
 		if ( '' !== $url_size && null === $matched ) {
 			$name_slug = str_replace( ' ', '-', $o->get_name() ); // "12 x 8" -> "12-x-8".
 			if ( $name_slug === $url_size || false !== strpos( $name_slug, $url_size ) ) {
-				$matched = $p;
+				$matched      = $p;
+				$matched_id   = (string) $o->get_id();
+				$matched_name = $o->get_name();
 			}
 		}
 	}
 
 	if ( null !== $matched ) {
-		return $matched;
+		$out['price']   = $matched;
+		$out['item_id'] = $matched_id;
+		$out['variant'] = $matched_name;
+	} elseif ( INF !== $min ) {
+		$out['price']   = $min;
+		$out['item_id'] = $min_id;
+		$out['variant'] = $min_name;
+	} else {
+		$out['price'] = (float) pt_product_from_price( $product ); // item_id stays parent.
 	}
-	if ( INF !== $min ) {
-		return $min;
-	}
-	return (float) pt_product_from_price( $product );
+	return $out;
+}
+
+/**
+ * Convenience: just the tracking price. @see pt_product_tracking_item().
+ *
+ * @param WC_Product $product Product.
+ * @return float
+ */
+function pt_product_tracking_price( $product ) {
+	$item = pt_product_tracking_item( $product );
+	return (float) $item['price'];
 }
 
 /**
