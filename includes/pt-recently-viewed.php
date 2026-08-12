@@ -92,7 +92,12 @@ function pt_render_recommend_card( $product_id ) {
 		return '';
 	}
 
-	$img   = get_the_post_thumbnail_url( $product_id, 'large' );
+	// Prefer the ACF product image (product_image_1), same as the category tiles;
+	// fall back to the WooCommerce featured image.
+	$img = function_exists( 'get_field' ) ? get_field( 'product_image_1', $product_id ) : '';
+	if ( ! is_string( $img ) || '' === $img ) {
+		$img = get_the_post_thumbnail_url( $product_id, 'large' );
+	}
 	$rng   = function_exists( 'pt_product_line_singular' ) ? pt_product_line_singular( $product_id ) : '';
 	$price = function_exists( 'pt_product_from_price_html' ) ? pt_product_from_price_html( $product ) : '';
 
