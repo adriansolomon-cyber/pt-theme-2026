@@ -222,11 +222,15 @@
       }).catch(function(){ /* keep whatever single image is showing */ });
     }
 
-    // Each size sub-product's WooCommerce PRODUCT GALLERY (the real building photos),
-    // i.e. everything EXCEPT its featured image. The featured image is unreliable
-    // here — often a promo "Special Price" banner, a blank spacer.png, or even a
-    // mismatched photo — so we drop it. The Store API returns the featured image
-    // first then the gallery in order, so gallery = images.slice(1).
+    // Each size sub-product's WooCommerce PRODUCT GALLERY (the real building photos).
+    // When a size HAS a featured image it's unreliable — often a promo "Special
+    // Price" banner, a blank spacer.png, or a mismatched photo — and the Store API
+    // returns it first, so we drop it (gallery = images.slice(1)). But MANY sizes
+    // have NO featured image set, in which case images[0] is already a real gallery
+    // photo (the main building shot) and must be KEPT — slicing it off there would
+    // discard the intended lead image and show the wrong photo. meta[id].img is the
+    // size's featured URL from /config (empty when none), so it tells us whether
+    // there's actually a featured image to drop.
     //
     // Fetched for ALL sizes in ONE batched Store API call (include=…&_fields=id,images)
     // and memoised, so there's a single fast round-trip rather than one request per
@@ -239,7 +243,9 @@
       sizeGalPromise=getJSON(storeUrl('products?per_page=100&_fields=id,images&include='+ids.join(','))).then(function(list){
         (Array.isArray(list)?list:[]).forEach(function(p){
           var all=(p&&p.images)?p.images.map(function(im){ return im&&(im.src||im.thumbnail); }).filter(Boolean):[];
-          sizeGalCache[p.id]=(all.length>1)?all.slice(1):all;
+          var m=meta[p.id];
+          var hasFeatured=!!(m&&m.img)&&!/woocommerce-placeholder/i.test(m.img);
+          sizeGalCache[p.id]=(hasFeatured&&all.length>1)?all.slice(1):all;
         });
         return sizeGalCache;
       }).catch(function(){ return sizeGalCache; });
