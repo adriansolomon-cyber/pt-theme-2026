@@ -68,9 +68,19 @@ $pt_hero_img = $pt_f(
 		: 'https://www.projecttimber.com/wp-content/uploads/2026/06/My_Den_Composite_Garden_Office-scaled.webp'
 );
 
-// Configurator preview initial image — the product's own image (featured, else
-// ACF product_image_1, else hero), not a My Den placeholder.
-$pt_cfg_img = has_post_thumbnail( $pt_pid ) ? get_the_post_thumbnail_url( $pt_pid, 'large' ) : '';
+// Configurator preview initial image — the product's own image: first
+// product-gallery image, else featured, else ACF product_image_1, else hero
+// (not a My Den placeholder).
+$pt_cfg_img = '';
+if ( $pt_product ) {
+	$pt_gallery_ids = $pt_product->get_gallery_image_ids();
+	if ( ! empty( $pt_gallery_ids ) ) {
+		$pt_cfg_img = wp_get_attachment_image_url( $pt_gallery_ids[0], 'large' );
+	}
+}
+if ( ! is_string( $pt_cfg_img ) || '' === $pt_cfg_img ) {
+	$pt_cfg_img = has_post_thumbnail( $pt_pid ) ? get_the_post_thumbnail_url( $pt_pid, 'large' ) : '';
+}
 if ( '' === $pt_cfg_img ) {
 	$pt_cfg_img = function_exists( 'get_field' ) ? get_field( 'product_image_1', $pt_pid ) : '';
 }
