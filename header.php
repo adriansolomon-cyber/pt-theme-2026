@@ -29,22 +29,23 @@ $pt_cats = array(
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<?php wp_head(); ?>
 	<?php
-	// Composite "from" (cheapest size) price for the current product. The dataLayer
-	// cleaner below backfills it into single-item events (e.g. view_item) where a
-	// composite parent reports 0.00. Emitted head-level so it's set before any
-	// tracking event fires.
-	$pt_dl_from = 0;
-	if ( is_singular( 'product' ) && function_exists( 'pt_product_from_price_cached' ) && function_exists( 'wc_get_product' ) ) {
+	// Tracking price for the current product: the URL size's price when a size is
+	// in the URL (e.g. /12-x-8/…), otherwise the composite "from" (cheapest size)
+	// price. The dataLayer cleaner below backfills it into single-item events (e.g.
+	// view_item) where a composite parent reports 0.00. Emitted head-level so it's
+	// set before any tracking event fires.
+	$pt_dl_price = 0;
+	if ( is_singular( 'product' ) && function_exists( 'pt_product_tracking_price' ) && function_exists( 'wc_get_product' ) ) {
 		$pt_dl_prod = wc_get_product( get_queried_object_id() );
 		if ( $pt_dl_prod ) {
-			$pt_dl_from = (float) pt_product_from_price_cached( $pt_dl_prod );
+			$pt_dl_price = (float) pt_product_tracking_price( $pt_dl_prod );
 		}
 	}
 	?>
 	<!-- Google Tag Manager -->
 	<script>
 	window.dataLayer = window.dataLayer || [];
-	window.PT_PRODUCT_FROM_PRICE = <?php echo wp_json_encode( $pt_dl_from ); ?>;
+	window.PT_PRODUCT_DL_PRICE = <?php echo wp_json_encode( $pt_dl_price ); ?>;
 
 	(function() {
 	    var originalPush = window.dataLayer.push;
@@ -140,7 +141,7 @@ $pt_cats = array(
 	    // Multi-item events already get the size price via filterPurchaseStape.
 	    function backfillZeroPrice(obj) {
 	        if (!obj || !obj.ecommerce || !Array.isArray(obj.ecommerce.items)) return obj;
-	        var fromPrice = (typeof window.PT_PRODUCT_FROM_PRICE === 'number') ? window.PT_PRODUCT_FROM_PRICE : 0;
+	        var fromPrice = (typeof window.PT_PRODUCT_DL_PRICE === 'number') ? window.PT_PRODUCT_DL_PRICE : 0;
 	        if (!(fromPrice > 0)) return obj;
 	        var pid = (typeof window.PT_PRODUCT_ID !== 'undefined' && window.PT_PRODUCT_ID != null) ? String(window.PT_PRODUCT_ID) : '';
 	        var patched = false;

@@ -96,6 +96,76 @@ function pt_product_from_price_cached( $product ) {
 	set_transient( $key, $price, 12 * HOUR_IN_SECONDS );
 	return $price;
 }
+
+/**
+ * Price to report in tracking (dataLayer view_item) for the CURRENT request.
+ *
+ * If the URL names a size (e.g. 12-x-8, including the /f/ filter path), returns
+ * that size sub-product's price; otherwise the composite "from" (cheapest size)
+ * price. Mirrors fix_composite_product_price_schema() so the JSON-LD and the
+ * dataLayer agree. Not cached — the result depends on the request URL.
+ *
+ * @param WC_Product $product Product.
+ * @return float
+ */
+function pt_product_tracking_price( $product ) {
+	if ( ! $product || ! function_exists( 'wc_get_product' ) ) {
+		return 0.0;
+	}
+	if ( ! $product->is_type( 'composite' ) ) {
+		return (float) pt_product_from_price( $product );
+	}
+
+	// Size in the URL? e.g. /summerhouses/12-x-8/f/slug/ or /12-x-8/slug/.
+	$url_size = '';
+	$uri      = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+	if ( preg_match( '/(\d+-x-\d+)/', $uri, $m ) ) {
+		$url_size = $m[1];
+	}
+
+	// Collect the size-option product ids (fast mu-plugin path, else the Size component).
+	$size_ids = function_exists( 'timber_catp_size_options' ) ? (array) timber_catp_size_options( $product ) : array();
+	if ( empty( $size_ids ) && is_callable( array( $product, 'get_components' ) ) ) {
+		foreach ( (array) $product->get_components() as $component ) {
+			$title = ( is_object( $component ) && is_callable( array( $component, 'get_title' ) ) ) ? (string) $component->get_title() : '';
+			if ( 'size' === strtolower( trim( $title ) ) ) {
+				$size_ids = is_callable( array( $component, 'get_options' ) ) ? (array) $component->get_options() : array();
+				break;
+			}
+		}
+	}
+
+	$min     = INF;
+	$matched = null;
+	foreach ( $size_ids as $oid ) {
+		$o = wc_get_product( (int) $oid );
+		if ( ! $o ) {
+			continue;
+		}
+		$p = (float) $o->get_price();
+		if ( $p <= 0 ) {
+			continue;
+		}
+		if ( $p < $min ) {
+			$min = $p;
+		}
+		if ( '' !== $url_size && null === $matched ) {
+			$name_slug = str_replace( ' ', '-', $o->get_name() ); // "12 x 8" -> "12-x-8".
+			if ( $name_slug === $url_size || false !== strpos( $name_slug, $url_size ) ) {
+				$matched = $p;
+			}
+		}
+	}
+
+	if ( null !== $matched ) {
+		return $matched;
+	}
+	if ( INF !== $min ) {
+		return $min;
+	}
+	return (float) pt_product_from_price( $product );
+}
+
 /**
  * Bump the from-price cache version on any product change. Composite prices
  * depend on their size-option products, so a version bump (rather than deleting
