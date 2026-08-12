@@ -134,6 +134,18 @@
     var elStatus=$('cfgStatus'), elRows=$('cfgRows'), elPrice=$('cfgPrice'), elAdd=$('cfgAdd'),
         elSize=$('cfgSize'), elImg=$('cfgImg'), elName=$('cfgProdName'), elDeliv=$('cfgDeliv');
 
+    // Admin/editor "edit in wp-admin" button rendered on each SIZE card. window.PT_ADMIN_EDIT
+    // is the wp-admin/post.php base — only set (server-side) for users who can edit this
+    // product, so the button is emitted for editors only. Returns '' for everyone else.
+    function sizeEditBtn(id){
+      if(!window.PT_ADMIN_EDIT || id==null) return '';
+      var url=window.PT_ADMIN_EDIT+'?post='+encodeURIComponent(id)+'&action=edit';
+      return '<a class="opt-edit" href="'+esc(url)+'" target="_blank" rel="noopener" '
+        + 'title="Edit this size in wp-admin" aria-label="Edit this size in wp-admin">'
+        + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>'
+        + '</a>';
+    }
+
     function fmt(n){ return '£'+Math.round(n).toLocaleString('en-GB')+'.00'; }
     function fmtm(n){ return '£'+Math.round(n).toLocaleString('en-GB'); }
     function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -475,7 +487,9 @@
       var isNone=/^\s*none\s*$/i.test(opt.name||'');
       // paint/trim colour swatches carry a "supplied in tins" note; the None card warns to paint within 4 weeks.
       var tins=(colour&&!isNone)?'<span class="tins">*SUPPLIED IN TINS</span>':'';
-      var img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+'</div>':'<div class="im ph">'+tins+'</div>';
+      // Admin/editor edit shortcut, on SIZE cards only (each card = one size sub-product).
+      var edit=(group===sizeCid)?sizeEditBtn(opt.id):'';
+      var img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+edit+'</div>':'<div class="im ph">'+tins+edit+'</div>';
       var badge4w=(colour&&isNone)?'<span class="badge4w">⚠ Paint within 4 weeks!*</span>':'';
       // every price shows the discounted value when a campaign is live; £0 / "Included"
       // options render plain (fmtDisc skips the struck-through zero for n<=0).
@@ -706,6 +720,7 @@
     if(elRows) elRows.addEventListener('click',function(e){
       // header click → open just this step (close the others), or collapse it if already open
       var head=e.target.closest('.cfg-head'); if(head){ var hrow=head.closest('.cfg-row'); if(hrow.classList.contains('open')) hrow.classList.remove('open'); else cfgOpenOnly(hrow); return; }
+      if(e.target.closest('.opt-edit')) return;   // edit button → let the link open wp-admin, don't select the card
       var card=e.target.closest('.opt-card'); if(!card) return;
       var group=card.dataset.group, optId=+card.dataset.opt;
       // size re-renders the option steps; advance once the (async) render settles

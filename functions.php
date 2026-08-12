@@ -226,12 +226,19 @@ add_action(
 				// keyed by size (e.g. "12x8"); the specs diagram switches with the size.
 				$pt_spec_imgs = function_exists( 'pt_spec_size_images' ) ? pt_spec_size_images( get_queried_object_id() ) : array();
 
+				// Admin/editor edit-button base URL (wp-admin/post.php). Only exposed to
+				// users who can edit this product; product.js appends ?post=<size>&action=edit.
+				$pt_admin_edit = current_user_can( 'edit_post', get_queried_object_id() )
+					? admin_url( 'post.php' )
+					: '';
+
 				wp_add_inline_script(
 					'pt-product',
 					'window.PT_WC_BASE=' . wp_json_encode( untrailingslashit( home_url() ) ) . ';'
 					. 'window.PT_PRODUCT_ID=' . wp_json_encode( (string) get_queried_object_id() ) . ';'
 					. 'window.PT_BEST_SIZES=' . wp_json_encode( $pt_best_arr ) . ';'
 					. 'window.PT_DISCOUNT_PCT=' . wp_json_encode( $pt_disc ) . ';'
+					. 'window.PT_ADMIN_EDIT=' . wp_json_encode( $pt_admin_edit ) . ';'
 					. 'window.PT_SPEC_IMAGES=' . wp_json_encode( (object) $pt_spec_imgs ) . ';',
 					'before'
 				);
