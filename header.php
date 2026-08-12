@@ -28,9 +28,23 @@ $pt_cats = array(
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<?php wp_head(); ?>
+	<?php
+	// Composite "from" (cheapest size) price for the current product. The dataLayer
+	// cleaner below backfills it into single-item events (e.g. view_item) where a
+	// composite parent reports 0.00. Emitted head-level so it's set before any
+	// tracking event fires.
+	$pt_dl_from = 0;
+	if ( is_singular( 'product' ) && function_exists( 'pt_product_from_price_cached' ) && function_exists( 'wc_get_product' ) ) {
+		$pt_dl_prod = wc_get_product( get_queried_object_id() );
+		if ( $pt_dl_prod ) {
+			$pt_dl_from = (float) pt_product_from_price_cached( $pt_dl_prod );
+		}
+	}
+	?>
 	<!-- Google Tag Manager -->
 	<script>
 	window.dataLayer = window.dataLayer || [];
+	window.PT_PRODUCT_FROM_PRICE = <?php echo wp_json_encode( $pt_dl_from ); ?>;
 
 	(function() {
 	    var originalPush = window.dataLayer.push;
@@ -121,8 +135,32 @@ $pt_cats = array(
 	        return obj;
 	    }
 
+	    // Backfill a real price into single-item events (e.g. view_item) where a
+	    // composite parent reports 0.00 — use the server-provided "from" price.
+	    // Multi-item events already get the size price via filterPurchaseStape.
+	    function backfillZeroPrice(obj) {
+	        if (!obj || !obj.ecommerce || !Array.isArray(obj.ecommerce.items)) return obj;
+	        var fromPrice = (typeof window.PT_PRODUCT_FROM_PRICE === 'number') ? window.PT_PRODUCT_FROM_PRICE : 0;
+	        if (!(fromPrice > 0)) return obj;
+	        var pid = (typeof window.PT_PRODUCT_ID !== 'undefined' && window.PT_PRODUCT_ID != null) ? String(window.PT_PRODUCT_ID) : '';
+	        var patched = false;
+	        obj.ecommerce.items.forEach(function(item) {
+	            var price = parseFloat(item.price || 0);
+	            if ((!price || price <= 0) && (!pid || String(item.item_id) === pid)) {
+	                item.price = fromPrice.toFixed(2);
+	                patched = true;
+	            }
+	        });
+	        // Fix the event-level value too when a single-item event was zero.
+	        if (patched && obj.ecommerce.items.length === 1) {
+	            var v = parseFloat(obj.ecommerce.value || 0);
+	            if (!v || v <= 0) obj.ecommerce.value = fromPrice.toFixed(2);
+	        }
+	        return obj;
+	    }
+
 	    window.dataLayer.push = function() {
-	        var args = Array.prototype.slice.call(arguments).map(filterPurchaseStape);
+	        var args = Array.prototype.slice.call(arguments).map(filterPurchaseStape).map(backfillZeroPrice);
 	        return originalPush.apply(this, args);
 	    };
 	})();
