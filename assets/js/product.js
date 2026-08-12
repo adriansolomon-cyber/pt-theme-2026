@@ -489,7 +489,17 @@
       var tins=(colour&&!isNone)?'<span class="tins">*SUPPLIED IN TINS</span>':'';
       // Admin/editor edit shortcut, on SIZE cards only (each card = one size sub-product).
       var edit=(group===sizeCid)?sizeEditBtn(opt.id):'';
-      var img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+edit+'</div>':'<div class="im ph">'+tins+edit+'</div>';
+      var img;
+      if(group===sizeCid){
+        // SIZE cards: hold a loading skeleton until this size's OWN image is fetched
+        // and actually loaded, so there's no flash of the parent photo. The <img>
+        // (if a src is already known) starts hidden and reveals on load (see
+        // revealCardImg); patchSizeCardImages() fills the skeletons after fetch.
+        var imEl=opt.img?'<img class="opt-im" src="'+esc(opt.img)+'" alt="'+esc(label)+'">':'';
+        img='<div class="im loading">'+imEl+'<span class="im-skel skel-box" aria-hidden="true"></span>'+tins+edit+'</div>';
+      } else {
+        img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+edit+'</div>':'<div class="im ph">'+tins+edit+'</div>';
+      }
       var badge4w=(colour&&isNone)?'<span class="badge4w">⚠ Paint within 4 weeks!*</span>':'';
       // every price shows the discounted value when a campaign is live; £0 / "Included"
       // options render plain (fmtDisc skips the struck-through zero for n<=0).
@@ -515,15 +525,14 @@
 
     function sizeSortVal(name){ var n=(String(name).match(/\d+(?:\.\d+)?/g)||[]).map(Number); var w=n[0]||0, h=n[1]||0; return [w*h, w, h]; }
     function sortedSizes(){
-      var parentImg=parentLead()||(product&&product.images&&product.images[0]&&product.images[0].src)||'';
-      // Size CARDS show each size's OWN photo: its first GALLERY image when the
-      // batched galleries have loaded (sizeGalCache), else its featured image
-      // (meta.img = /config sz.img), else the parent product photo. Most sizes have
-      // no featured image, so without the gallery every card would fall back to the
-      // same parent photo — patchSizeCardImages() swaps in the real per-size images
-      // once fetchAllSizeGalleries() resolves.
+      // Size CARDS show each size's OWN first GALLERY image (sizeGalCache), else its
+      // featured image (meta.img = /config sz.img). NO parent fallback here — an
+      // empty img makes the card render as a loading skeleton instead of flashing
+      // the parent photo. patchSizeCardImages() fills the skeletons once the batched
+      // galleries load (and only falls back to the parent as a last resort for a
+      // size that genuinely has no gallery).
       var sizes=Object.keys(scenarios).map(function(id){ var m=meta[id]; var g=sizeGalCache[id];
-        return { id:+id, name:scenarios[id].name||((m&&m.name)||('#'+id)), price:m?m.price:null, img:(g&&g.length&&g[0])||(m&&m.img)||parentImg }; });
+        return { id:+id, name:scenarios[id].name||((m&&m.name)||('#'+id)), price:m?m.price:null, img:(g&&g.length&&g[0])||(m&&m.img)||'' }; });
       sizes.sort(function(a,b){ var A=sizeSortVal(a.name),B=sizeSortVal(b.name); return A[0]-B[0]||A[1]-B[1]||A[2]-B[2]; });
       return sizes;
     }
@@ -534,23 +543,48 @@
       if(elRows) elRows.innerHTML=rowHTML(1,'Size','sel-size',sizeCid,'size',cards,stepNote(sizeComp||{key:'size'}));
       initSizeFilter();
       renderSpecSeg();
-      patchSizeCardImages();
+      bindSizeCardImgs();     // reveal any card image already present (cached) once it loads
+      patchSizeCardImages();  // fill the loading skeletons with each size's own photo
     }
-    // Once the batched per-size galleries load, swap each size card's thumbnail to
-    // that size's OWN first gallery image (cards render immediately with a fallback
-    // so they never blank). Memoised fetch — safe to call on every size re-render.
+    // Drop a size card's loading skeleton once its image has actually loaded, fading
+    // the photo in. Reveals on error too (falling back to the parent photo) so a
+    // card never stays a skeleton forever.
+    function revealCardImg(img){
+      if(!img) return;
+      var box=img.closest ? img.closest('.im') : null; if(!box) return;
+      var done=function(){ box.classList.remove('loading'); box.classList.add('loaded'); };
+      if(img.complete && img.naturalWidth>0){ done(); return; }
+      img.addEventListener('load',done,{once:true});
+      img.addEventListener('error',function(){ var pl=parentLead(); if(pl && img.getAttribute('src')!==pl){ img.src=pl; } done(); },{once:true});
+    }
+    function bindSizeCardImgs(){
+      if(!elRows) return; var grid=elRows.querySelector('.opt-cards[data-group="'+sizeCid+'"]'); if(!grid) return;
+      grid.querySelectorAll('.opt-card .im img').forEach(revealCardImg);
+    }
+    // Set a size card's image (creating the <img> if it was a bare skeleton) and
+    // reveal it on load. Empty src with no existing image → just drop the skeleton.
+    function setCardImage(card,src){
+      var box=card.querySelector('.im'); if(!box) return;
+      var im=box.querySelector('img');
+      if(!src){ if(im){ revealCardImg(im); } else { box.classList.remove('loading'); box.classList.add('loaded'); } return; }
+      if(im){ if(im.getAttribute('src')!==src){ im.src=src; } }
+      else { var nm=card.querySelector('.nm'); box.insertAdjacentHTML('afterbegin','<img class="opt-im" src="'+esc(src)+'" alt="'+esc(nm?nm.textContent:'')+'">'); im=box.querySelector('img'); }
+      revealCardImg(im);
+    }
+    // Once the batched per-size galleries load, give each size card its OWN first
+    // gallery image; a size with no gallery falls back to the parent photo only now
+    // (last resort, after the fetch) — never as an early flash. Memoised fetch, so
+    // this is safe to call on every size re-render.
     function patchSizeCardImages(){
       if(!elRows) return;
-      fetchAllSizeGalleries().then(function(){
+      var settle=function(){
         var grid=elRows.querySelector('.opt-cards[data-group="'+sizeCid+'"]'); if(!grid) return;
         grid.querySelectorAll('.opt-card').forEach(function(card){
-          var g=sizeGalCache[+card.dataset.opt]; if(!g||!g.length) return;
-          var box=card.querySelector('.im'); if(!box) return;
-          var im=box.querySelector('img');
-          if(im){ if(im.getAttribute('src')!==g[0]) im.src=g[0]; }
-          else { box.classList.remove('ph'); var nm=card.querySelector('.nm'); box.insertAdjacentHTML('afterbegin','<img src="'+esc(g[0])+'" alt="'+esc(nm?nm.textContent:'')+'">'); }
+          var g=sizeGalCache[+card.dataset.opt];
+          setCardImage(card,(g&&g.length&&g[0])||parentLead()||'');
         });
-      }).catch(function(){});
+      };
+      fetchAllSizeGalleries().then(settle).catch(settle);
     }
 
     function maybePreselect(){

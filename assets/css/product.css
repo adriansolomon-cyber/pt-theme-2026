@@ -137,6 +137,11 @@
   .opt-card.sel{ border-color:var(--charcoal); box-shadow:var(--e1); }
   .opt-card .im{ height:84px; background:var(--mist); position:relative; }
   .opt-card .im img{ width:100%; height:100%; object-fit:cover; display:block; }
+  /* size-card image skeleton: shimmer covers the box until the size's own photo loads, then fades in */
+  .opt-card .im .opt-im{ opacity:0; transition:opacity .3s var(--ease); }
+  .opt-card .im.loaded .opt-im{ opacity:1; }
+  .opt-card .im .im-skel{ position:absolute; inset:0; z-index:1; border-radius:0; }
+  .opt-card .im.loaded .im-skel{ display:none; }
   .opt-card .im.ph::after{ content:""; position:absolute; inset:0; background:
     radial-gradient(circle at 50% 42%, rgba(110,106,116,.22) 0 18px, transparent 19px),
     linear-gradient(180deg,var(--mist),#e7e4dd); }
