@@ -2726,7 +2726,8 @@ function tech_specs_tabs_content()
                 '_specs_glazing_thickness'          => 'Glazing Thickness',
                 '_specs_frame_thickness_h_x_w'      => 'Frame Thickness [H x W]',
                 '_specs_overall_floor_size_w_x_d'   => 'Overall Floor Size [W x D]',
-                '_specs_base_size_w_x_d'            => 'Base Size [W x D]'
+                '_specs_base_size_w_x_d'            => 'Base Size [W x D]',
+                '_specs_floor_bearer_profile'       => 'Floor Bearer Profile'
             );
 
             foreach ($arr as $key => $value) {
