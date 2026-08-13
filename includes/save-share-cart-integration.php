@@ -42,6 +42,19 @@ if ( class_exists( 'WSC_Share_Cart_Frontend' ) ) {
 	add_filter( 'default_option_wsc_enable_share_cart_btn_checkout', $pt_wsc_force_checkout );
 
 	/**
+	 * When a shared cart is retrieved (?share-cart=ID), the plugin loads it into the
+	 * session and then redirects to the CART page unless wsc_redirect_customers is
+	 * 'checkout'. This theme has no standalone cart experience (drawer -> checkout),
+	 * so send retrieved carts straight to checkout — where the loaded session cart is
+	 * shown by the order review — matching the old theme's behaviour. Frontend only.
+	 */
+	$pt_wsc_redirect_checkout = function ( $value ) {
+		return is_admin() ? $value : 'checkout';
+	};
+	add_filter( 'option_wsc_redirect_customers', $pt_wsc_redirect_checkout );
+	add_filter( 'default_option_wsc_redirect_customers', $pt_wsc_redirect_checkout );
+
+	/**
 	 * Render the button before the Place Order submit (WooCommerce's default
 	 * payment.php fires this — the theme's form-checkout.php calls
 	 * woocommerce_checkout_payment(), so it runs). The plugin registers the same
