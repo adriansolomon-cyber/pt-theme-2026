@@ -235,7 +235,15 @@ function pt_cat_filters_html( $products ) {
 				function ( $a, $b ) use ( $labels ) {
 					$A = pt_cat_size_val( $labels[ $a ] );
 					$B = pt_cat_size_val( $labels[ $b ] );
-					return ( $A[0] <=> $B[0] ) ?: ( $A[1] <=> $B[1] );
+					// Order by first dimension (width) then second (depth), ascending, so
+					// the list reads cleanly small -> large across many mixed sizes;
+					// non-dimensional values (e.g. "large") sink to the end.
+					$Ad = ( $A[1] || $A[2] ) ? 0 : 1;
+					$Bd = ( $B[1] || $B[2] ) ? 0 : 1;
+					if ( $Ad !== $Bd ) {
+						return $Ad - $Bd;
+					}
+					return ( $A[1] <=> $B[1] ) ?: ( $A[2] <=> $B[2] );
 				}
 			);
 		} else {

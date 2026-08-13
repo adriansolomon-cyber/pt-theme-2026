@@ -126,7 +126,7 @@
         var counts={}, labels={};
         products.forEach(function(p){ var seen={}; facetValues(p,f).forEach(function(v){ if(seen[v.slug]) return; seen[v.slug]=1; counts[v.slug]=(counts[v.slug]||0)+1; labels[v.slug]=v.label; }); });
         var keys=Object.keys(counts); if(!keys.length) return '';
-        if(f.key==='size') keys.sort(function(a,b){ var A=sizeVal(labels[a]),B=sizeVal(labels[b]); return A[0]-B[0]||A[1]-B[1]; });
+        if(f.key==='size') keys.sort(function(a,b){ var A=sizeVal(labels[a]),B=sizeVal(labels[b]); var Ad=(A[1]||A[2])?0:1,Bd=(B[1]||B[2])?0:1; return (Ad-Bd)||(A[1]-B[1])||(A[2]-B[2]); });   // width, then depth; non-dimensional (e.g. "large") last
         else keys.sort(function(a,b){ return String(labels[a]).localeCompare(String(labels[b])); });
         var opts=keys.map(function(k){ return '<label class="fopt"><input type="checkbox" value="'+esc(k)+'"> '+esc(labels[k])+' <span class="ct">'+counts[k]+'</span></label>'; }).join('');
         return '<details class="fgroup"'+(f.open?' open':'')+'><summary>'+esc(f.title)+'</summary><div class="opts" data-filter="'+esc(f.key)+'">'+opts+'</div></details>';
