@@ -51,6 +51,7 @@ require_once get_stylesheet_directory() . '/includes/wc-custom-checkout-function
 require_once get_stylesheet_directory() . '/includes/woo-google-tracking-events-datalayer.php';
 require_once get_stylesheet_directory() . '/includes/woo-google-ads-tracking.php';
 require_once get_stylesheet_directory() . '/includes/woocommerce-my-account.php';
+require_once get_stylesheet_directory() . '/includes/save-share-cart-integration.php'; // Save & Share Cart: surface the button at checkout (custom drawer bypasses cart/mini-cart hooks)
 require_once get_stylesheet_directory() . '/includes/integrations/optimo/optimo-integrations-functions.php';
 require_once get_stylesheet_directory() . '/includes/woo-lead-time-calculator-control.php';
 
