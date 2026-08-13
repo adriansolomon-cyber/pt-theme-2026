@@ -179,9 +179,35 @@
       placePromo(); setCounts(shown); if(noRes) noRes.hidden=shown>0;
     }
     var runFilter=applyStatic;   // static until (and unless) live data arrives
+    // --- URL <-> filter state: reflect ticked filters in the querystring so a
+    // filtered view can be bookmarked / shared / reopened in a new tab and restore
+    // its selection. e.g. /summerhouses/?size=8-x-8,10-x-6&range=hobbyist
+    function syncUrl(){
+      var parts=[];
+      FACETS.forEach(function(f){
+        var vals=[].slice.call(document.querySelectorAll('.opts[data-filter="'+f.key+'"] input:checked')).map(function(b){ return b.value; });
+        if(vals.length) parts.push(encodeURIComponent(f.key)+'='+vals.map(encodeURIComponent).join(','));
+      });
+      var qs=parts.join('&');
+      try{ history.replaceState(null,'',location.pathname+(qs?('?'+qs):'')+location.hash); }catch(e){}
+    }
+    // Tick checkboxes from the URL querystring (opening their facet group). Returns
+    // true if anything matched, so the caller can apply the restored filter.
+    function applyUrlToFilters(){
+      var params; try{ params=new URLSearchParams(location.search); }catch(e){ return false; }
+      var any=false;
+      FACETS.forEach(function(f){
+        var raw=params.get(f.key); if(!raw) return;
+        var wanted=raw.split(',').filter(Boolean);
+        [].slice.call(document.querySelectorAll('.opts[data-filter="'+f.key+'"] input')).forEach(function(b){
+          if(wanted.indexOf(b.value)>-1){ b.checked=true; any=true; var d=b.closest&&b.closest('details.fgroup'); if(d) d.open=true; }
+        });
+      });
+      return any;
+    }
     function refreshGrid(){
       cards=[].slice.call(grid.querySelectorAll('.prod'));
-      [].slice.call(document.querySelectorAll('.drawer-body .opts input')).forEach(function(b){ b.addEventListener('change',function(){ runFilter(); }); });
+      [].slice.call(document.querySelectorAll('.drawer-body .opts input')).forEach(function(b){ b.addEventListener('change',function(){ runFilter(); syncUrl(); }); });
     }
 
     // --- static controls (bound once; read live refs) ---
@@ -191,8 +217,8 @@
     document.getElementById('closeFilters').addEventListener('click',close);
     document.getElementById('applyFilters').addEventListener('click',close);
     backdrop.addEventListener('click',close);
-    document.getElementById('resetFilters').addEventListener('click',function(){ document.querySelectorAll('.drawer input[type=checkbox]').forEach(function(b){ b.checked=false; }); runFilter(); });
-    document.addEventListener('click',function(e){ var t=e.target.closest&&e.target.closest('#clearFilters'); if(t){ e.preventDefault(); document.querySelectorAll('.drawer input[type=checkbox]').forEach(function(b){ b.checked=false; }); runFilter(); } });
+    document.getElementById('resetFilters').addEventListener('click',function(){ document.querySelectorAll('.drawer input[type=checkbox]').forEach(function(b){ b.checked=false; }); runFilter(); syncUrl(); });
+    document.addEventListener('click',function(e){ var t=e.target.closest&&e.target.closest('#clearFilters'); if(t){ e.preventDefault(); document.querySelectorAll('.drawer input[type=checkbox]').forEach(function(b){ b.checked=false; }); runFilter(); syncUrl(); } });
     document.getElementById('sort').addEventListener('change',function(){
       var v=this.value, arr=[].slice.call(grid.querySelectorAll('.prod'));
       if(v==='low') arr.sort(function(a,b){ return a.dataset.price-b.dataset.price; });
@@ -247,6 +273,7 @@
       runFilter=applyDynamic;      // live cards carry data-f-* → switch to multi-facet filtering
       if(noRes){ if(!products.length){ noRes.hidden=false; noRes.textContent='No products found in this category.'; } else noRes.hidden=true; }
       placePromo(); setCounts(total); refreshGrid();
+      if(applyUrlToFilters()) runFilter();   // restore ticked filters from the URL
       if(cat&&cat.slug) saveCatCache(cat.slug,{cat:cat,products:products,prices:prices});
     }
 
@@ -261,7 +288,8 @@
       total=grid.querySelectorAll('.prod').length;
       runFilter=applyDynamic;      // server cards carry data-f-* → multi-facet filtering
       refreshGrid();               // collect cards[] + bind filter-checkbox listeners
-      setCounts(total);
+      if(applyUrlToFilters()){ runFilter(); }   // restore ticked filters from the URL (sets counts)
+      else { setCounts(total); }
       return;                      // done — no cache/skeleton/fetch
     }
 
