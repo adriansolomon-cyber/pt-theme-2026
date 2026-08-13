@@ -523,7 +523,9 @@
       // size that genuinely has no gallery).
       var sizes=Object.keys(scenarios).map(function(id){ var m=meta[id]; var g=sizeGalCache[id];
         return { id:+id, name:scenarios[id].name||((m&&m.name)||('#'+id)), price:m?m.price:null, img:(g&&g.length&&g[0])||(m&&m.img)||'' }; });
-      sizes.sort(function(a,b){ var A=sizeSortVal(a.name),B=sizeSortVal(b.name); return A[0]-B[0]||A[1]-B[1]||A[2]-B[2]; });
+      // Sort width-first then depth (ascending) so the list reads cleanly small ->
+      // large, matching the category-page Size filter; non-dimensional sizes last.
+      sizes.sort(function(a,b){ var A=sizeSortVal(a.name),B=sizeSortVal(b.name); var Ad=(A[1]||A[2])?0:1,Bd=(B[1]||B[2])?0:1; return (Ad-Bd)||(A[1]-B[1])||(A[2]-B[2]); });
       return sizes;
     }
     function renderSizeRow(){
