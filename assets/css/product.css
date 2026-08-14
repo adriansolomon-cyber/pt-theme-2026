@@ -253,11 +253,8 @@
   .specs .seg{ display:inline-flex; background:#fff; border:1px solid rgba(33,30,36,.14); border-radius:12px; padding:4px; gap:4px; flex-wrap:wrap; }
   .specs .seg button{ border:none; cursor:pointer; font-family:var(--font); font-weight:400; color:var(--txt-soft); background:transparent; padding:8px 16px; border-radius:9px; font-size:.86rem; }
   .specs .seg button.on{ background:var(--charcoal); color:#fff; font-weight:700; }
-  /* empty state: until a size is chosen (.specs.has-size), hide the cards + diagram and show the prompt */
-  .spec-empty{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; text-align:center; padding:52px 24px; background:#fff; border:1px dashed rgba(33,30,36,.18); border-radius:var(--r-sm); color:var(--txt-soft); }
-  .spec-empty svg{ color:var(--txt-soft); opacity:.7; }
-  .spec-empty p{ font-size:.95rem; font-weight:300; margin:0; }
-  .specs.has-size .spec-empty{ display:none; }
+  /* Cards + diagram stay hidden until product.js preselects a size (.specs.has-size),
+     so first paint never flashes generic placeholder values. */
   .specs:not(.has-size) .spec-cards, .specs:not(.has-size) .spec-figure{ display:none !important; }
   .spec-cards{ columns:3 300px; column-gap:18px; }
   .spec-card{ break-inside:avoid; -webkit-column-break-inside:avoid; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); padding:22px 24px; box-shadow:var(--e1); margin:0 0 18px; }

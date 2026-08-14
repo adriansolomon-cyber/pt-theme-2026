@@ -215,7 +215,7 @@
       try{ sessionStorage.setItem(ckey(pid), JSON.stringify({ t:Date.now(), product:product, components:components, scenarios:scenarios, rawScenarios:rawScenarios, sizeCid:sizeCid, meta:meta })); }catch(e){}
     }
     function loadCache(pid){
-      if(!CACHE_CONFIG) return null;   // prices are never cached — always fetch live
+      if(!CACHE_CONFIG) return null;   // cache disabled → always fetch live
       try{
         var c=JSON.parse(sessionStorage.getItem(ckey(pid))||'null');
         if(!c||!c.product) return null;
