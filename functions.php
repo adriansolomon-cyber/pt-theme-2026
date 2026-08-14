@@ -251,6 +251,12 @@ add_action(
 			if ( file_exists( $dir . '/assets/css/checkout.css' ) ) {
 				wp_enqueue_style( 'pt-checkout', $uri . '/assets/css/checkout.css', array( 'pt-base' ), $ver( 'assets/css/checkout.css' ) );
 			}
+			// In-place order-summary item removal (Store API) so "Remove" doesn't
+			// navigate off checkout to /cart/. Reads window.wcStoreApiNonce (mini-cart).
+			if ( file_exists( $dir . '/assets/js/checkout-cart.js' ) ) {
+				wp_enqueue_script( 'pt-checkout-cart', $uri . '/assets/js/checkout-cart.js', array( 'jquery' ), $ver( 'assets/js/checkout-cart.js' ), true );
+				wp_add_inline_script( 'pt-checkout-cart', 'window.PT_SHOP_URL=' . wp_json_encode( home_url( '/garden-offices/' ) ) . ';', 'before' );
+			}
 		}
 
 		// --- Product-category archive (taxonomy-product_cat.php) --------------

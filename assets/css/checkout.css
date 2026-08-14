@@ -107,6 +107,13 @@
   .sum-item .si{ flex:1; min-width:0; } .sum-item .si .rng{ font-size:.72rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--clay); }
   .sum-item .si h3{ font-size:.96rem; margin:2px 0 4px; } .sum-item .si .pr{ font-weight:700; }
   .sum-item .si .rm{ margin-top:5px; background:none; border:none; padding:0; cursor:pointer; font-family:var(--font); color:var(--txt-soft); font-size:.78rem; text-decoration:underline; text-underline-offset:2px; }
+  /* in-place remove: fade the row while the Store API DELETE is in flight */
+  .sum-item.removing{ opacity:.5; pointer-events:none; transition:opacity .18s ease; }
+  /* empty state shown when the last item is removed on checkout (no redirect to /cart/) */
+  .co-empty{ text-align:center; padding:26px 8px; }
+  .co-empty h2{ font-size:1.1rem; margin-bottom:8px; }
+  .co-empty p{ color:var(--txt-soft); font-weight:300; margin-bottom:16px; }
+  .co-empty .co-empty-cta{ display:inline-flex; align-items:center; justify-content:center; background:var(--charcoal); color:#fff; text-decoration:none; font-weight:700; font-size:.86rem; padding:11px 20px; border-radius:11px; }
 
   .cfg{ margin-top:16px; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); overflow:hidden; }
   .cfg summary{ list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; padding:12px 15px; font-weight:700; font-size:.86rem; background:var(--mist); } .cfg summary::-webkit-details-marker{ display:none; }
