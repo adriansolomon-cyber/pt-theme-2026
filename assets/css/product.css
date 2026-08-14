@@ -516,6 +516,15 @@
 .cfg-preview .cfg-info{ margin-top:16px; }
 .cfg-preview .cfg-titlerow{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
 .cfg-preview .cfg-title{ font-size:1.4rem; line-height:1.15; }
+.cfg-preview .cfg-titlerow .cfg-title{ flex:1 1 auto; }
+/* Admin/editor-only "Refresh prices" pill (mounted by product.js when PT_ADMIN_EDIT is set). */
+.cfg-refresh{ flex:0 0 auto; align-self:flex-start; display:inline-flex; align-items:center; gap:6px; padding:6px 11px; border:1px solid rgba(33,30,36,.16); border-radius:999px; background:#fff; color:var(--ink); font:inherit; font-size:.78rem; font-weight:600; line-height:1; cursor:pointer; box-shadow:var(--e1); transition:background .15s, border-color .15s, opacity .15s; }
+.cfg-refresh svg{ display:block; transition:transform .6s ease; }
+@media(hover:hover){ .cfg-refresh:hover{ background:#f6f4f1; border-color:rgba(33,30,36,.3); } }
+.cfg-refresh:disabled{ cursor:default; opacity:.6; }
+.cfg-refresh.is-loading svg{ animation:cfg-refresh-spin .8s linear infinite; }
+@keyframes cfg-refresh-spin{ to{ transform:rotate(360deg); } }
+@media(max-width:520px){ .cfg-refresh span{ display:none; } .cfg-refresh{ padding:6px; } }
 .cfg-preview .cfg-mib{ flex:0 0 auto; width:86px; height:auto; aspect-ratio:auto; object-fit:contain; border-radius:0; box-shadow:none; background:none; display:block; }
 @media(max-width:520px){ .cfg-preview .cfg-mib{ width:66px; } }
 .cfg-preview .cfg-size-cap{ font-size:.85rem; color:var(--txt-soft); font-weight:300; margin-top:7px; } .cfg-preview .cfg-size-cap b{ color:var(--ink); font-weight:700; }

@@ -146,6 +146,42 @@
         + '</a>';
     }
 
+    // Admin/editor "Refresh prices" button. Prices reach the configurator as JSON and are
+    // cached in sessionStorage (10 min) — after a price edit an editor can force a hard,
+    // CDN-bypassing refetch instead of waiting for the cache/CDN to expire. Mounted only
+    // when PT_ADMIN_EDIT is set (i.e. the user can edit this product). See cfgUrl()/forceFresh.
+    function clearCfgCache(pid){
+      try{
+        if(pid!=null) sessionStorage.removeItem(ckey(pid));
+        for(var i=sessionStorage.length-1;i>=0;i--){ var k=sessionStorage.key(i); if(k&&k.indexOf('ptCfg:')===0) sessionStorage.removeItem(k); }
+      }catch(e){}
+    }
+    function forceRefresh(btn){
+      var pid=curPid||parseInt(urlPid()||DEFAULT_PID,10);
+      if(!pid) return;
+      clearCfgCache(pid);
+      forceFresh=true; sel={}; sizeId=null;
+      if(btn){ btn.classList.add('is-loading'); btn.disabled=true; }
+      status('Refreshing prices…',false,true); if(elAdd) elAdd.disabled=true; showSkeleton();
+      loadViaConfig(pid).catch(function(e){ if(e&&e.message) console.warn('config refresh → proxy flow:', e.message); return loadViaProxy(pid); })
+        .catch(function(err){ console.error(err); status(err.message||'Refresh failed — check the connection.',true); })
+        .then(function(){ forceFresh=false; if(btn){ btn.classList.remove('is-loading'); btn.disabled=false; } });
+    }
+    function mountRefreshBtn(){
+      if(!window.PT_ADMIN_EDIT) return;                                    // editors only
+      var row=document.querySelector('.cfg-titlerow');
+      if(!row || row.querySelector('.cfg-refresh')) return;
+      var b=document.createElement('button');
+      b.type='button'; b.className='cfg-refresh';
+      b.title='Clear the price cache and reload live prices from WooCommerce';
+      b.setAttribute('aria-label','Refresh prices');
+      b.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>'
+        + '<span>Refresh prices</span>';
+      b.addEventListener('click',function(){ forceRefresh(b); });
+      var mib=row.querySelector('.cfg-mib');
+      if(mib) row.insertBefore(b, mib); else row.appendChild(b);
+    }
+
     function fmt(n){ return '£'+Math.round(n).toLocaleString('en-GB')+'.00'; }
     function fmtm(n){ return '£'+Math.round(n).toLocaleString('en-GB'); }
     function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -186,7 +222,10 @@
       var url=baseUrl()+PROXY_ROUTE+'?path='+encodeURIComponent(route);
       return extra?url+'&'+extra:url;
     }
-    function cfgUrl(pid){ return baseUrl()+'/wp-json/wc/v3/product/'+encodeURIComponent(pid)+'/config'; }
+    // forceFresh (set by the admin "Refresh prices" button) appends a cache-buster so the
+    // request skips any CDN / endpoint cache and returns live prices.
+    var forceFresh=false;
+    function cfgUrl(pid){ var u=baseUrl()+'/wp-json/wc/v3/product/'+encodeURIComponent(pid)+'/config'; return forceFresh?(u+'?_ts='+Date.now()):u; }
     // Store API (key-free, same-origin, always present — core WooCommerce Blocks). Used for
     // the product image gallery so it doesn't depend on the prod-only timber/v1/wc proxy,
     // which isn't installed on staging (that call was 404ing).
@@ -852,7 +891,7 @@
     // route page CTAs to configurator (add-to-basket excluded via .cfgadd)
     document.querySelectorAll('.subnav .buy, .pricepill .go, .buybar .go, .final .go').forEach(function(b){ b.addEventListener('click',function(){ var c=document.getElementById('configure'); if(c) c.scrollIntoView({behavior:'smooth'}); }); });
 
-    recalc(); load();
+    mountRefreshBtn(); recalc(); load();
   })();
 
   // mobile menu toggle
