@@ -664,11 +664,22 @@
       fetchAllSizeGalleries().then(settle).catch(settle);
     }
 
+    // Default size when the URL doesn't name one: the first BESTSELLER in the sorted
+    // list (so the default "Bestsellers" tab stays active), else the first size overall.
+    function defaultSizeId(){
+      var sizes=sortedSizes(); if(!sizes.length) return null;
+      for(var i=0;i<sizes.length;i++){ if(isBestSize(sizes[i].name)) return sizes[i].id; }
+      return sizes[0].id;
+    }
     function maybePreselect(){
-      if(!pendingSize) return null;
+      // No size in the URL → preselect a sensible default so Specifications populate
+      // straight away (instead of the "select a size" empty state).
+      if(!pendingSize){ var d=defaultSizeId(); return d!=null ? selectSize(d) : null; }
       var want=pendingSize; pendingSize=null;
       var id=scenarios[want]?+want:null;
       if(id==null){ var norm=function(s){ return String(s).toLowerCase().replace(/×/g,'x').replace(/[^a-z0-9]+/g,''); }; Object.keys(scenarios).forEach(function(k){ if(id==null && norm(scenarios[k].name)===norm(want)) id=+k; }); }
+      // Unknown URL size → fall back to the default rather than nothing.
+      if(id==null) id=defaultSizeId();
       return id!=null ? selectSize(id) : null;
     }
 
