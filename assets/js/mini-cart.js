@@ -231,7 +231,16 @@
     rm.disabled = true;
     if (line) line.classList.add('ptc-removing');
     cartFetch('/cart/items/' + encodeURIComponent(key), { method: 'DELETE' })
-      .then(function (cart) { renderCart(cart); toast(name + ' removed'); })
+      .then(function () {
+        // Drop the line from the DOM right away. We do NOT render the DELETE response:
+        // for composite items it can still list the just-removed product (parent/child
+        // settle a beat later), which is why it only vanished on refresh. A fresh
+        // GET /cart is authoritative — reconcile items/totals/badge/empty-state from it.
+        if (line && line.parentNode) line.parentNode.removeChild(line);
+        if (!document.querySelectorAll('#ptcItems .ptc-line').length) show('empty');
+        toast(name + ' removed');
+        loadCart();
+      })
       .catch(function (err) {
         console.error(err);
         rm.disabled = false;
