@@ -149,7 +149,8 @@
     // Admin/editor "Refresh prices" button. Prices reach the configurator as JSON and are
     // cached in sessionStorage (10 min) — after a price edit an editor can force a hard,
     // CDN-bypassing refetch instead of waiting for the cache/CDN to expire. Mounted only
-    // when PT_ADMIN_EDIT is set (i.e. the user can edit this product). See cfgUrl()/forceFresh.
+    // when PT_ADMIN_EDIT is set (i.e. the user can edit this product). Prices are never
+    // cached (CACHE_CONFIG=false), so this just forces a fresh re-pull without a full reload.
     function clearCfgCache(pid){
       try{
         if(pid!=null) sessionStorage.removeItem(ckey(pid));
@@ -160,12 +161,12 @@
       var pid=curPid||parseInt(urlPid()||DEFAULT_PID,10);
       if(!pid) return;
       clearCfgCache(pid);
-      forceFresh=true; sel={}; sizeId=null;
+      sel={}; sizeId=null;
       if(btn){ btn.classList.add('is-loading'); btn.disabled=true; }
       status('Refreshing prices…',false,true); if(elAdd) elAdd.disabled=true; showSkeleton();
       loadViaConfig(pid).catch(function(e){ if(e&&e.message) console.warn('config refresh → proxy flow:', e.message); return loadViaProxy(pid); })
         .catch(function(err){ console.error(err); status(err.message||'Refresh failed — check the connection.',true); })
-        .then(function(){ forceFresh=false; if(btn){ btn.classList.remove('is-loading'); btn.disabled=false; } });
+        .then(function(){ if(btn){ btn.classList.remove('is-loading'); btn.disabled=false; } });
     }
     function mountRefreshBtn(){
       if(!window.PT_ADMIN_EDIT) return;                                    // editors only
@@ -200,12 +201,18 @@
     // server-side product edit self-heals within the session.
     var CACHE_VER='4';                 // v4 = payload carries raw scenarios; options filter by prior selections. v3 = union material scenarios; v2 = Any-Option + images[]
     var CACHE_TTL=10*60*1000;          // 10 minutes
+    // Prices are embedded in the /config payload, so caching the config = caching prices.
+    // To guarantee a price edit shows up immediately we NEVER persist the config
+    // client-side (every load fetches live). Flip to true to restore the old 10-min
+    // session cache (faster repeat loads, but prices can lag an edit by up to 10 min).
+    var CACHE_CONFIG=false;
     function ckey(pid){ return 'ptCfg:'+CACHE_VER+':'+DEFAULT_BASE+':'+pid; }
     function saveCache(pid){
-      if(!pid||!product) return;
+      if(!CACHE_CONFIG || !pid || !product) return;
       try{ sessionStorage.setItem(ckey(pid), JSON.stringify({ t:Date.now(), product:product, components:components, scenarios:scenarios, rawScenarios:rawScenarios, sizeCid:sizeCid, meta:meta })); }catch(e){}
     }
     function loadCache(pid){
+      if(!CACHE_CONFIG) return null;   // prices are never cached — always fetch live
       try{
         var c=JSON.parse(sessionStorage.getItem(ckey(pid))||'null');
         if(!c||!c.product) return null;
@@ -219,13 +226,14 @@
     // proxy: GET <base>/wp-json/timber/v1/wc?path=<wc/v3 path>[&<extra query>] — keys are added server-side.
     function api(path){
       var q=path.indexOf('?'); var route=q>-1?path.slice(0,q):path; var extra=q>-1?path.slice(q+1):'';
-      var url=baseUrl()+PROXY_ROUTE+'?path='+encodeURIComponent(route);
+      // proxy carries prices (products list / composite product) → cache-bust so the CDN
+      // never serves stale figures. _ts is an unknown param the proxy simply passes through.
+      var url=baseUrl()+PROXY_ROUTE+'?path='+encodeURIComponent(route)+'&_ts='+Date.now();
       return extra?url+'&'+extra:url;
     }
-    // forceFresh (set by the admin "Refresh prices" button) appends a cache-buster so the
-    // request skips any CDN / endpoint cache and returns live prices.
-    var forceFresh=false;
-    function cfgUrl(pid){ var u=baseUrl()+'/wp-json/wc/v3/product/'+encodeURIComponent(pid)+'/config'; return forceFresh?(u+'?_ts='+Date.now()):u; }
+    // Prices are embedded in this payload — always append a cache-buster so the request
+    // skips any CDN / browser cache and returns live prices (see CACHE_CONFIG).
+    function cfgUrl(pid){ return baseUrl()+'/wp-json/wc/v3/product/'+encodeURIComponent(pid)+'/config?_ts='+Date.now(); }
     // Store API (key-free, same-origin, always present — core WooCommerce Blocks). Used for
     // the product image gallery so it doesn't depend on the prod-only timber/v1/wc proxy,
     // which isn't installed on staging (that call was 404ing).
