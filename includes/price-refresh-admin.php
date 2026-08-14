@@ -31,7 +31,10 @@ function pt_can_refresh_prices() {
  * need the side effect. Safe to call repeatedly; each call only rotates the versions.
  */
 function pt_refresh_all_prices() {
-	// 1. Configurator config cache (mu-plugin's global generation counter).
+	// 1. Configurator config cache (mu-plugin's global generation counter). This same
+	//    counter is injected as window.PT_PRICE_VER and folded into the browser cache key
+	//    (see functions.php / product.js), so bumping it flushes the CLIENT sessionStorage
+	//    cache site-wide too — not just the server transient.
 	update_option( 'timber_pcfg_gen', (int) get_option( 'timber_pcfg_gen', 1 ) + 1, false );
 	// 2. Category "from" price cache (theme).
 	if ( function_exists( 'pt_bump_from_price_cache_ver' ) ) {

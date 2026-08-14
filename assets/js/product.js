@@ -201,12 +201,15 @@
     // server-side product edit self-heals within the session.
     var CACHE_VER='4';                 // v4 = payload carries raw scenarios; options filter by prior selections. v3 = union material scenarios; v2 = Any-Option + images[]
     var CACHE_TTL=10*60*1000;          // 10 minutes
-    // Prices are embedded in the /config payload, so caching the config = caching prices.
-    // To guarantee a price edit shows up immediately we NEVER persist the config
-    // client-side (every load fetches live). Flip to true to restore the old 10-min
-    // session cache (faster repeat loads, but prices can lag an edit by up to 10 min).
-    var CACHE_CONFIG=false;
-    function ckey(pid){ return 'ptCfg:'+CACHE_VER+':'+DEFAULT_BASE+':'+pid; }
+    // The config cache (prices included) is kept for fast repeat loads. It is versioned by
+    // the server's global price-cache generation (window.PT_PRICE_VER = timber_pcfg_gen):
+    // the admin "Refresh all prices" button bumps that counter — and so does any product
+    // save — which changes the key here, orphaning every stale entry site-wide. So a global
+    // flush (or a normal edit) invalidates the client cache too, not just the server's. The
+    // 10-min TTL remains the backstop for browsers still holding a full-page-cached version.
+    var CACHE_CONFIG=true;
+    var PRICE_VER=(typeof window!=='undefined' && window.PT_PRICE_VER!=null) ? String(window.PT_PRICE_VER) : '0';
+    function ckey(pid){ return 'ptCfg:'+CACHE_VER+':'+PRICE_VER+':'+DEFAULT_BASE+':'+pid; }
     function saveCache(pid){
       if(!CACHE_CONFIG || !pid || !product) return;
       try{ sessionStorage.setItem(ckey(pid), JSON.stringify({ t:Date.now(), product:product, components:components, scenarios:scenarios, rawScenarios:rawScenarios, sizeCid:sizeCid, meta:meta })); }catch(e){}

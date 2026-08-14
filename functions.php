@@ -242,6 +242,10 @@ add_action(
 					. 'window.PT_PRODUCT_ID=' . wp_json_encode( (string) get_queried_object_id() ) . ';'
 					. 'window.PT_BEST_SIZES=' . wp_json_encode( $pt_best_arr ) . ';'
 					. 'window.PT_DISCOUNT_PCT=' . wp_json_encode( $pt_disc ) . ';'
+					// Global price-cache generation — folded into the client cache key so the
+					// admin "Refresh all prices" button (and any product save) busts the browser
+					// cache site-wide, not just the server's. See includes/price-refresh-admin.php.
+					. 'window.PT_PRICE_VER=' . wp_json_encode( (int) get_option( 'timber_pcfg_gen', 1 ) ) . ';'
 					. 'window.PT_ADMIN_EDIT=' . wp_json_encode( $pt_admin_edit ) . ';'
 					. 'window.PT_SPEC_IMAGES=' . wp_json_encode( (object) $pt_spec_imgs ) . ';',
 					'before'
