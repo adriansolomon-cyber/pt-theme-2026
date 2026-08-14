@@ -36,6 +36,9 @@ add_filter(
 require_once get_stylesheet_directory() . '/inc/category-render.php';
 // Single-product dynamic helpers (from price, category-line name).
 require_once get_stylesheet_directory() . '/inc/product-render.php';
+// Admin-bar "Refresh all prices" — global price-cache flush (loads after the cache
+// helpers above so it can call their bump functions).
+require_once get_stylesheet_directory() . '/includes/price-refresh-admin.php';
 // Live search suggestions REST endpoint (header typeahead).
 require_once get_stylesheet_directory() . '/inc/search-suggest.php';
 require_once get_stylesheet_directory() . '/includes/pt-recently-viewed.php'; // "You might also like" recently-viewed
