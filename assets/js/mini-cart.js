@@ -98,7 +98,15 @@
     if (nonce) opts.headers['Nonce'] = nonce;
     return fetch(STORE + path, opts).then(function (r) {
       var n = r.headers.get('Nonce'); if (n) nonce = n;
-      return r.json().then(function (j) { if (!r.ok) throw new Error(j && j.message ? j.message : ('HTTP ' + r.status)); return j; });
+      // Read as text: the Store API DELETE returns 204 No Content (empty body), and
+      // r.json() would throw on that — which used to reject a *successful* remove and
+      // leave the line on screen. Parse only when there's a body; null otherwise.
+      return r.text().then(function (txt) {
+        var j = null;
+        if (txt) { try { j = JSON.parse(txt); } catch (e) { j = null; } }
+        if (!r.ok) throw new Error((j && j.message) ? j.message : ('HTTP ' + r.status));
+        return j;
+      });
     });
   }
 
@@ -241,16 +249,17 @@
     if (line) line.classList.add('ptc-removing');
     cartFetch('/cart/items/' + encodeURIComponent(key), { method: 'DELETE' })
       .then(function (cart) {
-        // Remove ONLY this line from the DOM and refresh the totals — leave every other
-        // line exactly as it is (no reload / re-render). We update totals from the
-        // DELETE response's totals (the server's post-removal calculation) rather than
-        // re-rendering its items array, which for composite products can still list the
-        // just-removed product for a beat.
+        // Success (the Store API DELETE is usually 204 No Content → cart is null).
+        // Remove ONLY this line from the DOM; leave every other line exactly as it is
+        // (no re-render). Then refresh the totals: from the response if it carried the
+        // cart, otherwise a lightweight GET that updates totals ONLY (applyTotals),
+        // never re-rendering the remaining items.
         if (line && line.parentNode) line.parentNode.removeChild(line);
         delete _dlByKey[key];
         toast(name + ' removed');
-        if (!document.querySelectorAll('#ptcItems .ptc-line').length) { show('empty'); setBadges(0); }
-        else applyTotals(cart);
+        if (!document.querySelectorAll('#ptcItems .ptc-line').length) { show('empty'); setBadges(0); return; }
+        if (cart && cart.totals) { applyTotals(cart); }
+        else { cartFetch('/cart').then(function (fresh) { if (fresh) { _lastCart = fresh; applyTotals(fresh); } }).catch(function () {}); }
       })
       .catch(function (err) {
         console.error(err);
