@@ -224,10 +224,20 @@
     var name = (nameEl && nameEl.textContent.trim()) || 'Item';
     var dlItem = _dlByKey[key];
     if (dlItem) pushCartEvent('remove_from_cart', [ { item_id: dlItem.item_id, item_name: dlItem.item_name, item_variant: dlItem.item_variant, price: dlItem.price, quantity: dlItem.quantity } ], (parseFloat(dlItem.price) || 0) * (dlItem.quantity || 1));
+    // Immediate visual feedback: fade the line + spin the button while the Store API
+    // DELETE is in flight (it's a network round-trip, so without this a click looks
+    // like nothing happened). Reconcile on response: renderCart drops it on success,
+    // or we restore the line + toast on failure.
     rm.disabled = true;
+    if (line) line.classList.add('ptc-removing');
     cartFetch('/cart/items/' + encodeURIComponent(key), { method: 'DELETE' })
       .then(function (cart) { renderCart(cart); toast(name + ' removed'); })
-      .catch(function (err) { console.error(err); rm.disabled = false; couponMsg((err && err.message) || 'Could not remove that item.', true); });
+      .catch(function (err) {
+        console.error(err);
+        rm.disabled = false;
+        if (line) line.classList.remove('ptc-removing');
+        toast((err && err.message) || ('Couldn’t remove ' + name + ' — please try again.'));
+      });
   });
 
   var capply = document.getElementById('ptcCouponApply'), cinput = document.getElementById('ptcCouponInput');

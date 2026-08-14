@@ -203,6 +203,13 @@ a{ color:inherit; }
 .ptc-pr{ font-size:1.12rem; font-weight:700; }
 .ptc-rm{ margin-top:7px; display:inline-flex; align-items:center; gap:5px; background:none; border:none; padding:0; cursor:pointer; font-family:var(--font); color:#6E6A74; font-size:.8rem; text-decoration:underline; text-underline-offset:2px; }
 .ptc-rm svg{ width:13px; height:13px; }
+/* removing state: fade the whole line + swap the trash icon for a spinner while the DELETE is in flight */
+.ptc-line.ptc-removing{ opacity:.5; pointer-events:none; transition:opacity .18s ease; }
+.ptc-line.ptc-removing .ptc-rm{ cursor:default; }
+.ptc-line.ptc-removing .ptc-rm svg{ display:none; }
+.ptc-line.ptc-removing .ptc-rm::before{ content:""; display:inline-block; width:12px; height:12px; border:2px solid rgba(33,30,36,.22); border-top-color:#6E6A74; border-radius:50%; animation:ptc-rm-spin .6s linear infinite; }
+@keyframes ptc-rm-spin{ to{ transform:rotate(360deg); } }
+@media(prefers-reduced-motion:reduce){ .ptc-line.ptc-removing .ptc-rm::before{ animation:none; } }
 .ptc-cfg{ margin-top:18px; border:1px solid rgba(33,30,36,.1); border-radius:16px; overflow:hidden; }
 .ptc-cfg summary{ list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; padding:13px 16px; font-weight:700; font-size:.9rem; background:#F5F5F5; font-family:var(--font); }
 .ptc-cfg summary::-webkit-details-marker{ display:none; }
