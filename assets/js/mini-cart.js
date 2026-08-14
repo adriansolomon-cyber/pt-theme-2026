@@ -167,10 +167,20 @@
       _dlByKey[it.key] = item; _dlItems.push(item);
     });
     var n = cart.items_count || items.reduce(function (a, b) { return a + (b.quantity || 0); }, 0);
-    setBadges(n);
-    if (!items.length) { show('empty'); return; }
+    if (!items.length) { setBadges(n); show('empty'); return; }
     show('filled');
     var box = document.getElementById('ptcItems'); if (box) box.innerHTML = items.map(itemHTML).join('');
+    applyTotals(cart);
+    couponMsg('');
+  }
+
+  // Update badge + count + subtotal/total/VAT/discount + coupons from a cart object,
+  // WITHOUT touching the item list — so one line can be removed surgically (see the
+  // remove handler) and the totals refreshed without re-rendering the other items.
+  function applyTotals(cart) {
+    var items = (cart.items || []).filter(function (it) { return !parentKeyOf(it); });
+    var n = (cart.items_count != null) ? cart.items_count : items.reduce(function (a, b) { return a + (b.quantity || 0); }, 0);
+    setBadges(n);
     setText('#ptcCount', n + ' item' + (n === 1 ? '' : 's'));
     var t = cart.totals || {};
     setText('#ptcSubtotal', money(withTax(t.total_items, t.total_items_tax), t));
@@ -180,7 +190,6 @@
     if (dln) dln.hidden = !(disc > 0);
     if (disc > 0) setText('#ptcDiscount', '−' + money(withTax(t.total_discount, t.total_discount_tax), t));
     renderCoupons(cart.coupons || []);
-    couponMsg('');
   }
 
   function renderCoupons(list) {
@@ -231,15 +240,17 @@
     rm.disabled = true;
     if (line) line.classList.add('ptc-removing');
     cartFetch('/cart/items/' + encodeURIComponent(key), { method: 'DELETE' })
-      .then(function () {
-        // Drop the line from the DOM right away. We do NOT render the DELETE response:
-        // for composite items it can still list the just-removed product (parent/child
-        // settle a beat later), which is why it only vanished on refresh. A fresh
-        // GET /cart is authoritative — reconcile items/totals/badge/empty-state from it.
+      .then(function (cart) {
+        // Remove ONLY this line from the DOM and refresh the totals — leave every other
+        // line exactly as it is (no reload / re-render). We update totals from the
+        // DELETE response's totals (the server's post-removal calculation) rather than
+        // re-rendering its items array, which for composite products can still list the
+        // just-removed product for a beat.
         if (line && line.parentNode) line.parentNode.removeChild(line);
-        if (!document.querySelectorAll('#ptcItems .ptc-line').length) show('empty');
+        delete _dlByKey[key];
         toast(name + ' removed');
-        loadCart();
+        if (!document.querySelectorAll('#ptcItems .ptc-line').length) { show('empty'); setBadges(0); }
+        else applyTotals(cart);
       })
       .catch(function (err) {
         console.error(err);
