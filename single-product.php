@@ -131,7 +131,7 @@ get_header();
   <span class="brand"><?php echo esc_html( $pt_name_short ); ?></span>
   <nav class="tabs"><a href="#configure">Configure</a><?php
     if ( $pt_show( 'show_highlights' ) ) { echo '<a href="#highlights">Highlights</a>'; }
-    if ( $pt_show( 'show_feature_card' ) ) { echo '<a href="#insulation">Insulation</a>'; }
+    if ( $pt_show( 'show_feature_card' ) ) { echo '<a href="#insulation">Features</a>'; }
     if ( $pt_show( 'show_assembly' ) ) { echo '<a href="#assembly">Assembly</a>'; }
     if ( $pt_show( 'show_specs' ) ) { echo '<a href="#specs">Specs</a>'; }
     if ( $pt_show( 'show_faq' ) ) { echo '<a href="#faq">FAQ</a>'; }
