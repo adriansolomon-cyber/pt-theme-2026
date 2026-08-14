@@ -161,12 +161,12 @@
       var pid=curPid||parseInt(urlPid()||DEFAULT_PID,10);
       if(!pid) return;
       clearCfgCache(pid);
-      sel={}; sizeId=null;
+      adminBypass=true; sel={}; sizeId=null;   // force a full server-side rebuild (nocache=1)
       if(btn){ btn.classList.add('is-loading'); btn.disabled=true; }
       status('Refreshing prices…',false,true); if(elAdd) elAdd.disabled=true; showSkeleton();
       loadViaConfig(pid).catch(function(e){ if(e&&e.message) console.warn('config refresh → proxy flow:', e.message); return loadViaProxy(pid); })
         .catch(function(err){ console.error(err); status(err.message||'Refresh failed — check the connection.',true); })
-        .then(function(){ if(btn){ btn.classList.remove('is-loading'); btn.disabled=false; } });
+        .then(function(){ adminBypass=false; if(btn){ btn.classList.remove('is-loading'); btn.disabled=false; } });
     }
     function mountRefreshBtn(){
       if(!window.PT_ADMIN_EDIT) return;                                    // editors only
@@ -232,8 +232,13 @@
       return extra?url+'&'+extra:url;
     }
     // Prices are embedded in this payload — always append a cache-buster so the request
-    // skips any CDN / browser cache and returns live prices (see CACHE_CONFIG).
-    function cfgUrl(pid){ return baseUrl()+'/wp-json/wc/v3/product/'+encodeURIComponent(pid)+'/config?_ts='+Date.now(); }
+    // skips any CDN / browser cache and returns live prices (see CACHE_CONFIG). _ts busts
+    // the CDN but WP still serves its own 12h transient (it self-invalidates on product
+    // save). adminBypass adds the mu-plugin's nocache=1 so the admin Refresh button forces
+    // a full server-side rebuild too — never sent on public traffic (that would rebuild the
+    // composite config on every visit).
+    var adminBypass=false;
+    function cfgUrl(pid){ var u=baseUrl()+'/wp-json/wc/v3/product/'+encodeURIComponent(pid)+'/config?_ts='+Date.now(); return adminBypass?(u+'&nocache=1'):u; }
     // Store API (key-free, same-origin, always present — core WooCommerce Blocks). Used for
     // the product image gallery so it doesn't depend on the prod-only timber/v1/wc proxy,
     // which isn't installed on staging (that call was 404ing).
