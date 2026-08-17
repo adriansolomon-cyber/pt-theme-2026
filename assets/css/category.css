@@ -56,6 +56,11 @@
   .crumbs a{ text-decoration:none; color:var(--txt-soft); }
   @media(hover:hover){ .crumbs a:hover{ color:var(--ink); } }
   .crumbs .sep{ margin:0 7px; opacity:.5; } .crumbs .here{ color:var(--ink); }
+  /* Optional per-category banner (ACF "Category Banner"), above the intro. */
+  .cat-banner{ display:block; margin:14px 0 4px; border-radius:var(--r-sm,14px); overflow:hidden; }
+  .cat-banner .cat-banner-pic,.cat-banner img{ display:block; width:100%; height:auto; }
+  a.cat-banner{ transition:opacity .15s; }
+  @media(hover:hover){ a.cat-banner:hover{ opacity:.94; } }
   .cat-intro{ padding:12px 0 4px; }
   /* Title: clamp to max 3 lines. min-height reserves 1 line so it doesn't collapse before it fills. */
   .cat-intro h1{ font-size:clamp(2rem,5vw,3rem); min-height:1.05em; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; line-clamp:3; overflow:hidden; }

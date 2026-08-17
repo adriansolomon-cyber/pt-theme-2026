@@ -30,6 +30,17 @@ $pt_desc_html = ( '' !== trim( (string) $pt_desc ) )
 	? ( preg_match( '/<(p|h[1-6]|ul|ol|div|section|br)\b/i', $pt_desc ) ? wp_kses_post( $pt_desc ) : pt_cat_paragraphs_html( $pt_desc ) )
 	: '';
 
+// Optional per-category banner (ACF field group "Category Banner" on product_cat).
+// Shown only when the "Show category banner" toggle is on for this term. cat_banner_*
+// fields return URLs; the mobile image + link + alt are optional.
+$pt_banner_src = $pt_banner_src_m = $pt_banner_link = $pt_banner_alt = '';
+if ( function_exists( 'get_field' ) && $pt_term && get_field( 'cat_banner_enabled', $pt_term ) ) {
+	$pt_banner_src   = (string) get_field( 'cat_banner_image', $pt_term );
+	$pt_banner_src_m = (string) get_field( 'cat_banner_image_mobile', $pt_term );
+	$pt_banner_link  = (string) get_field( 'cat_banner_link', $pt_term );
+	$pt_banner_alt   = (string) get_field( 'cat_banner_alt', $pt_term );
+}
+
 get_header();
 ?>
 
@@ -38,6 +49,21 @@ get_header();
   <nav class="crumbs" aria-label="Breadcrumb">
     <a href="<?php echo esc_url( home_url( '/' ) ); ?>">Home</a><span class="sep">/</span><span class="here" aria-current="page"><?php echo esc_html( $pt_name ); ?></span>
   </nav>
+
+  <?php if ( '' !== $pt_banner_src ) : ?>
+    <?php
+    // Picture element so an optional mobile image can swap in under 640px.
+    $pt_banner_img = '<picture class="cat-banner-pic">'
+        . ( '' !== $pt_banner_src_m ? '<source media="(max-width:640px)" srcset="' . esc_url( $pt_banner_src_m ) . '">' : '' )
+        . '<img src="' . esc_url( $pt_banner_src ) . '" alt="' . esc_attr( '' !== $pt_banner_alt ? $pt_banner_alt : $pt_name ) . '" loading="eager">'
+        . '</picture>';
+    ?>
+    <?php if ( '' !== $pt_banner_link ) : ?>
+      <a class="cat-banner" href="<?php echo esc_url( $pt_banner_link ); ?>"><?php echo $pt_banner_img; // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_url/esc_attr above ?></a>
+    <?php else : ?>
+      <div class="cat-banner"><?php echo $pt_banner_img; // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_url/esc_attr above ?></div>
+    <?php endif; ?>
+  <?php endif; ?>
 
   <!-- intro — title + lede rendered server-side from the category -->
   <div class="cat-intro">

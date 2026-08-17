@@ -1,0 +1,164 @@
+{
+    "key": "group_pt_category_banner",
+    "title": "Category Banner",
+    "fields": [
+        {
+            "key": "field_pt_cat_banner_enabled",
+            "label": "Show category banner",
+            "name": "cat_banner_enabled",
+            "type": "true_false",
+            "instructions": "Turn on to display a banner at the top of this category page. Off by default.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show a banner on this category",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_pt_cat_banner_image",
+            "label": "Banner image",
+            "name": "cat_banner_image",
+            "type": "image",
+            "instructions": "Wide banner image shown above the category title.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_pt_cat_banner_enabled",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_cat_banner_image_mobile",
+            "label": "Banner image — mobile (optional)",
+            "name": "cat_banner_image_mobile",
+            "type": "image",
+            "instructions": "Optional narrower image used on phones. Falls back to the main banner image.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_pt_cat_banner_enabled",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_cat_banner_link",
+            "label": "Banner link (optional)",
+            "name": "cat_banner_link",
+            "type": "url",
+            "instructions": "Optional — where the banner links when clicked.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_pt_cat_banner_enabled",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_cat_banner_alt",
+            "label": "Banner alt text (optional)",
+            "name": "cat_banner_alt",
+            "type": "text",
+            "instructions": "Describes the banner for accessibility / SEO. Falls back to the category name.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_pt_cat_banner_enabled",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "taxonomy",
+                "operator": "==",
+                "value": "product_cat"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Optional promotional banner shown at the top of a product-category page. Enable per category.",
+    "show_in_rest": 0,
+    "modified": 1786900200
+}
