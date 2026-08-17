@@ -31,10 +31,11 @@ $pt_desc_html = ( '' !== trim( (string) $pt_desc ) )
 	: '';
 
 // Optional per-category banner (ACF field group "Category Banner" on product_cat).
-// Shown only when the "Show category banner" toggle is on for this term. cat_banner_*
-// fields return URLs; the mobile image + link + alt are optional.
+// The "Show category banner" toggle gates BOTH the top banner image AND the in-grid
+// promo tile below — neither shows unless it's on for this category (default off).
+$pt_banner_on  = ( function_exists( 'get_field' ) && $pt_term && get_field( 'cat_banner_enabled', $pt_term ) );
 $pt_banner_src = $pt_banner_src_m = $pt_banner_link = $pt_banner_alt = '';
-if ( function_exists( 'get_field' ) && $pt_term && get_field( 'cat_banner_enabled', $pt_term ) ) {
+if ( $pt_banner_on ) {
 	$pt_banner_src   = (string) get_field( 'cat_banner_image', $pt_term );
 	$pt_banner_src_m = (string) get_field( 'cat_banner_image_mobile', $pt_term );
 	$pt_banner_link  = (string) get_field( 'cat_banner_link', $pt_term );
@@ -95,7 +96,9 @@ get_header();
     foreach ( $pt_products as $pt_i => $pt_p ) {
         echo pt_cat_card_html( $pt_p ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped within helper
         // Promo banner as the 2nd grid item (matches category.js placePromo()).
-        if ( 0 === $pt_i ) {
+        // Only when the category's banner switcher is on. category.js placePromo()
+        // just repositions this card, so omitting it here removes it everywhere.
+        if ( $pt_banner_on && 0 === $pt_i ) {
             ?>
             <a class="promo-card" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>" aria-label="Current promotion">
               <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Square.png" alt="Current promotion">
@@ -103,7 +106,7 @@ get_header();
             <?php
         }
     }
-    if ( 0 === $pt_count ) {
+    if ( $pt_banner_on && 0 === $pt_count ) {
         ?>
         <a class="promo-card" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>" aria-label="Current promotion">
           <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Square.png" alt="Current promotion">
