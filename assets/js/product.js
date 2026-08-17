@@ -896,14 +896,17 @@
         };
         if(dl.category) item.item_category=dl.category;
         var ev=(typeof window.ptDlEvent==='function')?window.ptDlEvent('add_to_cart'):'add_to_cart';
+        var mkPayload=function(name,withCb){
+          var o={ event:name, ecomm_pagetype:'product', ecommerce:{ currency:'GBP', value:(price||0).toFixed(2), items:[item] } };
+          if(withCb){ o.eventCallback=fin; o.eventTimeout=1200; }
+          return o;
+        };
         window.dataLayer=window.dataLayer||[];
-        window.dataLayer.push({
-          event: ev,
-          ecomm_pagetype: 'product',
-          ecommerce: { currency:'GBP', value:(price||0).toFixed(2), items:[item] },
-          eventCallback: fin,
-          eventTimeout: 1200
-        });
+        // Fire the suffixed event (e.g. add_to_cart_stape) — its callback gates the redirect.
+        window.dataLayer.push(mkPayload(ev,true));
+        // Also fire a plain `add_to_cart` for standard GA4 / other vendor tags. Skipped when
+        // the suffix is empty (ev already equals 'add_to_cart') to avoid a duplicate push.
+        if(ev!=='add_to_cart'){ window.dataLayer.push(mkPayload('add_to_cart',false)); }
       }catch(e){ fin(); }
       setTimeout(fin, 1300); // hard fallback if eventCallback never fires (GTM blocked).
     }
