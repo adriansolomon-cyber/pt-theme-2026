@@ -417,6 +417,42 @@ add_action(
 );
 
 /**
+ * Cart page → checkout when there's something in the basket.
+ *
+ * The theme drives buying through the cart drawer + checkout; the standalone cart
+ * page (/bag/) is only meaningful when empty. So if a customer lands on it with items
+ * in the basket, send them straight to checkout. An EMPTY basket is left alone (shows
+ * the empty-cart state). Runs on template_redirect — after WooCommerce has loaded the
+ * cart and processed any ?remove_item / coupon actions, and after the Klaviyo rebuild
+ * (which now lands on checkout itself). No loop risk: checkout is not is_cart().
+ * Toggle off with: add_filter( 'pt_cart_redirect_to_checkout', '__return_false' ).
+ */
+add_action(
+	'template_redirect',
+	function () {
+		if ( is_admin() || wp_doing_ajax() ) {
+			return;
+		}
+		if ( ! function_exists( 'is_cart' ) || ! is_cart() ) {
+			return;
+		}
+		// Don't interfere with the Klaviyo cart-rebuild flow if a token is present.
+		if ( isset( $_GET['wck_restored'] ) || isset( $_GET['wck_rebuild_cart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+		if ( ! apply_filters( 'pt_cart_redirect_to_checkout', true ) ) {
+			return;
+		}
+		if ( ! WC()->cart || WC()->cart->is_empty() ) {
+			return; // empty basket → stay on the cart page
+		}
+		wp_safe_redirect( wc_get_checkout_url() );
+		exit;
+	},
+	20
+);
+
+/**
  * Checkout notices: hide the blue "info" notices on page load, keep the rest.
  *
  * WooCommerce's admin "Customer matched zone" shipping-debug message is a
