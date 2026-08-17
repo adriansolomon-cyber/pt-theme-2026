@@ -181,6 +181,34 @@
             "ui_off_text": ""
         },
         {
+            "key": "field_pt_show_assembly_button",
+            "label": "Assembly — “Add assembly at checkout” button",
+            "name": "show_assembly_button",
+            "type": "true_false",
+            "instructions": "Show the “Add assembly at checkout” button in the Assembly section. Off by default.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_pt_show_assembly",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show the button",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
             "key": "field_pt_show_wfh",
             "label": "Large image with card",
             "name": "show_wfh",
@@ -2158,5 +2186,5 @@
     "description": "Editable marketing content for the single-product (PDP) template. The configurator, price, sizes and spec values remain API-driven; these fields fill the surrounding copy, images and sections.",
     "show_in_rest": 0,
     "display_title": "",
-    "modified": 1786700000
+    "modified": 1786900000
 }
