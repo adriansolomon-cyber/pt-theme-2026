@@ -917,6 +917,19 @@
     document.querySelectorAll('.cfg-summary .ptoggle button').forEach(function(b){ b.addEventListener('click',function(){ document.querySelectorAll('.cfg-summary .ptoggle button').forEach(function(x){ x.classList.remove('on'); }); b.classList.add('on'); recalc(); }); });
     // route page CTAs to configurator (add-to-basket excluded via .cfgadd)
     document.querySelectorAll('.subnav .buy, .pricepill .go, .buybar .go, .final .go').forEach(function(b){ b.addEventListener('click',function(){ var c=document.getElementById('configure'); if(c) c.scrollIntoView({behavior:'smooth'}); }); });
+    // CTAs that jump to a SPECIFIC configurator step (e.g. "Add assembly at checkout")
+    // carry data-cfg-open="<keyword>"; open that step's accordion row (matched by its
+    // label) and scroll to it, so the option is right there. Falls back to the top of
+    // the configurator if that step isn't present (product without the component) or
+    // its option rows haven't rendered yet (no size chosen).
+    function openCfgStep(keyword){
+      var c=document.getElementById('configure');
+      var re=new RegExp(keyword,'i'), rows=cfgRowsList(), row=null;
+      for(var i=0;i<rows.length;i++){ var lab=rows[i].querySelector('.lab'); if(lab && re.test(lab.textContent||'')){ row=rows[i]; break; } }
+      if(row){ cfgOpenOnly(row); row.scrollIntoView({behavior:'smooth',block:'center'}); }
+      else if(c){ c.scrollIntoView({behavior:'smooth'}); }
+    }
+    document.querySelectorAll('[data-cfg-open]').forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); openCfgStep(a.getAttribute('data-cfg-open')); }); });
 
     mountRefreshBtn(); recalc(); load();
   })();

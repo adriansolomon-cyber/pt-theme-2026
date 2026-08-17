@@ -517,7 +517,7 @@ get_header();
       <p>Your <?php echo esc_html( $pt_line ); ?> arrives as pre-assembled, pre-insulated panels — designed to fit through a standard UK doorway and slot together with far fewer parts than a traditional log cabin. A quicker, simpler build, whether you do it yourself or bring in help.</p>
       <p>Every building includes clear, step-by-step illustrated instructions. We recommend two people with basic DIY know-how — or add our assembly service at checkout and we'll handle it for you.</p>
     <?php endif; ?>
-    <a class="btn-primary" href="#configure" style="margin-top:6px">Add assembly at checkout <span class="a">→</span></a>
+    <a class="btn-primary" href="#configure" data-cfg-open="assembl" style="margin-top:6px">Add assembly at checkout <span class="a">→</span></a>
   </div>
 </div></div></section>
 
