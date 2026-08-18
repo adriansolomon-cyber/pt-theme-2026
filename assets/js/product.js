@@ -422,12 +422,29 @@
       var out=s.replace(/\d+(?:\.\d+)?/g,function(m){ var cm=parseFloat(m); return specUnit==='imperial'?fmtImperial(cm):fmtMetric(cm); });
       return out.replace(/\s*x\s*/gi,' × ');
     }
+    // Only show a spec row when the CONFIGURED product actually has that value. A cell
+    // whose key the /specs response doesn't return (or returns null/empty) is hidden
+    // rather than left showing its hardcoded HTML fallback — so the table reflects real
+    // data, not authored placeholders. Cards with no visible rows are hidden too. The
+    // authored fallbacks are still used pre-load (before curSpecs) to avoid an empty flash.
     function renderSpecs(){
+      var loaded=!!curSpecs;
       var map={}; if(curSpecs){ ['dimensions','materials','features'].forEach(function(g){ (curSpecs[g]||[]).forEach(function(it){ map[it.key]=it.value; }); }); }
       specCells.forEach(function(cell){
         var key=cell.getAttribute('data-spec'), isDim=cell.hasAttribute('data-dim');
-        if(map.hasOwnProperty(key)){ var v=specVal(map[key],isDim); cell.textContent=(v==null)?'—':v; }
-        else if(isDim){ var f=specVal(specFallback[key],isDim); if(f!=null) cell.textContent=f; }   // convert authored fallback too
+        var row=cell.closest ? cell.closest('tr') : null;
+        var v=map.hasOwnProperty(key) ? specVal(map[key],isDim) : null;   // null = key absent OR value null/empty
+        if(v!=null){ cell.textContent=v; if(row) row.hidden=false; }
+        else if(loaded){ if(row) row.hidden=true; }                       // fetched, no real value → hide (don't fabricate)
+        else if(isDim){ var f=specVal(specFallback[key],isDim); if(f!=null) cell.textContent=f; }  // pre-load: keep converted fallback
+      });
+      if(loaded) pruneEmptySpecCards();
+    }
+    // Hide any spec card whose rows are all empty for this product.
+    function pruneEmptySpecCards(){
+      document.querySelectorAll('#specs .spec-card').forEach(function(card){
+        var any=false; card.querySelectorAll('table tr').forEach(function(r){ if(!r.hidden) any=true; });
+        card.hidden=!any;
       });
     }
     // Per-size specs come from the public wc/v3/products/{id}/specs route DIRECTLY (returns 200 without

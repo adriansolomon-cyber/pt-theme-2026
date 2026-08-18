@@ -256,6 +256,8 @@
   /* Cards + diagram stay hidden until product.js preselects a size (.specs.has-size),
      so first paint never flashes generic placeholder values. */
   .specs:not(.has-size) .spec-cards, .specs:not(.has-size) .spec-figure{ display:none !important; }
+  /* Rows/cards product.js hides when the configured product has no data for them. */
+  #specs .spec-card[hidden], #specs .spec-cards tr[hidden]{ display:none !important; }
   .spec-cards{ columns:3 300px; column-gap:18px; }
   .spec-card{ break-inside:avoid; -webkit-column-break-inside:avoid; background:#fff; border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); padding:22px 24px; box-shadow:var(--e1); margin:0 0 18px; }
   .spec-card h3{ font-size:1.15rem; margin-bottom:8px; }

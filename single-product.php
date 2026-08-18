@@ -631,7 +631,7 @@ get_header();
       <tr><td>Base Size</td><td data-spec="_specs_base_size_w_x_d" data-dim="1">244 × 189.3 cm</td></tr>
     </table></div>
     <div class="spec-card"><h3>Materials</h3><div class="ul"></div><table>
-      <tr><td>Cladding</td><td>9mm LP Strongcore composite</td></tr>
+      <tr><td>Cladding</td><td data-spec="_specs_material">9mm LP Strongcore composite</td></tr>
       <tr><td>Floor material</td><td data-spec="_specs_floor_material">Tongue &amp; groove</td></tr>
       <tr><td>Roof material</td><td data-spec="_specs_roof_material">Galvanised steel &amp; foam insulation</td></tr>
       <tr><td>Roof covering</td><td data-spec="_specs_roof_covering_material">Galvanised steel</td></tr>
