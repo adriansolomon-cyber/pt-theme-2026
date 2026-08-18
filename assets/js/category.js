@@ -224,8 +224,10 @@
       if(v==='low') arr.sort(function(a,b){ return a.dataset.price-b.dataset.price; });
       else if(v==='high') arr.sort(function(a,b){ return b.dataset.price-a.dataset.price; });
       // Bestsellers: most units sold first (data-sales = WooCommerce total_sales).
-      // Array.sort is stable, so equal-sales products keep their Featured order.
+      // Array.sort is stable, so equal-sales products keep their original order.
       else if(v==='bestsellers') arr.sort(function(a,b){ return (+b.dataset.sales||0)-(+a.dataset.sales||0); });
+      // Featured: restore the original data-source order (grid renders sales-sorted by default).
+      else if(v==='featured') arr.sort(function(a,b){ return (+a.dataset.order||0)-(+b.dataset.order||0); });
       arr.forEach(function(c){ grid.insertBefore(c,noRes); });
       placePromo();
     });

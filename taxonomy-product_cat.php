@@ -42,17 +42,36 @@ if ( $pt_banner_on ) {
 	$pt_banner_alt   = (string) get_field( 'cat_banner_alt', $pt_term );
 }
 
-// Prime the postmeta cache for all products in one query so pt_cat_card_html()'s
-// total_sales read (for the Bestsellers sort) is cache-only, not a query per card.
+// Resolve units sold (WooCommerce total_sales) for every product — priming the meta
+// cache in one query — then default-sort the grid by sales (Bestsellers first) so the
+// first paint is already arranged by sales. Each product keeps its original data-source
+// index as _order, rendered as data-order, so the "Featured" sort can restore it.
 $pt_ids = array();
 foreach ( $pt_products as $pt_p ) {
-	if ( ! empty( $pt_p['id'] ) && empty( $pt_p['total_sales'] ) ) {
+	if ( ! empty( $pt_p['id'] ) && ! isset( $pt_p['total_sales'] ) ) {
 		$pt_ids[] = (int) $pt_p['id'];
 	}
 }
 if ( $pt_ids ) {
 	update_meta_cache( 'post', $pt_ids );
 }
+foreach ( $pt_products as $pt_k => $pt_p ) {
+	$pt_products[ $pt_k ]['_order'] = $pt_k;
+	if ( ! isset( $pt_products[ $pt_k ]['total_sales'] ) ) {
+		$pt_products[ $pt_k ]['total_sales'] = ! empty( $pt_p['id'] ) ? (int) get_post_meta( (int) $pt_p['id'], 'total_sales', true ) : 0;
+	}
+}
+usort(
+	$pt_products,
+	function ( $a, $b ) {
+		$sa = (int) $a['total_sales'];
+		$sb = (int) $b['total_sales'];
+		if ( $sa !== $sb ) {
+			return $sb - $sa;              // most sold first
+		}
+		return $a['_order'] - $b['_order']; // stable: keep original order on ties
+	}
+);
 
 get_header();
 ?>
@@ -95,8 +114,8 @@ get_header();
     <div class="sort">
       <label for="sort">Sort</label>
       <select id="sort">
+        <option value="bestsellers" selected>Bestsellers</option>
         <option value="featured">Featured</option>
-        <option value="bestsellers">Bestsellers</option>
         <option value="low">Price: low to high</option>
         <option value="high">Price: high to low</option>
       </select>
