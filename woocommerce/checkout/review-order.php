@@ -57,6 +57,15 @@ $pt_norm_dims = function ( $s ) {
 };
 ?>
 
+<?php
+// This wrapper MUST carry the `woocommerce-checkout-review-order-table` class: on every
+// address / postcode / coupon change WooCommerce's checkout.js does
+// $('.woocommerce-checkout-review-order-table').replaceWith( <this template's output> ).
+// Without the class the AJAX still updates the cart/session, but there's no element to
+// swap — so totals only refreshed on a full page reload (the live-update bug). The class
+// lets shipping recalc show in realtime as the postcode is typed.
+?>
+<div class="woocommerce-checkout-review-order-table">
 <?php do_action( 'woocommerce_review_order_before_cart_contents' ); ?>
 
 <?php foreach ( $pt_cart_items as $cart_item_key => $cart_item ) : ?>
@@ -238,3 +247,4 @@ $pt_norm_dims = function ( $s ) {
 <div class="sum-assure">
 	<div class="a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <?php esc_html_e( 'Made in Britain · up to 25-year anti-rot guarantee', 'woocommerce' ); ?></div>
 </div>
+</div><!-- /.woocommerce-checkout-review-order-table -->
