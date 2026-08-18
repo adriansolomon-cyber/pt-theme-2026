@@ -169,6 +169,11 @@ function pt_cat_card_html( $p ) {
 	// Campaign display discount for this product (visual only; the real money-off is
 	// the auto-applied coupon at checkout). 0 when no campaign applies.
 	$pid   = isset( $p['id'] ) ? (int) $p['id'] : 0;
+	// Units sold, for the "Bestsellers" sort. WooCommerce keeps this as the product's
+	// total_sales meta (incremented per line item on completed orders — the composite
+	// PARENT is a line item, so it reflects buildings sold). Prefer a value the data
+	// source already supplied; otherwise read the meta (cache primed in the template).
+	$sales = isset( $p['total_sales'] ) ? (int) $p['total_sales'] : ( $pid ? (int) get_post_meta( $pid, 'total_sales', true ) : 0 );
 	$disc  = ( $pid && function_exists( 'pt_product_discount_pct' ) ) ? (float) pt_product_discount_pct( $pid ) : 0.0;
 	$dcode = ( $disc > 0 && $pid && function_exists( 'pt_product_discount_code' ) ) ? (string) pt_product_discount_code( $pid ) : '';
 
@@ -189,7 +194,7 @@ function pt_cat_card_html( $p ) {
 	// (category.js), matching view_item_list / view_item.
 	$track_price = ( $price > 0 ) ? round( $disc > 0 ? ( $price - $price * $disc / 100 ) : $price ) : 0;
 
-	$h  = '<a class="prod" href="' . esc_url( $href ) . '" data-price="' . esc_attr( $price ) . '"'
+	$h  = '<a class="prod" href="' . esc_url( $href ) . '" data-price="' . esc_attr( $price ) . '" data-sales="' . esc_attr( $sales ) . '"'
 		. ' data-item-id="' . esc_attr( $pid ) . '" data-item-name="' . esc_attr( $name ) . '" data-track-price="' . esc_attr( $track_price ) . '"' . $facets . '>';
 	$h .= '<div class="ph duo">';
 	if ( $img0 ) {
@@ -395,6 +400,7 @@ function pt_cat_product_entry( $product ) {
 		'permalink'    => get_permalink( $pid ),
 		'images'       => $imgs,
 		'price'        => $price,
+		'total_sales'  => (int) $product->get_total_sales(),
 		'attributes'   => $attrs,
 		'stock_status' => $product->get_stock_status(),
 	);

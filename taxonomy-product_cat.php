@@ -42,6 +42,18 @@ if ( $pt_banner_on ) {
 	$pt_banner_alt   = (string) get_field( 'cat_banner_alt', $pt_term );
 }
 
+// Prime the postmeta cache for all products in one query so pt_cat_card_html()'s
+// total_sales read (for the Bestsellers sort) is cache-only, not a query per card.
+$pt_ids = array();
+foreach ( $pt_products as $pt_p ) {
+	if ( ! empty( $pt_p['id'] ) && empty( $pt_p['total_sales'] ) ) {
+		$pt_ids[] = (int) $pt_p['id'];
+	}
+}
+if ( $pt_ids ) {
+	update_meta_cache( 'post', $pt_ids );
+}
+
 get_header();
 ?>
 
@@ -84,6 +96,7 @@ get_header();
       <label for="sort">Sort</label>
       <select id="sort">
         <option value="featured">Featured</option>
+        <option value="bestsellers">Bestsellers</option>
         <option value="low">Price: low to high</option>
         <option value="high">Price: high to low</option>
       </select>

@@ -110,7 +110,7 @@
       var sizes=sizesLine(p), facets=facetData(p);
       var priceHTML=price>0 ? 'From '+fmtDisc(price) : 'View options';
       // link to the local product-page template; its configurator reads ?product=<id>
-      return '<a class="prod" href="projecttimber-product-page.html?product='+encodeURIComponent(p.id)+'" data-price="'+(price||0)+'"'+(facets?' '+facets:'')+'>'+
+      return '<a class="prod" href="projecttimber-product-page.html?product='+encodeURIComponent(p.id)+'" data-price="'+(price||0)+'" data-sales="'+(p.total_sales||0)+'"'+(facets?' '+facets:'')+'>'+
         '<div class="ph duo">'+
           (img0?'<img class="pimg" src="'+esc(img0)+'" alt="'+esc(p.name)+'">':'')+
           (img1?'<img class="pscene" src="'+esc(img1)+'" alt="" aria-hidden="true">':'')+
@@ -223,6 +223,9 @@
       var v=this.value, arr=[].slice.call(grid.querySelectorAll('.prod'));
       if(v==='low') arr.sort(function(a,b){ return a.dataset.price-b.dataset.price; });
       else if(v==='high') arr.sort(function(a,b){ return b.dataset.price-a.dataset.price; });
+      // Bestsellers: most units sold first (data-sales = WooCommerce total_sales).
+      // Array.sort is stable, so equal-sales products keep their Featured order.
+      else if(v==='bestsellers') arr.sort(function(a,b){ return (+b.dataset.sales||0)-(+a.dataset.sales||0); });
       arr.forEach(function(c){ grid.insertBefore(c,noRes); });
       placePromo();
     });
