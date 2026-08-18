@@ -767,6 +767,15 @@ jQuery(document).ready(function($) {
         }
     });
 
+    // Recalculate shipping when the POSTCODE changes. Delivery is charged by postcode
+    // zone (WooCommerce UK Zone A/B/C). This custom checkout doesn't re-fire WooCommerce's
+    // shipping recalc on postcode entry, so the zone wasn't matched in the live order
+    // review — the correct rate only landed on the order after payment. Forcing
+    // update_checkout on postcode change/blur makes the delivery cost show BEFORE payment.
+    $(document).on('change blur', '#billing_postcode, #shipping_postcode', function() {
+        $(document.body).trigger('update_checkout');
+    });
+
     // Add click handler for copy button
     $(document).on('click', '.copy-billing-button', function(e) {
         e.preventDefault();
