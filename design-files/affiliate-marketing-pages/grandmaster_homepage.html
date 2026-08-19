@@ -1832,11 +1832,6 @@
         .bgrid {
           grid-template-columns: 1fr 1fr;
         }
-        /* hide third bundle card on tablet to keep 2-col clean */
-        .bgrid .bcard:nth-child(3),
-        .bgrid .bcard:nth-child(6) {
-          display: none !important;
-        }
 
         .uses-grid {
           grid-template-columns: repeat(2, 1fr);
@@ -1847,10 +1842,6 @@
 
         .rv-grid {
           grid-template-columns: 1fr 1fr;
-        }
-        /* hide third review on tablet */
-        .rv-grid .rv-card:nth-child(3) {
-          display: none;
         }
 
         .faq-grid {
@@ -2166,7 +2157,6 @@
       <!-- Trustpilot float card -->
       <div class="hero-card">
         <div class="card-label">Trustpilot Rating</div>
-        <div class="card-stars" style="font-size: 26px; margin: 4px 0">★★★★★</div>
         <div class="card-sub" style="font-weight: 700; color: var(--ink); font-size: 13px">
           Rated Excellent
         </div>
@@ -2196,7 +2186,7 @@
             <div class="trust-icon">🛡</div>
             <span
               ><strong style="color: #fff">25-Year</strong> Anti-Rot
-              Guarantee</span
+              Guarantee*</span
             >
           </div>
           <div class="trust-item">
@@ -2413,7 +2403,10 @@
               </div>
             </div>
             <div style="margin-top: 36px">
-              <a href="#products" class="btn-outline-ink"
+              <a
+                href="#products"
+                class="btn-outline-ink"
+                style="text-decoration: none; display: inline-block"
                 >See All Buildings →</a
               >
             </div>
@@ -2431,11 +2424,11 @@
                 </div>
                 <div class="spec-row">
                   <span class="sk">Cladding</span
-                  ><span class="sv">11mm T&G (28mm available)</span>
+                  ><span class="sv">11mm T&G (16mm available)</span>
                 </div>
                 <div class="spec-row">
                   <span class="sk">Floor boards</span
-                  ><span class="sv">11mm T&G (28mm available)</span>
+                  ><span class="sv">11mm T&G (16mm available)</span>
                 </div>
                 <div class="spec-row">
                   <span class="sk">Roof</span
@@ -2459,7 +2452,7 @@
                 </div>
                 <div class="spec-row">
                   <span class="sk">Guarantee</span
-                  ><span class="sv am">25 years anti-rot</span>
+                  ><span class="sv am">25 years anti-rot*</span>
                 </div>
                 <div class="spec-row">
                   <span class="sk">Layout</span
@@ -2507,7 +2500,7 @@
               <div class="pc-desc">
                 Our most popular model. Offset or centred doors, full
                 double-glazing, and that unmistakable Grandmaster presence.
-                Available in 35 sizes.
+                Available in a wide range of sizes.
               </div>
               <div class="pc-foot">
                 <div>
@@ -2680,7 +2673,7 @@
             href="https://www.projecttimber.com/grandmaster/?utm_source=grandmaster-guide&utm_medium=advertorial&utm_campaign=gm10"
             class="btn-outline-ink"
             style="text-decoration: none; display: inline-block"
-            >View All 25 Buildings →</a
+            >View All Buildings →</a
           >
         </div>
       </div>
@@ -2695,7 +2688,6 @@
           </div>
           <div style="display: flex; align-items: center; gap: 20px">
             <div>
-              <div class="tp-stars" style="font-size: 32px">★★★★★</div>
               <div class="tp-lbl">Rated Excellent</div>
               <div class="tp-sub">Thousands of verified UK reviews</div>
               <a
@@ -2784,7 +2776,7 @@
             colour and base before it's ever cut.
           </p>
         </div>
-        <div class="bgrid" id="bg">
+        <div class="bgrid">
           <div class="bcard">
             <div class="bcard-head">
               <div class="bcard-ey">Structure</div>
@@ -3010,9 +3002,10 @@
             </div>
             <div class="faq-ans">
               <div class="faq-ans-in">
-                Yes — insulation kits are available at checkout. The 54mm
-                studwork accepts standard UK insulation batts. Our Garden Room
-                Ready and Retreat bundles include the full kit.
+                Yes — the 54mm studwork accepts standard UK insulation batts, so
+                you can insulate after assembly. Wall thickness, roof cover and
+                base are all chosen on the configurator when you order on Project
+                Timber.
               </div>
             </div>
           </div>
@@ -3161,8 +3154,8 @@
         </p>
         <div class="ft-bottom">
           <p>
-            © 2026 Grandmaster Garden Buildings, an independent buying guide.
-            Products sold by Project Timber Limited, company no. 05126131.
+            © 2026 Grandmaster Garden Buildings. Products sold by Project
+            Timber Limited, company no. 05126131.
             Registered office: Parry Works, Grassthorpe Road,
             Sutton-on-Trent, Newark NG23 6QX.
           </p>
@@ -3278,10 +3271,6 @@
         a.addEventListener("click", closeDrawer);
       });
 
-      // Disable parallax on mobile (performance + iOS issues)
-      function isMobile() {
-        return window.innerWidth <= 768;
-      }
     </script>
   </body>
 </html>
