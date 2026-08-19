@@ -69,6 +69,18 @@ projecttimber.com site and this repo's WordPress theme, while keeping the page's
    - Skip a cross-domain `rel=canonical` to the real pages — that signal fits
      near-identical content, and this page's design/framing/purpose (guide vs.
      transactional product page) is intentionally distinct.
+7. **Technical spec numbers stay as originally written.** The real per-product specs
+   API was checked (`wc/v3/products/9216/specs`) and contradicts some of the
+   mockup's universal claims for that specific product/size (real: 27×44mm frame,
+   "Level Handle" lock, glazing listed as "Optional" — not the mockup's 54mm
+   studwork/3-point lock/DG-standard). Per explicit user decision, the technical
+   spec numbers in the Why/Specs section and hero/promise-bar trust items are **kept
+   as originally written** — not rewritten to the verified-only claims. The
+   uniqueness/duplication effort instead goes into product **titles and
+   descriptions**: featured products keep short in-house nicknames ("Grandmaster
+   Diplomat", "Grandmaster Workshop", etc.) rather than the real page's full SEO
+   title, and all blurb copy stays original, not copied from real product
+   descriptions.
 
 ## Real data to use (verified against the live site and this repo)
 
@@ -93,21 +105,43 @@ projecttimber.com site and this repo's WordPress theme, while keeping the page's
 - **Real configurator options** (from live `wc/v3/product/9235/config`): Size, Wall
   Thickness (11mm Shiplap / 16mm Shiplap +£330), Floor, Roof Cover, Guttering, Paint
   Colour, Colour Trim, Base (optional).
-- **Real product images:** pull from the live composite config API responses
-  (e.g. `GM-Diplomat-Summerhouse-category-image.webp`,
-  `gm_diplomat_classic_g1000_summerhouse_lifestyle_1_1x.webp`) and from
-  `front-page.php`'s existing Grandmaster image references
-  (`Grandmaster.webp`, `GM_Diplomat_LongWindow_Interior.webp`,
-  `grandmaster_workshop_1x.webp`, `workshop_2_1.webp`). Exact per-card image URLs for
-  the 5 non-Diplomat products to be confirmed during implementation (fetch each
-  product's config/page for its real image, same method used for Diplomat).
-- **Real testimonials:** pulled verbatim (shortened where needed) from
-  `templates/page-testimonials.php`, e.g. Tony H. (Oct 19, 2023), William
-  (Sep 09, 2024) — real names/dates, no fabricated authors.
-- **Guarantee wording:** align with live site's "Up to 25-year anti-rot guarantee"
-  phrasing (the live category page also mentions a base 15-year guarantee with no
-  annual re-treatment — use "up to 25-year" as the headline claim, consistent with
-  `front-page.php`'s trust bar).
+- **Real product images** (confirmed live gallery/hero image per product):
+  | Product | Image URL |
+  |---|---|
+  | Diplomat Classic Summerhouse | `.../2026/07/GM-Diplomat-Summerhouse-category-image.webp` |
+  | Heavy Duty D1000 Apex Workshop | `.../2017/11/Heavy-Duty-Workshop-D1000-windowed-apex-door-2.jpg` |
+  | Lounge Contemporary Garden Room | `.../2026/07/gm_lounge_contemporary_g1000_garden_room_lifestyle_1_1x-1080x1080.webp` |
+  | Clubhouse Summerhouse | `.../2026/07/gm_clubhouse_summerhouse_lifestyle_1_1x.webp` |
+  | Fusion Classic with Side Shed | `.../2026/07/gm_fusion_classic_g1000_summerhouse_with_side_shed_green_lifestyle_1_1x.webp` |
+  | Alpine Summerhouse Cabin | `.../2026/07/GM-Alpine-Cabin-Summerhouse-Lifestyle.png-3-1080x1080.webp` |
+
+  (all under `https://www.projecttimber.com/wp-content/uploads/`)
+- **Real testimonials** (verbatim or trimmed-but-contiguous excerpts) from
+  `templates/page-testimonials.php`:
+  - William, Sep 09, 2024 (used in full): "Flexible design, standardisation of parts
+    and easy-to-manage panels. It fits compactly onto one pallet and doesn't take up
+    much space until you're ready to assemble. Screws to fix the panels help pull
+    everything together neatly. Excellent customer care team, very helpful. Would
+    definitely recommend."
+  - Tony H., Oct 19, 2023 (trimmed): "The shed arrived within 2 weeks, on the exact
+    day promised and at the time specified. Packed neatly on one pallet, it was easy
+    to transport the parts to where they were needed."
+  - Dean M., Mar 03, 2023 (trimmed): "…the customer service was second to none. The
+    shed arrived on a single pallet on the date agreed and all the panels were in
+    great shape. I built it with no issues at all and it looks amazing! So happy
+    with the quality and the look of it."
+- **Real use-case landing pages** (confirmed live): Garden Office →
+  `/garden-offices/`; Home Gym & Creative Studio → `/insulated-garden-buildings/`
+  (no dedicated gym/studio category exists; this real category explicitly covers
+  offices/studios/gyms); Trade Workshop → `/garden-workshops/`.
+- **Real GM10 FAQ answer** (adapted from `templates/page-faq.php:69`, phone number
+  dropped per decision #2): "Yes — enjoy 10% off Grandmaster products with code
+  **GM10**."
+- **Guarantee wording:** reuse `front-page.php`'s exact real phrase "Up to 25-year
+  guarantee*" for headline trust claims. Add one small disclaimer line near the
+  footer: "*Guarantee terms vary by product and are confirmed at checkout on
+  projecttimber.com." — honest, doesn't invent specifics, mirrors the asterisk usage
+  already present in the real site's own trust bar.
 
 ## What stays unchanged
 
