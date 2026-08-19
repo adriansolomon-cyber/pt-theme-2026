@@ -61,11 +61,11 @@ get_header();
     <a class="range-card" href="<?php echo esc_url( home_url( '/garden-workshops/' ) ); ?>">
       <span class="range-badge">Premium · 10% off GM10</span>
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/grandmaster_workshop_1x.webp" alt="Project Timber garden workshop" loading="lazy">
-      <div class="glass"><h3>Garden Workshops</h3><p class="d">Space for every project.</p><div class="rfoot"><span class="rprice">From £1,198</span><span class="more">See more <span class="a">→</span></span></div></div>
+      <div class="glass"><h3>Garden Workshops</h3><p class="d">Space for every project.</p><div class="rfoot"><span class="rprice">From £935</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
     <a class="range-card" href="<?php echo esc_url( home_url( '/garden-sheds/' ) ); ?>">
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/shed_1x.webp" alt="Project Timber garden shed" loading="lazy">
-      <div class="glass"><h3>Garden Sheds</h3><p class="d">Tough, secure storage.</p><div class="rfoot"><span class="rprice">From £668</span><span class="more">See more <span class="a">→</span></span></div></div>
+      <div class="glass"><h3>Garden Sheds</h3><p class="d">Tough, secure storage.</p><div class="rfoot"><span class="rprice">From £741</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
     <a class="range-card" href="<?php echo esc_url( home_url( '/insulated-garden-buildings/' ) ); ?>">
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/insulated_garden_building_1x.webp" alt="Project Timber insulated garden building" loading="lazy">
