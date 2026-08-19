@@ -3243,17 +3243,6 @@
         });
       }
 
-      // ── BUNDLE TABS
-      function switchB(btn, type) {
-        document
-          .querySelectorAll(".btab")
-          .forEach((b) => b.classList.remove("on"));
-        btn.classList.add("on");
-        document.querySelectorAll(".bcard").forEach((c) => {
-          c.style.display = c.dataset.bt === type ? "block" : "none";
-        });
-      }
-
       // ── FAQ
       function toggleFaq(item) {
         const open = item.classList.contains("open");
