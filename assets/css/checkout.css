@@ -127,7 +127,10 @@
 
   .co-promo{ margin-top:16px; display:flex; gap:8px; }
   .co-promo input{ flex:1; font-family:var(--font); font-size:.88rem; padding:11px 13px; border:1px solid rgba(33,30,36,.18); border-radius:11px; } .co-promo input:focus{ outline:none; border-color:var(--charcoal); }
-  .co-promo button{ font-family:var(--font); font-weight:700; font-size:.84rem; border:1.5px solid rgba(33,30,36,.22); background:#fff; border-radius:11px; padding:0 16px; cursor:pointer; color:var(--ink); }
+  .co-promo button{ font-family:var(--font); font-weight:700; font-size:.84rem; letter-spacing:.01em; border:1.5px solid var(--ink,#211e24); background:var(--ink,#211e24); border-radius:11px; padding:0 20px; cursor:pointer; color:#fff; transition:background .18s ease, border-color .18s ease, opacity .18s ease; }
+  .co-promo button:hover{ background:#000; border-color:#000; }
+  .co-promo button:active{ transform:translateY(1px); }
+  .co-promo button:disabled{ opacity:.5; cursor:default; }
 
   .sum-tot{ margin-top:18px; border-top:1px solid rgba(33,30,36,.1); padding-top:14px; }
   .sum-tot .ln{ display:flex; justify-content:space-between; font-size:.88rem; font-weight:300; color:var(--txt-soft); margin-bottom:7px; } .sum-tot .ln b{ color:var(--ink); font-weight:700; }
