@@ -49,6 +49,17 @@ projecttimber.com site and this repo's WordPress theme, while keeping the page's
 5. **No fabricated stats:** Drop the invented "4.9" Trustpilot score (unverifiable).
    Use qualitative trust language ("Rated Excellent on Trustpilot") and pull 2–3 real
    testimonials (real names/dates) from `templates/page-testimonials.php`.
+6. **SEO duplicate-content protection:** Because this page reuses real product
+   names/prices/links from projecttimber.com, add `<meta name="robots"
+   content="noindex, follow">` so it can never be indexed and compete with or dilute
+   the main store's own search rankings for those products, while still letting
+   crawlers follow the outbound links. Give the page its own distinct `<title>`/meta
+   description (not mirroring any real product/category page's SEO title). Product
+   card copy, section headlines, and body text stay in this page's own advertorial
+   voice — only hard facts (names, prices, specs, links) are shared with the real
+   site, never paragraph-length descriptions copied verbatim. Skip a cross-domain
+   `rel=canonical` to the real pages — that signal fits near-identical content, and
+   this page's design/framing is intentionally distinct.
 
 ## Real data to use (verified against the live site and this repo)
 
