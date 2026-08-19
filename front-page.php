@@ -59,7 +59,7 @@ get_header();
       <div class="glass"><h3>Summerhouses</h3><p class="d">Slow down, enjoy the garden.</p><div class="rfoot"><span class="rprice">From £903</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
     <a class="range-card" href="<?php echo esc_url( home_url( '/garden-workshops/' ) ); ?>">
-      <span class="range-badge">-10%</span>
+      <span class="range-badge">Premium · 10% off GM10</span>
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/grandmaster_workshop_1x.webp" alt="Project Timber garden workshop" loading="lazy">
       <div class="glass"><h3>Garden Workshops</h3><p class="d">Space for every project.</p><div class="rfoot"><span class="rprice">From £1,198</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
