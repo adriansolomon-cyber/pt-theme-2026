@@ -297,7 +297,7 @@
    (0,0,3,0) so this beats WooCommerce core's `.woocommerce button.button` (0,0,2,1),
    which otherwise repaints this as the default grey WC button. */
 .co-summary .co-promo .button{ flex:0 0 auto; margin:0; font-family:var(--font); font-weight:700; font-size:.85rem; background:#fff; color:var(--ink); border:1.5px solid rgba(33,30,36,.22); border-radius:11px; padding:0 18px; cursor:pointer; transition:border-color .18s ease, opacity .18s ease; }
-.co-summary .co-promo .button:hover{ border-color:var(--charcoal); }
+.co-summary .co-promo .button:hover{ background:#fff; border-color:var(--charcoal); }
 .co-summary .co-promo .button:disabled{ opacity:.5; cursor:default; }
 
 /* Configuration breakdown: WC add-on/composite values may arrive as inline markup. */
