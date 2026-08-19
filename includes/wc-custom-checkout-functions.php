@@ -301,6 +301,16 @@ function av_cart_qualifies_for_special() {
  * User rule:
  * "If user enters ANY custom coupon, remove existing and apply that one."
  */
+/**
+ * Suppress WooCommerce's native "Have a coupon? Click here to enter your code"
+ * form at the top of checkout. Coupons are enabled (so wc_coupons_enabled() is
+ * true), but the promo field is rendered in the order-summary card instead
+ * (checkout/review-order.php), so the default top-of-page form would duplicate it.
+ */
+add_action( 'init', function() {
+    remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10 );
+}, 20 );
+
 add_action( 'woocommerce_applied_coupon', function( $applied_coupon_code ) {
 
     if ( ! auto_voucher_enabled() || ! WC()->cart ) return;
@@ -784,6 +794,38 @@ jQuery(document).ready(function($) {
         ptPostcodeTimer = setTimeout(function() {
             $(document.body).trigger('update_checkout');
         }, 600);
+    });
+
+    // Promo / coupon code. The field lives inside <form name="checkout">, so it
+    // can't be its own <form> (nested forms are dropped by the parser). Apply the
+    // code through WooCommerce's own apply_coupon AJAX — same request core
+    // checkout.js makes — then refresh the review so the discount line appears.
+    function ptApplyCoupon() {
+        if (typeof wc_checkout_params === 'undefined') return;
+        var $code = $('#coupon_code');
+        var code  = $.trim($code.val());
+        if (!code) { $code.focus(); return; }
+        var $btn = $('#pt-apply-coupon');
+        $btn.prop('disabled', true);
+        $('.woocommerce-error, .woocommerce-message, .woocommerce-info').remove();
+        $.ajax({
+            type: 'POST',
+            url: wc_checkout_params.wc_ajax_url.toString().replace('%%endpoint%%', 'apply_coupon'),
+            data: { security: wc_checkout_params.apply_coupon_nonce, coupon_code: code },
+            dataType: 'html',
+            success: function(resp) {
+                if (resp) { $('form.checkout').first().before(resp); }
+                $code.val('');
+                $(document.body).trigger('applied_coupon_in_checkout', [code]);
+                $(document.body).trigger('update_checkout', { update_shipping_method: false });
+            },
+            complete: function() { $btn.prop('disabled', false); }
+        });
+    }
+    $(document).on('click', '#pt-apply-coupon', function(e) { e.preventDefault(); ptApplyCoupon(); });
+    // Enter in the promo field applies the code instead of submitting the checkout.
+    $(document).on('keydown', '#coupon_code', function(e) {
+        if (e.key === 'Enter' || e.keyCode === 13) { e.preventDefault(); ptApplyCoupon(); }
     });
 
     // Add click handler for copy button

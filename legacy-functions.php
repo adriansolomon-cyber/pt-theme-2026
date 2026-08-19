@@ -5465,13 +5465,9 @@ add_filter( 'woocommerce_default_catalog_orderby', function () {
 });
 
 
-add_filter( 'woocommerce_coupons_enabled', 'disable_coupons_on_checkout' );
-function disable_coupons_on_checkout( $enabled ) {
-    if ( is_checkout() ) {
-        return false;
-    }
-    return $enabled;
-}
+// NOTE: Coupons on checkout are intentionally ENABLED. The old theme disabled
+// them here (returned false on is_checkout()); the 2026 theme shows a promo-code
+// field in the order summary, so leave wc_coupons_enabled() untouched.
 
 add_filter( 'av_cart_parent_product_id', function( $product_id, $cart_item, $cart_item_key ) {
 

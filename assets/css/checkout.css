@@ -284,14 +284,13 @@
    may sit between two .sum-item siblings, so use the general-sibling combinator). */
 .co-summary .sum-item ~ .sum-item{ margin-top:22px; padding-top:22px; border-top:1px solid rgba(33,30,36,.1); }
 
-/* Promo is a real WooCommerce coupon form (form.checkout_coupon) — keep it laid out
-   as the design's inline field+button and override WC's block button styling.
-   WC's checkout.js runs `$('form.checkout_coupon').hide()` on load (it expects a
-   "Have a coupon?" toggle, which we remove), so force it visible over that inline
-   display:none while keeping the class so the AJAX submit handler still fires. */
-.co-summary form.co-promo{ display:flex !important; gap:8px; margin-top:16px; }
-.co-summary form.co-promo .input-text{ flex:1; width:auto; margin:0; }
-.co-summary form.co-promo .button{ flex:0 0 auto; margin:0; }
+/* Promo code field+button in the order summary. Not a <form> — it renders inside
+   the main checkout form, so it's a .co-promo <div> and pt-checkout JS applies the
+   code via WooCommerce's apply_coupon AJAX. Keep the design's inline layout and
+   override WC's block button styling. */
+.co-summary .co-promo{ display:flex !important; gap:8px; margin-top:16px; }
+.co-summary .co-promo .input-text{ flex:1; width:auto; margin:0; }
+.co-summary .co-promo .button{ flex:0 0 auto; margin:0; }
 
 /* Configuration breakdown: WC add-on/composite values may arrive as inline markup. */
 .co-summary .cfg .crow .v p{ margin:0; }

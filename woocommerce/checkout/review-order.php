@@ -177,10 +177,14 @@ $pt_norm_dims = function ( $s ) {
 <?php do_action( 'woocommerce_review_order_after_cart_contents' ); ?>
 
 <?php if ( wc_coupons_enabled() ) : ?>
-	<form class="co-promo checkout_coupon woocommerce-form-coupon" method="post">
-		<input type="text" name="coupon_code" id="coupon_code" class="input-text" placeholder="<?php esc_attr_e( 'Promo code', 'woocommerce' ); ?>" value="" aria-label="<?php esc_attr_e( 'Promo code', 'woocommerce' ); ?>" />
-		<button type="submit" class="button" name="apply_coupon" value="<?php esc_attr_e( 'Apply', 'woocommerce' ); ?>"><?php esc_html_e( 'Apply', 'woocommerce' ); ?></button>
-	</form>
+	<?php // NOT a <form>: this block renders inside the main <form name="checkout">,
+	// and a nested <form> tag is dropped by the HTML parser. The Apply button is a
+	// plain button; pt-checkout JS applies the code via WooCommerce's apply_coupon
+	// AJAX and refreshes the review (see shipping_toggle_scripts()). ?>
+	<div class="co-promo woocommerce-form-coupon">
+		<input type="text" id="coupon_code" class="input-text" placeholder="<?php esc_attr_e( 'Promo code', 'woocommerce' ); ?>" value="" autocomplete="off" aria-label="<?php esc_attr_e( 'Promo code', 'woocommerce' ); ?>" />
+		<button type="button" id="pt-apply-coupon" class="button"><?php esc_html_e( 'Apply', 'woocommerce' ); ?></button>
+	</div>
 <?php endif; ?>
 
 <div class="sum-tot">
