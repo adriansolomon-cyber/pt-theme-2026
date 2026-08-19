@@ -49,17 +49,26 @@ projecttimber.com site and this repo's WordPress theme, while keeping the page's
 5. **No fabricated stats:** Drop the invented "4.9" Trustpilot score (unverifiable).
    Use qualitative trust language ("Rated Excellent on Trustpilot") and pull 2–3 real
    testimonials (real names/dates) from `templates/page-testimonials.php`.
-6. **SEO duplicate-content protection:** Because this page reuses real product
-   names/prices/links from projecttimber.com, add `<meta name="robots"
-   content="noindex, follow">` so it can never be indexed and compete with or dilute
-   the main store's own search rankings for those products, while still letting
-   crawlers follow the outbound links. Give the page its own distinct `<title>`/meta
-   description (not mirroring any real product/category page's SEO title). Product
-   card copy, section headlines, and body text stay in this page's own advertorial
-   voice — only hard facts (names, prices, specs, links) are shared with the real
-   site, never paragraph-length descriptions copied verbatim. Skip a cross-domain
-   `rel=canonical` to the real pages — that signal fits near-identical content, and
-   this page's design/framing is intentionally distinct.
+6. **SEO duplicate-content protection (page stays indexable):** This bridge page is
+   meant to earn its own organic traffic, so it must NOT be `noindex`'d — that would
+   defeat the point of the strategic domain. The duplicate-content risk (verbatim
+   text competing with projecttimber.com's own rankings) is mitigated without
+   sacrificing indexability:
+   - **Unique, substantial copy** — the page keeps its own advertorial/buying-guide
+     narrative and voice throughout (hero copy, section intros, product blurbs, FAQ
+     answers). Only hard facts are shared with the real site (names, prices, specs,
+     links) — never paragraph-length descriptions copied verbatim from
+     projecttimber.com product pages.
+   - **Distinct `<title>`/meta description** targeting different, broader/top-of-
+     funnel search intent (e.g. "which Grandmaster building is right for you" /
+     buying-guide framing) rather than mirroring any real product or category page's
+     exact SEO title — so the two domains aren't competing for identical queries.
+   - **Normal dofollow outbound links** to projecttimber.com — this is one company
+     linking to its own other property, not a manipulative scheme, so no
+     `rel="nofollow"` needed.
+   - Skip a cross-domain `rel=canonical` to the real pages — that signal fits
+     near-identical content, and this page's design/framing/purpose (guide vs.
+     transactional product page) is intentionally distinct.
 
 ## Real data to use (verified against the live site and this repo)
 
