@@ -144,7 +144,27 @@ function pt_composite_size_thumbnail( $thumbnail, $cart_item, $cart_item_key ) {
  */
 add_filter( 'woocommerce_coupon_get_discount_amount', 'pt_round_coupon_discount_amount', 10, 5 );
 function pt_round_coupon_discount_amount( $discount, $discounting_amount, $cart_item, $single, $coupon ) {
-    return round( (float) $discount );
+    return pt_round_price_60( $discount );
+}
+
+/**
+ * Round a money amount to whole pounds, rounding UP only when the pennies are 60p
+ * or more; anything below (0–59p, so £x.50 included) rounds DOWN.
+ *
+ *   100.00–100.59  → 100
+ *   100.60–100.99  → 101
+ *
+ * Differs from PHP round(), which rounds £100.50 up. The 0.00001 epsilon absorbs
+ * float noise (e.g. 100.60 stored as 100.5999999) so exactly-.60 still rounds up.
+ *
+ * @param float|int|string $amount
+ * @return float
+ */
+function pt_round_price_60( $amount ) {
+    $amount  = (float) $amount;
+    $floor   = floor( $amount );
+    $pennies = $amount - $floor;
+    return ( $pennies >= 0.6 - 0.00001 ) ? $floor + 1.0 : $floor;
 }
 
 /**
