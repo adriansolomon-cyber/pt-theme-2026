@@ -144,7 +144,12 @@ function pt_composite_size_thumbnail( $thumbnail, $cart_item, $cart_item_key ) {
  */
 add_filter( 'woocommerce_coupon_get_discount_amount', 'pt_round_coupon_discount_amount', 10, 5 );
 function pt_round_coupon_discount_amount( $discount, $discounting_amount, $cart_item, $single, $coupon ) {
-    return pt_round_price_60( $discount );
+    // We round the CHARGED PRICE (not the raw discount) with the .60 rule, then derive
+    // the discount from it. That way what the customer pays equals the rounded price
+    // shown on the category cards / configurator for ANY campaign %.
+    //   £2,265 − 10% → £2,038.50 → price rounds to £2,038 → discount = £227
+    $price = (float) $discounting_amount - (float) $discount; // true post-discount price
+    return max( 0.0, (float) $discounting_amount - pt_round_price_60( $price ) );
 }
 
 /**

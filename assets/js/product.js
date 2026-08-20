@@ -183,8 +183,11 @@
       if(mib) row.insertBefore(b, mib); else row.appendChild(b);
     }
 
-    function fmt(n){ return '£'+Math.round(n).toLocaleString('en-GB')+'.00'; }
-    function fmtm(n){ return '£'+Math.round(n).toLocaleString('en-GB'); }
+    // Round to whole £ with the .60 rule: round up only when pennies are 60p+, so
+    // £2,038.50 rounds DOWN to £2,038 (matches PHP pt_round_price_60 + checkout).
+    function round60(n){ n=Number(n)||0; var f=Math.floor(n); return (n-f>=0.6-1e-9)?f+1:f; }
+    function fmt(n){ return '£'+round60(n).toLocaleString('en-GB')+'.00'; }
+    function fmtm(n){ return '£'+round60(n).toLocaleString('en-GB'); }
     function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
     // --- campaign display discount (visual only; the real money-off is the auto-applied
@@ -902,7 +905,7 @@
       try{
         if(sizeId==null){ fin(); return; }
         var m=meta[sizeId]||{};
-        var price=Math.round(disc(m.price||0));            // discounted, whole £.
+        var price=round60(disc(m.price||0));               // discounted, whole £ (.60 rule).
         var dl=(typeof window.PT_PRODUCT_DL==='object'&&window.PT_PRODUCT_DL)?window.PT_PRODUCT_DL:{};
         var item={
           item_id: String((m.id!=null)?m.id:sizeId),

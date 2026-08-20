@@ -37,9 +37,11 @@ function pt_cat_slugify( $s ) {
 	return trim( $s, '-' );
 }
 
-/** fmt() from category.js — "£1,234". */
+/** fmt() from category.js — "£1,234". Rounds with the .60 rule (round up only at
+ *  60p+, so £2,038.50 → £2,038) to match checkout; see pt_round_price_60(). */
 function pt_cat_fmt( $n ) {
-	return '£' . number_format( round( (float) $n ), 0, '.', ',' );
+	$r = function_exists( 'pt_round_price_60' ) ? pt_round_price_60( (float) $n ) : round( (float) $n );
+	return '£' . number_format( $r, 0, '.', ',' );
 }
 
 /** facetLabel() from category.js. */
@@ -192,7 +194,7 @@ function pt_cat_card_html( $p ) {
 
 	// Discounted, whole-£ tracking price for the select_item dataLayer event
 	// (category.js), matching view_item_list / view_item.
-	$track_price = ( $price > 0 ) ? round( $disc > 0 ? ( $price - $price * $disc / 100 ) : $price ) : 0;
+	$track_price = ( $price > 0 ) ? ( function_exists( 'pt_round_price_60' ) ? pt_round_price_60( $disc > 0 ? ( $price - $price * $disc / 100 ) : $price ) : round( $disc > 0 ? ( $price - $price * $disc / 100 ) : $price ) ) : 0;
 
 	$order = isset( $p['_order'] ) ? (int) $p['_order'] : 0;
 	$h  = '<a class="prod" href="' . esc_url( $href ) . '" data-price="' . esc_attr( $price ) . '" data-sales="' . esc_attr( $sales ) . '" data-order="' . esc_attr( $order ) . '"'
