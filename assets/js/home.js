@@ -116,6 +116,11 @@
         .then(function(r){ return r.json().catch(function(){ return null; }); })
         .then(function(res){
           if(res && res.success){
+            // Meta Schedule (browser copy) — same event_id as the server sent, so they
+            // deduplicate. Held automatically if consent isn't granted.
+            if(res.data && res.data.fb && typeof window.fbq==='function'){
+              try{ fbq('track', res.data.fb.event, res.data.fb.custom_data||{}, {eventID:res.data.fb.event_id}); }catch(e){}
+            }
             doneMsg.textContent='Thanks — we’ll email you to confirm your visit for '+fmt(selDate)+' at '+selTime+'.';
             slots.hidden=true; form.hidden=true; done.hidden=false; done.scrollIntoView({behavior:'smooth',block:'nearest'});
             return;

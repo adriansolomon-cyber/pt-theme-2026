@@ -22,7 +22,7 @@ if ( ! defined( 'PT_CONTACT_TO' ) ) {
 }
 
 /**
- * Fire a Meta "Lead" for a successful enquiry/callback.
+ * Fire a Meta conversion event for a successful form submission (Lead, Schedule, …).
  *
  * Sends the server-side (CAPI) copy immediately via the FB CAPI plugin, and returns a
  * payload so the browser can fire the deduplicated Pixel copy with the SAME event_id
@@ -30,11 +30,12 @@ if ( ! defined( 'PT_CONTACT_TO' ) ) {
  * inactive. Consent is handled inside the plugin: without marketing consent the CAPI
  * copy sends IP/UA only and the browser copy is held by fbq('consent','revoke').
  *
- * @param string $lead_type 'contact' | 'callback'.
- * @param array  $c         Contact fields: email, phone, first_name, last_name.
- * @return array ['event_id'=>string,'custom_data'=>array] for the browser, or [] if unavailable.
+ * @param string $event_name Meta event, e.g. 'Lead' or 'Schedule'.
+ * @param string $subtype    Sub-label for content_name, e.g. 'contact' | 'callback' | 'showsite'.
+ * @param array  $c          Contact fields: email, phone, first_name, last_name.
+ * @return array ['event'=>string,'event_id'=>string,'custom_data'=>array] for the browser, or [] if unavailable.
  */
-function pt_fire_lead_event( $lead_type, $c ) {
+function pt_fire_meta_event( $event_name, $subtype, $c ) {
 	if ( ! function_exists( 'fb_capi_send_event' ) || ! function_exists( 'fb_capi_get_event_id' ) ) {
 		return array();
 	}
@@ -49,26 +50,32 @@ function pt_fire_lead_event( $lead_type, $c ) {
 		) );
 	}
 
-	$event_id    = fb_capi_get_event_id( 'Lead', $lead_type . '_' . microtime( true ) );
+	$event_id    = fb_capi_get_event_id( $event_name, $subtype . '_' . microtime( true ) );
 	$custom_data = array(
-		'content_name'     => $lead_type,
-		'content_category' => 'lead',
-		'currency'         => 'GBP',
+		'content_name' => $subtype,
+		'currency'     => 'GBP',
 	);
 
-	// Estimated lead value — OFF by default (an un-qualified enquiry has no revenue yet).
-	// Set one with: add_filter( 'pt_lead_value', fn( $v, $type ) => 250.0, 10, 2 );
-	$value = (float) apply_filters( 'pt_lead_value', 0, $lead_type );
+	// Estimated value — OFF by default (an enquiry/booking has no confirmed revenue yet).
+	// Set one with e.g. add_filter( 'pt_lead_value', fn( $v, $t ) => 250.0, 10, 2 );
+	// (filter name derives from the event: pt_lead_value, pt_schedule_value, …).
+	$value = (float) apply_filters( 'pt_' . strtolower( $event_name ) . '_value', 0, $subtype );
 	if ( $value > 0 ) {
 		$custom_data['value'] = $value;
 	}
 
-	fb_capi_send_event( 'Lead', $custom_data, $event_id, $c['email'] ?? '', $c['phone'] ?? '' );
+	fb_capi_send_event( $event_name, $custom_data, $event_id, $c['email'] ?? '', $c['phone'] ?? '' );
 
 	return array(
+		'event'       => $event_name,
 		'event_id'    => $event_id,
 		'custom_data' => $custom_data,
 	);
+}
+
+/** Back-compat wrapper: fire a Meta Lead ('contact' | 'callback'). */
+function pt_fire_lead_event( $lead_type, $c ) {
+	return pt_fire_meta_event( 'Lead', $lead_type, $c );
 }
 
 /**
@@ -181,7 +188,7 @@ function pt_contact_handle() {
 		'last_name'  => $np[1] ?? '',
 	) );
 
-	pt_contact_respond( $ajax, true, '', $lead ? array( 'lead' => $lead ) : null );
+	pt_contact_respond( $ajax, true, '', $lead ? array( 'fb' => $lead ) : null );
 }
 add_action( 'admin_post_pt_contact', 'pt_contact_handle' );
 add_action( 'admin_post_nopriv_pt_contact', 'pt_contact_handle' );
@@ -279,7 +286,7 @@ function pt_callback_handle() {
 		'last_name'  => $np[1] ?? '',
 	) );
 
-	$respond( true, '', $lead ? array( 'lead' => $lead ) : null );
+	$respond( true, '', $lead ? array( 'fb' => $lead ) : null );
 }
 add_action( 'admin_post_pt_callback', 'pt_callback_handle' );
 add_action( 'admin_post_nopriv_pt_callback', 'pt_callback_handle' );
@@ -294,10 +301,10 @@ add_action( 'admin_post_nopriv_pt_callback', 'pt_callback_handle' );
 function pt_showsite_handle() {
 	$ajax = ! empty( $_POST['pt_ajax'] );
 
-	$respond = function ( $ok, $message = '' ) use ( $ajax ) {
+	$respond = function ( $ok, $message = '', $data = null ) use ( $ajax ) {
 		if ( $ajax ) {
 			if ( $ok ) {
-				wp_send_json_success();
+				wp_send_json_success( $data );
 			}
 			wp_send_json_error( array( 'message' => $message ) );
 		}
@@ -372,7 +379,16 @@ function pt_showsite_handle() {
 		$respond( false, $err );
 	}
 
-	$respond( true );
+	// Genuine showsite-visit booking (validation passed, email sent) → Meta Schedule.
+	$np  = preg_split( '/\s+/', trim( $name ), 2 );
+	$evt = pt_fire_meta_event( 'Schedule', 'showsite', array(
+		'email'      => $email,
+		'phone'      => $phone,
+		'first_name' => $np[0] ?? '',
+		'last_name'  => $np[1] ?? '',
+	) );
+
+	$respond( true, '', $evt ? array( 'fb' => $evt ) : null );
 }
 add_action( 'admin_post_pt_showsite', 'pt_showsite_handle' );
 add_action( 'admin_post_nopriv_pt_showsite', 'pt_showsite_handle' );
