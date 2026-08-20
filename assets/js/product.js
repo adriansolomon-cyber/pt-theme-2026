@@ -857,6 +857,27 @@
         .catch(function(err){ console.error(err); status(err.message||'Failed to load. Check the product / connection.',true); });
     }
 
+    // Meta CustomizeProduct — fired ONCE, on the first genuine configurator change
+    // (a size or option card click). The default preselect calls selectSize() directly,
+    // never through the card handler, so it doesn't count. Browser-only: a mid-funnel
+    // intent signal between ViewContent and AddToCart. Consent is handled by the Pixel's
+    // consent state (held until CookieYes marketing consent is granted).
+    var customizeFired=false;
+    function fireCustomize(){
+      if(customizeFired || typeof window.fbq!=='function') return;
+      customizeFired=true;
+      var cid=(sizeId!=null)?String(sizeId):String(DEFAULT_PID||'');
+      try{
+        fbq('track','CustomizeProduct',{
+          content_type:'product',
+          content_ids: cid?[cid]:[],
+          content_name:(product&&product.name)||'',
+          value: round60(disc(total())),
+          currency:'GBP'
+        },{eventID:'fb_cust_'+cid+'_'+Date.now()});
+      }catch(e){}
+    }
+
     // ====================== events ======================
     // Single-open accordion helpers: selecting an option collapses that step (its
     // chosen value stays visible in the header) and opens the NEXT step to choose.
@@ -886,6 +907,7 @@
       if(e.target.closest('.opt-edit')) return;   // edit button → let the link open wp-admin, don't select the card
       var card=e.target.closest('.opt-card'); if(!card) return;
       var group=card.dataset.group, optId=+card.dataset.opt;
+      fireCustomize();   // first genuine size/option choice → Meta CustomizeProduct (once)
       // size re-renders the option steps; advance once the (async) render settles
       if(group===sizeCid){ var p=selectSize(optId); var go=function(){ cfgAdvance(cfgRowsList()[0]); }; if(p&&p.then){ p.then(go); } else { go(); } return; }
       var row=card.closest('.cfg-row');       // capture before refilter rebuilds the cards
