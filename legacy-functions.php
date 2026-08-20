@@ -4762,7 +4762,10 @@ function fix_composite_product_price_schema($markup, $product)
     // IF WE HAVE A DISCOUNT — show the discounted price as primary, keep regular in spec.
     if ($coupon_percent > 0) {
         $discounted_price     = $base_price - (($base_price / 100) * $coupon_percent);
-        $formatted_sale_price = number_format($discounted_price, 0, '.', '');
+        // Round with the .60 rule (round up only at 60p+, so £2,038.50 -> £2,038) so the
+        // structured-data sale price matches the card / configurator / checkout.
+        $rounded_sale_price   = function_exists('pt_round_price_60') ? pt_round_price_60($discounted_price) : round($discounted_price);
+        $formatted_sale_price = number_format($rounded_sale_price, 0, '.', '');
 
         $valid_through = function_exists('pt_campaign_end_iso') ? pt_campaign_end_iso() : '';
         if ('' === $valid_through) {
