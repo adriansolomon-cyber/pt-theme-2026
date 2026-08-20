@@ -43,6 +43,13 @@
 			.then(function (r) { return r.json().catch(function () { return null; }); })
 			.then(function (res) {
 				if (res && res.success) {
+					// Meta Lead (browser copy) — same event_id as the server sent, so
+					// they deduplicate. Held automatically if consent isn't granted.
+					if (res.data && res.data.lead && typeof window.fbq === 'function') {
+						try {
+							fbq('track', 'Lead', res.data.lead.custom_data || {}, { eventID: res.data.lead.event_id });
+						} catch (e) {}
+					}
 					form.style.display = 'none';
 					if (done) {
 						done.classList.add('show');

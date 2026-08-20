@@ -22,16 +22,66 @@ if ( ! defined( 'PT_CONTACT_TO' ) ) {
 }
 
 /**
+ * Fire a Meta "Lead" for a successful enquiry/callback.
+ *
+ * Sends the server-side (CAPI) copy immediately via the FB CAPI plugin, and returns a
+ * payload so the browser can fire the deduplicated Pixel copy with the SAME event_id
+ * (the form JS reads it from the AJAX response). No-ops cleanly if the plugin is
+ * inactive. Consent is handled inside the plugin: without marketing consent the CAPI
+ * copy sends IP/UA only and the browser copy is held by fbq('consent','revoke').
+ *
+ * @param string $lead_type 'contact' | 'callback'.
+ * @param array  $c         Contact fields: email, phone, first_name, last_name.
+ * @return array ['event_id'=>string,'custom_data'=>array] for the browser, or [] if unavailable.
+ */
+function pt_fire_lead_event( $lead_type, $c ) {
+	if ( ! function_exists( 'fb_capi_send_event' ) || ! function_exists( 'fb_capi_get_event_id' ) ) {
+		return array();
+	}
+
+	// Persist contact so the plugin hashes name too (and benefits later events).
+	if ( function_exists( 'fb_capi_store_session_contact' ) ) {
+		fb_capi_store_session_contact( array(
+			'email'      => $c['email'] ?? '',
+			'phone'      => $c['phone'] ?? '',
+			'first_name' => $c['first_name'] ?? '',
+			'last_name'  => $c['last_name'] ?? '',
+		) );
+	}
+
+	$event_id    = fb_capi_get_event_id( 'Lead', $lead_type . '_' . microtime( true ) );
+	$custom_data = array(
+		'content_name'     => $lead_type,
+		'content_category' => 'lead',
+		'currency'         => 'GBP',
+	);
+
+	// Estimated lead value — OFF by default (an un-qualified enquiry has no revenue yet).
+	// Set one with: add_filter( 'pt_lead_value', fn( $v, $type ) => 250.0, 10, 2 );
+	$value = (float) apply_filters( 'pt_lead_value', 0, $lead_type );
+	if ( $value > 0 ) {
+		$custom_data['value'] = $value;
+	}
+
+	fb_capi_send_event( 'Lead', $custom_data, $event_id, $c['email'] ?? '', $c['phone'] ?? '' );
+
+	return array(
+		'event_id'    => $event_id,
+		'custom_data' => $custom_data,
+	);
+}
+
+/**
  * Send the JSON response (AJAX) or redirect back with a status flag (no-JS).
  *
  * @param bool   $ajax    Whether this is an AJAX request.
  * @param bool   $ok      Success.
  * @param string $message Message shown to the user on error (or empty).
  */
-function pt_contact_respond( $ajax, $ok, $message = '' ) {
+function pt_contact_respond( $ajax, $ok, $message = '', $data = null ) {
 	if ( $ajax ) {
 		if ( $ok ) {
-			wp_send_json_success();
+			wp_send_json_success( $data );
 		}
 		wp_send_json_error( array( 'message' => $message ) );
 	}
@@ -122,7 +172,16 @@ function pt_contact_handle() {
 		pt_contact_respond( $ajax, false, $msg );
 	}
 
-	pt_contact_respond( $ajax, true );
+	// Genuine enquiry (nonce + honeypot + validation passed, email sent) → Meta Lead.
+	$np   = preg_split( '/\s+/', trim( $name ), 2 );
+	$lead = pt_fire_lead_event( 'contact', array(
+		'email'      => $email,
+		'phone'      => $phone,
+		'first_name' => $np[0] ?? '',
+		'last_name'  => $np[1] ?? '',
+	) );
+
+	pt_contact_respond( $ajax, true, '', $lead ? array( 'lead' => $lead ) : null );
 }
 add_action( 'admin_post_pt_contact', 'pt_contact_handle' );
 add_action( 'admin_post_nopriv_pt_contact', 'pt_contact_handle' );
@@ -135,10 +194,10 @@ add_action( 'admin_post_nopriv_pt_contact', 'pt_contact_handle' );
 function pt_callback_handle() {
 	$ajax = ! empty( $_POST['pt_ajax'] );
 
-	$respond = function ( $ok, $message = '' ) use ( $ajax ) {
+	$respond = function ( $ok, $message = '', $data = null ) use ( $ajax ) {
 		if ( $ajax ) {
 			if ( $ok ) {
-				wp_send_json_success();
+				wp_send_json_success( $data );
 			}
 			wp_send_json_error( array( 'message' => $message ) );
 		}
@@ -212,7 +271,15 @@ function pt_callback_handle() {
 		$respond( false, $err );
 	}
 
-	$respond( true );
+	// Genuine callback request (validation passed, email sent) → Meta Lead. No email field.
+	$np   = preg_split( '/\s+/', trim( $name ), 2 );
+	$lead = pt_fire_lead_event( 'callback', array(
+		'phone'      => $phone,
+		'first_name' => $np[0] ?? '',
+		'last_name'  => $np[1] ?? '',
+	) );
+
+	$respond( true, '', $lead ? array( 'lead' => $lead ) : null );
 }
 add_action( 'admin_post_pt_callback', 'pt_callback_handle' );
 add_action( 'admin_post_nopriv_pt_callback', 'pt_callback_handle' );
