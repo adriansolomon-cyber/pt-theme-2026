@@ -75,6 +75,9 @@ get_header();
 ?>
 <main class="pt-test" style="max-width:1000px;margin:80px auto;padding:0 20px;font-family:system-ui,Arial,sans-serif;">
 	<?php
+	/*
+	 * Dormant for now. Uncomment this block to render the active-voucher count.
+	 *
 	if ( ! class_exists( 'WC_Coupon' ) ) {
 		echo '<p><strong>WooCommerce is not active.</strong></p>';
 	} else {
@@ -108,6 +111,7 @@ get_header();
 			echo '<p>No active coupons found.</p>';
 		}
 	}
+	*/
 	?>
 </main>
 <?php
