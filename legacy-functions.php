@@ -4378,8 +4378,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             $order = wc_get_order($order_id);
 
-            // Check if the GA4 event has already been sent
-            if ($order && !$order->get_meta('_ga4_event_sent')) {
+            // Check if the GA4 event has already been sent (admins can force a
+            // re-fire for QA with ?pt_retrack=1 — see pt_tracking_retrack_bypass()).
+            $pt_retrack = function_exists('pt_tracking_retrack_bypass') && pt_tracking_retrack_bypass();
+            if ($order && (!$order->get_meta('_ga4_event_sent') || $pt_retrack)) {
                 // Get order status
                 $order_status = $order->get_status();
 

@@ -1,4 +1,18 @@
 <?php
+/**
+ * QA bypass for the purchase dedup guards.
+ *
+ * Returns true only when a logged-in admin appends ?pt_retrack=1 to the
+ * order-received URL — lets us re-fire the purchase event on an already-tracked
+ * order while testing (e.g. in GTM Preview) without placing a new order. Real
+ * customers can never trigger it, so it is safe to leave in place.
+ */
+function pt_tracking_retrack_bypass() {
+    return isset($_GET['pt_retrack'])
+        && function_exists('current_user_can')
+        && current_user_can('manage_woocommerce');
+}
+
 add_action('woocommerce_thankyou', 'google_order_conversion');
 function google_order_conversion($order_id) {
 
@@ -8,7 +22,8 @@ function google_order_conversion($order_id) {
     // Dedup: woocommerce_thankyou fires on every refresh of the order-received
     // page. Only emit the purchase dataLayer push once per order so we don't
     // re-fire the conversion (previously this meta was set but never checked).
-    if ($order->get_meta('_pt_purchase_tracked')) {
+    // Admins can force a re-fire for QA with ?pt_retrack=1.
+    if ($order->get_meta('_pt_purchase_tracked') && !pt_tracking_retrack_bypass()) {
         return;
     }
     $order->update_meta_data('_pt_purchase_tracked', '1');
