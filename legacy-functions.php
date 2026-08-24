@@ -4399,16 +4399,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
 
-                // Generate JavaScript to send to GA4
+                // Generate JavaScript to send to GA4.
+                //
+                // NOTE: this used to fire event:'purchase', which double-fired
+                // the GTM purchase tags — a SECOND purchase with a different
+                // transaction_id (order ID vs the datalayer's order number) and
+                // a messy composite-children item list. The real, clean purchase
+                // (with enhanced-conversion user_data) is sent by
+                // google_order_conversion() in woo-google-tracking-events-datalayer.php.
+                // This event is renamed to 'order_status_meta' so it no longer
+                // triggers the purchase tags; it only carries the order_status /
+                // building_name metadata for any tag that wants it.
                 ?>
 <script>
-gtag('event', 'purchase', {
+gtag('event', 'order_status_meta', {
     'order_status': '<?php echo esc_js($order_status); ?>',
     'transaction_id': '<?php echo esc_js($order->get_id()); ?>',
     'building_name': '<?php echo $product_name; ?>',
     'value': <?php echo esc_js($order->get_total()); ?>,
-    'currency': '<?php echo esc_js($order->get_currency()); ?>',
-    'items': <?php echo wp_json_encode(get_order_items_for_ga4($order)); ?>
+    'currency': '<?php echo esc_js($order->get_currency()); ?>'
 });
 </script>
 <?php
