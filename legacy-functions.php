@@ -4821,6 +4821,33 @@ add_filter( 'woocommerce_email_headers', function ( $headers, $email_id, $order 
 }, 10, 3 );
 
 
+/**
+ * Align the WooCommerce "additional content" block with the rest of the email.
+ *
+ * Our custom email blocks (order-details, addresses) are inset with an extra
+ * `padding: 0 24px` on top of the body's base 24px, so their content sits 48px
+ * from the edge. The additional-content line (e.g. "Thanks for using …") is
+ * rendered by WooCommerce core templates we don't override, so it only gets the
+ * base 24px and appears shifted left. Wrapping it in the same inset lines it up.
+ */
+foreach ( array(
+    'customer_processing_order',
+    'customer_completed_order',
+    'customer_on_hold_order',
+    'customer_refunded_order',
+    'customer_invoice',
+) as $pt_email_id ) {
+    add_filter( 'woocommerce_email_additional_content_' . $pt_email_id, function ( $content ) {
+        $content = trim( (string) $content );
+        if ( '' === $content ) {
+            return $content;
+        }
+        return '<div style="padding: 0 24px;">' . $content . '</div>';
+    }, 20 );
+}
+unset( $pt_email_id );
+
+
 add_action('template_redirect', function() {
     $request_uri = strtok($_SERVER['REQUEST_URI'], '?'); // remove query string
     if (untrailingslashit($request_uri) === '/delivery-10') {
