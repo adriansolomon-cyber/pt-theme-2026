@@ -36,7 +36,7 @@ do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 <div style="display: block; margin: 0 auto; text-align:center; margin-bottom: 8px;">
 	<span style="border-radius: 99px;background: rgba(255, 255, 0, 0.90); padding: 4px 24px; font-weight: 600; m ">Your Account Has Been Created</span>	
 </div>
-<p><?php printf( __( 'Hi <span style="color: #FF0302;">%s</span>,', 'woocommerce' ), esc_html( $user_login ) ); ?></p><?php if ( $email_improvements_enabled ) : ?>
+<p><?php printf( __( 'Hello <span style="color: #FF0302;">%s</span>,', 'woocommerce' ), esc_html( $user_login ) ); ?></p><?php if ( $email_improvements_enabled ) : ?>
 	<?php /* translators: %s: Site title */ ?>
 	<p><?php printf( esc_html__( 'Thanks for creating an account on %s. Here’s a copy of your user details.', 'woocommerce' ), esc_html( $blogname ) ); ?></p>
 	<div class="hr hr-top"></div>

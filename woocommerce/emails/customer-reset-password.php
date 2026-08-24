@@ -33,7 +33,7 @@ $email_improvements_enabled = FeaturesUtil::feature_is_enabled( 'email_improveme
 	<span style="border-radius: 99px;background: rgba(255, 255, 0, 0.90); padding: 4px 24px; font-weight: 600; m ">Reset Your Password</span>	
 </div>
 <?php /* translators: %s: Customer username */ ?>
-<p><?php printf( __( 'Hi <span style="color: #FF0302;">%s</span>,', 'woocommerce' ), esc_html( $user_login ) ); ?></p>
+<p><?php printf( __( 'Hello <span style="color: #FF0302;">%s</span>,', 'woocommerce' ), esc_html( $user_login ) ); ?></p>
 <?php /* translators: %s: Store name */ ?>
 <p><?php printf( __( 'Someone has requested a new password for the following account on %s:', 'woocommerce' ), esc_html( $blogname ) ); ?></p>
 <?php if ( $email_improvements_enabled ) : ?>

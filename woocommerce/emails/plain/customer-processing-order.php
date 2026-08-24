@@ -36,7 +36,7 @@ $payment_method = get_post_meta( $order->get_id(), '_payment_method', true );?>
 <div class="mainbg">
 <div class="roundwrapper">
 <div class="round">
-<p>Hi <?php echo ucwords( $order->get_billing_first_name() );?>,</p>
+<p>Hello <?php echo ucwords( $order->get_billing_first_name() );?>,</p>
 <?php
 $order_customer = get_user_by( 'id', $order->get_user_id() );
 

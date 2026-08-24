@@ -194,7 +194,7 @@ tfoot td.td.last {
                     <td style="padding: 12px 24px 0 24px;  min-height: 100px;">
                         <?php echo ! empty( $email_improvements_enabled ) ? '<div class="email-introduction">' : ''; ?>
                         <p style="margin: 0 0 12px 0; font-family: 'Work Sans', Arial, sans-serif; font-size: 16px; color: #3B333D; line-height: 1.6; font-style: normal;">
-                            <?php printf( esc_html__( 'Hi %s,', 'woocommerce' ), esc_html( $order->get_billing_first_name() ) ); ?>
+                            <?php printf( esc_html__( 'Hello %s,', 'woocommerce' ), esc_html( $order->get_billing_first_name() ) ); ?>
                         </p>
                         <?php if ( $order->needs_payment() ) : ?>
                             <p style="margin: 0 0 12px 0; font-family: 'Work Sans', Arial, sans-serif; font-size: 16px; color: #3B333D; line-height: 1.6; font-style: normal;">
