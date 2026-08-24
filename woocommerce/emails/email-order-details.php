@@ -226,7 +226,7 @@ tfoot td.td.last {
                             <p style="margin: 0 0 12px 0; font-family: 'Work Sans', Arial, sans-serif; font-size: 16px; color: #3B333D; line-height: 1.6; font-style: normal;">
                                 <?php
                                 /* translators: %s Order date */
-                                printf( esc_html__( 'Thank you for our order, we will process it soon. Here are the details of your order placed on %s:', 'woocommerce' ), esc_html( wc_format_datetime( $order->get_date_created() ) ) );
+                                printf( esc_html__( 'Thank you for your order, we will process it soon. Here are the details of your order placed on %s:', 'woocommerce' ), esc_html( wc_format_datetime( $order->get_date_created() ) ) );
                                 ?>
                             </p>
                         <?php endif; ?>
