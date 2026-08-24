@@ -95,15 +95,34 @@ function tracking_add_to_admin_email( $order, $sent_to_admin, $plain_text, $emai
         'utm_term'     => 'UTM Term',
     );
 
+    // Collect the non-empty rows first so we only render the wrapper when there
+    // is something to show.
+    $rows = array();
     foreach ( $email_params as $key => $label ) {
         $value = $order->get_meta( '_' . $key );
-
         if ( ! empty( $value ) ) {
-            echo $plain_text
-                ? $label . ': ' . $value . "\n"
-                : '<p><strong>' . esc_html( $label ) . ':</strong> ' . esc_html( $value ) . '</p>';
+            $rows[ $label ] = $value;
         }
     }
+
+    if ( empty( $rows ) ) {
+        return;
+    }
+
+    if ( $plain_text ) {
+        foreach ( $rows as $label => $value ) {
+            echo $label . ': ' . $value . "\n";
+        }
+        return;
+    }
+
+    // Inset the block by 24px so it lines up with the order-details and address
+    // cards (which carry an extra padding: 0 24px on top of the body base).
+    echo '<div style="padding: 0 24px;">';
+    foreach ( $rows as $label => $value ) {
+        echo '<p style="margin: 0 0 8px;"><strong>' . esc_html( $label ) . ':</strong> ' . esc_html( $value ) . '</p>';
+    }
+    echo '</div>';
 }
 add_action( 'woocommerce_email_after_order_table', 'tracking_add_to_admin_email', 10, 4 );
 
