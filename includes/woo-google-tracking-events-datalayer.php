@@ -5,6 +5,12 @@ function google_order_conversion($order_id) {
     $order = wc_get_order($order_id);
     if (!$order) return;
 
+    // Dedup: woocommerce_thankyou fires on every refresh of the order-received
+    // page. Only emit the purchase dataLayer push once per order so we don't
+    // re-fire the conversion (previously this meta was set but never checked).
+    if ($order->get_meta('_pt_purchase_tracked')) {
+        return;
+    }
     $order->update_meta_data('_pt_purchase_tracked', '1');
     $order->save();
 
@@ -77,10 +83,24 @@ function google_order_conversion($order_id) {
         $billing_email = str_replace('.', '', $matches[1]) . '@' . $matches[2];
     }
 
-    $raw_phone     = preg_replace('/[^\d+]/', '', (string) $order->get_billing_phone());
-    $billing_phone = (strpos($raw_phone, '+') === 0)
-        ? $raw_phone
-        : '+44' . ltrim($raw_phone, '0');
+    // Normalize phone to E.164 (required for Google enhanced-conversions match).
+    // Handle: already-international (+…), 00 access code, bare 44 country code,
+    // and local UK (07…). Default to +44 for local numbers.
+    $raw_phone = (string) $order->get_billing_phone();
+    $has_plus  = (strpos(ltrim($raw_phone), '+') === 0);
+    $digits    = preg_replace('/\D+/', '', $raw_phone); // digits only
+
+    if ('' === $digits) {
+        $billing_phone = ''; // no phone → send nothing rather than a bare "+44"
+    } elseif ($has_plus) {
+        $billing_phone = '+' . $digits;                 // +447… → keep
+    } elseif (strpos($digits, '00') === 0) {
+        $billing_phone = '+' . ltrim($digits, '0');      // 00447… → +447…
+    } elseif (strpos($digits, '44') === 0) {
+        $billing_phone = '+' . $digits;                  // 447…  → +447…
+    } else {
+        $billing_phone = '+44' . ltrim($digits, '0');    // 07…   → +447…
+    }
 
     $billing_first_name = strtolower(trim((string) $order->get_billing_first_name()));
     $billing_last_name  = strtolower(trim((string) $order->get_billing_last_name()));
@@ -91,7 +111,7 @@ function google_order_conversion($order_id) {
 
     // SHA-256 hashed values — only used for Google Ads gtag call
     $hashed_email      = hash('sha256', $billing_email);
-    $hashed_phone      = hash('sha256', $billing_phone);
+    $hashed_phone      = '' !== $billing_phone ? hash('sha256', $billing_phone) : '';
     $hashed_first_name = hash('sha256', $billing_first_name);
     $hashed_last_name  = hash('sha256', $billing_last_name);
     $hashed_street     = hash('sha256', $billing_street);
