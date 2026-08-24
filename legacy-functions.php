@@ -4842,7 +4842,7 @@ foreach ( array(
         if ( '' === $content ) {
             return $content;
         }
-        return '<div style="padding: 0 24px;">' . $content . '</div>';
+        return '<div style="padding: 0 24px; margin: 0 0 24px;">' . $content . '</div>';
     }, 20 );
 }
 unset( $pt_email_id );
