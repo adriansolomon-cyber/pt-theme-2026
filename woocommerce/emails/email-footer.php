@@ -26,10 +26,12 @@ if ( ! defined( 'ABSPATH' ) ) {
                         style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                         <tr>
                             <td align="center" style="padding: 0 0 16px 0;">
-                                <img src="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/images/social-logos/v2/logo-email-footer.svg"
-                                    alt="Project Timber"
-                                    style="display: block; height: auto; max-width: 100%; border: 0; outline: none;"
-                                    border="0">
+                                <a href="https://www.projecttimber.com/" target="_blank" style="text-decoration: none; border: 0;">
+                                    <img src="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/images/social-logos/v2/logo-email-footer.svg"
+                                        alt="Project Timber"
+                                        style="display: block; height: auto; max-width: 100%; border: 0; outline: none;"
+                                        border="0">
+                                </a>
                             </td>
                         </tr>
                     </table>

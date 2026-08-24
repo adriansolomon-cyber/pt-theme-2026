@@ -4822,13 +4822,13 @@ add_filter( 'woocommerce_email_headers', function ( $headers, $email_id, $order 
 
 
 /**
- * Align the WooCommerce "additional content" block with the rest of the email.
+ * Suppress the WooCommerce "additional content" block on customer emails.
  *
- * Our custom email blocks (order-details, addresses) are inset with an extra
- * `padding: 0 24px` on top of the body's base 24px, so their content sits 48px
- * from the edge. The additional-content line (e.g. "Thanks for using …") is
- * rendered by WooCommerce core templates we don't override, so it only gets the
- * base 24px and appears shifted left. Wrapping it in the same inset lines it up.
+ * The additional-content line (e.g. "Thanks for using www.projecttimber.com!")
+ * is set per-email in WooCommerce → Settings → Emails and injected by the core
+ * templates. It's redundant next to our branded footer, so we blank it out for
+ * every customer order/invoice email. Returning an empty string means the
+ * template's wpautop() renders nothing.
  */
 foreach ( array(
     'customer_processing_order',
@@ -4837,13 +4837,7 @@ foreach ( array(
     'customer_refunded_order',
     'customer_invoice',
 ) as $pt_email_id ) {
-    add_filter( 'woocommerce_email_additional_content_' . $pt_email_id, function ( $content ) {
-        $content = trim( (string) $content );
-        if ( '' === $content ) {
-            return $content;
-        }
-        return '<div style="padding: 0 24px; margin: 0 0 24px;">' . $content . '</div>';
-    }, 20 );
+    add_filter( 'woocommerce_email_additional_content_' . $pt_email_id, '__return_empty_string', 20 );
 }
 unset( $pt_email_id );
 
