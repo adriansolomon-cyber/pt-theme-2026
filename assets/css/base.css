@@ -65,7 +65,7 @@ a{ color:inherit; }
 .promo.urgent .promo-cd .u b{ color:var(--ink); }
 .promo.urgent .promo-cd .u i{ color:rgba(33,30,36,.6); }
 .promo.urgent .promo-cd .c{ color:var(--accent); opacity:.7; }
-@media(max-width:640px){ .promo .promo-cd .lab{ display:none; } }
+@media(max-width:640px){ .promo{ font-size:.72rem; } }
 /* Header container. MUST be in base.css: base.css carries all the .mainhead
    child rules (which rely on flex — e.g. margin-left:auto on .search/.icons),
    but the flex container itself lived only in the per-page stylesheets. On
