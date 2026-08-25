@@ -47,6 +47,22 @@ a{ color:inherit; }
 .wsc_share_cart:active{ transform:scale(.99); }
 .promo{ background:var(--ink); color:var(--on-dark); text-align:center; font-size:.74rem; letter-spacing:.05em; padding:8px 14px; }
 .promo b{ color:#fff; }
+/* Campaign countdown bar (header.php + ACF campaign_end_date). Only present when
+   a campaign is running; reverts to the plain .promo message on expiry. */
+.promo .promo-in{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:8px 14px; }
+.promo .promo-msg{ color:var(--on-dark-soft); }
+.promo .promo-msg .gm{ background:var(--accent); color:var(--ink); border-radius:4px; padding:1px 7px; font-weight:700; letter-spacing:.03em; margin-left:2px; }
+.promo .promo-cd{ display:inline-flex; align-items:center; gap:5px; }
+.promo .promo-cd .lab{ font-size:.62rem; text-transform:uppercase; letter-spacing:.14em; color:var(--on-dark-soft); margin-right:3px; }
+.promo .promo-cd .u{ display:inline-flex; align-items:baseline; gap:1px; background:rgba(255,255,255,.09); border-radius:6px; padding:3px 7px; }
+.promo .promo-cd .u b{ font-weight:700; font-size:.82rem; color:#fff; font-variant-numeric:tabular-nums; }
+.promo .promo-cd .u i{ font-style:normal; font-size:.6rem; color:var(--on-dark-soft); }
+.promo .promo-cd .c{ color:var(--on-dark-soft); opacity:.45; font-weight:700; }
+.promo.urgent .promo-cd .u{ background:var(--accent); }
+.promo.urgent .promo-cd .u b{ color:var(--ink); }
+.promo.urgent .promo-cd .u i{ color:rgba(33,30,36,.6); }
+.promo.urgent .promo-cd .c{ color:var(--accent); opacity:.7; }
+@media(max-width:640px){ .promo .promo-cd .lab{ display:none; } }
 /* Header container. MUST be in base.css: base.css carries all the .mainhead
    child rules (which rely on flex — e.g. margin-left:auto on .search/.icons),
    but the flex container itself lived only in the per-page stylesheets. On

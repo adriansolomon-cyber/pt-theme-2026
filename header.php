@@ -278,7 +278,77 @@ _mhct.push(['mhCampaignID', 'VA-13595']);
 <!-- End MediaHawk -->
 <a class="skip" href="#main">Skip to content</a>
 
-<div class="promo">FREE DELIVERY — <b>selected postcodes*</b> &nbsp;·&nbsp; 10% OFF GRANDMASTER — CODE <b>GM10</b></div>
+<?php
+/*
+ * Promo bar. When a campaign is running — ACF "Show coupon" (show_coupon) is on
+ * AND the ACF "Campaign end date" (campaign_end_date) hasn't passed — we show the
+ * offer plus a live countdown to that end date. This is the SAME campaign that
+ * drives the discounts (see includes/wc-custom-checkout-functions.php), so the
+ * timer and the discount switch off together. Initial digits are rendered
+ * server-side (no flash); the inline script below re-ticks each second and
+ * reverts the bar to the free-delivery message on expiry. Ported from the old
+ * theme's ACF-driven template-parts/countdown-template.php.
+ */
+$pt_free_delivery = 'FREE DELIVERY — <b>selected postcodes*</b>';
+$pt_cd_end_ts     = function_exists( 'pt_campaign_end_ts' ) ? pt_campaign_end_ts() : null;
+$pt_cd_active     = function_exists( 'auto_voucher_enabled' ) ? auto_voucher_enabled() : false;
+
+if ( $pt_cd_active && $pt_cd_end_ts ) :
+	$pt_cd_code = function_exists( 'get_field' ) ? trim( (string) get_field( 'coupon_code', 'option' ) ) : '';
+	if ( '' === $pt_cd_code ) { $pt_cd_code = 'GM10'; }
+	$pt_cd_pct = function_exists( 'pt_campaign_pct' ) ? pt_campaign_pct( 'coupon_percentage' ) : 0.0;
+	if ( $pt_cd_pct <= 0 ) { $pt_cd_pct = 10; }
+	$pt_cd_pct_txt = rtrim( rtrim( number_format( $pt_cd_pct, 2, '.', '' ), '0' ), '.' );
+
+	// Use real UTC time() on both sides (PHP initial render + JS Date.now) so the
+	// first tick doesn't jump. Absolute end moment matches pt_campaign_end_ts().
+	$pt_left = max( 0, $pt_cd_end_ts - time() );
+	$pt_d = (int) floor( $pt_left / 86400 );
+	$pt_h = (int) floor( ( $pt_left % 86400 ) / 3600 );
+	$pt_m = (int) floor( ( $pt_left % 3600 ) / 60 );
+	$pt_s = (int) ( $pt_left % 60 );
+	$pt_urgent = ( $pt_left < 72 * 3600 ) ? ' urgent' : '';
+?>
+<div class="promo<?php echo $pt_urgent; ?>" id="promoBar"
+     data-cd-target="<?php echo esc_attr( $pt_cd_end_ts * 1000 ); ?>"
+     data-cd-fallback="<?php echo esc_attr( $pt_free_delivery ); ?>">
+  <div class="promo-in">
+    <span class="promo-msg"><?php echo esc_html( $pt_cd_pct_txt ); ?>% off the Grandmaster range with code <b class="gm"><?php echo esc_html( $pt_cd_code ); ?></b></span>
+    <span class="promo-cd" id="promoCd" role="timer" aria-label="Offer ending soon">
+      <span class="lab">ends in</span>
+      <span class="u"><b id="cdD"><?php echo $pt_d; ?></b><i>d</i></span><span class="c">:</span>
+      <span class="u"><b id="cdH"><?php printf( '%02d', $pt_h ); ?></b><i>h</i></span><span class="c">:</span>
+      <span class="u"><b id="cdM"><?php printf( '%02d', $pt_m ); ?></b><i>m</i></span><span class="c">:</span>
+      <span class="u"><b id="cdS"><?php printf( '%02d', $pt_s ); ?></b><i>s</i></span>
+    </span>
+  </div>
+</div>
+<script>
+(function(){
+  var bar=document.getElementById('promoBar'); if(!bar) return;
+  var target=parseInt(bar.getAttribute('data-cd-target'),10); if(!target) return;
+  var D=document.getElementById('cdD'),H=document.getElementById('cdH'),M=document.getElementById('cdM'),S=document.getElementById('cdS');
+  var fallback=bar.getAttribute('data-cd-fallback')||'';
+  function p(n){ return (n<10?'0':'')+n; }
+  function tick(){
+    var diff=target-Date.now();
+    if(diff<=0){
+      clearInterval(iv);
+      if(fallback){ bar.classList.remove('urgent'); bar.innerHTML='<div class="promo-in"><span class="promo-msg">'+fallback+'</span></div>'; }
+      else { bar.style.display='none'; }
+      return;
+    }
+    var s=Math.floor(diff/1000), d=Math.floor(s/86400); s-=d*86400;
+    var h=Math.floor(s/3600); s-=h*3600; var m=Math.floor(s/60); s-=m*60;
+    if(D)D.textContent=d; if(H)H.textContent=p(h); if(M)M.textContent=p(m); if(S)S.textContent=p(s);
+    bar.classList.toggle('urgent', diff < 72*3600*1000);
+  }
+  tick(); var iv=setInterval(tick,1000);
+})();
+</script>
+<?php else : ?>
+<div class="promo"><?php echo wp_kses_post( $pt_free_delivery ); ?></div>
+<?php endif; ?>
 
 <!-- Phone numbers — single source of truth: Phone_Numbers.md (website default = 01777 553392). -->
 <header class="mainhead">
