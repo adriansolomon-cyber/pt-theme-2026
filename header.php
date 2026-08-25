@@ -356,6 +356,19 @@ if ( $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
 <?php else : ?>
 <div class="promo"><?php echo wp_kses_post( $pt_free_delivery ); ?></div>
 <?php endif; ?>
+<script>
+/* Publish the promo bar's height as --pt-promo-h so the sticky header/subnav sit
+   BELOW it (promo stays pinned at top). Recomputes on resize/wrap and when the
+   countdown reverts to the free-delivery message (or is hidden on expiry). */
+(function(){
+  var p=document.querySelector('.promo'); if(!p) return;
+  function setH(){ document.documentElement.style.setProperty('--pt-promo-h', p.offsetHeight+'px'); }
+  setH();
+  if(window.ResizeObserver){ new ResizeObserver(setH).observe(p); }
+  window.addEventListener('resize', setH);
+  window.addEventListener('load', setH);
+})();
+</script>
 
 <!-- Phone numbers — single source of truth: Phone_Numbers.md (website default = 01777 553392). -->
 <header class="mainhead">

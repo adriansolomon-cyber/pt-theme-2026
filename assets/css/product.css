@@ -32,7 +32,7 @@
   
   
 
-  .subnav{ position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:18px; padding:12px 20px;
+  .subnav{ position:sticky; top:var(--pt-promo-h,0px); z-index:50; display:flex; align-items:center; gap:18px; padding:12px 20px;
     border-bottom:1px solid rgba(33,30,36,.08); background:rgba(255,255,255,.72);
     backdrop-filter:saturate(160%) blur(18px); -webkit-backdrop-filter:saturate(160%) blur(18px); }
   @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){ .subnav{ background:#fff; } }
@@ -43,7 +43,7 @@
   .subnav .tabs a{ position:relative; color:inherit; text-decoration:none; padding:3px 0; transition:color .2s var(--ease); } @media(hover:hover){ .subnav .tabs a:hover{ color:var(--ink); } }
   .subnav .tabs a.active{ color:var(--ink); font-weight:700; }
   .subnav .tabs a.active::after{ content:""; position:absolute; left:0; right:0; bottom:-3px; height:2px; border-radius:2px; background:var(--charcoal); }
-  section[id], header[id]{ scroll-margin-top:66px; }
+  section[id], header[id]{ scroll-margin-top:calc(66px + var(--pt-promo-h,0px)); }
   html{ scroll-behavior:smooth; } @media(prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } }
   .subnav .buy{ display:none; margin-left:auto; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:.86rem; padding:9px 18px; border-radius:999px; transition:transform .2s var(--ease); }
   .subnav .buy:active{ transform:scale(.96); }
@@ -75,7 +75,7 @@
   .cfg-grid{ display:grid; gap:26px; align-items:start; }
   @media(min-width:860px){ .cfg-grid{ grid-template-columns:1fr 1fr; gap:44px; } }
   .cfg-preview img{ width:100%; border-radius:var(--r); box-shadow:var(--e2); display:block; aspect-ratio:16/9; object-fit:cover; background:var(--mist); }
-  @media(min-width:860px){ .cfg-preview{ position:sticky; top:88px; } }
+  @media(min-width:860px){ .cfg-preview{ position:sticky; top:calc(88px + var(--pt-promo-h,0px)); } }
   .cfg-preview .pcap{ display:flex; justify-content:space-between; align-items:baseline; margin-top:14px; }
   .cfg-preview .pcap .nm{ font-weight:700; } .cfg-preview .pcap .sz{ color:var(--txt-soft); font-weight:300; }
   .cfg-gallery{ position:relative; }
