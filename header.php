@@ -298,14 +298,14 @@ $pt_cd_raw        = ( $pt_cd_enabled && function_exists( 'get_field' ) ) ? (stri
 $pt_cd_end_ts     = ( '' !== trim( $pt_cd_raw ) ) ? strtotime( $pt_cd_raw ) : false;
 
 if ( $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
-	// Message from ACF; highlight the coupon code as a chip if present.
+	// Message from ACF (countdown_secondary_text). It may contain markup such as
+	// <b class="gm">GM10</b> to render the code as a chip, so allow safe HTML
+	// (wp_kses_post) instead of escaping it. Falls back to the original copy.
 	$pt_cd_msg_raw = (string) get_field( 'countdown_secondary_text', 'option' );
-	if ( '' === trim( $pt_cd_msg_raw ) ) { $pt_cd_msg_raw = '10% off the Grandmaster range with code GM10'; }
-	$pt_cd_code = trim( (string) get_field( 'coupon_code', 'option' ) );
-	$pt_cd_msg  = esc_html( $pt_cd_msg_raw );
-	if ( '' !== $pt_cd_code && false !== strpos( $pt_cd_msg_raw, $pt_cd_code ) ) {
-		$pt_cd_msg = str_replace( esc_html( $pt_cd_code ), '<b class="gm">' . esc_html( $pt_cd_code ) . '</b>', $pt_cd_msg );
+	if ( '' === trim( $pt_cd_msg_raw ) ) {
+		$pt_cd_msg_raw = '10% off the Grandmaster range with code <b class="gm">GM10</b>';
 	}
+	$pt_cd_msg = wp_kses_post( $pt_cd_msg_raw );
 
 	// Real UTC time() on both sides (PHP initial render + JS Date.now) so the
 	// first tick doesn't jump.
