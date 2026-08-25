@@ -293,6 +293,9 @@ _mhct.push(['mhCampaignID', 'VA-13595']);
  * on expiry. Falls back to free-delivery when the countdown is off/expired.
  */
 $pt_free_delivery = 'FREE DELIVERY — <b>selected postcodes*</b>';
+// The promo bar is only pinned/sticky on product pages (above the subnav). On all
+// other pages it scrolls away as before.
+$pt_promo_sticky  = ( function_exists( 'is_product' ) && is_product() ) ? ' promo-sticky' : '';
 $pt_cd_enabled    = function_exists( 'get_field' ) ? (bool) get_field( 'enable_countdown', 'option' ) : false;
 $pt_cd_raw        = ( $pt_cd_enabled && function_exists( 'get_field' ) ) ? (string) get_field( 'set_countdown_end_date', 'option' ) : '';
 $pt_cd_end_ts     = ( '' !== trim( $pt_cd_raw ) ) ? strtotime( $pt_cd_raw ) : false;
@@ -316,7 +319,7 @@ if ( $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
 	$pt_s = (int) ( $pt_left % 60 );
 	$pt_urgent = ( $pt_left < 72 * 3600 ) ? ' urgent' : '';
 ?>
-<div class="promo<?php echo $pt_urgent; ?>" id="promoBar"
+<div class="promo<?php echo $pt_urgent . $pt_promo_sticky; ?>" id="promoBar"
      data-cd-target="<?php echo esc_attr( $pt_cd_end_ts * 1000 ); ?>"
      data-cd-fallback="<?php echo esc_attr( $pt_free_delivery ); ?>">
   <div class="promo-in">
@@ -354,15 +357,16 @@ if ( $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
 })();
 </script>
 <?php else : ?>
-<div class="promo"><?php echo wp_kses_post( $pt_free_delivery ); ?></div>
+<div class="promo<?php echo $pt_promo_sticky; ?>"><?php echo wp_kses_post( $pt_free_delivery ); ?></div>
 <?php endif; ?>
+<?php if ( '' !== $pt_promo_sticky ) : ?>
 <script>
-/* Keep the sticky header/subnav sitting BELOW the pinned promo bar. Publishes the
-   promo height as --pt-promo-h AND sets `top` inline on the sticky nav elements —
-   the inline style overrides even a stale/cached base.css, so this can't be
-   defeated by CDN caching. Only touches elements that are actually sticky (the
-   mobile header is position:relative, so it's left alone). Recomputes on
-   resize/wrap and when the countdown reverts/expires. */
+/* PRODUCT PAGES ONLY: keep the sticky header/subnav sitting BELOW the pinned
+   promo bar. Publishes the promo height as --pt-promo-h AND sets `top` inline on
+   the sticky nav elements — the inline style overrides even a stale/cached
+   base.css, so this can't be defeated by CDN caching. Only touches elements that
+   are actually sticky (the mobile header is position:relative, so it's left
+   alone). Recomputes on resize/wrap and when the countdown reverts/expires. */
 (function(){
   var p=document.querySelector('.promo'); if(!p) return;
   function apply(){
@@ -381,6 +385,7 @@ if ( $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
   window.addEventListener('resize', apply);
 })();
 </script>
+<?php endif; ?>
 
 <!-- Phone numbers — single source of truth: Phone_Numbers.md (website default = 01777 553392). -->
 <header class="mainhead">
