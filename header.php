@@ -357,16 +357,28 @@ if ( $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
 <div class="promo"><?php echo wp_kses_post( $pt_free_delivery ); ?></div>
 <?php endif; ?>
 <script>
-/* Publish the promo bar's height as --pt-promo-h so the sticky header/subnav sit
-   BELOW it (promo stays pinned at top). Recomputes on resize/wrap and when the
-   countdown reverts to the free-delivery message (or is hidden on expiry). */
+/* Keep the sticky header/subnav sitting BELOW the pinned promo bar. Publishes the
+   promo height as --pt-promo-h AND sets `top` inline on the sticky nav elements —
+   the inline style overrides even a stale/cached base.css, so this can't be
+   defeated by CDN caching. Only touches elements that are actually sticky (the
+   mobile header is position:relative, so it's left alone). Recomputes on
+   resize/wrap and when the countdown reverts/expires. */
 (function(){
   var p=document.querySelector('.promo'); if(!p) return;
-  function setH(){ document.documentElement.style.setProperty('--pt-promo-h', p.offsetHeight+'px'); }
-  setH();
-  if(window.ResizeObserver){ new ResizeObserver(setH).observe(p); }
-  window.addEventListener('resize', setH);
-  window.addEventListener('load', setH);
+  function apply(){
+    var h = p.offsetHeight;
+    document.documentElement.style.setProperty('--pt-promo-h', h+'px');
+    var nav = document.querySelectorAll('.mainhead, .subnav');
+    for(var i=0;i<nav.length;i++){
+      if(getComputedStyle(nav[i]).position === 'sticky'){ nav[i].style.top = h+'px'; }
+      else { nav[i].style.top = ''; }
+    }
+  }
+  apply();
+  if(window.ResizeObserver){ new ResizeObserver(apply).observe(p); }
+  document.addEventListener('DOMContentLoaded', apply);
+  window.addEventListener('load', apply);
+  window.addEventListener('resize', apply);
 })();
 </script>
 
