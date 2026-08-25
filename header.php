@@ -280,28 +280,35 @@ _mhct.push(['mhCampaignID', 'VA-13595']);
 
 <?php
 /*
- * Promo bar. When a campaign is running — ACF "Show coupon" (show_coupon) is on
- * AND the ACF "Campaign end date" (campaign_end_date) hasn't passed — we show the
- * offer plus a live countdown to that end date. This is the SAME campaign that
- * drives the discounts (see includes/wc-custom-checkout-functions.php), so the
- * timer and the discount switch off together. Initial digits are rendered
- * server-side (no flash); the inline script below re-ticks each second and
- * reverts the bar to the free-delivery message on expiry. Ported from the old
- * theme's ACF-driven template-parts/countdown-template.php.
+ * Promo bar with live countdown. Driven by the same ACF Options fields the old
+ * theme used (template-parts/countdown-template.php):
+ *   enable_countdown        — master on/off toggle
+ *   set_countdown_end_date  — target datetime (its saved value carries the
+ *                             timezone, e.g. "…23:00:00 GMT+01:00", so strtotime
+ *                             resolves the correct UK moment)
+ *   countdown_secondary_text— the message (e.g. "10% off … with code GM10")
+ *   coupon_code             — highlighted as a chip inside the message
+ * Digits render server-side (no flash); the inline script re-ticks each second,
+ * flips to .urgent under 72h, and reverts the bar to the free-delivery message
+ * on expiry. Falls back to free-delivery when the countdown is off/expired.
  */
 $pt_free_delivery = 'FREE DELIVERY — <b>selected postcodes*</b>';
-$pt_cd_end_ts     = function_exists( 'pt_campaign_end_ts' ) ? pt_campaign_end_ts() : null;
-$pt_cd_active     = function_exists( 'auto_voucher_enabled' ) ? auto_voucher_enabled() : false;
+$pt_cd_enabled    = function_exists( 'get_field' ) ? (bool) get_field( 'enable_countdown', 'option' ) : false;
+$pt_cd_raw        = ( $pt_cd_enabled && function_exists( 'get_field' ) ) ? (string) get_field( 'set_countdown_end_date', 'option' ) : '';
+$pt_cd_end_ts     = ( '' !== trim( $pt_cd_raw ) ) ? strtotime( $pt_cd_raw ) : false;
 
-if ( $pt_cd_active && $pt_cd_end_ts ) :
-	$pt_cd_code = function_exists( 'get_field' ) ? trim( (string) get_field( 'coupon_code', 'option' ) ) : '';
-	if ( '' === $pt_cd_code ) { $pt_cd_code = 'GM10'; }
-	$pt_cd_pct = function_exists( 'pt_campaign_pct' ) ? pt_campaign_pct( 'coupon_percentage' ) : 0.0;
-	if ( $pt_cd_pct <= 0 ) { $pt_cd_pct = 10; }
-	$pt_cd_pct_txt = rtrim( rtrim( number_format( $pt_cd_pct, 2, '.', '' ), '0' ), '.' );
+if ( $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
+	// Message from ACF; highlight the coupon code as a chip if present.
+	$pt_cd_msg_raw = (string) get_field( 'countdown_secondary_text', 'option' );
+	if ( '' === trim( $pt_cd_msg_raw ) ) { $pt_cd_msg_raw = '10% off the Grandmaster range with code GM10'; }
+	$pt_cd_code = trim( (string) get_field( 'coupon_code', 'option' ) );
+	$pt_cd_msg  = esc_html( $pt_cd_msg_raw );
+	if ( '' !== $pt_cd_code && false !== strpos( $pt_cd_msg_raw, $pt_cd_code ) ) {
+		$pt_cd_msg = str_replace( esc_html( $pt_cd_code ), '<b class="gm">' . esc_html( $pt_cd_code ) . '</b>', $pt_cd_msg );
+	}
 
-	// Use real UTC time() on both sides (PHP initial render + JS Date.now) so the
-	// first tick doesn't jump. Absolute end moment matches pt_campaign_end_ts().
+	// Real UTC time() on both sides (PHP initial render + JS Date.now) so the
+	// first tick doesn't jump.
 	$pt_left = max( 0, $pt_cd_end_ts - time() );
 	$pt_d = (int) floor( $pt_left / 86400 );
 	$pt_h = (int) floor( ( $pt_left % 86400 ) / 3600 );
@@ -313,7 +320,7 @@ if ( $pt_cd_active && $pt_cd_end_ts ) :
      data-cd-target="<?php echo esc_attr( $pt_cd_end_ts * 1000 ); ?>"
      data-cd-fallback="<?php echo esc_attr( $pt_free_delivery ); ?>">
   <div class="promo-in">
-    <span class="promo-msg"><?php echo esc_html( $pt_cd_pct_txt ); ?>% off the Grandmaster range with code <b class="gm"><?php echo esc_html( $pt_cd_code ); ?></b></span>
+    <span class="promo-msg"><?php echo $pt_cd_msg; // already escaped above ?></span>
     <span class="promo-cd" id="promoCd" role="timer" aria-label="Offer ending soon">
       <span class="lab">ends in</span>
       <span class="u"><b id="cdD"><?php echo $pt_d; ?></b><i>d</i></span><span class="c">:</span>
