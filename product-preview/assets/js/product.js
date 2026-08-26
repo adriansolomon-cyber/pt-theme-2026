@@ -88,7 +88,7 @@
     var STEP_NOTE={
       size:"Sizes are the external footprint in feet (e.g. 8 × 6). Allow a little clearance around the building for delivery, assembly and future maintenance.",
       door:"Choose your door colour and which side it sits — Left or Right as you look at the building from the garden.",
-      window:"Pick your window material and position. Side-opening windows aid airflow; 'both ends' adds light and ventilation front and back. Timber is standard; UPVC is a low-maintenance upgrade. Positions are as you look at the building from the garden.",
+      window:"Pick your window material and position. Side-opening windows aid airflow; 'both ends' adds light and ventilation front and back. Positions are as you look at the building from the garden.",
       floor:"Comes with an insulated tongue-and-groove floor as standard. Upgrade for a more solid feel and heavier loads.",
       laminate:"An optional laminate finish laid over the floor for a ready-to-use interior — choose a tone, or leave it bare to finish your own way.",
       paint:"Thorndown paint, supplied in tins — buildings aren't pre-painted on delivery, so painting is done on site. Swatch colours shown are indicative approximations.",
