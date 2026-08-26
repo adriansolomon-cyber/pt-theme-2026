@@ -293,9 +293,10 @@ _mhct.push(['mhCampaignID', 'VA-13595']);
  * on expiry. Falls back to free-delivery when the countdown is off/expired.
  */
 $pt_free_delivery = 'FREE DELIVERY — <b>selected postcodes*</b>';
-// The promo bar is only pinned/sticky on product pages (above the subnav). On all
-// other pages it scrolls away as before.
-$pt_promo_sticky  = ( function_exists( 'is_product' ) && is_product() ) ? ' promo-sticky' : '';
+// The promo bar is pinned/sticky on every page (above the header, and above the
+// subnav on product pages). The offset script below keeps the sticky header/subnav
+// sitting beneath it.
+$pt_promo_sticky  = ' promo-sticky';
 $pt_cd_enabled    = function_exists( 'get_field' ) ? (bool) get_field( 'enable_countdown', 'option' ) : false;
 $pt_cd_raw        = ( $pt_cd_enabled && function_exists( 'get_field' ) ) ? (string) get_field( 'set_countdown_end_date', 'option' ) : '';
 $pt_cd_end_ts     = ( '' !== trim( $pt_cd_raw ) ) ? strtotime( $pt_cd_raw ) : false;
