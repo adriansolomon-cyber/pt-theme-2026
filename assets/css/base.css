@@ -45,27 +45,24 @@ a{ color:inherit; }
 .wsc_share_cart{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-family:"F37 Jagger","Trebuchet MS","Segoe UI",system-ui,sans-serif; font-weight:700; font-size:.84rem; line-height:1; background:#fff; color:#211E24; border:1.5px solid rgba(33,30,36,.22); border-radius:11px; padding:11px 18px; cursor:pointer; transition:border-color .2s ease, background .2s ease; }
 .wsc_share_cart:hover{ border-color:#3B333D; background:rgba(33,30,36,.04); }
 .wsc_share_cart:active{ transform:scale(.99); }
-.promo{ background:var(--ink); color:var(--on-dark); text-align:center; font-size:.74rem; letter-spacing:.05em; padding:8px 14px; }
+.promo{ background:var(--ink); color:var(--on-dark); text-align:center; font-size:.92rem; letter-spacing:.01em; padding:12px 16px; }
 /* Promo bar is pinned to the top only on product pages (class added in header.php
    when is_product()); elsewhere it scrolls away as before. */
 .promo.promo-sticky{ position:sticky; top:0; z-index:60; }
 .promo b{ color:#fff; }
-/* Campaign countdown bar (header.php + ACF campaign_end_date). Only present when
-   a campaign is running; reverts to the plain .promo message on expiry. */
-.promo .promo-in{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:8px 14px; }
+/* Campaign countdown bar (header.php + ACF set_countdown_end_date). Only present
+   when the countdown is enabled; reverts to the plain .promo message on expiry. */
+.promo .promo-in{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:9px 16px; }
 .promo .promo-msg{ color:var(--on-dark-soft); }
-.promo .promo-msg .gm{ background:var(--accent); color:var(--ink); border-radius:4px; padding:1px 7px; font-weight:700; letter-spacing:.03em; margin-left:2px; }
-.promo .promo-cd{ display:inline-flex; align-items:center; gap:5px; }
-.promo .promo-cd .lab{ font-size:.62rem; text-transform:uppercase; letter-spacing:.14em; color:var(--on-dark-soft); margin-right:3px; }
-.promo .promo-cd .u{ display:inline-flex; align-items:baseline; gap:1px; background:rgba(255,255,255,.09); border-radius:6px; padding:3px 7px; }
-.promo .promo-cd .u b{ font-weight:700; font-size:.82rem; color:#fff; font-variant-numeric:tabular-nums; }
-.promo .promo-cd .u i{ font-style:normal; font-size:.6rem; color:var(--on-dark-soft); }
-.promo .promo-cd .c{ color:var(--on-dark-soft); opacity:.45; font-weight:700; }
-.promo.urgent .promo-cd .u{ background:var(--accent); }
-.promo.urgent .promo-cd .u b{ color:var(--ink); }
-.promo.urgent .promo-cd .u i{ color:rgba(33,30,36,.6); }
-.promo.urgent .promo-cd .c{ color:var(--accent); opacity:.7; }
-@media(max-width:640px){ .promo{ font-size:.72rem; } }
+.promo .promo-msg .gm{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,.45); border-radius:4px; padding:1px 8px; font-weight:700; letter-spacing:.02em; margin-left:3px; }
+.promo .promo-cd{ display:inline-flex; align-items:center; gap:6px; }
+.promo .promo-cd .lab{ display:inline-flex; align-items:center; gap:6px; font-size:.66rem; text-transform:uppercase; letter-spacing:.15em; color:#fff; font-weight:700; margin-right:3px; }
+.promo .promo-cd .lab svg{ width:14px; height:14px; flex:0 0 auto; }
+.promo .promo-cd .u{ display:inline-flex; align-items:baseline; gap:2px; background:var(--accent); border-radius:7px; padding:5px 10px; }
+.promo .promo-cd .u b{ font-weight:700; font-size:1.12rem; color:var(--ink); font-variant-numeric:tabular-nums; }
+.promo .promo-cd .u i{ font-style:normal; font-size:.62rem; color:rgba(33,30,36,.6); }
+.promo .promo-cd .c{ color:var(--on-dark-soft); opacity:.4; font-weight:700; }
+@media(max-width:640px){ .promo{ font-size:.82rem; padding:10px 14px; } .promo .promo-cd .u b{ font-size:1rem; } .promo .promo-cd .lab{ letter-spacing:.1em; } }
 /* Header container. MUST be in base.css: base.css carries all the .mainhead
    child rules (which rely on flex — e.g. margin-left:auto on .search/.icons),
    but the flex container itself lived only in the per-page stylesheets. On

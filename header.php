@@ -325,7 +325,7 @@ if ( $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
   <div class="promo-in">
     <span class="promo-msg"><?php echo $pt_cd_msg; // already escaped above ?></span>
     <span class="promo-cd" id="promoCd" role="timer" aria-label="Offer ending soon">
-      <span class="lab">ends in</span>
+      <span class="lab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Offer ends in</span>
       <span class="u"><b id="cdD"><?php echo $pt_d; ?></b><i>d</i></span><span class="c">:</span>
       <span class="u"><b id="cdH"><?php printf( '%02d', $pt_h ); ?></b><i>h</i></span><span class="c">:</span>
       <span class="u"><b id="cdM"><?php printf( '%02d', $pt_m ); ?></b><i>m</i></span><span class="c">:</span>
