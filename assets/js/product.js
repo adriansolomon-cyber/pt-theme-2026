@@ -105,7 +105,7 @@
       window:"Pick your window material and position. Side-opening windows aid airflow; 'both ends' adds light and ventilation front and back. Positions are as you look at the building from the garden.",
       floor:"Comes with an insulated tongue-and-groove floor as standard. Upgrade for a more solid feel and heavier loads.",
       laminate:"An optional laminate finish laid over the floor for a ready-to-use interior — choose a tone, or leave it bare to finish your own way.",
-      paint:"Thorndown paint, supplied in tins — buildings aren't pre-painted on delivery, so painting is done on site. Swatch colours shown are indicative approximations.",
+      paint:"Thorndown paint, supplied in tins — buildings aren't pre-painted on delivery. Swatch colours shown are indicative approximations.",
       assembly:"Prefer not to self-build? Add our assembly service and our team installs the building for you on delivery. Leave as None to build it yourself using the included instructions."
     };
     function isColourComp(c){ return /paint|trim/i.test((c&&(c.title||c.key))||''); }
