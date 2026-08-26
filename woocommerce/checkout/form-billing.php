@@ -62,9 +62,18 @@ foreach ( $pt_contact_keys as $pt_k ) {
 
 		<h3 class="pt-billing-title"><?php esc_html_e( 'Billing details', 'woocommerce' ); ?></h3>
 		<?php
+		// Render these first, in this exact order, so the "company" checkbox +
+		// Company name always sit right after the name fields and ABOVE Country —
+		// regardless of field priorities set by WooCommerce or plugins.
+		$pt_lead_keys = array( 'billing_first_name', 'billing_last_name', 'billing_is_business', 'billing_company' );
+		foreach ( $pt_lead_keys as $pt_k ) {
+			if ( isset( $pt_fields[ $pt_k ] ) ) {
+				woocommerce_form_field( $pt_k, $pt_fields[ $pt_k ], $checkout->get_value( $pt_k ) );
+			}
+		}
 		foreach ( $pt_fields as $pt_key => $pt_field ) {
-			if ( in_array( $pt_key, $pt_contact_keys, true ) || in_array( $pt_key, $pt_kl_keys, true ) ) {
-				continue; // rendered in the Contact block above.
+			if ( in_array( $pt_key, $pt_contact_keys, true ) || in_array( $pt_key, $pt_kl_keys, true ) || in_array( $pt_key, $pt_lead_keys, true ) ) {
+				continue; // rendered in the Contact block above, or in the lead block just above.
 			}
 			woocommerce_form_field( $pt_key, $pt_field, $checkout->get_value( $pt_key ) );
 		}

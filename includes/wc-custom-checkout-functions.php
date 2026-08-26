@@ -624,20 +624,10 @@ function ensure_shipping_fields_exist($fields)
 
     return $fields;
 }
-// 3a. Force the business checkbox + Company name to sit together, right after the
-// name fields and BEFORE Country. Runs late (priority 9999) so it wins over any
-// other filter/plugin that reorders billing_company below Country.
-add_filter('woocommerce_checkout_fields', 'pt_company_field_order', 9999);
-function pt_company_field_order($fields)
-{
-    if (isset($fields['billing']['billing_is_business'])) {
-        $fields['billing']['billing_is_business']['priority'] = 29;
-    }
-    if (isset($fields['billing']['billing_company'])) {
-        $fields['billing']['billing_company']['priority'] = 30;
-    }
-    return $fields;
-}
+// Note: the checkbox + Company name field are positioned explicitly in the
+// checkout template (woocommerce/checkout/form-billing.php) — rendered right
+// after the name fields and above Country — because field `priority` was being
+// overridden by a plugin here.
 // 3b. Reveal the billing Company name field only when the business checkbox is
 // ticked. Hidden by default via CSS (no flash); JS shows/clears it on toggle and
 // re-syncs after WooCommerce's AJAX checkout refresh.
