@@ -517,9 +517,21 @@ add_filter('woocommerce_ship_to_different_address_checked', '__return_false');
 add_filter('woocommerce_checkout_fields', 'ensure_shipping_fields_exist');
 function ensure_shipping_fields_exist($fields)
 {
-    // Remove company field from billing
+    // Billing "Company name" — optional, shown right after the name fields.
+    // (WooCommerce appends the "(optional)" hint automatically for non-required
+    // fields, so the label stays plain.)
     if (isset($fields['billing']['billing_company'])) {
-        unset($fields['billing']['billing_company']);
+        $fields['billing']['billing_company']['required'] = false;
+        $fields['billing']['billing_company']['label']    = __('Company name', 'woocommerce');
+        $fields['billing']['billing_company']['class']     = array('form-row-wide');
+        $fields['billing']['billing_company']['priority']  = 30;
+    } else {
+        $fields['billing']['billing_company'] = array(
+            'label'    => __('Company name', 'woocommerce'),
+            'required' => false,
+            'class'    => array('form-row-wide'),
+            'priority' => 30,
+        );
     }
 
     $shipping_fields = array(
