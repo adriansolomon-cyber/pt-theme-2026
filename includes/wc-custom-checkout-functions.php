@@ -517,9 +517,18 @@ add_filter('woocommerce_ship_to_different_address_checked', '__return_false');
 add_filter('woocommerce_checkout_fields', 'ensure_shipping_fields_exist');
 function ensure_shipping_fields_exist($fields)
 {
-    // Billing "Company name" — optional, shown right after the name fields.
-    // (WooCommerce appends the "(optional)" hint automatically for non-required
-    // fields, so the label stays plain.)
+    // Business toggle: a checkbox that reveals the billing "Company name" field
+    // (hidden by default; shown via JS in company_toggle_scripts()).
+    $fields['billing']['billing_is_business'] = array(
+        'type'     => 'checkbox',
+        'label'    => __('Ordering on behalf of a company', 'woocommerce'),
+        'required' => false,
+        'class'    => array('form-row-wide'),
+        'priority' => 25,
+    );
+
+    // Billing "Company name" — optional, shown right after the name fields when
+    // the business checkbox is ticked.
     if (isset($fields['billing']['billing_company'])) {
         $fields['billing']['billing_company']['required'] = false;
         $fields['billing']['billing_company']['label']    = __('Company name', 'woocommerce');
@@ -614,6 +623,31 @@ function ensure_shipping_fields_exist($fields)
     $fields['shipping'] = $shipping_fields;
 
     return $fields;
+}
+// 3b. Reveal the billing Company name field only when the business checkbox is
+// ticked. Hidden by default via CSS (no flash); JS shows/clears it on toggle and
+// re-syncs after WooCommerce's AJAX checkout refresh.
+add_action('wp_footer', 'company_toggle_scripts');
+function company_toggle_scripts()
+{
+    if (!is_checkout()) {
+        return;
+    }
+?>
+<style>#billing_company_field{ display:none; }</style>
+<script>
+jQuery(function ($) {
+    function sync() {
+        var on = $('#billing_is_business').is(':checked');
+        $('#billing_company_field').toggle(on);
+        if (!on) { $('#billing_company').val(''); }
+    }
+    $(document).on('change', '#billing_is_business', sync);
+    $(document.body).on('updated_checkout', sync);
+    sync();
+});
+</script>
+<?php
 }
 // 4. Add the "Copy billing address" button to the default shipping section
 add_action('woocommerce_before_checkout_shipping_form', 'add_copy_billing_button');
