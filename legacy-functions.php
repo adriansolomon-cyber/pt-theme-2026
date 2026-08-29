@@ -4929,13 +4929,16 @@ add_action('template_redirect', function () {
  * The size-categories are children of the building-type category, so their real
  * URL always includes the parent (e.g. /garden-offices/20-x-8-garden-offices/).
  * A link that starts with the child slug alone (missing the ancestor path) can't
- * resolve — WordPress can't place a nested term at the root. We send it to the
- * category's canonical page and drop any trailing /f/<size>/<product>/ (those
- * deep shapes aren't a valid pattern).
+ * resolve — WordPress can't place a nested term at the root.
+ *
+ * If the URL NAMES A PRODUCT (its last segment is a real published product), we
+ * send the visitor to that product's canonical page — so they land on what they
+ * actually wanted. Otherwise we fall back to the category's canonical URL.
  *
  * Priority 1 so it beats canonical/same-hook redirects. Only fires when the FIRST
  * segment is a child category AND there's more path after it (single child slugs
- * are left to WordPress's own canonical redirect). Filterable via
+ * are left to WordPress's own canonical redirect) — so working URLs, which start
+ * with a top-level category, are never touched. Filterable via
  * pt_child_cat_canonical.
  */
 add_action('template_redirect', function () {
@@ -4964,6 +4967,27 @@ add_action('template_redirect', function () {
         return; // only when the FIRST segment is a CHILD (nested) category
     }
 
+    // Prefer the ACTUAL product when the URL names one (its last segment).
+    $last = sanitize_title((string) end($segments));
+    if ($last !== '') {
+        $product_ids = get_posts(array(
+            'name'           => $last,
+            'post_type'      => 'product',
+            'post_status'    => 'publish',
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+        ));
+        if (!empty($product_ids)) {
+            $purl = get_permalink($product_ids[0]);
+            if ($purl && trim((string) parse_url($purl, PHP_URL_PATH), '/') !== $path) {
+                wp_safe_redirect($purl, 302);
+                exit;
+            }
+        }
+    }
+
+    // Otherwise fall back to the category's canonical URL (includes the parent).
     $url = get_term_link($term);
     if (is_wp_error($url)) {
         return;
