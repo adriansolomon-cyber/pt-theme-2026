@@ -4862,6 +4862,62 @@ add_action('template_redirect', function() {
 });
 
 /**
+ * Broken nested category URLs → the main (top-level) category.
+ *
+ * When a multi-segment URL 404s and its FIRST path segment is a real top-level
+ * product category, redirect to that category instead of showing a dead end —
+ * e.g. /grandmaster/18-x-12-grandmaster/ (empty/non-existent size term) →
+ * /grandmaster/. Recovers paid, internal and indexed links that point at broken
+ * nested category shapes left by the relaunch.
+ *
+ * SAFE BY DESIGN: only fires on genuine 404s, so VALID nested category pages
+ * (e.g. /summerhouses/18-x-12-summerhouses/, which render 200) are never touched.
+ * Uses a 302 (temporary) for now so it stays reversible during the URL audit;
+ * switch to 301 once the manifest confirms these mappings are permanent.
+ * Disable entirely with: add_filter('pt_404_cat_fallback', '__return_false');
+ */
+add_action('template_redirect', function () {
+    if (is_admin() || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+        return;
+    }
+    if (!is_404() || !apply_filters('pt_404_cat_fallback', true)) {
+        return;
+    }
+    if (!function_exists('taxonomy_exists') || !taxonomy_exists('product_cat')) {
+        return;
+    }
+
+    $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+    $path = trim($path, '/');
+    if ($path === '') {
+        return;
+    }
+
+    $segments = explode('/', $path);
+    if (count($segments) < 2) {
+        return; // only act on "more than one segment" URLs
+    }
+
+    $first = sanitize_title($segments[0]);
+    if ($first === '') {
+        return;
+    }
+
+    $term = get_term_by('slug', $first, 'product_cat');
+    if (!$term || is_wp_error($term) || (int) $term->parent !== 0) {
+        return; // first segment must be a real TOP-LEVEL product category
+    }
+
+    $url = get_term_link($term);
+    if (is_wp_error($url)) {
+        return;
+    }
+
+    wp_safe_redirect($url, 302);
+    exit;
+});
+
+/**
  * Force ACF field "order_ref_original" required when order status = rdmopen
  */
 add_action('acf/validate_save_post', function () {
