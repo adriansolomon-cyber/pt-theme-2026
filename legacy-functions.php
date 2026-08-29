@@ -4968,6 +4968,10 @@ add_action('template_redirect', function () {
     }
 
     // Prefer the ACTUAL product when the URL names one (its last segment).
+    // 1) match the current product slug; 2) if the product was renamed, match a
+    // previous slug WordPress recorded in _wp_old_slug (authoritative, so it can't
+    // mis-route to a similar-but-wrong building). A slug that matches neither is a
+    // genuinely gone/untracked product → fall through to the category.
     $last = sanitize_title((string) end($segments));
     if ($last !== '') {
         $product_ids = get_posts(array(
@@ -4978,6 +4982,17 @@ add_action('template_redirect', function () {
             'fields'         => 'ids',
             'no_found_rows'  => true,
         ));
+        if (empty($product_ids)) {
+            $product_ids = get_posts(array(
+                'post_type'      => 'product',
+                'post_status'    => 'publish',
+                'posts_per_page' => 1,
+                'fields'         => 'ids',
+                'no_found_rows'  => true,
+                'meta_key'       => '_wp_old_slug',
+                'meta_value'     => $last,
+            ));
+        }
         if (!empty($product_ids)) {
             $purl = get_permalink($product_ids[0]);
             if ($purl && trim((string) parse_url($purl, PHP_URL_PATH), '/') !== $path) {
