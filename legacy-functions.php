@@ -4862,6 +4862,65 @@ add_action('template_redirect', function() {
 });
 
 /**
+ * A bare size directly after a category, with NOTHING after it → the category.
+ * e.g. /summerhouses/10-x-8/  →  /summerhouses/
+ *
+ * "category + size only" isn't a real page: the size-category slug is
+ * "10-x-8-summerhouses", and the working product URL is
+ * /summerhouses/10-x-8/f/<product>/. So these send visitors to the parent
+ * category instead of a dead end (or a silent homepage redirect).
+ *
+ * Runs EARLY (priority 1) so it beats WordPress's canonical redirect and any
+ * same-hook handler. Safe: it never matches the working patterns —
+ *   • the size-category page ("10-x-8-summerhouses" has a suffix → fails the
+ *     bare-size test), or
+ *   • the /f/<product>/ URL (that's more than two path segments).
+ * Filterable via pt_size_only_to_category. (If a plugin or Cloudflare rule
+ * redirects these to the homepage from an EARLIER hook, that rule must be
+ * removed for this to take effect.)
+ */
+add_action('template_redirect', function () {
+    if (is_admin() || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+        return;
+    }
+    if (!apply_filters('pt_size_only_to_category', true)) {
+        return;
+    }
+    if (!function_exists('taxonomy_exists') || !taxonomy_exists('product_cat')) {
+        return;
+    }
+
+    $path = trim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
+    if ($path === '') {
+        return;
+    }
+
+    $segments = explode('/', $path);
+    if (count($segments) !== 2) {
+        return; // exactly <category>/<size> and nothing else
+    }
+
+    // Second segment must be a BARE size (10-x-8, 10x8) — NOT a real
+    // size-category slug like "10-x-8-summerhouses".
+    if (!preg_match('/^\d+\s*-?x-?\s*\d+$/i', $segments[1])) {
+        return;
+    }
+
+    $cat = get_term_by('slug', sanitize_title($segments[0]), 'product_cat');
+    if (!$cat || is_wp_error($cat) || (int) $cat->parent !== 0) {
+        return; // first segment must be a real top-level product category
+    }
+
+    $url = get_term_link($cat);
+    if (is_wp_error($url)) {
+        return;
+    }
+
+    wp_safe_redirect($url, 302);
+    exit;
+}, 1);
+
+/**
  * Broken nested category URLs → the main (top-level) category.
  *
  * When a multi-segment URL 404s and its FIRST path segment is a real top-level
