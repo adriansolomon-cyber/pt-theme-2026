@@ -4921,6 +4921,64 @@ add_action('template_redirect', function () {
 }, 1);
 
 /**
+ * A NESTED (child) product category used at the ROOT without its parent path →
+ * its canonical URL (which includes the parent).
+ *   /20-x-8-garden-offices/f/12-x-10/<product>/
+ *     → /garden-offices/20-x-8-garden-offices/
+ *
+ * The size-categories are children of the building-type category, so their real
+ * URL always includes the parent (e.g. /garden-offices/20-x-8-garden-offices/).
+ * A link that starts with the child slug alone (missing the ancestor path) can't
+ * resolve — WordPress can't place a nested term at the root. We send it to the
+ * category's canonical page and drop any trailing /f/<size>/<product>/ (those
+ * deep shapes aren't a valid pattern).
+ *
+ * Priority 1 so it beats canonical/same-hook redirects. Only fires when the FIRST
+ * segment is a child category AND there's more path after it (single child slugs
+ * are left to WordPress's own canonical redirect). Filterable via
+ * pt_child_cat_canonical.
+ */
+add_action('template_redirect', function () {
+    if (is_admin() || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+        return;
+    }
+    if (!apply_filters('pt_child_cat_canonical', true)) {
+        return;
+    }
+    if (!function_exists('taxonomy_exists') || !taxonomy_exists('product_cat')) {
+        return;
+    }
+
+    $path = trim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
+    if ($path === '') {
+        return;
+    }
+
+    $segments = explode('/', $path);
+    if (count($segments) < 2) {
+        return; // a lone child slug is handled by WordPress canonical redirect
+    }
+
+    $term = get_term_by('slug', sanitize_title($segments[0]), 'product_cat');
+    if (!$term || is_wp_error($term) || (int) $term->parent === 0) {
+        return; // only when the FIRST segment is a CHILD (nested) category
+    }
+
+    $url = get_term_link($term);
+    if (is_wp_error($url)) {
+        return;
+    }
+
+    // Never redirect to the same path (loop guard).
+    if (trim((string) parse_url($url, PHP_URL_PATH), '/') === $path) {
+        return;
+    }
+
+    wp_safe_redirect($url, 302);
+    exit;
+}, 1);
+
+/**
  * Broken nested category URLs → the main (top-level) category.
  *
  * When a multi-segment URL 404s and its FIRST path segment is a real top-level
