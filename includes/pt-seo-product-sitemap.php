@@ -267,9 +267,14 @@ add_filter(
 	1
 );
 
-/** Serve /pt-products.xml (named without "-sitemap" so it bypasses Yoast's route). */
+/**
+ * Serve /pt-products.xml (named without "-sitemap" so it bypasses Yoast's route).
+ * On template_redirect (not init) so WooCommerce's product post type + product_type
+ * taxonomy — registered on init:5 — are available to the sitemap query. Priority 0
+ * so it runs before the theme's own routing redirects.
+ */
 add_action(
-	'init',
+	'template_redirect',
 	static function () {
 		if ( ! pt_seo_enabled( 'sitemap' ) ) {
 			return;
@@ -280,23 +285,24 @@ add_action(
 		}
 		$xml = pt_seo_get_products_sitemap_xml();
 		if ( ! headers_sent() ) {
+			status_header( 200 ); // override the 404 WP set for this unmatched path.
 			header( 'Content-Type: text/xml; charset=UTF-8' );
 			header( 'X-Robots-Tag: noindex, follow', true );
 		}
 		echo $xml; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — each URL is esc_url'd during build.
 		exit;
 	},
-	1
+	0
 );
 
 /** Cached XML for the product sitemap (12h; rebuilt on product save). */
 function pt_seo_get_products_sitemap_xml() {
-	$cached = get_transient( 'pt_products_sitemap_xml' );
+	$cached = get_transient( 'pt_products_sitemap_xml_v2' );
 	if ( is_string( $cached ) && '' !== $cached ) {
 		return $cached;
 	}
 	$xml = pt_seo_build_products_sitemap_xml();
-	set_transient( 'pt_products_sitemap_xml', $xml, 12 * HOUR_IN_SECONDS );
+	set_transient( 'pt_products_sitemap_xml_v2', $xml, 12 * HOUR_IN_SECONDS );
 	update_option( 'pt_products_sitemap_lastmod', time(), false );
 	return $xml;
 }
@@ -403,6 +409,6 @@ function pt_seo_build_products_sitemap_xml() {
 add_action(
 	'save_post_product',
 	static function () {
-		delete_transient( 'pt_products_sitemap_xml' );
+		delete_transient( 'pt_products_sitemap_xml_v2' );
 	}
 );
