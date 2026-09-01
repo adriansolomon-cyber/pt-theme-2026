@@ -68,7 +68,7 @@
       var rows=data.filter(function(d){ return !d.hidden && String(key(d)).toLowerCase()!=='range'; }).map(function(d){
         return '<div class="crow"><span class="k">'+disp(key(d))+'</span><span class="v">'+esc(cfgValue(d.value))+'</span></div>';
       }).join('');
-      var cfg=rows?('<details class="cfg" open><summary>Your configuration '+CHEV+'</summary><div class="rows">'+rows+'</div></details>'):'';
+      var cfg=rows?('<details class="cfg"><summary>Your configuration '+CHEV+'</summary><div class="rows">'+rows+'</div></details>'):'';
       return '<div class="line"><div class="item" data-key="'+esc(it.key)+'">'+
           '<div class="thumb">'+(im?'<img src="'+esc(im)+'" alt="'+disp(it.name)+'">':'')+'</div>'+
           '<div class="it">'+(rng?'<div class="rng">'+disp(rng)+'</div>':'')+

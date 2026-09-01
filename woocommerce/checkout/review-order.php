@@ -157,7 +157,7 @@ $pt_norm_dims = function ( $s ) {
 	</div>
 
 	<?php if ( ! empty( $cfg_rows ) ) : ?>
-		<details class="cfg" open>
+		<details class="cfg">
 			<summary><?php esc_html_e( 'Your configuration', 'woocommerce' ); ?> <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
 			<div class="rows">
 				<?php foreach ( $cfg_rows as $row ) : ?>

@@ -122,7 +122,7 @@
     var rows = data.filter(function (d) { return !d.hidden && String(key(d)).toLowerCase() !== 'range'; }).map(function (d) {
       return '<div class="ptc-crow"><span class="ptc-k">' + disp(key(d)) + '</span><span class="ptc-v">' + esc(cfgValue(d.value)) + '</span></div>';
     }).join('');
-    var cfg = rows ? ('<details class="ptc-cfg" open><summary>Your configuration ' + CHEV + '</summary><div class="ptc-rows">' + rows + '</div></details>') : '';
+    var cfg = rows ? ('<details class="ptc-cfg"><summary>Your configuration ' + CHEV + '</summary><div class="ptc-rows">' + rows + '</div></details>') : '';
     return '<div class="ptc-line"><div class="ptc-item" data-key="' + esc(it.key) + '">' +
       '<div class="ptc-thumb">' + (im ? '<img src="' + esc(im) + '" alt="' + disp(it.name) + '">' : '') + '</div>' +
       '<div class="ptc-it">' + (rng ? '<div class="ptc-rng">' + disp(rng) + '</div>' : '') +
