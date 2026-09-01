@@ -129,7 +129,9 @@ function pt_seo_composite_sizes( $product ) {
  * ads feed exactly): /summerhouses/<slug>/ → /summerhouses/<size>/f/<slug>/.
  */
 function pt_seo_size_url( $product, $size_slug ) {
-	$permalink = get_permalink( $product );
+	// get_permalink() needs a post ID / WP_Post — a WC_Product object returns false.
+	$pid       = ( is_object( $product ) && is_callable( array( $product, 'get_id' ) ) ) ? (int) $product->get_id() : (int) $product;
+	$permalink = $pid ? get_permalink( $pid ) : false;
 	if ( ! $permalink ) {
 		return '';
 	}
@@ -414,7 +416,9 @@ function pt_seo_build_products_sitemap_xml() {
 				array(
 					'taxonomy' => 'product_cat',
 					'field'    => 'slug',
-					'terms'    => array( 'parts' ),
+					// Exclude the component / add-on / junk buckets — parts, felt &
+					// assembly extras (misc), stray bundle-cat items, and uncategorised.
+					'terms'    => array( 'parts', 'misc', 'bundles', 'uncategorized' ),
 					'operator' => 'NOT IN',
 				),
 			),
