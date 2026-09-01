@@ -286,42 +286,9 @@ add_action(
 			return;
 		}
 
-		// TEMP DIAGNOSTIC: /pt-products.xml?pt_debug=1 bypasses caches and reports
-		// where the build finds zero. Remove once the sitemap is confirmed populated.
-		if ( isset( $_GET['pt_debug'] ) ) {
+		// Force a fresh rebuild with /pt-products.xml?pt_flush=1 (e.g. after edits).
+		if ( isset( $_GET['pt_flush'] ) ) {
 			delete_transient( 'pt_products_sitemap_xml_v2' );
-			$dbg_comp = function_exists( 'get_posts' ) ? (array) get_posts(
-				array(
-					'post_type'      => 'product',
-					'post_status'    => 'publish',
-					'posts_per_page' => -1,
-					'fields'         => 'ids',
-					'no_found_rows'  => true,
-					'tax_query'      => array( array( 'taxonomy' => 'product_type', 'field' => 'slug', 'terms' => array( 'composite' ) ) ), // phpcs:ignore
-				)
-			) : array();
-			$dbg_terms = array();
-			if ( taxonomy_exists( 'product_type' ) ) {
-				foreach ( (array) get_terms( array( 'taxonomy' => 'product_type', 'hide_empty' => false ) ) as $t ) {
-					if ( is_object( $t ) ) {
-						$dbg_terms[] = $t->slug . ':' . $t->count;
-					}
-				}
-			}
-			$sample_id  = ! empty( $dbg_comp ) ? (int) $dbg_comp[0] : 0;
-			$sample_pl  = $sample_id ? get_permalink( $sample_id ) : '(none)';
-			$sample_sz  = ( $sample_id && function_exists( 'wc_get_product' ) ) ? count( pt_seo_composite_sizes( wc_get_product( $sample_id ) ) ) : 0;
-			status_header( 200 );
-			header( 'Content-Type: text/plain; charset=UTF-8' );
-			echo "wc_get_product=" . ( function_exists( 'wc_get_product' ) ? 'yes' : 'no' ) . "\n";
-			echo "product_type taxonomy exists=" . ( taxonomy_exists( 'product_type' ) ? 'yes' : 'no' ) . "\n";
-			echo "product_type terms=" . implode( ', ', $dbg_terms ) . "\n";
-			echo "composite query count=" . count( $dbg_comp ) . "\n";
-			echo "sample composite id=" . $sample_id . "\n";
-			echo "sample permalink=" . $sample_pl . "\n";
-			echo "sample size count=" . $sample_sz . "\n";
-			echo "timber_catp_size_options exists=" . ( function_exists( 'timber_catp_size_options' ) ? 'yes' : 'no' ) . "\n";
-			exit;
 		}
 
 		$xml = pt_seo_get_products_sitemap_xml();
