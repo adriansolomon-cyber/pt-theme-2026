@@ -296,6 +296,12 @@ add_action(
 			status_header( 200 ); // override the 404 WP set for this unmatched path.
 			header( 'Content-Type: text/xml; charset=UTF-8' );
 			header( 'X-Robots-Tag: noindex, follow', true );
+			// Don't let Cloudflare / any proxy edge-cache the sitemap — a stale
+			// (esp. empty) copy would be served to Google. Origin is already cheap
+			// (12h transient). CDN-Cache-Control targets the edge specifically.
+			header( 'Cache-Control: no-store, max-age=0, must-revalidate' );
+			header( 'CDN-Cache-Control: no-store' );
+			header( 'Cloudflare-CDN-Cache-Control: no-store' );
 		}
 		echo $xml; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — each URL is esc_url'd during build.
 		exit;
