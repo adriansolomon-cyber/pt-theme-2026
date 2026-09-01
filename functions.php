@@ -65,6 +65,10 @@ require_once get_stylesheet_directory() . '/legacy-functions.php';
 // Order-status customer emails: delivery (planned/palletways) + assembly (completed).
 require_once get_stylesheet_directory() . '/emails-handler-functions.php';
 
+// SEO — custom product sitemap (size/feed URLs), per-size canonicals, bundle/parts
+// noindex. Self-contained; comment this line (or define PT_SEO_MODULE=false) to disable.
+require_once get_stylesheet_directory() . '/includes/pt-seo-product-sitemap.php';
+
 /**
  * Theme supports.
  */
