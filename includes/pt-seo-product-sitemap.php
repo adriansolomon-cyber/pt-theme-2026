@@ -64,7 +64,7 @@ function pt_seo_enabled( $piece ) {
 function pt_seo_composite_sizes( $product ) {
 	static $cache = array();
 
-	if ( ! $product || ! is_callable( array( $product, 'get_id' ) ) ) {
+	if ( ! $product || ! is_callable( array( $product, 'get_id' ) ) || ! function_exists( 'wc_get_product' ) ) {
 		return array();
 	}
 	$pid = (int) $product->get_id();
@@ -159,7 +159,7 @@ function pt_seo_request_size() {
 add_filter(
 	'wpseo_robots_array',
 	static function ( $robots ) {
-		if ( ! pt_seo_enabled( 'noindex' ) || ! is_singular( 'product' ) ) {
+		if ( ! pt_seo_enabled( 'noindex' ) || ! is_singular( 'product' ) || ! function_exists( 'wc_get_product' ) ) {
 			return $robots;
 		}
 		$product = wc_get_product( get_queried_object_id() );
@@ -180,7 +180,7 @@ add_filter(
  * B. Per-size canonical (Fork 1): size URL → itself; bare parent → base size.
  * ========================================================================= */
 function pt_seo_composite_canonical( $canonical ) {
-	if ( ! pt_seo_enabled( 'canonical' ) || ! is_singular( 'product' ) ) {
+	if ( ! pt_seo_enabled( 'canonical' ) || ! is_singular( 'product' ) || ! function_exists( 'wc_get_product' ) ) {
 		return $canonical;
 	}
 	$product = wc_get_product( get_queried_object_id() );
@@ -212,7 +212,7 @@ add_filter( 'wpseo_opengraph_url', 'pt_seo_composite_canonical', 10, 1 ); // kee
 add_filter(
 	'wpseo_title',
 	static function ( $title ) {
-		if ( ! pt_seo_enabled( 'title' ) || ! is_singular( 'product' ) ) {
+		if ( ! pt_seo_enabled( 'title' ) || ! is_singular( 'product' ) || ! function_exists( 'wc_get_product' ) ) {
 			return $title;
 		}
 		$size = pt_seo_request_size();
@@ -303,6 +303,12 @@ function pt_seo_get_products_sitemap_xml() {
 
 /** Build the product sitemap: composite size (feed) URLs + real simple products. */
 function pt_seo_build_products_sitemap_xml() {
+	$empty = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+		. '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>' . "\n";
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return $empty; // WooCommerce not loaded — serve a valid empty sitemap, never fatal.
+	}
+
 	$urls = array();
 
 	// --- Composites → one entry per clean size URL (base size included). ---
