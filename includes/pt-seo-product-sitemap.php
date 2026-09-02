@@ -341,6 +341,7 @@ function pt_seo_build_products_sitemap_xml() {
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
 			'no_found_rows'  => true,
+			'has_password'   => false, // skip password-protected products.
 			'tax_query'      => array(  // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				array(
 					'taxonomy' => 'product_type',
@@ -379,6 +380,7 @@ function pt_seo_build_products_sitemap_xml() {
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
 			'no_found_rows'  => true,
+			'has_password'   => false, // skip password-protected products.
 			'tax_query'      => array(  // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				'relation' => 'AND',
 				array(

@@ -69,6 +69,11 @@ require_once get_stylesheet_directory() . '/emails-handler-functions.php';
 // noindex. Self-contained; comment this line (or define PT_SEO_MODULE=false) to disable.
 require_once get_stylesheet_directory() . '/includes/pt-seo-product-sitemap.php';
 
+// Enforce WP password protection on products (page gate is in single-product.php;
+// this blocks add-to-cart + noindexes the locked page). Disable by commenting this
+// line or define('PT_PRODUCT_PASSWORD', false).
+require_once get_stylesheet_directory() . '/includes/pt-product-password.php';
+
 /**
  * Theme supports.
  */

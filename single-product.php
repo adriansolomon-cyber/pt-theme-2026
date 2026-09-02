@@ -119,6 +119,23 @@ if ( ! is_string( $pt_cfg_img ) || '' === $pt_cfg_img ) {
 // single-product hooks, so WC never generates it — trigger it here. WooCommerce outputs
 // the assembled markup on wp_footer (footer.php calls wp_footer), and the migrated
 // fix_composite_product_price_schema filter (legacy-functions.php) applies during generation.
+// Password-protected products: this custom PDP renders via the Store API and
+// never calls the_content(), so WordPress's built-in password gate never fires.
+// Enforce it here — render the password form (site header/footer intact) and stop
+// before any product data, schema, or the configurator is output.
+if ( post_password_required( $pt_pid ) ) {
+	get_header();
+	?>
+	<main class="pt-pw-gate" style="max-width:640px;margin:64px auto 96px;padding:0 20px;min-height:38vh;">
+		<h1 style="font-size:1.5rem;line-height:1.2;margin:0 0 12px;"><?php echo esc_html( get_the_title( $pt_pid ) ); ?></h1>
+		<p style="margin:0 0 18px;color:#555;"><?php esc_html_e( 'This product is password protected. Enter the password to view it.', 'woocommerce' ); ?></p>
+		<?php echo get_the_password_form( $pt_pid ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — core-generated form markup. ?>
+	</main>
+	<?php
+	get_footer();
+	return;
+}
+
 if ( $pt_product && function_exists( 'WC' ) && WC()->structured_data ) {
 	$GLOBALS['product'] = $pt_product;                 // WC generator reads the global $product
 	WC()->structured_data->generate_product_data();
