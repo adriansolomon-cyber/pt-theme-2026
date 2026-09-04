@@ -74,6 +74,9 @@ require_once get_stylesheet_directory() . '/includes/pt-seo-product-sitemap.php'
 // line or define('PT_PRODUCT_PASSWORD', false).
 require_once get_stylesheet_directory() . '/includes/pt-product-password.php';
 
+// TEMP one-off admin tool — set Roof Material on a composite's size options. Remove after use.
+require_once get_stylesheet_directory() . '/includes/pt-tmp-roof-spec.php';
+
 /**
  * Theme supports.
  */
