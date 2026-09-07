@@ -212,6 +212,157 @@ function pt_test_product_price_rows( array $product_ids, $months = 12 ) {
 	return $wpdb->get_results( $wpdb->prepare( $sql, $months ), ARRAY_A );
 }
 
+/**
+ * Load the full product-ID list for the price audit from its data file.
+ *
+ * @return int[]
+ */
+function pt_price_audit_ids() {
+	$file = get_stylesheet_directory() . '/includes/pt-price-audit-ids.php';
+	if ( ! file_exists( $file ) ) {
+		return array();
+	}
+	return array_values( array_unique( array_filter( array_map( 'intval', (array) include $file ) ) ) );
+}
+
+/**
+ * Render the per-sale price trail for one (or a few) product IDs — the detailed
+ * drill-down. One row per sale, oldest first, with change markers and spread.
+ *
+ * @param int[] $ids    Product IDs.
+ * @param int   $months Look-back window.
+ */
+function pt_render_price_detail( array $ids, $months = 12 ) {
+	$rows = pt_test_product_price_rows( $ids, $months );
+
+	echo '<p style="margin:0 0 16px;"><a href="' . esc_url( remove_query_arg( 'product' ) ) . '" style="text-decoration:none;">← Back to all products</a></p>';
+	echo '<h1 style="margin:0 0 8px;font-size:24px;">Price trail — product ' . esc_html( implode( ', ', array_map( 'intval', $ids ) ) ) . '</h1>';
+	echo '<p style="color:#666;margin:0 0 20px;">One row per sale, oldest first. Per unit, <strong>inc VAT</strong>. <strong>List</strong> = price at add-to-cart (pre-coupon); <strong>Sold</strong> = the real price charged; <strong>Disc</strong> = List − Sold. ▲ marks a change from the previous sale.</p>';
+
+	if ( ! $rows ) {
+		echo '<p>No sales in period.</p>';
+		return;
+	}
+
+	// Spread per product (highest − lowest list price).
+	$spread = array();
+	foreach ( $rows as $r ) {
+		$pid = (int) $r['product_id'];
+		$lv  = (float) $r['unit_list'];
+		if ( ! isset( $spread[ $pid ] ) ) {
+			$spread[ $pid ] = array( 'min' => $lv, 'max' => $lv );
+		} else {
+			$spread[ $pid ]['min'] = min( $spread[ $pid ]['min'], $lv );
+			$spread[ $pid ]['max'] = max( $spread[ $pid ]['max'], $lv );
+		}
+	}
+
+	echo '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+	echo '<thead><tr style="text-align:left;border-bottom:2px solid #111;">';
+	foreach ( array( 'Product ID', 'Product', 'Order ID', 'Order date', 'Qty', 'List £', 'Sold £ (real)', 'Disc £', 'Lowest £', 'Highest £', 'Diff £' ) as $h ) {
+		echo '<th style="padding:7px 10px;vertical-align:top;">' . esc_html( $h ) . '</th>';
+	}
+	echo '</tr></thead><tbody>';
+
+	$prev_pid  = null;
+	$prev_list = null;
+	foreach ( $rows as $r ) {
+		$pid  = (int) $r['product_id'];
+		$list = number_format( (float) $r['unit_list'], 2 );
+		$paid = number_format( (float) $r['unit_paid'], 2 );
+
+		$new_group = ( $pid !== $prev_pid );
+		if ( $new_group ) {
+			$prev_list = null;
+		}
+		$changed = ( ! $new_group && null !== $prev_list && $list !== $prev_list );
+
+		echo '<tr style="' . ( $new_group ? 'border-top:2px solid #bbb;' : 'border-bottom:1px solid #eee;' ) . '">';
+		echo '<td style="padding:6px 10px;color:#999;">' . esc_html( (string) $pid ) . '</td>';
+		echo '<td style="padding:6px 10px;">' . esc_html( $r['product_name'] ? $r['product_name'] : '(deleted product)' ) . '</td>';
+		echo '<td style="padding:6px 10px;">' . esc_html( (string) $r['order_id'] ) . '</td>';
+		echo '<td style="padding:6px 10px;white-space:nowrap;">' . esc_html( substr( (string) $r['order_date'], 0, 10 ) ) . '</td>';
+		echo '<td style="padding:6px 10px;">' . esc_html( (string) (int) $r['qty'] ) . '</td>';
+		echo '<td style="padding:6px 10px;font-weight:700;' . ( $changed ? 'background:#fff4c2;' : '' ) . '">£' . esc_html( $list ) . ( $changed ? ' ▲' : '' ) . '</td>';
+		echo '<td style="padding:6px 10px;color:#555;">£' . esc_html( $paid ) . '</td>';
+
+		$disc = (float) $r['unit_list'] - (float) $r['unit_paid'];
+		if ( $disc > 0.005 ) {
+			echo '<td style="padding:6px 10px;font-weight:700;color:#b00;">−£' . esc_html( number_format( $disc, 2 ) ) . '</td>';
+		} else {
+			echo '<td style="padding:6px 10px;color:#999;">£0.00</td>';
+		}
+
+		if ( $new_group && isset( $spread[ $pid ] ) ) {
+			$diff = $spread[ $pid ]['max'] - $spread[ $pid ]['min'];
+			echo '<td style="padding:6px 10px;">£' . esc_html( number_format( $spread[ $pid ]['min'], 2 ) ) . '</td>';
+			echo '<td style="padding:6px 10px;">£' . esc_html( number_format( $spread[ $pid ]['max'], 2 ) ) . '</td>';
+			echo '<td style="padding:6px 10px;font-weight:700;color:' . ( $diff > 0 ? '#b00' : '#999' ) . ';">£' . esc_html( number_format( $diff, 2 ) ) . '</td>';
+		} else {
+			echo '<td></td><td></td><td></td>';
+		}
+		echo '</tr>';
+
+		$prev_pid  = $pid;
+		$prev_list = $list;
+	}
+	echo '</tbody></table>';
+}
+
+/*
+ * CSV export (admin only) — full per-sale detail for EVERY audited product,
+ * streamed in 50-ID batches so PHP memory stays flat regardless of list size.
+ * Runs before any theme output and exits. Reached only by admins (the gate at
+ * the top of this template returns for everyone else).
+ */
+if ( current_user_can( 'manage_woocommerce' )
+	&& isset( $_GET['export'] ) && 'csv' === $_GET['export']
+	&& function_exists( 'wc_get_product' )
+	&& ! headers_sent()
+) {
+	$ids = pt_price_audit_ids();
+
+	// A full-list export can run a while; don't let PHP time out mid-stream.
+	@set_time_limit( 0 );
+	if ( function_exists( 'wp_raise_memory_limit' ) ) {
+		wp_raise_memory_limit( 'admin' );
+	}
+
+	nocache_headers();
+	header( 'Content-Type: text/csv; charset=utf-8' );
+	header( 'Content-Disposition: attachment; filename="pt-price-audit-' . gmdate( 'Y-m-d' ) . '.csv"' );
+
+	$out = fopen( 'php://output', 'w' );
+	fputcsv( $out, array( 'product_id', 'product_name', 'order_id', 'order_date', 'qty', 'list_incvat', 'sold_incvat', 'discount_incvat' ) );
+
+	foreach ( array_chunk( $ids, 50 ) as $chunk ) {
+		$rows = pt_test_product_price_rows( $chunk, 12 );
+		foreach ( $rows as $r ) {
+			$disc = (float) $r['unit_list'] - (float) $r['unit_paid'];
+			fputcsv(
+				$out,
+				array(
+					$r['product_id'],
+					$r['product_name'],
+					$r['order_id'],
+					$r['order_date'],
+					(int) $r['qty'],
+					number_format( (float) $r['unit_list'], 2, '.', '' ),
+					number_format( (float) $r['unit_paid'], 2, '.', '' ),
+					number_format( $disc, 2, '.', '' ),
+				)
+			);
+		}
+		unset( $rows );
+		if ( ob_get_level() > 0 ) {
+			@ob_flush();
+		}
+		@flush();
+	}
+	fclose( $out );
+	exit;
+}
+
 get_header();
 ?>
 <main class="pt-test" style="max-width:1000px;margin:80px auto;padding:0 20px;font-family:system-ui,Arial,sans-serif;">
@@ -254,139 +405,98 @@ get_header();
 	}
 	*/
 
-	// --- Size-product sales — last 12 months ------------------------------
-	$pt_sales_months = 12;
-	$pt_sales_ids    = array(
-		16261, 22040, 18432, 102075, 111948, 14795, 122926, 56961, 58078,
-		63159, 67573, 16048, 17292, 102162, 16616, 69686, 18610, 16553,
-		45308, 46710, 49119, 77662,
-	);
+	// --- Price audit — paginated per-product summary + CSV export ---------
+	$pt_months   = 12;
+	$pt_per_page = 50;
+	$pt_all_ids  = pt_price_audit_ids();
 
 	if ( ! function_exists( 'wc_get_product' ) ) {
 		echo '<p><strong>WooCommerce is not active.</strong></p>';
+	} elseif ( empty( $pt_all_ids ) ) {
+		echo '<p><strong>No product IDs loaded.</strong> Add them to <code>includes/pt-price-audit-ids.php</code>.</p>';
+	} elseif ( isset( $_GET['product'] ) && in_array( (int) $_GET['product'], $pt_all_ids, true ) ) {
+		// Single-product drill-down: full per-sale trail.
+		pt_render_price_detail( array( (int) $_GET['product'] ), $pt_months );
 	} else {
-		$pt_rows        = pt_test_product_sales( $pt_sales_ids, $pt_sales_months );
-		$pt_total_units = 0;
-		$pt_total_ords  = 0;
-		$pt_found_ids   = array();
+		// Paginated per-product aggregate (50 products per batch).
+		$pt_total = count( $pt_all_ids );
+		$pt_pages = (int) max( 1, ceil( $pt_total / $pt_per_page ) );
+		$pt_batch = isset( $_GET['batch'] ) ? max( 1, min( $pt_pages, (int) $_GET['batch'] ) ) : 1;
+		$pt_slice = array_slice( $pt_all_ids, ( $pt_batch - 1 ) * $pt_per_page, $pt_per_page );
 
-		printf(
-			'<h1 style="margin:0 0 8px;font-size:26px;">Size-product sales — last %d months</h1>',
-			(int) $pt_sales_months
-		);
-		echo '<p style="color:#666;margin:0 0 20px;">Units sold and orders for each product ID. Real orders only (completed, processing, on-hold, refunded). Matched on <code>_product_id</code>.</p>';
+		printf( '<h1 style="margin:0 0 6px;font-size:26px;">Price audit — %d products, last %d months</h1>', (int) $pt_total, (int) $pt_months );
+		echo '<p style="color:#666;margin:0 0 14px;">Per-product price movement. Real orders only (completed/processing/on-hold/refunded); prices per unit <strong>inc VAT</strong>. Showing <strong>batch ' . (int) $pt_batch . ' of ' . (int) $pt_pages . '</strong> (' . count( $pt_slice ) . ' products). Click a product ID for its full per-sale trail.</p>';
 
-		echo '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
-		echo '<thead><tr style="text-align:left;border-bottom:2px solid #111;">';
-		foreach ( array( 'Product ID', 'Product', 'Units sold', 'Orders', 'Order IDs' ) as $h ) {
-			echo '<th style="padding:8px 10px;vertical-align:top;">' . esc_html( $h ) . '</th>';
-		}
-		echo '</tr></thead><tbody>';
+		echo '<p style="margin:0 0 22px;"><a href="' . esc_url( add_query_arg( array( 'export' => 'csv' ) ) ) . '" style="display:inline-block;background:#111;color:#fff;padding:9px 14px;border-radius:6px;text-decoration:none;font-size:14px;">&#8595; Download full per-sale CSV (all ' . (int) $pt_total . ' products)</a> <span style="color:#999;font-size:12px;">may take a minute</span></p>';
 
-		foreach ( $pt_rows as $r ) {
-			$pt_found_ids[]  = (int) $r['product_id'];
-			$pt_total_units += (int) $r['units_sold'];
-			$pt_total_ords  += (int) $r['orders'];
-			echo '<tr style="border-bottom:1px solid #e5e5e5;">';
-			echo '<td style="padding:8px 10px;color:#999;">' . esc_html( $r['product_id'] ) . '</td>';
-			echo '<td style="padding:8px 10px;">' . esc_html( $r['product_name'] ? $r['product_name'] : '(deleted product)' ) . '</td>';
-			echo '<td style="padding:8px 10px;font-weight:700;">' . esc_html( (string) (int) $r['units_sold'] ) . '</td>';
-			echo '<td style="padding:8px 10px;">' . esc_html( (string) (int) $r['orders'] ) . '</td>';
-			echo '<td style="padding:8px 10px;color:#555;font-size:12px;word-break:break-all;">' . esc_html( (string) $r['order_ids'] ) . '</td>';
-			echo '</tr>';
-		}
-
-		echo '</tbody><tfoot><tr style="border-top:2px solid #111;font-weight:700;">';
-		echo '<td style="padding:10px;" colspan="2">TOTAL</td>';
-		echo '<td style="padding:10px;">' . esc_html( (string) $pt_total_units ) . '</td>';
-		echo '<td style="padding:10px;" colspan="2">' . esc_html( (string) $pt_total_ords ) . ' order rows</td>';
-		echo '</tr></tfoot></table>';
-
-		// Flag any requested IDs that had no sales in the window.
-		$pt_missing = array_values( array_diff( array_map( 'intval', $pt_sales_ids ), $pt_found_ids ) );
-		if ( $pt_missing ) {
-			echo '<p style="margin:18px 0 0;color:#b00;"><strong>No sales in period (' . count( $pt_missing ) . '):</strong> ' . esc_html( implode( ', ', $pt_missing ) ) . '</p>';
-		}
-
-		// --- Price history — one row per sale, price + date -----------------
-		$pt_price_rows = pt_test_product_price_rows( $pt_sales_ids, $pt_sales_months );
-
-		// Pre-pass: lowest/highest list price per product across the window, so
-		// the group's first row can show the spread (highest − lowest).
-		$pt_spread = array();
-		foreach ( $pt_price_rows as $r ) {
+		// One bounded query for this batch's IDs, aggregated per product in PHP.
+		$rows = pt_test_product_price_rows( $pt_slice, $pt_months );
+		$agg  = array();
+		foreach ( $rows as $r ) {
 			$pid = (int) $r['product_id'];
 			$lv  = (float) $r['unit_list'];
-			if ( ! isset( $pt_spread[ $pid ] ) ) {
-				$pt_spread[ $pid ] = array( 'min' => $lv, 'max' => $lv );
-			} else {
-				$pt_spread[ $pid ]['min'] = min( $pt_spread[ $pid ]['min'], $lv );
-				$pt_spread[ $pid ]['max'] = max( $pt_spread[ $pid ]['max'], $lv );
+			if ( ! isset( $agg[ $pid ] ) ) {
+				$agg[ $pid ] = array(
+					'name'       => $r['product_name'],
+					'units'      => 0,
+					'orders'     => array(),
+					'first_list' => $lv,
+					'first_date' => $r['order_date'],
+					'last_list'  => $lv,
+					'last_date'  => $r['order_date'],
+					'min'        => $lv,
+					'max'        => $lv,
+				);
 			}
+			$agg[ $pid ]['units']                   += (int) $r['qty'];
+			$agg[ $pid ]['orders'][ $r['order_id'] ] = true;
+			$agg[ $pid ]['last_list']                = $lv; // rows are date-ascending
+			$agg[ $pid ]['last_date']                = $r['order_date'];
+			$agg[ $pid ]['min']                      = min( $agg[ $pid ]['min'], $lv );
+			$agg[ $pid ]['max']                      = max( $agg[ $pid ]['max'], $lv );
 		}
-
-		echo '<h2 style="margin:44px 0 8px;font-size:22px;">Price history — how each price moved over the last ' . (int) $pt_sales_months . ' months</h2>';
-		echo '<p style="color:#666;margin:0 0 20px;">One row per sale, oldest first per product. Prices are per unit, <strong>inc VAT</strong>. <strong>List</strong> = price at add-to-cart (includes any product sale price, before coupons); <strong>Sold</strong> = the real price actually charged after coupons/cart discounts; <strong>Disc</strong> = List − Sold. Watch the List column change down each product to see catalogue price changes.</p>';
 
 		echo '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
 		echo '<thead><tr style="text-align:left;border-bottom:2px solid #111;">';
-		foreach ( array( 'Product ID', 'Product', 'Order ID', 'Order date', 'Qty', 'List £', 'Sold £ (real)', 'Disc £', 'Lowest £', 'Highest £', 'Diff £' ) as $h ) {
+		foreach ( array( 'Product ID', 'Product', 'Units', 'Orders', 'First £ (date)', 'Last £ (date)', 'Lowest £', 'Highest £', 'Diff £' ) as $h ) {
 			echo '<th style="padding:7px 10px;vertical-align:top;">' . esc_html( $h ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
 
-		$pt_prev_pid  = null;
-		$pt_prev_list = null;
-		foreach ( $pt_price_rows as $r ) {
-			$pid  = (int) $r['product_id'];
-			$list = number_format( (float) $r['unit_list'], 2 );
-			$paid = number_format( (float) $r['unit_paid'], 2 );
-
-			// New product group → reset the change tracker and draw a divider.
-			$new_group = ( $pid !== $pt_prev_pid );
-			if ( $new_group ) {
-				$pt_prev_list = null;
+		foreach ( $pt_slice as $pid ) {
+			$detail_url = esc_url( add_query_arg( array( 'product' => (int) $pid ) ) );
+			if ( ! isset( $agg[ $pid ] ) ) {
+				echo '<tr style="border-bottom:1px solid #eee;color:#aaa;">';
+				echo '<td style="padding:6px 10px;"><a href="' . $detail_url . '" style="color:#999;">' . esc_html( (string) $pid ) . '</a></td>';
+				echo '<td style="padding:6px 10px;" colspan="8">no sales in period</td></tr>';
+				continue;
 			}
-			// Highlight when the list price differs from the previous sale of the
-			// same product — i.e. an actual price change point.
-			$changed = ( ! $new_group && null !== $pt_prev_list && $list !== $pt_prev_list );
-
-			$row_style = $new_group ? 'border-top:2px solid #bbb;' : 'border-bottom:1px solid #eee;';
-			echo '<tr style="' . $row_style . '">';
-			echo '<td style="padding:6px 10px;color:#999;">' . esc_html( (string) $pid ) . '</td>';
-			echo '<td style="padding:6px 10px;">' . esc_html( $r['product_name'] ? $r['product_name'] : '(deleted product)' ) . '</td>';
-			echo '<td style="padding:6px 10px;">' . esc_html( (string) $r['order_id'] ) . '</td>';
-			echo '<td style="padding:6px 10px;white-space:nowrap;">' . esc_html( substr( (string) $r['order_date'], 0, 10 ) ) . '</td>';
-			echo '<td style="padding:6px 10px;">' . esc_html( (string) (int) $r['qty'] ) . '</td>';
-			echo '<td style="padding:6px 10px;font-weight:700;' . ( $changed ? 'background:#fff4c2;' : '' ) . '">£' . esc_html( $list ) . ( $changed ? ' ▲' : '' ) . '</td>';
-			echo '<td style="padding:6px 10px;color:#555;">£' . esc_html( $paid ) . '</td>';
-
-			// Discount actually given on this sale (List − Sold), per unit inc VAT.
-			$disc = (float) $r['unit_list'] - (float) $r['unit_paid'];
-			if ( $disc > 0.005 ) {
-				echo '<td style="padding:6px 10px;font-weight:700;color:#b00;">−£' . esc_html( number_format( $disc, 2 ) ) . '</td>';
-			} else {
-				echo '<td style="padding:6px 10px;color:#999;">£0.00</td>';
-			}
-
-			// Per-product spread — printed once, on the group's first (oldest) row.
-			if ( $new_group && isset( $pt_spread[ $pid ] ) ) {
-				$lo   = number_format( $pt_spread[ $pid ]['min'], 2 );
-				$hi   = number_format( $pt_spread[ $pid ]['max'], 2 );
-				$diff = $pt_spread[ $pid ]['max'] - $pt_spread[ $pid ]['min'];
-				echo '<td style="padding:6px 10px;">£' . esc_html( $lo ) . '</td>';
-				echo '<td style="padding:6px 10px;">£' . esc_html( $hi ) . '</td>';
-				echo '<td style="padding:6px 10px;font-weight:700;color:' . ( $diff > 0 ? '#b00' : '#999' ) . ';">£' . esc_html( number_format( $diff, 2 ) ) . '</td>';
-			} else {
-				echo '<td></td><td></td><td></td>';
-			}
+			$a    = $agg[ $pid ];
+			$diff = $a['max'] - $a['min'];
+			echo '<tr style="border-bottom:1px solid #eee;">';
+			echo '<td style="padding:6px 10px;"><a href="' . $detail_url . '" style="color:#06c;font-weight:600;text-decoration:none;">' . esc_html( (string) $pid ) . '</a></td>';
+			echo '<td style="padding:6px 10px;">' . esc_html( $a['name'] ? $a['name'] : '(deleted product)' ) . '</td>';
+			echo '<td style="padding:6px 10px;font-weight:700;">' . esc_html( (string) $a['units'] ) . '</td>';
+			echo '<td style="padding:6px 10px;">' . esc_html( (string) count( $a['orders'] ) ) . '</td>';
+			echo '<td style="padding:6px 10px;white-space:nowrap;">£' . esc_html( number_format( (float) $a['first_list'], 2 ) ) . ' <span style="color:#999;">' . esc_html( substr( (string) $a['first_date'], 0, 10 ) ) . '</span></td>';
+			echo '<td style="padding:6px 10px;white-space:nowrap;">£' . esc_html( number_format( (float) $a['last_list'], 2 ) ) . ' <span style="color:#999;">' . esc_html( substr( (string) $a['last_date'], 0, 10 ) ) . '</span></td>';
+			echo '<td style="padding:6px 10px;">£' . esc_html( number_format( (float) $a['min'], 2 ) ) . '</td>';
+			echo '<td style="padding:6px 10px;">£' . esc_html( number_format( (float) $a['max'], 2 ) ) . '</td>';
+			echo '<td style="padding:6px 10px;font-weight:700;color:' . ( $diff > 0.005 ? '#b00' : '#999' ) . ';">£' . esc_html( number_format( $diff, 2 ) ) . '</td>';
 			echo '</tr>';
-
-			$pt_prev_pid  = $pid;
-			$pt_prev_list = $list;
 		}
 		echo '</tbody></table>';
-		echo '<p style="color:#888;font-size:12px;margin:10px 0 0;">Highlighted ▲ = the list price differs from this product’s previous (older) sale — a price-change point. ' . count( $pt_price_rows ) . ' sale rows.</p>';
+
+		// Pagination.
+		echo '<div style="display:flex;gap:14px;align-items:center;margin:20px 0 0;font-size:14px;">';
+		if ( $pt_batch > 1 ) {
+			echo '<a href="' . esc_url( add_query_arg( array( 'batch' => $pt_batch - 1 ) ) ) . '" style="text-decoration:none;">&larr; Prev</a>';
+		}
+		echo '<span style="color:#666;">Batch ' . (int) $pt_batch . ' of ' . (int) $pt_pages . '</span>';
+		if ( $pt_batch < $pt_pages ) {
+			echo '<a href="' . esc_url( add_query_arg( array( 'batch' => $pt_batch + 1 ) ) ) . '" style="text-decoration:none;">Next &rarr;</a>';
+		}
+		echo '</div>';
 	}
 	?>
 </main>
