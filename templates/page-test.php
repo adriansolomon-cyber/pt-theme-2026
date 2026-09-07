@@ -477,9 +477,13 @@ get_header();
 			echo '<td style="' . $chg_style . '">' . esc_html( $chg_amt_txt ) . '<div style="font-weight:400;font-size:11px;opacity:.8;">sold ' . esc_html( $chg_sold_amt_txt ) . '</div></td>';
 			echo '<td style="' . $chg_style . '">' . esc_html( $chg_pct_txt ) . '<div style="font-weight:400;font-size:11px;opacity:.8;">sold ' . esc_html( $chg_sold_pct_txt ) . '</div></td>';
 			$cogs_row = pt_audit_product_cogs( $pid );
-			echo '<td style="padding:6px 10px;color:#555;">' . ( $cogs_row > 0
-				? '£' . esc_html( number_format( $cogs_row, 2 ) ) . '<div style="color:#888;font-size:11px;">margin £' . esc_html( number_format( (float) $a['last_sold'] - $cogs_row, 2 ) ) . '</div>'
-				: '<span style="color:#bbb;">—</span>' ) . '</td>';
+			if ( $cogs_row > 0 ) {
+				$m_row  = (float) $a['last_sold'] - $cogs_row;
+				$mp_row = ( (float) $a['last_sold'] > 0 ) ? ( $m_row / (float) $a['last_sold'] * 100 ) : 0.0;
+				echo '<td style="padding:6px 10px;color:#555;">£' . esc_html( number_format( $cogs_row, 2 ) ) . '<div style="color:#888;font-size:11px;">margin £' . esc_html( number_format( $m_row, 2 ) ) . ' (' . esc_html( number_format( $mp_row, 1 ) ) . '%)</div></td>';
+			} else {
+				echo '<td style="padding:6px 10px;color:#bbb;">—</td>';
+			}
 			echo '</tr>';
 			echo '<tr class="pt-detail-row" data-for="' . (int) $pid . '" hidden><td colspan="12" style="padding:0 10px 12px 34px;background:#fafafa;"><div class="pt-audit-detail"></div></td></tr>';
 		}

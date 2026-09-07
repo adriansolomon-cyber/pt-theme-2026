@@ -538,8 +538,9 @@ function pt_price_audit_detail_ajax() {
 		echo '</p>';
 
 		if ( count( $byprice ) < 2 ) {
-			$m1 = $best_rev['price'] - $cogs;
-			echo '<p style="margin:0;color:#555;">Sold at a single price point (£' . esc_html( number_format( $best_rev['price'], 2 ) ) . ', ' . (int) $best_rev['units'] . ' units' . ( $cogs > 0 ? ', margin £' . esc_html( number_format( $m1, 2 ) ) . '/unit' : '' ) . ') — not enough price variation to compare. Test a higher and a lower price to gather signal.</p>';
+			$m1    = $best_rev['price'] - $cogs;
+			$m1pct = ( $best_rev['price'] > 0 ) ? ( $m1 / $best_rev['price'] * 100 ) : 0.0;
+			echo '<p style="margin:0;color:#555;">Sold at a single price point (£' . esc_html( number_format( $best_rev['price'], 2 ) ) . ', ' . (int) $best_rev['units'] . ' units' . ( $cogs > 0 ? ', margin £' . esc_html( number_format( $m1, 2 ) ) . ' / ' . esc_html( number_format( $m1pct, 1 ) ) . '% per unit' : '' ) . ') — not enough price variation to compare. Test a higher and a lower price to gather signal.</p>';
 		} else {
 			echo '<table style="width:auto;border-collapse:collapse;font-size:12px;margin:0 0 8px;">';
 			echo '<thead><tr style="text-align:left;color:#555;border-bottom:1px solid #cfe6cf;"><th style="padding:4px 10px;">Sold £</th><th style="padding:4px 10px;">Units</th><th style="padding:4px 10px;">Orders</th><th style="padding:4px 10px;">Revenue £</th><th style="padding:4px 10px;">Margin/unit £</th><th style="padding:4px 10px;">Total margin £</th></tr></thead><tbody>';
@@ -547,24 +548,27 @@ function pt_price_audit_detail_ajax() {
 				$is_best = ( $b['price'] === $best_rev['price'] );
 				$is_cur  = ( null !== $cur_price && abs( $b['price'] - $cur_price ) < 0.005 );
 				$m_unit  = $b['price'] - $cogs;
+				$mp_unit = ( $b['price'] > 0 ) ? ( $m_unit / $b['price'] * 100 ) : 0.0;
 				echo '<tr style="' . ( $is_best ? 'background:#d7efd7;font-weight:700;' : '' ) . '">';
 				echo '<td style="padding:4px 10px;">£' . esc_html( number_format( $b['price'], 2 ) ) . ( $is_cur ? ' <span style="color:#06c;font-size:10px;">(current)</span>' : '' ) . '</td>';
 				echo '<td style="padding:4px 10px;">' . (int) $b['units'] . '</td>';
 				echo '<td style="padding:4px 10px;">' . count( $b['orders'] ) . '</td>';
 				echo '<td style="padding:4px 10px;">£' . esc_html( number_format( $b['revenue'], 2 ) ) . '</td>';
-				echo '<td style="padding:4px 10px;' . ( $cogs > 0 && $m_unit < 0 ? 'color:#b00;' : '' ) . '">' . ( $cogs > 0 ? '£' . esc_html( number_format( $m_unit, 2 ) ) : '<span style="color:#bbb;">—</span>' ) . '</td>';
+				echo '<td style="padding:4px 10px;' . ( $cogs > 0 && $m_unit < 0 ? 'color:#b00;' : '' ) . '">' . ( $cogs > 0 ? '£' . esc_html( number_format( $m_unit, 2 ) ) . ' <span style="color:#888;">(' . esc_html( number_format( $mp_unit, 1 ) ) . '%)</span>' : '<span style="color:#bbb;">—</span>' ) . '</td>';
 				echo '<td style="padding:4px 10px;' . ( $cogs > 0 && $b['margin'] < 0 ? 'color:#b00;' : '' ) . '">' . ( $cogs > 0 ? '£' . esc_html( number_format( $b['margin'], 2 ) ) : '<span style="color:#bbb;">—</span>' ) . '</td>';
 				echo '</tr>';
 			}
 			echo '</tbody></table>';
 
-			echo '<p style="margin:0 0 4px;"><strong>Suggested price: £' . esc_html( number_format( $best_rev['price'], 2 ) ) . '</strong> — earned the most revenue (£' . esc_html( number_format( $best_rev['revenue'], 2 ) ) . ' from ' . (int) $best_rev['units'] . ' units' . ( $cogs > 0 ? ', margin £' . esc_html( number_format( $best_rev['margin'], 2 ) ) : '' ) . ').';
+			$best_rev_mpct = ( $best_rev['price'] > 0 ) ? ( ( $best_rev['price'] - $cogs ) / $best_rev['price'] * 100 ) : 0.0;
+			echo '<p style="margin:0 0 4px;"><strong>Suggested price: £' . esc_html( number_format( $best_rev['price'], 2 ) ) . '</strong> — earned the most revenue (£' . esc_html( number_format( $best_rev['revenue'], 2 ) ) . ' from ' . (int) $best_rev['units'] . ' units' . ( $cogs > 0 ? ', margin £' . esc_html( number_format( $best_rev['margin'], 2 ) ) . ' / ' . esc_html( number_format( $best_rev_mpct, 1 ) ) . '% per unit' : '' ) . ').';
 			if ( abs( $best_vol['price'] - $best_rev['price'] ) > 0.005 ) {
 				echo ' Most volume was at £' . esc_html( number_format( $best_vol['price'], 2 ) ) . ' (' . (int) $best_vol['units'] . ' units).';
 			}
 			echo '</p>';
 			if ( $cogs > 0 && $best_margin && abs( $best_margin['price'] - $best_rev['price'] ) > 0.005 ) {
-				echo '<p style="margin:0 0 4px;">Best <strong>total margin</strong> was at £' . esc_html( number_format( $best_margin['price'], 2 ) ) . ' (£' . esc_html( number_format( $best_margin['margin'], 2 ) ) . ' from ' . (int) $best_margin['units'] . ' units).</p>';
+				$bm_pct = ( $best_margin['price'] > 0 ) ? ( ( $best_margin['price'] - $cogs ) / $best_margin['price'] * 100 ) : 0.0;
+				echo '<p style="margin:0 0 4px;">Best <strong>total margin</strong> was at £' . esc_html( number_format( $best_margin['price'], 2 ) ) . ' (£' . esc_html( number_format( $best_margin['margin'], 2 ) ) . ' total, ' . esc_html( number_format( $bm_pct, 1 ) ) . '% per unit, from ' . (int) $best_margin['units'] . ' units).</p>';
 			}
 			if ( null !== $cur_price ) {
 				$vs = $best_rev['price'] - $cur_price;
