@@ -311,12 +311,26 @@ get_header();
 		// --- Price history — one row per sale, price + date -----------------
 		$pt_price_rows = pt_test_product_price_rows( $pt_sales_ids, $pt_sales_months );
 
+		// Pre-pass: lowest/highest list price per product across the window, so
+		// the group's first row can show the spread (highest − lowest).
+		$pt_spread = array();
+		foreach ( $pt_price_rows as $r ) {
+			$pid = (int) $r['product_id'];
+			$lv  = (float) $r['unit_list'];
+			if ( ! isset( $pt_spread[ $pid ] ) ) {
+				$pt_spread[ $pid ] = array( 'min' => $lv, 'max' => $lv );
+			} else {
+				$pt_spread[ $pid ]['min'] = min( $pt_spread[ $pid ]['min'], $lv );
+				$pt_spread[ $pid ]['max'] = max( $pt_spread[ $pid ]['max'], $lv );
+			}
+		}
+
 		echo '<h2 style="margin:44px 0 8px;font-size:22px;">Price history — how each price moved over the last ' . (int) $pt_sales_months . ' months</h2>';
 		echo '<p style="color:#666;margin:0 0 20px;">One row per sale, oldest first per product. Prices are per unit, <strong>inc VAT</strong>. “List” = catalogue price at sale (pre-discount); “Paid” = after any discount/coupon. Watch the List column change down each product to see price changes.</p>';
 
 		echo '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
 		echo '<thead><tr style="text-align:left;border-bottom:2px solid #111;">';
-		foreach ( array( 'Product ID', 'Product', 'Order ID', 'Order date', 'Qty', 'Unit £ (list)', 'Unit £ (paid)' ) as $h ) {
+		foreach ( array( 'Product ID', 'Product', 'Order ID', 'Order date', 'Qty', 'Unit £ (list)', 'Unit £ (paid)', 'Lowest £', 'Highest £', 'Diff £' ) as $h ) {
 			echo '<th style="padding:7px 10px;vertical-align:top;">' . esc_html( $h ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
@@ -346,6 +360,18 @@ get_header();
 			echo '<td style="padding:6px 10px;">' . esc_html( (string) (int) $r['qty'] ) . '</td>';
 			echo '<td style="padding:6px 10px;font-weight:700;' . ( $changed ? 'background:#fff4c2;' : '' ) . '">£' . esc_html( $list ) . ( $changed ? ' ▲' : '' ) . '</td>';
 			echo '<td style="padding:6px 10px;color:#555;">£' . esc_html( $paid ) . '</td>';
+
+			// Per-product spread — printed once, on the group's first (oldest) row.
+			if ( $new_group && isset( $pt_spread[ $pid ] ) ) {
+				$lo   = number_format( $pt_spread[ $pid ]['min'], 2 );
+				$hi   = number_format( $pt_spread[ $pid ]['max'], 2 );
+				$diff = $pt_spread[ $pid ]['max'] - $pt_spread[ $pid ]['min'];
+				echo '<td style="padding:6px 10px;">£' . esc_html( $lo ) . '</td>';
+				echo '<td style="padding:6px 10px;">£' . esc_html( $hi ) . '</td>';
+				echo '<td style="padding:6px 10px;font-weight:700;color:' . ( $diff > 0 ? '#b00' : '#999' ) . ';">£' . esc_html( number_format( $diff, 2 ) ) . '</td>';
+			} else {
+				echo '<td></td><td></td><td></td>';
+			}
 			echo '</tr>';
 
 			$pt_prev_pid  = $pid;
