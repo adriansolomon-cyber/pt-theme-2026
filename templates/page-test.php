@@ -226,6 +226,71 @@ function pt_price_audit_ids() {
 }
 
 /**
+ * Map each composite SIZE-option product ID → its parent composite (id, title,
+ * url). Sizes aren't linked by post_parent; they're the "Size" component's
+ * options on the parent composite. We walk every composite (~60) once and cache
+ * the reverse map, so resolving a size's parent is a array lookup thereafter.
+ *
+ * @return array<int,array{id:int,title:string,url:string}>
+ */
+function pt_size_parent_map() {
+	$cached = get_transient( 'pt_size_parent_map_v1' );
+	if ( is_array( $cached ) ) {
+		return $cached;
+	}
+
+	$map = array();
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return $map;
+	}
+
+	$composite_ids = get_posts(
+		array(
+			'post_type'      => 'product',
+			'post_status'    => 'publish',
+			'numberposts'    => -1,
+			'fields'         => 'ids',
+			'tax_query'      => array(
+				array(
+					'taxonomy' => 'product_type',
+					'field'    => 'slug',
+					'terms'    => 'composite',
+				),
+			),
+		)
+	);
+
+	foreach ( $composite_ids as $cpid ) {
+		$composite = wc_get_product( $cpid );
+		if ( ! $composite || ! is_callable( array( $composite, 'get_components' ) ) ) {
+			continue;
+		}
+		$parent = array(
+			'id'    => (int) $cpid,
+			'title' => $composite->get_name(),
+			'url'   => (string) get_permalink( $cpid ),
+		);
+		foreach ( (array) $composite->get_components() as $comp ) {
+			if ( ! is_callable( array( $comp, 'get_title' ) ) || 'size' !== strtolower( trim( (string) $comp->get_title() ) ) ) {
+				continue; // Only the Size component's options are size products.
+			}
+			if ( ! is_callable( array( $comp, 'get_options' ) ) ) {
+				continue;
+			}
+			foreach ( (array) $comp->get_options() as $oid ) {
+				$oid = (int) $oid;
+				if ( $oid > 0 && ! isset( $map[ $oid ] ) ) {
+					$map[ $oid ] = $parent;
+				}
+			}
+		}
+	}
+
+	set_transient( 'pt_size_parent_map_v1', $map, 6 * HOUR_IN_SECONDS );
+	return $map;
+}
+
+/**
  * Render the per-sale price trail for one (or a few) product IDs — the detailed
  * drill-down. One row per sale, oldest first, with change markers and spread.
  *
@@ -237,6 +302,16 @@ function pt_render_price_detail( array $ids, $months = 12 ) {
 
 	echo '<p style="margin:0 0 16px;"><a href="' . esc_url( remove_query_arg( 'product' ) ) . '" style="text-decoration:none;">← Back to all products</a></p>';
 	echo '<h1 style="margin:0 0 8px;font-size:24px;">Price trail — product ' . esc_html( implode( ', ', array_map( 'intval', $ids ) ) ) . '</h1>';
+
+	// Parent composite (which building this size belongs to).
+	$parent_map = pt_size_parent_map();
+	foreach ( array_map( 'intval', $ids ) as $iid ) {
+		if ( isset( $parent_map[ $iid ] ) ) {
+			$par = $parent_map[ $iid ];
+			echo '<p style="margin:0 0 8px;font-size:15px;">Parent product: <a href="' . esc_url( $par['url'] ) . '" target="_blank" rel="noopener" style="color:#06c;">' . esc_html( $par['title'] ) . '</a> <span style="color:#999;">(#' . (int) $par['id'] . ')</span></p>';
+		}
+	}
+
 	echo '<p style="color:#666;margin:0 0 20px;">One row per sale, oldest first. Per unit, <strong>inc VAT</strong>. <strong>List</strong> = price at add-to-cart (pre-coupon); <strong>Sold</strong> = the real price charged; <strong>Disc</strong> = List − Sold. ▲ marks a change from the previous sale.</p>';
 
 	if ( ! $rows ) {
@@ -359,7 +434,8 @@ if ( current_user_can( 'manage_woocommerce' )
 	&& function_exists( 'wc_get_product' )
 	&& ! headers_sent()
 ) {
-	$ids = pt_price_audit_ids();
+	$ids        = pt_price_audit_ids();
+	$parent_map = pt_size_parent_map();
 
 	// A full-list export can run a while; don't let PHP time out mid-stream.
 	@set_time_limit( 0 );
@@ -373,16 +449,18 @@ if ( current_user_can( 'manage_woocommerce' )
 	$out = fopen( 'php://output', 'w' );
 
 	if ( 'summary' === $pt_export ) {
-		// Same columns as the on-screen table (dates broken out for the sheet).
-		fputcsv( $out, array( 'product_id', 'product', 'units', 'orders', 'first_price_incvat', 'first_date', 'last_price_incvat', 'last_date', 'lowest_incvat', 'highest_incvat', 'diff_incvat' ) );
+		// Same columns as the on-screen table (dates broken out for the sheet),
+		// plus the parent composite (title + URL) each size belongs to.
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_url', 'units', 'orders', 'first_price_incvat', 'first_date', 'last_price_incvat', 'last_date', 'lowest_incvat', 'highest_incvat', 'diff_incvat' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk, 12 ) );
 			foreach ( $chunk as $pid ) {
 				$pid = (int) $pid;
+				$par = isset( $parent_map[ $pid ] ) ? $parent_map[ $pid ] : array( 'id' => '', 'title' => '', 'url' => '' );
 				if ( ! isset( $agg[ $pid ] ) ) {
-					// No sales in period — still list the product, like the web view.
-					fputcsv( $out, array( $pid, '', 0, 0, '', '', '', '', '', '', '' ) );
+					// No sales in period — still list the product (with parent), like the web view.
+					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], $par['url'], 0, 0, '', '', '', '', '', '', '' ) );
 					continue;
 				}
 				$a    = $agg[ $pid ];
@@ -392,6 +470,9 @@ if ( current_user_can( 'manage_woocommerce' )
 					array(
 						$pid,
 						$a['name'],
+						$par['id'],
+						$par['title'],
+						$par['url'],
 						(int) $a['units'],
 						count( $a['orders'] ),
 						number_format( (float) $a['first_list'], 2, '.', '' ),
@@ -411,18 +492,23 @@ if ( current_user_can( 'manage_woocommerce' )
 			@flush();
 		}
 	} else {
-		// Detail — one row per sale (matches the drill-down trail).
-		fputcsv( $out, array( 'product_id', 'product', 'order_id', 'order_date', 'qty', 'list_incvat', 'sold_incvat', 'discount_incvat' ) );
+		// Detail — one row per sale (matches the drill-down trail), with parent.
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_url', 'order_id', 'order_date', 'qty', 'list_incvat', 'sold_incvat', 'discount_incvat' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$rows = pt_test_product_price_rows( $chunk, 12 );
 			foreach ( $rows as $r ) {
+				$pid  = (int) $r['product_id'];
+				$par  = isset( $parent_map[ $pid ] ) ? $parent_map[ $pid ] : array( 'id' => '', 'title' => '', 'url' => '' );
 				$disc = (float) $r['unit_list'] - (float) $r['unit_paid'];
 				fputcsv(
 					$out,
 					array(
 						$r['product_id'],
 						$r['product_name'],
+						$par['id'],
+						$par['title'],
+						$par['url'],
 						$r['order_id'],
 						substr( (string) $r['order_date'], 0, 10 ),
 						(int) $r['qty'],
@@ -514,11 +600,21 @@ get_header();
 			. '<span style="color:#999;font-size:12px;">may take a minute</span></p>';
 
 		// One bounded query for this batch's IDs, aggregated per product in PHP.
-		$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $pt_slice, $pt_months ) );
+		$agg           = pt_aggregate_price_rows( pt_test_product_price_rows( $pt_slice, $pt_months ) );
+		$pt_parent_map = pt_size_parent_map();
+
+		// Small helper: the linked parent-product cell for a size id.
+		$pt_parent_cell = static function ( $pid ) use ( $pt_parent_map ) {
+			$par = isset( $pt_parent_map[ (int) $pid ] ) ? $pt_parent_map[ (int) $pid ] : null;
+			if ( ! $par ) {
+				return '<td style="padding:6px 10px;color:#bbb;">—</td>';
+			}
+			return '<td style="padding:6px 10px;"><a href="' . esc_url( $par['url'] ) . '" target="_blank" rel="noopener" style="color:#06c;text-decoration:none;">' . esc_html( $par['title'] ) . '</a></td>';
+		};
 
 		echo '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
 		echo '<thead><tr style="text-align:left;border-bottom:2px solid #111;">';
-		foreach ( array( 'Product ID', 'Product', 'Units', 'Orders', 'First £ (date)', 'Last £ (date)', 'Lowest £', 'Highest £', 'Diff £' ) as $h ) {
+		foreach ( array( 'Product ID', 'Product', 'Parent product', 'Units', 'Orders', 'First £ (date)', 'Last £ (date)', 'Lowest £', 'Highest £', 'Diff £' ) as $h ) {
 			echo '<th style="padding:7px 10px;vertical-align:top;">' . esc_html( $h ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
@@ -528,7 +624,9 @@ get_header();
 			if ( ! isset( $agg[ $pid ] ) ) {
 				echo '<tr style="border-bottom:1px solid #eee;color:#aaa;">';
 				echo '<td style="padding:6px 10px;"><a href="' . $detail_url . '" style="color:#999;">' . esc_html( (string) $pid ) . '</a></td>';
-				echo '<td style="padding:6px 10px;" colspan="8">no sales in period</td></tr>';
+				echo '<td style="padding:6px 10px;color:#bbb;">—</td>';
+				echo $pt_parent_cell( $pid );
+				echo '<td style="padding:6px 10px;" colspan="7">no sales in period</td></tr>';
 				continue;
 			}
 			$a    = $agg[ $pid ];
@@ -536,6 +634,7 @@ get_header();
 			echo '<tr style="border-bottom:1px solid #eee;">';
 			echo '<td style="padding:6px 10px;"><a href="' . $detail_url . '" style="color:#06c;font-weight:600;text-decoration:none;">' . esc_html( (string) $pid ) . '</a></td>';
 			echo '<td style="padding:6px 10px;">' . esc_html( $a['name'] ? $a['name'] : '(deleted product)' ) . '</td>';
+			echo $pt_parent_cell( $pid );
 			echo '<td style="padding:6px 10px;font-weight:700;">' . esc_html( (string) $a['units'] ) . '</td>';
 			echo '<td style="padding:6px 10px;">' . esc_html( (string) count( $a['orders'] ) ) . '</td>';
 			echo '<td style="padding:6px 10px;white-space:nowrap;">£' . esc_html( number_format( (float) $a['first_list'], 2 ) ) . ' <span style="color:#999;">' . esc_html( substr( (string) $a['first_date'], 0, 10 ) ) . '</span></td>';
