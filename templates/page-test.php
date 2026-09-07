@@ -168,7 +168,7 @@ if ( current_user_can( 'manage_woocommerce' )
 	if ( 'summary' === $pt_export ) {
 		// Same columns as the on-screen table (dates broken out for the sheet),
 		// plus the parent composite (title + URL) each size belongs to.
-		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_url', 'units', 'orders', 'first_list_cost_exvat', 'first_date', 'last_list_cost_exvat', 'last_date', 'lowest_cost_exvat', 'highest_cost_exvat', 'spread_exvat', 'change_exvat', 'change_pct', 'lowest_sold_exvat', 'highest_sold_exvat', 'change_sold_exvat', 'change_sold_pct' ) );
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'units', 'orders', 'first_list_cost_exvat', 'first_date', 'last_list_cost_exvat', 'last_date', 'lowest_cost_exvat', 'highest_cost_exvat', 'spread_exvat', 'change_exvat', 'change_pct', 'lowest_sold_exvat', 'highest_sold_exvat', 'change_sold_exvat', 'change_sold_pct' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk, 12 ) );
@@ -177,7 +177,7 @@ if ( current_user_can( 'manage_woocommerce' )
 				$par = isset( $parent_map[ $pid ] ) ? $parent_map[ $pid ] : array( 'id' => '', 'title' => '', 'url' => '' );
 				if ( ! isset( $agg[ $pid ] ) ) {
 					// No sales in period — still list the product (with parent), like the web view.
-					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], $par['url'], 0, 0, '', '', '', '', '', '', '', '', '', '', '', '', '' ) );
+					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], pt_audit_size_url( $par['url'], get_the_title( $pid ) ), 0, 0, '', '', '', '', '', '', '', '', '', '', '', '', '' ) );
 					continue;
 				}
 				$a          = $agg[ $pid ];
@@ -193,7 +193,7 @@ if ( current_user_can( 'manage_woocommerce' )
 						$a['name'],
 						$par['id'],
 						$par['title'],
-						$par['url'],
+						pt_audit_size_url( $par['url'], $a['name'] ),
 						(int) $a['units'],
 						count( $a['orders'] ),
 						number_format( (float) $a['first_list'], 2, '.', '' ),
@@ -220,7 +220,7 @@ if ( current_user_can( 'manage_woocommerce' )
 		}
 	} else {
 		// Detail — one row per sale (matches the drill-down trail), with parent.
-		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_url', 'order_id', 'order_date', 'qty', 'list_cost_exvat', 'sold_total_exvat', 'discount_exvat' ) );
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'order_id', 'order_date', 'qty', 'list_cost_exvat', 'sold_total_exvat', 'discount_exvat' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$rows = pt_test_product_price_rows( $chunk, 12 );
@@ -235,7 +235,7 @@ if ( current_user_can( 'manage_woocommerce' )
 						$r['product_name'],
 						$par['id'],
 						$par['title'],
-						$par['url'],
+						pt_audit_size_url( $par['url'], $r['product_name'] ),
 						$r['order_id'],
 						substr( (string) $r['order_date'], 0, 10 ),
 						(int) $r['qty'],
@@ -381,13 +381,15 @@ get_header();
 		$agg           = pt_aggregate_price_rows( pt_test_product_price_rows( $pt_slice, $pt_months ) );
 		$pt_parent_map = pt_size_parent_map();
 
-		// Small helper: the linked parent-product cell for a size id.
-		$pt_parent_cell = static function ( $pid ) use ( $pt_parent_map ) {
+		// Small helper: the linked parent-product cell for a size id. The link
+		// carries the size (…/category/24-x-8/slug/) so it opens on that size.
+		$pt_parent_cell = static function ( $pid, $size_name ) use ( $pt_parent_map ) {
 			$par = isset( $pt_parent_map[ (int) $pid ] ) ? $pt_parent_map[ (int) $pid ] : null;
 			if ( ! $par ) {
 				return '<td style="padding:6px 10px;color:#bbb;">—</td>';
 			}
-			return '<td style="padding:6px 10px;"><a href="' . esc_url( $par['url'] ) . '" target="_blank" rel="noopener" style="color:#06c;text-decoration:none;">' . esc_html( $par['title'] ) . '</a></td>';
+			$url = pt_audit_size_url( $par['url'], $size_name );
+			return '<td style="padding:6px 10px;"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener" style="color:#06c;text-decoration:none;">' . esc_html( $par['title'] ) . '</a></td>';
 		};
 
 		echo '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
@@ -410,7 +412,7 @@ get_header();
 				echo '<tr style="border-bottom:1px solid #eee;color:#aaa;">';
 				echo '<td style="padding:6px 10px;"><a href="' . $detail_url . '" style="color:#999;">' . esc_html( (string) $pid ) . '</a></td>';
 				echo '<td style="padding:6px 10px;color:#bbb;">—</td>';
-				echo $pt_parent_cell( $pid );
+				echo $pt_parent_cell( $pid, get_the_title( (int) $pid ) );
 				echo '<td style="padding:6px 10px;" colspan="8">no sales in period</td></tr>';
 				continue;
 			}
@@ -462,7 +464,7 @@ get_header();
 			echo '<tr style="border-bottom:1px solid #eee;">';
 			echo '<td style="padding:6px 10px;white-space:nowrap;"><a href="#" class="pt-expand" data-pid="' . (int) $pid . '" style="color:#06c;font-weight:600;text-decoration:none;">&#9654; ' . esc_html( (string) $pid ) . '</a> <a href="' . $detail_url . '" title="Open full page" style="color:#bbb;text-decoration:none;font-size:11px;">&#8599;</a></td>';
 			echo '<td style="padding:6px 10px;">' . esc_html( $a['name'] ? $a['name'] : '(deleted product)' ) . '</td>';
-			echo $pt_parent_cell( $pid );
+			echo $pt_parent_cell( $pid, $a['name'] );
 			echo '<td style="padding:6px 10px;font-weight:700;">' . esc_html( (string) $a['units'] ) . '</td>';
 			echo '<td style="padding:6px 10px;">' . esc_html( (string) count( $a['orders'] ) ) . '</td>';
 			echo '<td style="padding:6px 10px;white-space:nowrap;">£' . esc_html( number_format( (float) $a['first_list'], 2 ) ) . ' <span style="color:#999;">' . esc_html( substr( (string) $a['first_date'], 0, 10 ) ) . '</span></td>';

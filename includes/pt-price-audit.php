@@ -118,6 +118,41 @@ function pt_price_audit_ids() {
 }
 
 /**
+ * Insert a size segment into a parent product permalink to make the feed-style
+ * size URL, e.g. https://…/summerhouses/grandmaster-…/  +  "24 x 8"  →
+ * https://…/summerhouses/24-x-8/grandmaster-…/ (no /f/, matching the live feed).
+ * The size slug is the "W x D" pulled from the size product name. Returns the
+ * parent URL unchanged if no size pattern is found.
+ *
+ * @param string $parent_url Parent composite permalink.
+ * @param string $size_name  Size product name (e.g. "24 x 8").
+ * @return string
+ */
+function pt_audit_size_url( $parent_url, $size_name ) {
+	$parent_url = (string) $parent_url;
+	if ( '' === $parent_url || ! preg_match( '/(\d+)\s*x\s*(\d+)/i', (string) $size_name, $m ) ) {
+		return $parent_url;
+	}
+	$size_slug = $m[1] . '-x-' . $m[2];
+
+	$parts = wp_parse_url( $parent_url );
+	if ( empty( $parts['path'] ) ) {
+		return $parent_url;
+	}
+	$segs = array_values( array_filter( explode( '/', trim( $parts['path'], '/' ) ), 'strlen' ) );
+	if ( empty( $segs ) ) {
+		return $parent_url;
+	}
+	$slug   = array_pop( $segs );           // product slug (last segment)
+	$segs[] = $size_slug;                   // size goes before it
+	$segs[] = $slug;
+
+	$scheme = isset( $parts['scheme'] ) ? $parts['scheme'] : 'https';
+	$host   = isset( $parts['host'] ) ? $parts['host'] : '';
+	return $scheme . '://' . $host . '/' . implode( '/', $segs ) . '/';
+}
+
+/**
  * Map each composite SIZE-option product ID → its parent composite (id, title,
  * url). Sizes aren't linked by post_parent; they're the "Size" component's
  * options on the parent composite. We walk every composite (~60) once and cache
@@ -200,7 +235,8 @@ function pt_render_price_detail( array $ids, $months = 12 ) {
 	foreach ( array_map( 'intval', $ids ) as $iid ) {
 		if ( isset( $parent_map[ $iid ] ) ) {
 			$par = $parent_map[ $iid ];
-			echo '<p style="margin:0 0 8px;font-size:15px;">Parent product: <a href="' . esc_url( $par['url'] ) . '" target="_blank" rel="noopener" style="color:#06c;">' . esc_html( $par['title'] ) . '</a> <span style="color:#999;">(#' . (int) $par['id'] . ')</span></p>';
+			$url = pt_audit_size_url( $par['url'], get_the_title( $iid ) );
+			echo '<p style="margin:0 0 8px;font-size:15px;">Parent product: <a href="' . esc_url( $url ) . '" target="_blank" rel="noopener" style="color:#06c;">' . esc_html( $par['title'] ) . '</a> <span style="color:#999;">(#' . (int) $par['id'] . ')</span></p>';
 		}
 	}
 
