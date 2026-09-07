@@ -166,26 +166,28 @@ if ( current_user_can( 'manage_woocommerce' )
 	$out = fopen( 'php://output', 'w' );
 
 	if ( 'summary' === $pt_export ) {
-		// Same columns as the on-screen table (dates broken out for the sheet),
-		// plus the parent composite (title + URL) each size belongs to.
-		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'units', 'orders', 'first_list_cost_exvat', 'first_date', 'last_list_cost_exvat', 'last_date', 'lowest_cost_exvat', 'highest_cost_exvat', 'spread_exvat', 'change_exvat', 'change_pct', 'lowest_sold_exvat', 'highest_sold_exvat', 'change_sold_exvat', 'change_sold_pct', 'cogs_exvat' ) );
+		// Column-for-column mirror of the on-screen table: each list figure with
+		// its "sold" sub-line as an adjacent column, plus COGS and margin (£/%).
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'units', 'orders', 'first_price_exvat', 'first_date', 'last_price_exvat', 'last_date', 'lowest_list_exvat', 'lowest_sold_exvat', 'highest_list_exvat', 'highest_sold_exvat', 'change_list_exvat', 'change_sold_exvat', 'change_list_pct', 'change_sold_pct', 'cogs_exvat', 'margin_exvat', 'margin_pct' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk ) );
 			foreach ( $chunk as $pid ) {
-				$pid = (int) $pid;
-				$par = isset( $parent_map[ $pid ] ) ? $parent_map[ $pid ] : array( 'id' => '', 'title' => '', 'url' => '' );
+				$pid  = (int) $pid;
+				$par  = isset( $parent_map[ $pid ] ) ? $parent_map[ $pid ] : array( 'id' => '', 'title' => '', 'url' => '' );
+				$cogs = pt_audit_product_cogs( $pid );
 				if ( ! isset( $agg[ $pid ] ) ) {
-					// No sales in period — still list the product (with parent), like the web view.
-					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], pt_audit_size_url( $par['url'], get_the_title( $pid ) ), 0, 0, '', '', '', '', '', '', '', '', '', '', '', '', '', number_format( pt_audit_product_cogs( $pid ), 2, '.', '' ) ) );
+					// No sales in period — still list the product (with parent + COGS), like the web view.
+					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], pt_audit_size_url( $par['url'], get_the_title( $pid ) ), 0, 0, '', '', '', '', '', '', '', '', '', '', '', '', number_format( $cogs, 2, '.', '' ), '', '' ) );
 					continue;
 				}
 				$a          = $agg[ $pid ];
-				$spread     = $a['max'] - $a['min'];                                 // highest − lowest (list)
 				$chg        = (float) $a['last_list'] - (float) $a['first_list'];    // directional last − first (list)
 				$chgpct     = ( $a['first_list'] > 0 ) ? ( $chg / (float) $a['first_list'] * 100 ) : 0.0;
 				$chg_sold   = (float) $a['last_sold'] - (float) $a['first_sold'];    // directional last − first (sold)
 				$chgpct_sld = ( $a['first_sold'] > 0 ) ? ( $chg_sold / (float) $a['first_sold'] * 100 ) : 0.0;
+				$margin     = (float) $a['last_sold'] - $cogs;                        // margin at last sold price
+				$margin_pct = ( (float) $a['last_sold'] > 0 ) ? ( $margin / (float) $a['last_sold'] * 100 ) : 0.0;
 				fputcsv(
 					$out,
 					array(
@@ -201,15 +203,16 @@ if ( current_user_can( 'manage_woocommerce' )
 						number_format( (float) $a['last_list'], 2, '.', '' ),
 						substr( (string) $a['last_date'], 0, 10 ),
 						number_format( (float) $a['min'], 2, '.', '' ),
-						number_format( (float) $a['max'], 2, '.', '' ),
-						number_format( $spread, 2, '.', '' ),
-						number_format( $chg, 2, '.', '' ),
-						number_format( $chgpct, 1, '.', '' ),
 						number_format( (float) $a['min_sold'], 2, '.', '' ),
+						number_format( (float) $a['max'], 2, '.', '' ),
 						number_format( (float) $a['max_sold'], 2, '.', '' ),
+						number_format( $chg, 2, '.', '' ),
 						number_format( $chg_sold, 2, '.', '' ),
+						number_format( $chgpct, 1, '.', '' ),
 						number_format( $chgpct_sld, 1, '.', '' ),
-						number_format( pt_audit_product_cogs( $pid ), 2, '.', '' ),
+						number_format( $cogs, 2, '.', '' ),
+						$cogs > 0 ? number_format( $margin, 2, '.', '' ) : '',
+						$cogs > 0 ? number_format( $margin_pct, 1, '.', '' ) : '',
 					)
 				);
 			}
