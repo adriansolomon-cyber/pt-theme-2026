@@ -136,6 +136,82 @@ function pt_test_product_sales( array $product_ids, $months = 12 ) {
 	return $wpdb->get_results( $wpdb->prepare( $sql, $months ), ARRAY_A );
 }
 
+/**
+ * Price-per-sale trail for a set of product IDs over the last N months.
+ *
+ * One row per order line item: the price the product sold at (per unit, INC
+ * VAT — PT prices are VAT-inclusive) and the order date, so you can see how the
+ * price moved through the year. "List" is the line subtotal (catalog price at
+ * sale, before order-level discounts); "Paid" is after discounts/coupons.
+ * Ordered by product then date. HPOS/legacy auto-detected.
+ *
+ * @param int[] $product_ids Product IDs.
+ * @param int   $months      Look-back window in months (default 12).
+ * @return array<int,array<string,string|null>>
+ */
+function pt_test_product_price_rows( array $product_ids, $months = 12 ) {
+	global $wpdb;
+
+	$product_ids = array_values( array_unique( array_filter( array_map( 'intval', $product_ids ) ) ) );
+	if ( empty( $product_ids ) ) {
+		return array();
+	}
+	$months = max( 1, (int) $months );
+	$in     = implode( ',', $product_ids );
+
+	$statuses  = array( 'wc-completed', 'wc-processing', 'wc-on-hold', 'wc-refunded' );
+	$status_in = "'" . implode( "','", array_map( 'esc_sql', $statuses ) ) . "'";
+
+	$hpos = class_exists( '\\Automattic\\WooCommerce\\Utilities\\OrderUtil' )
+		&& \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
+
+	if ( $hpos ) {
+		$orders_join  = "JOIN {$wpdb->prefix}wc_orders o ON o.id = oi.order_id";
+		$orders_where = "o.type = 'shop_order' AND o.status IN ($status_in) AND o.date_created_gmt >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL %d MONTH)";
+		$date_col     = 'o.date_created_gmt';
+	} else {
+		$orders_join  = "JOIN {$wpdb->posts} o ON o.ID = oi.order_id";
+		$orders_where = "o.post_type = 'shop_order' AND o.post_status IN ($status_in) AND o.post_date >= DATE_SUB(NOW(), INTERVAL %d MONTH)";
+		$date_col     = 'o.post_date';
+	}
+
+	// Gross (inc-VAT) unit price = (line amount + its tax) / qty. "List" uses the
+	// pre-discount subtotal; "Paid" uses the post-discount total.
+	$sql = "
+		SELECT
+			pm.meta_value AS product_id,
+			p2.post_title AS product_name,
+			oi.order_id   AS order_id,
+			$date_col     AS order_date,
+			CAST(qm.meta_value AS UNSIGNED) AS qty,
+			ROUND( ( CAST(sm.meta_value AS DECIMAL(14,4)) + CAST(COALESCE(st.meta_value,0) AS DECIMAL(14,4)) )
+				/ NULLIF(CAST(qm.meta_value AS DECIMAL(14,4)),0), 2 ) AS unit_list,
+			ROUND( ( CAST(tm.meta_value AS DECIMAL(14,4)) + CAST(COALESCE(tt.meta_value,0) AS DECIMAL(14,4)) )
+				/ NULLIF(CAST(qm.meta_value AS DECIMAL(14,4)),0), 2 ) AS unit_paid
+		FROM {$wpdb->prefix}woocommerce_order_items oi
+		JOIN {$wpdb->prefix}woocommerce_order_itemmeta pm
+			ON pm.order_item_id = oi.order_item_id AND pm.meta_key = '_product_id'
+		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta qm
+			ON qm.order_item_id = oi.order_item_id AND qm.meta_key = '_qty'
+		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta sm
+			ON sm.order_item_id = oi.order_item_id AND sm.meta_key = '_line_subtotal'
+		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta st
+			ON st.order_item_id = oi.order_item_id AND st.meta_key = '_line_subtotal_tax'
+		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta tm
+			ON tm.order_item_id = oi.order_item_id AND tm.meta_key = '_line_total'
+		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta tt
+			ON tt.order_item_id = oi.order_item_id AND tt.meta_key = '_line_tax'
+		$orders_join
+		LEFT JOIN {$wpdb->posts} p2 ON p2.ID = pm.meta_value
+		WHERE pm.meta_value IN ($in)
+			AND oi.order_item_type = 'line_item'
+			AND $orders_where
+		ORDER BY CAST(pm.meta_value AS UNSIGNED), $date_col
+	";
+
+	return $wpdb->get_results( $wpdb->prepare( $sql, $months ), ARRAY_A );
+}
+
 get_header();
 ?>
 <main class="pt-test" style="max-width:1000px;margin:80px auto;padding:0 20px;font-family:system-ui,Arial,sans-serif;">
@@ -231,6 +307,52 @@ get_header();
 		if ( $pt_missing ) {
 			echo '<p style="margin:18px 0 0;color:#b00;"><strong>No sales in period (' . count( $pt_missing ) . '):</strong> ' . esc_html( implode( ', ', $pt_missing ) ) . '</p>';
 		}
+
+		// --- Price history — one row per sale, price + date -----------------
+		$pt_price_rows = pt_test_product_price_rows( $pt_sales_ids, $pt_sales_months );
+
+		echo '<h2 style="margin:44px 0 8px;font-size:22px;">Price history — how each price moved over the last ' . (int) $pt_sales_months . ' months</h2>';
+		echo '<p style="color:#666;margin:0 0 20px;">One row per sale, oldest first per product. Prices are per unit, <strong>inc VAT</strong>. “List” = catalogue price at sale (pre-discount); “Paid” = after any discount/coupon. Watch the List column change down each product to see price changes.</p>';
+
+		echo '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+		echo '<thead><tr style="text-align:left;border-bottom:2px solid #111;">';
+		foreach ( array( 'Product ID', 'Product', 'Order ID', 'Order date', 'Qty', 'Unit £ (list)', 'Unit £ (paid)' ) as $h ) {
+			echo '<th style="padding:7px 10px;vertical-align:top;">' . esc_html( $h ) . '</th>';
+		}
+		echo '</tr></thead><tbody>';
+
+		$pt_prev_pid  = null;
+		$pt_prev_list = null;
+		foreach ( $pt_price_rows as $r ) {
+			$pid  = (int) $r['product_id'];
+			$list = number_format( (float) $r['unit_list'], 2 );
+			$paid = number_format( (float) $r['unit_paid'], 2 );
+
+			// New product group → reset the change tracker and draw a divider.
+			$new_group = ( $pid !== $pt_prev_pid );
+			if ( $new_group ) {
+				$pt_prev_list = null;
+			}
+			// Highlight when the list price differs from the previous sale of the
+			// same product — i.e. an actual price change point.
+			$changed = ( ! $new_group && null !== $pt_prev_list && $list !== $pt_prev_list );
+
+			$row_style = $new_group ? 'border-top:2px solid #bbb;' : 'border-bottom:1px solid #eee;';
+			echo '<tr style="' . $row_style . '">';
+			echo '<td style="padding:6px 10px;color:#999;">' . esc_html( (string) $pid ) . '</td>';
+			echo '<td style="padding:6px 10px;">' . esc_html( $r['product_name'] ? $r['product_name'] : '(deleted product)' ) . '</td>';
+			echo '<td style="padding:6px 10px;">' . esc_html( (string) $r['order_id'] ) . '</td>';
+			echo '<td style="padding:6px 10px;white-space:nowrap;">' . esc_html( substr( (string) $r['order_date'], 0, 10 ) ) . '</td>';
+			echo '<td style="padding:6px 10px;">' . esc_html( (string) (int) $r['qty'] ) . '</td>';
+			echo '<td style="padding:6px 10px;font-weight:700;' . ( $changed ? 'background:#fff4c2;' : '' ) . '">£' . esc_html( $list ) . ( $changed ? ' ▲' : '' ) . '</td>';
+			echo '<td style="padding:6px 10px;color:#555;">£' . esc_html( $paid ) . '</td>';
+			echo '</tr>';
+
+			$pt_prev_pid  = $pid;
+			$pt_prev_list = $list;
+		}
+		echo '</tbody></table>';
+		echo '<p style="color:#888;font-size:12px;margin:10px 0 0;">Highlighted ▲ = the list price differs from this product’s previous (older) sale — a price-change point. ' . count( $pt_price_rows ) . ' sale rows.</p>';
 	}
 	?>
 </main>
