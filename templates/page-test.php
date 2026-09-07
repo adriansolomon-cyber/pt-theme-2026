@@ -168,7 +168,7 @@ if ( current_user_can( 'manage_woocommerce' )
 	if ( 'summary' === $pt_export ) {
 		// Same columns as the on-screen table (dates broken out for the sheet),
 		// plus the parent composite (title + URL) each size belongs to.
-		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'units', 'orders', 'first_list_cost_exvat', 'first_date', 'last_list_cost_exvat', 'last_date', 'lowest_cost_exvat', 'highest_cost_exvat', 'spread_exvat', 'change_exvat', 'change_pct', 'lowest_sold_exvat', 'highest_sold_exvat', 'change_sold_exvat', 'change_sold_pct' ) );
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'units', 'orders', 'first_list_cost_exvat', 'first_date', 'last_list_cost_exvat', 'last_date', 'lowest_cost_exvat', 'highest_cost_exvat', 'spread_exvat', 'change_exvat', 'change_pct', 'lowest_sold_exvat', 'highest_sold_exvat', 'change_sold_exvat', 'change_sold_pct', 'cogs_exvat' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk, 12 ) );
@@ -177,7 +177,7 @@ if ( current_user_can( 'manage_woocommerce' )
 				$par = isset( $parent_map[ $pid ] ) ? $parent_map[ $pid ] : array( 'id' => '', 'title' => '', 'url' => '' );
 				if ( ! isset( $agg[ $pid ] ) ) {
 					// No sales in period — still list the product (with parent), like the web view.
-					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], pt_audit_size_url( $par['url'], get_the_title( $pid ) ), 0, 0, '', '', '', '', '', '', '', '', '', '', '', '', '' ) );
+					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], pt_audit_size_url( $par['url'], get_the_title( $pid ) ), 0, 0, '', '', '', '', '', '', '', '', '', '', '', '', '', number_format( pt_audit_product_cogs( $pid ), 2, '.', '' ) ) );
 					continue;
 				}
 				$a          = $agg[ $pid ];
@@ -209,6 +209,7 @@ if ( current_user_can( 'manage_woocommerce' )
 						number_format( (float) $a['max_sold'], 2, '.', '' ),
 						number_format( $chg_sold, 2, '.', '' ),
 						number_format( $chgpct_sld, 1, '.', '' ),
+						number_format( pt_audit_product_cogs( $pid ), 2, '.', '' ),
 					)
 				);
 			}
@@ -394,7 +395,7 @@ get_header();
 
 		echo '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
 		echo '<thead><tr style="text-align:left;border-bottom:2px solid #111;">';
-		foreach ( array( 'Product ID', 'Product', 'Parent product', 'Units', 'Orders', 'First £ (date)', 'Last £ (date)', 'Lowest £', 'Highest £', 'Change £', 'Change %' ) as $h ) {
+		foreach ( array( 'Product ID', 'Product', 'Parent product', 'Units', 'Orders', 'First £ (date)', 'Last £ (date)', 'Lowest £', 'Highest £', 'Change £', 'Change %', 'COGS £' ) as $h ) {
 			echo '<th style="padding:7px 10px;vertical-align:top;">' . esc_html( $h ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
@@ -413,7 +414,9 @@ get_header();
 				echo '<td style="padding:6px 10px;"><a href="' . $detail_url . '" style="color:#999;">' . esc_html( (string) $pid ) . '</a></td>';
 				echo '<td style="padding:6px 10px;color:#bbb;">—</td>';
 				echo $pt_parent_cell( $pid, get_the_title( (int) $pid ) );
-				echo '<td style="padding:6px 10px;" colspan="8">no sales in period</td></tr>';
+				$cogs_ns = pt_audit_product_cogs( $pid );
+				echo '<td style="padding:6px 10px;" colspan="7">no sales in period</td>';
+				echo '<td style="padding:6px 10px;color:#555;">' . ( $cogs_ns > 0 ? '£' . esc_html( number_format( $cogs_ns, 2 ) ) : '<span style="color:#bbb;">—</span>' ) . '</td></tr>';
 				continue;
 			}
 			$a    = $agg[ $pid ];
@@ -473,8 +476,12 @@ get_header();
 			echo '<td style="padding:6px 10px;">£' . esc_html( number_format( (float) $a['max'], 2 ) ) . '<div style="color:#888;font-size:11px;">sold £' . esc_html( number_format( (float) $a['max_sold'], 2 ) ) . '</div></td>';
 			echo '<td style="' . $chg_style . '">' . esc_html( $chg_amt_txt ) . '<div style="font-weight:400;font-size:11px;opacity:.8;">sold ' . esc_html( $chg_sold_amt_txt ) . '</div></td>';
 			echo '<td style="' . $chg_style . '">' . esc_html( $chg_pct_txt ) . '<div style="font-weight:400;font-size:11px;opacity:.8;">sold ' . esc_html( $chg_sold_pct_txt ) . '</div></td>';
+			$cogs_row = pt_audit_product_cogs( $pid );
+			echo '<td style="padding:6px 10px;color:#555;">' . ( $cogs_row > 0
+				? '£' . esc_html( number_format( $cogs_row, 2 ) ) . '<div style="color:#888;font-size:11px;">margin £' . esc_html( number_format( (float) $a['last_sold'] - $cogs_row, 2 ) ) . '</div>'
+				: '<span style="color:#bbb;">—</span>' ) . '</td>';
 			echo '</tr>';
-			echo '<tr class="pt-detail-row" data-for="' . (int) $pid . '" hidden><td colspan="11" style="padding:0 10px 12px 34px;background:#fafafa;"><div class="pt-audit-detail"></div></td></tr>';
+			echo '<tr class="pt-detail-row" data-for="' . (int) $pid . '" hidden><td colspan="12" style="padding:0 10px 12px 34px;background:#fafafa;"><div class="pt-audit-detail"></div></td></tr>';
 		}
 
 		// TOTAL row (this batch): summed units/orders, net £ change, average % change.
@@ -486,6 +493,7 @@ get_header();
 		echo '<td style="padding:9px 10px;" colspan="4"></td>';
 		echo '<td style="padding:9px 10px;">' . esc_html( ( $tot_chg >= 0 ? '+£' : '−£' ) . number_format( abs( $tot_chg ), 2 ) ) . '</td>';
 		echo '<td style="padding:9px 10px;">' . esc_html( ( $avg_pct >= 0 ? '+' : '−' ) . number_format( abs( $avg_pct ), 1 ) . '% avg' ) . '</td>';
+		echo '<td style="padding:9px 10px;"></td>';
 		echo '</tr>';
 
 		echo '</tbody></table>';
