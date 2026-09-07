@@ -80,6 +80,10 @@ require_once get_stylesheet_directory() . '/includes/pt-product-password.php';
 // public repo). Disable by commenting this line or define('PT_OPENAI_ADS', false).
 require_once get_stylesheet_directory() . '/includes/pt-openai-ads.php';
 
+// Price-audit data layer + AJAX detail endpoint (used by the "PT — Test scripts"
+// page). Read-only, admin-gated. Kept here so the AJAX handler is always loaded.
+require_once get_stylesheet_directory() . '/includes/pt-price-audit.php';
+
 /**
  * Theme supports.
  */
