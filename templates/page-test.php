@@ -326,11 +326,11 @@ get_header();
 		}
 
 		echo '<h2 style="margin:44px 0 8px;font-size:22px;">Price history — how each price moved over the last ' . (int) $pt_sales_months . ' months</h2>';
-		echo '<p style="color:#666;margin:0 0 20px;">One row per sale, oldest first per product. Prices are per unit, <strong>inc VAT</strong>. “List” = catalogue price at sale (pre-discount); “Paid” = after any discount/coupon. Watch the List column change down each product to see price changes.</p>';
+		echo '<p style="color:#666;margin:0 0 20px;">One row per sale, oldest first per product. Prices are per unit, <strong>inc VAT</strong>. <strong>List</strong> = price at add-to-cart (includes any product sale price, before coupons); <strong>Sold</strong> = the real price actually charged after coupons/cart discounts; <strong>Disc</strong> = List − Sold. Watch the List column change down each product to see catalogue price changes.</p>';
 
 		echo '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
 		echo '<thead><tr style="text-align:left;border-bottom:2px solid #111;">';
-		foreach ( array( 'Product ID', 'Product', 'Order ID', 'Order date', 'Qty', 'Unit £ (list)', 'Unit £ (paid)', 'Lowest £', 'Highest £', 'Diff £' ) as $h ) {
+		foreach ( array( 'Product ID', 'Product', 'Order ID', 'Order date', 'Qty', 'List £', 'Sold £ (real)', 'Disc £', 'Lowest £', 'Highest £', 'Diff £' ) as $h ) {
 			echo '<th style="padding:7px 10px;vertical-align:top;">' . esc_html( $h ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
@@ -360,6 +360,14 @@ get_header();
 			echo '<td style="padding:6px 10px;">' . esc_html( (string) (int) $r['qty'] ) . '</td>';
 			echo '<td style="padding:6px 10px;font-weight:700;' . ( $changed ? 'background:#fff4c2;' : '' ) . '">£' . esc_html( $list ) . ( $changed ? ' ▲' : '' ) . '</td>';
 			echo '<td style="padding:6px 10px;color:#555;">£' . esc_html( $paid ) . '</td>';
+
+			// Discount actually given on this sale (List − Sold), per unit inc VAT.
+			$disc = (float) $r['unit_list'] - (float) $r['unit_paid'];
+			if ( $disc > 0.005 ) {
+				echo '<td style="padding:6px 10px;font-weight:700;color:#b00;">−£' . esc_html( number_format( $disc, 2 ) ) . '</td>';
+			} else {
+				echo '<td style="padding:6px 10px;color:#999;">£0.00</td>';
+			}
 
 			// Per-product spread — printed once, on the group's first (oldest) row.
 			if ( $new_group && isset( $pt_spread[ $pid ] ) ) {
