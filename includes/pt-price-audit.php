@@ -26,11 +26,17 @@ defined( 'ABSPATH' ) || exit;
  * sale, before order-level discounts); "Paid" is after discounts/coupons.
  * Ordered by product then date. HPOS/legacy auto-detected.
  *
+ * Lines with a near-zero List price (below $min_list, default £1) are excluded
+ * as test/placeholder orders — e.g. a £0.01 order would otherwise wreck the
+ * First price and the % change. Override the floor via the PT_PRICE_AUDIT_MIN
+ * constant if ever needed.
+ *
  * @param int[] $product_ids Product IDs.
  * @param int   $months      Look-back window in months (default 12).
+ * @param float $min_list    Minimum List (Cost) per line to count (default 1.0).
  * @return array<int,array<string,string|null>>
  */
-function pt_test_product_price_rows( array $product_ids, $months = 12 ) {
+function pt_test_product_price_rows( array $product_ids, $months = 12, $min_list = null ) {
 	global $wpdb;
 
 	$product_ids = array_values( array_unique( array_filter( array_map( 'intval', $product_ids ) ) ) );
@@ -39,6 +45,11 @@ function pt_test_product_price_rows( array $product_ids, $months = 12 ) {
 	}
 	$months = max( 1, (int) $months );
 	$in     = implode( ',', $product_ids );
+
+	if ( null === $min_list ) {
+		$min_list = defined( 'PT_PRICE_AUDIT_MIN' ) ? (float) PT_PRICE_AUDIT_MIN : 1.0;
+	}
+	$min_list = (float) $min_list;
 
 	$statuses  = array( 'wc-completed', 'wc-processing', 'wc-on-hold', 'wc-refunded' );
 	$status_in = "'" . implode( "','", array_map( 'esc_sql', $statuses ) ) . "'";
@@ -86,10 +97,11 @@ function pt_test_product_price_rows( array $product_ids, $months = 12 ) {
 		WHERE pm.meta_value IN ($in)
 			AND oi.order_item_type = 'line_item'
 			AND $orders_where
+			AND CAST(sm.meta_value AS DECIMAL(14,4)) >= %f
 		ORDER BY CAST(pm.meta_value AS UNSIGNED), $date_col
 	";
 
-	return $wpdb->get_results( $wpdb->prepare( $sql, $months ), ARRAY_A );
+	return $wpdb->get_results( $wpdb->prepare( $sql, $months, $min_list ), ARRAY_A );
 }
 
 /**
