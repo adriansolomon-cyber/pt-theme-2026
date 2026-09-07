@@ -17,18 +17,32 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Look-back window (months) for the whole price audit. One place to change it.
-if ( ! defined( 'PT_PRICE_AUDIT_MONTHS' ) ) {
-	define( 'PT_PRICE_AUDIT_MONTHS', 24 );
+// Fixed start date for the whole price audit (orders on/after this count).
+// One place to change it. Format: YYYY-MM-DD.
+if ( ! defined( 'PT_PRICE_AUDIT_START' ) ) {
+	define( 'PT_PRICE_AUDIT_START', '2025-01-01' );
+}
+
+/** Normalised start datetime string ("YYYY-MM-DD 00:00:00"). */
+function pt_price_audit_start() {
+	$d = (string) PT_PRICE_AUDIT_START;
+	$t = strtotime( $d );
+	return ( $t ? gmdate( 'Y-m-d', $t ) : '2025-01-01' ) . ' 00:00:00';
+}
+
+/** Human label for the start, e.g. "1 Jan 2025". */
+function pt_price_audit_start_label() {
+	$t = strtotime( (string) PT_PRICE_AUDIT_START );
+	return $t ? gmdate( 'j M Y', $t ) : PT_PRICE_AUDIT_START;
 }
 
 /**
- * Price-per-sale trail for a set of product IDs over the last N months.
+ * Price-per-sale trail for a set of product IDs, for orders on/after the audit
+ * start date (PT_PRICE_AUDIT_START, default 2025-01-01).
  *
- * One row per order line item: the price the product sold at (per unit, INC
- * VAT — PT prices are VAT-inclusive) and the order date, so you can see how the
- * price moved through the year. "List" is the line subtotal (catalog price at
- * sale, before order-level discounts); "Paid" is after discounts/coupons.
+ * One row per order line item: the price the product sold at (per unit, ex VAT)
+ * and the order date, so you can see how the price moved. "List" is the line
+ * subtotal (Cost, before order-level discounts); "Paid" is after discounts.
  * Ordered by product then date. HPOS/legacy auto-detected.
  *
  * Lines with a near-zero List price (below $min_list, default £1) are excluded
@@ -36,20 +50,20 @@ if ( ! defined( 'PT_PRICE_AUDIT_MONTHS' ) ) {
  * First price and the % change. Override the floor via the PT_PRICE_AUDIT_MIN
  * constant if ever needed.
  *
- * @param int[] $product_ids Product IDs.
- * @param int   $months      Look-back window in months (default 12).
- * @param float $min_list    Minimum List (Cost) per line to count (default 1.0).
+ * @param int[]       $product_ids Product IDs.
+ * @param string|null $start       Start datetime ("Y-m-d H:i:s"); default = audit start.
+ * @param float       $min_list    Minimum List (Cost) per line to count (default 1.0).
  * @return array<int,array<string,string|null>>
  */
-function pt_test_product_price_rows( array $product_ids, $months = 12, $min_list = null ) {
+function pt_test_product_price_rows( array $product_ids, $start = null, $min_list = null ) {
 	global $wpdb;
 
 	$product_ids = array_values( array_unique( array_filter( array_map( 'intval', $product_ids ) ) ) );
 	if ( empty( $product_ids ) ) {
 		return array();
 	}
-	$months = max( 1, (int) $months );
-	$in     = implode( ',', $product_ids );
+	$start = $start ? (string) $start : pt_price_audit_start();
+	$in    = implode( ',', $product_ids );
 
 	if ( null === $min_list ) {
 		$min_list = defined( 'PT_PRICE_AUDIT_MIN' ) ? (float) PT_PRICE_AUDIT_MIN : 1.0;
@@ -64,11 +78,11 @@ function pt_test_product_price_rows( array $product_ids, $months = 12, $min_list
 
 	if ( $hpos ) {
 		$orders_join  = "JOIN {$wpdb->prefix}wc_orders o ON o.id = oi.order_id";
-		$orders_where = "o.type = 'shop_order' AND o.status IN ($status_in) AND o.date_created_gmt >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL %d MONTH)";
+		$orders_where = "o.type = 'shop_order' AND o.status IN ($status_in) AND o.date_created_gmt >= %s";
 		$date_col     = 'o.date_created_gmt';
 	} else {
 		$orders_join  = "JOIN {$wpdb->posts} o ON o.ID = oi.order_id";
-		$orders_where = "o.post_type = 'shop_order' AND o.post_status IN ($status_in) AND o.post_date >= DATE_SUB(NOW(), INTERVAL %d MONTH)";
+		$orders_where = "o.post_type = 'shop_order' AND o.post_status IN ($status_in) AND o.post_date >= %s";
 		$date_col     = 'o.post_date';
 	}
 
@@ -106,7 +120,8 @@ function pt_test_product_price_rows( array $product_ids, $months = 12, $min_list
 		ORDER BY CAST(pm.meta_value AS UNSIGNED), $date_col
 	";
 
-	return $wpdb->get_results( $wpdb->prepare( $sql, $months, $min_list ), ARRAY_A );
+	// Bound params in SQL order: start datetime (%s), then min-list floor (%f).
+	return $wpdb->get_results( $wpdb->prepare( $sql, $start, $min_list ), ARRAY_A );
 }
 
 /**
@@ -262,10 +277,9 @@ function pt_size_parent_map() {
  * drill-down. One row per sale, oldest first, with change markers and spread.
  *
  * @param int[] $ids    Product IDs.
- * @param int   $months Look-back window.
  */
-function pt_render_price_detail( array $ids, $months = 12 ) {
-	$rows = pt_test_product_price_rows( $ids, $months );
+function pt_render_price_detail( array $ids ) {
+	$rows = pt_test_product_price_rows( $ids );
 
 	echo '<p style="margin:0 0 16px;"><a href="' . esc_url( remove_query_arg( 'product' ) ) . '" style="text-decoration:none;">← Back to all products</a></p>';
 	echo '<h1 style="margin:0 0 8px;font-size:24px;">Price trail — product ' . esc_html( implode( ', ', array_map( 'intval', $ids ) ) ) . '</h1>';
@@ -451,15 +465,14 @@ function pt_price_audit_detail_ajax() {
 	}
 	$cogs = pt_audit_product_cogs( $pid ); // Cost of goods per unit (0 = unset).
 
-	$months  = PT_PRICE_AUDIT_MONTHS;
-	$rows    = pt_test_product_price_rows( array( $pid ), $months );
+	$rows    = pt_test_product_price_rows( array( $pid ) );
 	$coupons = pt_price_audit_order_coupons( array_map( static function ( $r ) {
 		return (int) $r['order_id'];
 	}, $rows ) );
 
 	ob_start();
 	if ( ! $rows ) {
-		echo '<p style="margin:8px 4px;color:#888;">No sales in the last ' . (int) $months . ' months.</p>';
+		echo '<p style="margin:8px 4px;color:#888;">No sales since ' . esc_html( pt_price_audit_start_label() ) . '.</p>';
 	} else {
 		echo '<table style="width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0 2px;">';
 		echo '<thead><tr style="text-align:left;border-bottom:1px solid #ccc;color:#555;">';

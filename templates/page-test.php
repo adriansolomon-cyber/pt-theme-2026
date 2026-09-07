@@ -171,7 +171,7 @@ if ( current_user_can( 'manage_woocommerce' )
 		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'units', 'orders', 'first_list_cost_exvat', 'first_date', 'last_list_cost_exvat', 'last_date', 'lowest_cost_exvat', 'highest_cost_exvat', 'spread_exvat', 'change_exvat', 'change_pct', 'lowest_sold_exvat', 'highest_sold_exvat', 'change_sold_exvat', 'change_sold_pct', 'cogs_exvat' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
-			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk, PT_PRICE_AUDIT_MONTHS ) );
+			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk ) );
 			foreach ( $chunk as $pid ) {
 				$pid = (int) $pid;
 				$par = isset( $parent_map[ $pid ] ) ? $parent_map[ $pid ] : array( 'id' => '', 'title' => '', 'url' => '' );
@@ -224,7 +224,7 @@ if ( current_user_can( 'manage_woocommerce' )
 		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'order_id', 'order_date', 'qty', 'list_cost_exvat', 'sold_total_exvat', 'discount_exvat' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
-			$rows = pt_test_product_price_rows( $chunk, PT_PRICE_AUDIT_MONTHS );
+			$rows = pt_test_product_price_rows( $chunk );
 			foreach ( $rows as $r ) {
 				$pid  = (int) $r['product_id'];
 				$par  = isset( $parent_map[ $pid ] ) ? $parent_map[ $pid ] : array( 'id' => '', 'title' => '', 'url' => '' );
@@ -352,9 +352,9 @@ get_header();
 	}
 
 	// --- Price audit — paginated per-product summary + CSV export ---------
-	$pt_months   = PT_PRICE_AUDIT_MONTHS;
-	$pt_per_page = 50;
-	$pt_all_ids  = pt_price_audit_ids();
+	$pt_start_lbl = pt_price_audit_start_label();
+	$pt_per_page  = 50;
+	$pt_all_ids   = pt_price_audit_ids();
 
 	if ( ! function_exists( 'wc_get_product' ) ) {
 		echo '<p><strong>WooCommerce is not active.</strong></p>';
@@ -362,7 +362,7 @@ get_header();
 		echo '<p><strong>No product IDs loaded.</strong> Add them to <code>includes/pt-price-audit-ids.php</code>.</p>';
 	} elseif ( isset( $_GET['product'] ) && in_array( (int) $_GET['product'], $pt_all_ids, true ) ) {
 		// Single-product drill-down: full per-sale trail.
-		pt_render_price_detail( array( (int) $_GET['product'] ), $pt_months );
+		pt_render_price_detail( array( (int) $_GET['product'] ) );
 	} else {
 		// Paginated per-product aggregate (50 products per batch).
 		$pt_total = count( $pt_all_ids );
@@ -370,7 +370,7 @@ get_header();
 		$pt_batch = isset( $_GET['batch'] ) ? max( 1, min( $pt_pages, (int) $_GET['batch'] ) ) : 1;
 		$pt_slice = array_slice( $pt_all_ids, ( $pt_batch - 1 ) * $pt_per_page, $pt_per_page );
 
-		printf( '<h1 style="margin:0 0 6px;font-size:26px;">Price audit — %d products, last %d months</h1>', (int) $pt_total, (int) $pt_months );
+		printf( '<h1 style="margin:0 0 6px;font-size:26px;">Price audit — %s products, since %s</h1>', esc_html( number_format( $pt_total ) ), esc_html( $pt_start_lbl ) );
 		echo '<p style="color:#666;margin:0 0 14px;">Per-product price movement. Real orders only (completed/processing/on-hold/refunded); prices are the order line&rsquo;s <strong>Cost (listing, ex VAT)</strong> per unit, matching the order screen. Showing <strong>batch ' . (int) $pt_batch . ' of ' . (int) $pt_pages . '</strong> (' . count( $pt_slice ) . ' products). Click a row&rsquo;s &#9654; to expand its every sale inline (order, date, List/Sold = Cost/Total, discount, coupon) — loaded on demand, so nothing extra runs until you click.</p>';
 
 		echo '<p style="margin:0 0 22px;">'
@@ -379,7 +379,7 @@ get_header();
 			. '<span style="color:#999;font-size:12px;">may take a minute</span></p>';
 
 		// One bounded query for this batch's IDs, aggregated per product in PHP.
-		$agg           = pt_aggregate_price_rows( pt_test_product_price_rows( $pt_slice, $pt_months ) );
+		$agg           = pt_aggregate_price_rows( pt_test_product_price_rows( $pt_slice ) );
 		$pt_parent_map = pt_size_parent_map();
 
 		// Small helper: the linked parent-product cell for a size id. The link
