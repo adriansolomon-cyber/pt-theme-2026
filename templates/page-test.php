@@ -168,7 +168,7 @@ if ( current_user_can( 'manage_woocommerce' )
 	if ( 'summary' === $pt_export ) {
 		// Same columns as the on-screen table (dates broken out for the sheet),
 		// plus the parent composite (title + URL) each size belongs to.
-		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_url', 'units', 'orders', 'first_list_cost_exvat', 'first_date', 'last_list_cost_exvat', 'last_date', 'lowest_cost_exvat', 'highest_cost_exvat', 'spread_exvat', 'change_exvat', 'change_pct' ) );
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_url', 'units', 'orders', 'first_list_cost_exvat', 'first_date', 'last_list_cost_exvat', 'last_date', 'lowest_cost_exvat', 'highest_cost_exvat', 'spread_exvat', 'change_exvat', 'change_pct', 'lowest_sold_exvat', 'highest_sold_exvat', 'change_sold_exvat', 'change_sold_pct' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk, 12 ) );
@@ -177,13 +177,15 @@ if ( current_user_can( 'manage_woocommerce' )
 				$par = isset( $parent_map[ $pid ] ) ? $parent_map[ $pid ] : array( 'id' => '', 'title' => '', 'url' => '' );
 				if ( ! isset( $agg[ $pid ] ) ) {
 					// No sales in period — still list the product (with parent), like the web view.
-					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], $par['url'], 0, 0, '', '', '', '', '', '', '', '', '' ) );
+					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], $par['url'], 0, 0, '', '', '', '', '', '', '', '', '', '', '', '', '' ) );
 					continue;
 				}
-				$a      = $agg[ $pid ];
-				$spread = $a['max'] - $a['min'];                                 // highest − lowest
-				$chg    = (float) $a['last_list'] - (float) $a['first_list'];    // directional last − first
-				$chgpct = ( $a['first_list'] > 0 ) ? ( $chg / (float) $a['first_list'] * 100 ) : 0.0;
+				$a          = $agg[ $pid ];
+				$spread     = $a['max'] - $a['min'];                                 // highest − lowest (list)
+				$chg        = (float) $a['last_list'] - (float) $a['first_list'];    // directional last − first (list)
+				$chgpct     = ( $a['first_list'] > 0 ) ? ( $chg / (float) $a['first_list'] * 100 ) : 0.0;
+				$chg_sold   = (float) $a['last_sold'] - (float) $a['first_sold'];    // directional last − first (sold)
+				$chgpct_sld = ( $a['first_sold'] > 0 ) ? ( $chg_sold / (float) $a['first_sold'] * 100 ) : 0.0;
 				fputcsv(
 					$out,
 					array(
@@ -203,6 +205,10 @@ if ( current_user_can( 'manage_woocommerce' )
 						number_format( $spread, 2, '.', '' ),
 						number_format( $chg, 2, '.', '' ),
 						number_format( $chgpct, 1, '.', '' ),
+						number_format( (float) $a['min_sold'], 2, '.', '' ),
+						number_format( (float) $a['max_sold'], 2, '.', '' ),
+						number_format( $chg_sold, 2, '.', '' ),
+						number_format( $chgpct_sld, 1, '.', '' ),
 					)
 				);
 			}
@@ -382,6 +388,18 @@ get_header();
 				$chg_pct_txt = ( $chg >= 0 ? '+' : '−' ) . number_format( abs( $chgpct ), 1 ) . '%';
 			}
 
+			// Sold (Total) directional change — the sub-line under the List figures.
+			$chg_sold      = (float) $a['last_sold'] - (float) $a['first_sold'];
+			$base_sold     = (float) $a['first_sold'];
+			$chg_sold_pct  = ( $base_sold > 0 ) ? ( $chg_sold / $base_sold * 100 ) : 0.0;
+			if ( abs( $chg_sold ) < 0.005 ) {
+				$chg_sold_amt_txt = '£0.00';
+				$chg_sold_pct_txt = '0%';
+			} else {
+				$chg_sold_amt_txt = ( $chg_sold >= 0 ? '+£' : '−£' ) . number_format( abs( $chg_sold ), 2 );
+				$chg_sold_pct_txt = ( $chg_sold >= 0 ? '+' : '−' ) . number_format( abs( $chg_sold_pct ), 1 ) . '%';
+			}
+
 			$tot_units  += (int) $a['units'];
 			$tot_orders += count( $a['orders'] );
 			$tot_chg    += $chg;
@@ -398,10 +416,10 @@ get_header();
 			echo '<td style="padding:6px 10px;">' . esc_html( (string) count( $a['orders'] ) ) . '</td>';
 			echo '<td style="padding:6px 10px;white-space:nowrap;">£' . esc_html( number_format( (float) $a['first_list'], 2 ) ) . ' <span style="color:#999;">' . esc_html( substr( (string) $a['first_date'], 0, 10 ) ) . '</span></td>';
 			echo '<td style="padding:6px 10px;white-space:nowrap;">£' . esc_html( number_format( (float) $a['last_list'], 2 ) ) . ' <span style="color:#999;">' . esc_html( substr( (string) $a['last_date'], 0, 10 ) ) . '</span></td>';
-			echo '<td style="padding:6px 10px;">£' . esc_html( number_format( (float) $a['min'], 2 ) ) . '</td>';
-			echo '<td style="padding:6px 10px;">£' . esc_html( number_format( (float) $a['max'], 2 ) ) . '</td>';
-			echo '<td style="' . $chg_style . '">' . esc_html( $chg_amt_txt ) . '</td>';
-			echo '<td style="' . $chg_style . '">' . esc_html( $chg_pct_txt ) . '</td>';
+			echo '<td style="padding:6px 10px;">£' . esc_html( number_format( (float) $a['min'], 2 ) ) . '<div style="color:#888;font-size:11px;">sold £' . esc_html( number_format( (float) $a['min_sold'], 2 ) ) . '</div></td>';
+			echo '<td style="padding:6px 10px;">£' . esc_html( number_format( (float) $a['max'], 2 ) ) . '<div style="color:#888;font-size:11px;">sold £' . esc_html( number_format( (float) $a['max_sold'], 2 ) ) . '</div></td>';
+			echo '<td style="' . $chg_style . '">' . esc_html( $chg_amt_txt ) . '<div style="font-weight:400;font-size:11px;opacity:.8;">sold ' . esc_html( $chg_sold_amt_txt ) . '</div></td>';
+			echo '<td style="' . $chg_style . '">' . esc_html( $chg_pct_txt ) . '<div style="font-weight:400;font-size:11px;opacity:.8;">sold ' . esc_html( $chg_sold_pct_txt ) . '</div></td>';
 			echo '</tr>';
 			echo '<tr class="pt-detail-row" data-for="' . (int) $pid . '" hidden><td colspan="11" style="padding:0 10px 12px 34px;background:#fafafa;"><div class="pt-audit-detail"></div></td></tr>';
 		}

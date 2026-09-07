@@ -288,18 +288,23 @@ function pt_aggregate_price_rows( array $rows ) {
 	$agg = array();
 	foreach ( $rows as $r ) {
 		$pid = (int) $r['product_id'];
-		$lv  = (float) $r['unit_list'];
+		$lv  = (float) $r['unit_list']; // List (Cost)
+		$pv  = (float) $r['unit_paid']; // Sold (Total)
 		if ( ! isset( $agg[ $pid ] ) ) {
 			$agg[ $pid ] = array(
-				'name'       => $r['product_name'],
-				'units'      => 0,
-				'orders'     => array(),
-				'first_list' => $lv,
-				'first_date' => $r['order_date'],
-				'last_list'  => $lv,
-				'last_date'  => $r['order_date'],
-				'min'        => $lv,
-				'max'        => $lv,
+				'name'        => $r['product_name'],
+				'units'       => 0,
+				'orders'      => array(),
+				'first_list'  => $lv,
+				'first_date'  => $r['order_date'],
+				'last_list'   => $lv,
+				'last_date'   => $r['order_date'],
+				'min'         => $lv,
+				'max'         => $lv,
+				'first_sold'  => $pv,
+				'last_sold'   => $pv,
+				'min_sold'    => $pv,
+				'max_sold'    => $pv,
 			);
 		}
 		$agg[ $pid ]['units']                   += (int) $r['qty'];
@@ -308,6 +313,9 @@ function pt_aggregate_price_rows( array $rows ) {
 		$agg[ $pid ]['last_date']                = $r['order_date'];
 		$agg[ $pid ]['min']                      = min( $agg[ $pid ]['min'], $lv );
 		$agg[ $pid ]['max']                      = max( $agg[ $pid ]['max'], $lv );
+		$agg[ $pid ]['last_sold']                = $pv;
+		$agg[ $pid ]['min_sold']                 = min( $agg[ $pid ]['min_sold'], $pv );
+		$agg[ $pid ]['max_sold']                 = max( $agg[ $pid ]['max_sold'], $pv );
 	}
 	return $agg;
 }
