@@ -8,7 +8,9 @@
  * in the page template) so the AJAX handler below is registered on every load —
  * admin-ajax.php never includes the template.
  *
- * All read-only and admin-gated at the point of use. Prices are inc VAT.
+ * All read-only and admin-gated at the point of use. Prices are ex VAT — the
+ * order line's Cost (_line_subtotal = listing) and Total (_line_total = sold),
+ * so figures reconcile 1:1 with the WooCommerce order screen.
  *
  * @package pt-theme-2026
  */
@@ -54,8 +56,11 @@ function pt_test_product_price_rows( array $product_ids, $months = 12 ) {
 		$date_col     = 'o.post_date';
 	}
 
-	// Gross (inc-VAT) unit price = (line amount + its tax) / qty. "List" uses the
-	// pre-discount subtotal; "Paid" uses the post-discount total.
+	// Ex-VAT unit price, matching the WooCommerce order screen 1:1:
+	//   unit_list = _line_subtotal / qty  → the order line's "Cost" (listing price).
+	//   unit_paid = _line_total    / qty  → the order line's "Total" (price sold).
+	// Discount = Cost − Total. VAT is a separate column on the order and is left
+	// out here so these figures reconcile exactly with the order's Cost/Total.
 	$sql = "
 		SELECT
 			pm.meta_value AS product_id,
@@ -63,9 +68,9 @@ function pt_test_product_price_rows( array $product_ids, $months = 12 ) {
 			oi.order_id   AS order_id,
 			$date_col     AS order_date,
 			CAST(qm.meta_value AS UNSIGNED) AS qty,
-			ROUND( ( CAST(sm.meta_value AS DECIMAL(14,4)) + CAST(COALESCE(st.meta_value,0) AS DECIMAL(14,4)) )
+			ROUND( CAST(sm.meta_value AS DECIMAL(14,4))
 				/ NULLIF(CAST(qm.meta_value AS DECIMAL(14,4)),0), 2 ) AS unit_list,
-			ROUND( ( CAST(tm.meta_value AS DECIMAL(14,4)) + CAST(COALESCE(tt.meta_value,0) AS DECIMAL(14,4)) )
+			ROUND( CAST(tm.meta_value AS DECIMAL(14,4))
 				/ NULLIF(CAST(qm.meta_value AS DECIMAL(14,4)),0), 2 ) AS unit_paid
 		FROM {$wpdb->prefix}woocommerce_order_items oi
 		JOIN {$wpdb->prefix}woocommerce_order_itemmeta pm
@@ -74,12 +79,8 @@ function pt_test_product_price_rows( array $product_ids, $months = 12 ) {
 			ON qm.order_item_id = oi.order_item_id AND qm.meta_key = '_qty'
 		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta sm
 			ON sm.order_item_id = oi.order_item_id AND sm.meta_key = '_line_subtotal'
-		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta st
-			ON st.order_item_id = oi.order_item_id AND st.meta_key = '_line_subtotal_tax'
 		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta tm
 			ON tm.order_item_id = oi.order_item_id AND tm.meta_key = '_line_total'
-		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta tt
-			ON tt.order_item_id = oi.order_item_id AND tt.meta_key = '_line_tax'
 		$orders_join
 		LEFT JOIN {$wpdb->posts} p2 ON p2.ID = pm.meta_value
 		WHERE pm.meta_value IN ($in)
@@ -191,7 +192,7 @@ function pt_render_price_detail( array $ids, $months = 12 ) {
 		}
 	}
 
-	echo '<p style="color:#666;margin:0 0 20px;">One row per sale, oldest first. Per unit, <strong>inc VAT</strong>. <strong>List</strong> = price at add-to-cart (pre-coupon); <strong>Sold</strong> = the real price charged; <strong>Disc</strong> = List − Sold. ▲ marks a change from the previous sale.</p>';
+	echo '<p style="color:#666;margin:0 0 20px;">One row per sale, oldest first. Per unit, <strong>ex VAT</strong> (matches the order screen). <strong>List</strong> = the line&rsquo;s Cost (listing, pre-discount); <strong>Sold</strong> = the Total (price actually sold, after discounts); <strong>Disc</strong> = Cost − Total. ▲ marks a change from the previous sale.</p>';
 
 	if ( ! $rows ) {
 		echo '<p>No sales in period.</p>';
@@ -213,7 +214,7 @@ function pt_render_price_detail( array $ids, $months = 12 ) {
 
 	echo '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
 	echo '<thead><tr style="text-align:left;border-bottom:2px solid #111;">';
-	foreach ( array( 'Product ID', 'Product', 'Order ID', 'Order date', 'Qty', 'List £', 'Sold £ (real)', 'Disc £', 'Lowest £', 'Highest £', 'Diff £' ) as $h ) {
+	foreach ( array( 'Product ID', 'Product', 'Order ID', 'Order date', 'Qty', 'List £ (Cost)', 'Sold £ (Total)', 'Disc £', 'Lowest £', 'Highest £', 'Diff £' ) as $h ) {
 		echo '<th style="padding:7px 10px;vertical-align:top;">' . esc_html( $h ) . '</th>';
 	}
 	echo '</tr></thead><tbody>';
@@ -356,7 +357,7 @@ function pt_price_audit_detail_ajax() {
 	} else {
 		echo '<table style="width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0 2px;">';
 		echo '<thead><tr style="text-align:left;border-bottom:1px solid #ccc;color:#555;">';
-		foreach ( array( 'Order ID', 'Order date', 'Qty', 'List £', 'Sold £', 'Disc £', 'Coupon' ) as $h ) {
+		foreach ( array( 'Order ID', 'Order date', 'Qty', 'List £ (Cost)', 'Sold £ (Total)', 'Disc £', 'Coupon' ) as $h ) {
 			echo '<th style="padding:5px 8px;">' . esc_html( $h ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';

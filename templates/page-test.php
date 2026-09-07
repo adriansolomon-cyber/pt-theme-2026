@@ -168,7 +168,7 @@ if ( current_user_can( 'manage_woocommerce' )
 	if ( 'summary' === $pt_export ) {
 		// Same columns as the on-screen table (dates broken out for the sheet),
 		// plus the parent composite (title + URL) each size belongs to.
-		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_url', 'units', 'orders', 'first_price_incvat', 'first_date', 'last_price_incvat', 'last_date', 'lowest_incvat', 'highest_incvat', 'diff_incvat' ) );
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_url', 'units', 'orders', 'first_list_cost_exvat', 'first_date', 'last_list_cost_exvat', 'last_date', 'lowest_cost_exvat', 'highest_cost_exvat', 'diff_exvat' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk, 12 ) );
@@ -210,7 +210,7 @@ if ( current_user_can( 'manage_woocommerce' )
 		}
 	} else {
 		// Detail — one row per sale (matches the drill-down trail), with parent.
-		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_url', 'order_id', 'order_date', 'qty', 'list_incvat', 'sold_incvat', 'discount_incvat' ) );
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_url', 'order_id', 'order_date', 'qty', 'list_cost_exvat', 'sold_total_exvat', 'discount_exvat' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$rows = pt_test_product_price_rows( $chunk, 12 );
@@ -309,7 +309,7 @@ get_header();
 		$pt_slice = array_slice( $pt_all_ids, ( $pt_batch - 1 ) * $pt_per_page, $pt_per_page );
 
 		printf( '<h1 style="margin:0 0 6px;font-size:26px;">Price audit — %d products, last %d months</h1>', (int) $pt_total, (int) $pt_months );
-		echo '<p style="color:#666;margin:0 0 14px;">Per-product price movement. Real orders only (completed/processing/on-hold/refunded); prices per unit <strong>inc VAT</strong>. Showing <strong>batch ' . (int) $pt_batch . ' of ' . (int) $pt_pages . '</strong> (' . count( $pt_slice ) . ' products). Click a row&rsquo;s &#9654; to expand its every sale inline (order, date, price, discount, coupon) — loaded on demand, so nothing extra runs until you click.</p>';
+		echo '<p style="color:#666;margin:0 0 14px;">Per-product price movement. Real orders only (completed/processing/on-hold/refunded); prices are the order line&rsquo;s <strong>Cost (listing, ex VAT)</strong> per unit, matching the order screen. Showing <strong>batch ' . (int) $pt_batch . ' of ' . (int) $pt_pages . '</strong> (' . count( $pt_slice ) . ' products). Click a row&rsquo;s &#9654; to expand its every sale inline (order, date, List/Sold = Cost/Total, discount, coupon) — loaded on demand, so nothing extra runs until you click.</p>';
 
 		echo '<p style="margin:0 0 22px;">'
 			. '<a href="' . esc_url( add_query_arg( array( 'export' => 'summary' ) ) ) . '" style="display:inline-block;background:#111;color:#fff;padding:9px 14px;border-radius:6px;text-decoration:none;font-size:14px;">&#8595; Download summary CSV (this table, all ' . (int) $pt_total . ')</a> '
