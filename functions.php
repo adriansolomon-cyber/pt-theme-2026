@@ -74,6 +74,12 @@ require_once get_stylesheet_directory() . '/includes/pt-seo-product-sitemap.php'
 // line or define('PT_PRODUCT_PASSWORD', false).
 require_once get_stylesheet_directory() . '/includes/pt-product-password.php';
 
+// ChatGPT Ads (OpenAI) — browser pixel + server-side Conversions API for the
+// purchase (order_created) conversion. Pixel ID lives in the module; the secret
+// CAPI token is read from PT_OPENAI_CAPI_TOKEN in wp-config.php (never in this
+// public repo). Disable by commenting this line or define('PT_OPENAI_ADS', false).
+require_once get_stylesheet_directory() . '/includes/pt-openai-ads.php';
+
 /**
  * Theme supports.
  */
