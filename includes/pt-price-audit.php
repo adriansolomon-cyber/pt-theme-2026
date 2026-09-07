@@ -17,6 +17,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// Look-back window (months) for the whole price audit. One place to change it.
+if ( ! defined( 'PT_PRICE_AUDIT_MONTHS' ) ) {
+	define( 'PT_PRICE_AUDIT_MONTHS', 24 );
+}
+
 /**
  * Price-per-sale trail for a set of product IDs over the last N months.
  *
@@ -446,7 +451,7 @@ function pt_price_audit_detail_ajax() {
 	}
 	$cogs = pt_audit_product_cogs( $pid ); // Cost of goods per unit (0 = unset).
 
-	$months  = 12;
+	$months  = PT_PRICE_AUDIT_MONTHS;
 	$rows    = pt_test_product_price_rows( array( $pid ), $months );
 	$coupons = pt_price_audit_order_coupons( array_map( static function ( $r ) {
 		return (int) $r['order_id'];
@@ -555,7 +560,8 @@ function pt_price_audit_detail_ajax() {
 				echo '<td style="padding:4px 10px;">' . count( $b['orders'] ) . '</td>';
 				echo '<td style="padding:4px 10px;">£' . esc_html( number_format( $b['revenue'], 2 ) ) . '</td>';
 				echo '<td style="padding:4px 10px;' . ( $cogs > 0 && $m_unit < 0 ? 'color:#b00;' : '' ) . '">' . ( $cogs > 0 ? '£' . esc_html( number_format( $m_unit, 2 ) ) . ' <span style="color:#888;">(' . esc_html( number_format( $mp_unit, 1 ) ) . '%)</span>' : '<span style="color:#bbb;">—</span>' ) . '</td>';
-				echo '<td style="padding:4px 10px;' . ( $cogs > 0 && $b['margin'] < 0 ? 'color:#b00;' : '' ) . '">' . ( $cogs > 0 ? '£' . esc_html( number_format( $b['margin'], 2 ) ) : '<span style="color:#bbb;">—</span>' ) . '</td>';
+				$mp_total = ( $b['revenue'] > 0 ) ? ( $b['margin'] / $b['revenue'] * 100 ) : 0.0;
+				echo '<td style="padding:4px 10px;' . ( $cogs > 0 && $b['margin'] < 0 ? 'color:#b00;' : '' ) . '">' . ( $cogs > 0 ? '£' . esc_html( number_format( $b['margin'], 2 ) ) . ' <span style="color:#888;">(' . esc_html( number_format( $mp_total, 1 ) ) . '%)</span>' : '<span style="color:#bbb;">—</span>' ) . '</td>';
 				echo '</tr>';
 			}
 			echo '</tbody></table>';

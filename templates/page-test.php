@@ -171,7 +171,7 @@ if ( current_user_can( 'manage_woocommerce' )
 		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'units', 'orders', 'first_list_cost_exvat', 'first_date', 'last_list_cost_exvat', 'last_date', 'lowest_cost_exvat', 'highest_cost_exvat', 'spread_exvat', 'change_exvat', 'change_pct', 'lowest_sold_exvat', 'highest_sold_exvat', 'change_sold_exvat', 'change_sold_pct', 'cogs_exvat' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
-			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk, 12 ) );
+			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk, PT_PRICE_AUDIT_MONTHS ) );
 			foreach ( $chunk as $pid ) {
 				$pid = (int) $pid;
 				$par = isset( $parent_map[ $pid ] ) ? $parent_map[ $pid ] : array( 'id' => '', 'title' => '', 'url' => '' );
@@ -224,7 +224,7 @@ if ( current_user_can( 'manage_woocommerce' )
 		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'order_id', 'order_date', 'qty', 'list_cost_exvat', 'sold_total_exvat', 'discount_exvat' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
-			$rows = pt_test_product_price_rows( $chunk, 12 );
+			$rows = pt_test_product_price_rows( $chunk, PT_PRICE_AUDIT_MONTHS );
 			foreach ( $rows as $r ) {
 				$pid  = (int) $r['product_id'];
 				$par  = isset( $parent_map[ $pid ] ) ? $parent_map[ $pid ] : array( 'id' => '', 'title' => '', 'url' => '' );
@@ -352,7 +352,7 @@ get_header();
 	}
 
 	// --- Price audit — paginated per-product summary + CSV export ---------
-	$pt_months   = 12;
+	$pt_months   = PT_PRICE_AUDIT_MONTHS;
 	$pt_per_page = 50;
 	$pt_all_ids  = pt_price_audit_ids();
 
