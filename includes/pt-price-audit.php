@@ -365,6 +365,15 @@ function pt_price_audit_detail_ajax() {
 		wp_send_json_error( 'bad request', 400 );
 	}
 
+	// Current live price of this size (ex VAT, to match the Cost/Total basis).
+	$cur_prod  = wc_get_product( $pid );
+	$cur_price = null;
+	if ( $cur_prod ) {
+		$cur_price = function_exists( 'wc_get_price_excluding_tax' )
+			? (float) wc_get_price_excluding_tax( $cur_prod )
+			: (float) $cur_prod->get_price();
+	}
+
 	$months  = 12;
 	$rows    = pt_test_product_price_rows( array( $pid ), $months );
 	$coupons = pt_price_audit_order_coupons( array_map( static function ( $r ) {
@@ -443,6 +452,7 @@ function pt_price_audit_detail_ajax() {
 
 		echo '<div style="margin:14px 4px 4px;padding:12px 14px;background:#eef7ee;border:1px solid #cfe6cf;border-radius:8px;">';
 		echo '<div style="font-weight:700;margin-bottom:6px;">Price performance &amp; suggestion</div>';
+		echo '<p style="margin:0 0 8px;">Current price: ' . ( null !== $cur_price ? '<strong>£' . esc_html( number_format( $cur_price, 2 ) ) . '</strong> <span style="color:#888;">(ex VAT)</span>' : '<span style="color:#999;">unknown</span>' ) . '</p>';
 
 		if ( count( $byprice ) < 2 ) {
 			echo '<p style="margin:0;color:#555;">Sold at a single price point (£' . esc_html( number_format( $best_rev['price'], 2 ) ) . ', ' . (int) $best_rev['units'] . ' units) — not enough price variation to compare. Test a higher and a lower price to gather signal.</p>';
@@ -451,8 +461,9 @@ function pt_price_audit_detail_ajax() {
 			echo '<thead><tr style="text-align:left;color:#555;border-bottom:1px solid #cfe6cf;"><th style="padding:4px 10px;">Sold £</th><th style="padding:4px 10px;">Units</th><th style="padding:4px 10px;">Orders</th><th style="padding:4px 10px;">Revenue £</th></tr></thead><tbody>';
 			foreach ( $byprice as $b ) {
 				$is_best = ( $b['price'] === $best_rev['price'] );
+				$is_cur  = ( null !== $cur_price && abs( $b['price'] - $cur_price ) < 0.005 );
 				echo '<tr style="' . ( $is_best ? 'background:#d7efd7;font-weight:700;' : '' ) . '">';
-				echo '<td style="padding:4px 10px;">£' . esc_html( number_format( $b['price'], 2 ) ) . '</td>';
+				echo '<td style="padding:4px 10px;">£' . esc_html( number_format( $b['price'], 2 ) ) . ( $is_cur ? ' <span style="color:#06c;font-size:10px;">(current)</span>' : '' ) . '</td>';
 				echo '<td style="padding:4px 10px;">' . (int) $b['units'] . '</td>';
 				echo '<td style="padding:4px 10px;">' . count( $b['orders'] ) . '</td>';
 				echo '<td style="padding:4px 10px;">£' . esc_html( number_format( $b['revenue'], 2 ) ) . '</td>';
@@ -465,6 +476,14 @@ function pt_price_audit_detail_ajax() {
 				echo ' Most volume was at £' . esc_html( number_format( $best_vol['price'], 2 ) ) . ' (' . (int) $best_vol['units'] . ' units).';
 			}
 			echo '</p>';
+			if ( null !== $cur_price ) {
+				$vs = $best_rev['price'] - $cur_price;
+				if ( abs( $vs ) < 0.005 ) {
+					echo '<p style="margin:0 0 4px;color:#080;">Suggested price matches the current price (£' . esc_html( number_format( $cur_price, 2 ) ) . ').</p>';
+				} else {
+					echo '<p style="margin:0 0 4px;">vs current £' . esc_html( number_format( $cur_price, 2 ) ) . ': suggested is <strong>' . ( $vs > 0 ? '+£' . esc_html( number_format( $vs, 2 ) ) . ' higher' : '−£' . esc_html( number_format( abs( $vs ), 2 ) ) . ' lower' ) . '</strong>.</p>';
+				}
+			}
 			echo '<p style="margin:0;color:#888;font-size:11px;">Heuristic from observed sales only — not adjusted for how long each price ran, seasonality, or demand trend. Treat it as a signal, not a guarantee.</p>';
 		}
 		echo '</div>';
