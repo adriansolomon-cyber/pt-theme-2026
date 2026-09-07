@@ -389,6 +389,65 @@ function pt_price_audit_detail_ajax() {
 		}
 		echo '</tbody></table>';
 		echo '<p style="color:#888;font-size:11.5px;margin:6px 4px 2px;">' . count( $rows ) . ' sale' . ( count( $rows ) === 1 ? '' : 's' ) . '. Last sale: ' . esc_html( substr( (string) end( $rows )['order_date'], 0, 10 ) ) . '. ▲ = list-price change from the previous sale.</p>';
+
+		// --- Price performance & suggestion (heuristic) -----------------------
+		// Group by the price actually sold at (Total), tallying units, orders and
+		// revenue (price × units) at each, then suggest the price that earned the
+		// most. It's a signal from real sales, not a demand model.
+		$byprice = array();
+		foreach ( $rows as $r ) {
+			$sold = round( (float) $r['unit_paid'], 2 );
+			$k    = number_format( $sold, 2, '.', '' );
+			if ( ! isset( $byprice[ $k ] ) ) {
+				$byprice[ $k ] = array( 'price' => $sold, 'units' => 0, 'orders' => array(), 'revenue' => 0.0 );
+			}
+			$q                                             = max( 1, (int) $r['qty'] );
+			$byprice[ $k ]['units']                       += $q;
+			$byprice[ $k ]['orders'][ (int) $r['order_id'] ] = true;
+			$byprice[ $k ]['revenue']                     += $sold * $q;
+		}
+		uasort( $byprice, static function ( $x, $y ) {
+			return $x['price'] <=> $y['price'];
+		} );
+
+		$best_rev = null;
+		$best_vol = null;
+		foreach ( $byprice as $b ) {
+			if ( null === $best_rev || $b['revenue'] > $best_rev['revenue'] ) {
+				$best_rev = $b;
+			}
+			if ( null === $best_vol || $b['units'] > $best_vol['units'] ) {
+				$best_vol = $b;
+			}
+		}
+
+		echo '<div style="margin:14px 4px 4px;padding:12px 14px;background:#eef7ee;border:1px solid #cfe6cf;border-radius:8px;">';
+		echo '<div style="font-weight:700;margin-bottom:6px;">Price performance &amp; suggestion</div>';
+
+		if ( count( $byprice ) < 2 ) {
+			echo '<p style="margin:0;color:#555;">Sold at a single price point (£' . esc_html( number_format( $best_rev['price'], 2 ) ) . ', ' . (int) $best_rev['units'] . ' units) — not enough price variation to compare. Test a higher and a lower price to gather signal.</p>';
+		} else {
+			echo '<table style="width:auto;border-collapse:collapse;font-size:12px;margin:0 0 8px;">';
+			echo '<thead><tr style="text-align:left;color:#555;border-bottom:1px solid #cfe6cf;"><th style="padding:4px 10px;">Sold £</th><th style="padding:4px 10px;">Units</th><th style="padding:4px 10px;">Orders</th><th style="padding:4px 10px;">Revenue £</th></tr></thead><tbody>';
+			foreach ( $byprice as $b ) {
+				$is_best = ( $b['price'] === $best_rev['price'] );
+				echo '<tr style="' . ( $is_best ? 'background:#d7efd7;font-weight:700;' : '' ) . '">';
+				echo '<td style="padding:4px 10px;">£' . esc_html( number_format( $b['price'], 2 ) ) . '</td>';
+				echo '<td style="padding:4px 10px;">' . (int) $b['units'] . '</td>';
+				echo '<td style="padding:4px 10px;">' . count( $b['orders'] ) . '</td>';
+				echo '<td style="padding:4px 10px;">£' . esc_html( number_format( $b['revenue'], 2 ) ) . '</td>';
+				echo '</tr>';
+			}
+			echo '</tbody></table>';
+
+			echo '<p style="margin:0 0 4px;"><strong>Suggested price: £' . esc_html( number_format( $best_rev['price'], 2 ) ) . '</strong> — earned the most revenue (£' . esc_html( number_format( $best_rev['revenue'], 2 ) ) . ' from ' . (int) $best_rev['units'] . ' units).';
+			if ( abs( $best_vol['price'] - $best_rev['price'] ) > 0.005 ) {
+				echo ' Most volume was at £' . esc_html( number_format( $best_vol['price'], 2 ) ) . ' (' . (int) $best_vol['units'] . ' units).';
+			}
+			echo '</p>';
+			echo '<p style="margin:0;color:#888;font-size:11px;">Heuristic from observed sales only — not adjusted for how long each price ran, seasonality, or demand trend. Treat it as a signal, not a guarantee.</p>';
+		}
+		echo '</div>';
 	}
 	$html = ob_get_clean();
 

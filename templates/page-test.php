@@ -168,7 +168,7 @@ if ( current_user_can( 'manage_woocommerce' )
 	if ( 'summary' === $pt_export ) {
 		// Same columns as the on-screen table (dates broken out for the sheet),
 		// plus the parent composite (title + URL) each size belongs to.
-		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_url', 'units', 'orders', 'first_list_cost_exvat', 'first_date', 'last_list_cost_exvat', 'last_date', 'lowest_cost_exvat', 'highest_cost_exvat', 'diff_exvat', 'change_pct' ) );
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_url', 'units', 'orders', 'first_list_cost_exvat', 'first_date', 'last_list_cost_exvat', 'last_date', 'lowest_cost_exvat', 'highest_cost_exvat', 'spread_exvat', 'change_exvat', 'change_pct' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk, 12 ) );
@@ -177,12 +177,13 @@ if ( current_user_can( 'manage_woocommerce' )
 				$par = isset( $parent_map[ $pid ] ) ? $parent_map[ $pid ] : array( 'id' => '', 'title' => '', 'url' => '' );
 				if ( ! isset( $agg[ $pid ] ) ) {
 					// No sales in period — still list the product (with parent), like the web view.
-					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], $par['url'], 0, 0, '', '', '', '', '', '', '', '' ) );
+					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], $par['url'], 0, 0, '', '', '', '', '', '', '', '', '' ) );
 					continue;
 				}
-				$a    = $agg[ $pid ];
-				$diff = $a['max'] - $a['min'];
-				$pct  = ( $a['min'] > 0 ) ? ( $diff / $a['min'] * 100 ) : 0.0;
+				$a      = $agg[ $pid ];
+				$spread = $a['max'] - $a['min'];                                 // highest − lowest
+				$chg    = (float) $a['last_list'] - (float) $a['first_list'];    // directional last − first
+				$chgpct = ( $a['first_list'] > 0 ) ? ( $chg / (float) $a['first_list'] * 100 ) : 0.0;
 				fputcsv(
 					$out,
 					array(
@@ -199,8 +200,9 @@ if ( current_user_can( 'manage_woocommerce' )
 						substr( (string) $a['last_date'], 0, 10 ),
 						number_format( (float) $a['min'], 2, '.', '' ),
 						number_format( (float) $a['max'], 2, '.', '' ),
-						number_format( $diff, 2, '.', '' ),
-						number_format( $pct, 1, '.', '' ),
+						number_format( $spread, 2, '.', '' ),
+						number_format( $chg, 2, '.', '' ),
+						number_format( $chgpct, 1, '.', '' ),
 					)
 				);
 			}
@@ -333,16 +335,17 @@ get_header();
 
 		echo '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
 		echo '<thead><tr style="text-align:left;border-bottom:2px solid #111;">';
-		foreach ( array( 'Product ID', 'Product', 'Parent product', 'Units', 'Orders', 'First £ (date)', 'Last £ (date)', 'Lowest £', 'Highest £', 'Diff £', 'Change %' ) as $h ) {
+		foreach ( array( 'Product ID', 'Product', 'Parent product', 'Units', 'Orders', 'First £ (date)', 'Last £ (date)', 'Lowest £', 'Highest £', 'Change £', 'Change %' ) as $h ) {
 			echo '<th style="padding:7px 10px;vertical-align:top;">' . esc_html( $h ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
 
 		$tot_units  = 0;
 		$tot_orders = 0;
-		$tot_diff   = 0.0;
+		$tot_chg    = 0.0;
 		$pct_sum    = 0.0;
 		$pct_n      = 0;
+		$pt_red_pct = 15; // % increase (last vs first) at/above which Change is flagged red.
 
 		foreach ( $pt_slice as $pid ) {
 			$detail_url = esc_url( add_query_arg( array( 'product' => (int) $pid ) ) );
@@ -355,14 +358,35 @@ get_header();
 				continue;
 			}
 			$a    = $agg[ $pid ];
-			$diff = $a['max'] - $a['min'];
-			$pct  = ( $a['min'] > 0 ) ? ( $diff / $a['min'] * 100 ) : 0.0;
+			// Directional change: last sale price vs first sale price over the window.
+			$chg    = (float) $a['last_list'] - (float) $a['first_list'];
+			$base   = (float) $a['first_list'];
+			$chgpct = ( $base > 0 ) ? ( $chg / $base * 100 ) : 0.0;
+
+			// Colour: lower now → yellow; much higher now (≥ threshold) → red.
+			$chg_style = 'padding:6px 10px;font-weight:700;';
+			if ( $chg < -0.005 ) {
+				$chg_style .= 'background:#fff4c2;color:#7a5c00;';
+			} elseif ( $chgpct >= $pt_red_pct ) {
+				$chg_style .= 'background:#b00020;color:#fff;';
+			} elseif ( $chg > 0.005 ) {
+				$chg_style .= 'color:#333;';
+			} else {
+				$chg_style .= 'color:#999;';
+			}
+			if ( abs( $chg ) < 0.005 ) {
+				$chg_amt_txt = '£0.00';
+				$chg_pct_txt = '0%';
+			} else {
+				$chg_amt_txt = ( $chg >= 0 ? '+£' : '−£' ) . number_format( abs( $chg ), 2 );
+				$chg_pct_txt = ( $chg >= 0 ? '+' : '−' ) . number_format( abs( $chgpct ), 1 ) . '%';
+			}
 
 			$tot_units  += (int) $a['units'];
 			$tot_orders += count( $a['orders'] );
-			$tot_diff   += $diff;
-			if ( $a['min'] > 0 ) {
-				$pct_sum += $pct;
+			$tot_chg    += $chg;
+			if ( $base > 0 ) {
+				$pct_sum += $chgpct;
 				$pct_n++;
 			}
 
@@ -376,24 +400,25 @@ get_header();
 			echo '<td style="padding:6px 10px;white-space:nowrap;">£' . esc_html( number_format( (float) $a['last_list'], 2 ) ) . ' <span style="color:#999;">' . esc_html( substr( (string) $a['last_date'], 0, 10 ) ) . '</span></td>';
 			echo '<td style="padding:6px 10px;">£' . esc_html( number_format( (float) $a['min'], 2 ) ) . '</td>';
 			echo '<td style="padding:6px 10px;">£' . esc_html( number_format( (float) $a['max'], 2 ) ) . '</td>';
-			echo '<td style="padding:6px 10px;font-weight:700;color:' . ( $diff > 0.005 ? '#b00' : '#999' ) . ';">£' . esc_html( number_format( $diff, 2 ) ) . '</td>';
-			echo '<td style="padding:6px 10px;font-weight:700;color:' . ( $diff > 0.005 ? '#b00' : '#999' ) . ';">' . ( $diff > 0.005 ? esc_html( number_format( $pct, 1 ) ) . '%' : '0%' ) . '</td>';
+			echo '<td style="' . $chg_style . '">' . esc_html( $chg_amt_txt ) . '</td>';
+			echo '<td style="' . $chg_style . '">' . esc_html( $chg_pct_txt ) . '</td>';
 			echo '</tr>';
 			echo '<tr class="pt-detail-row" data-for="' . (int) $pid . '" hidden><td colspan="11" style="padding:0 10px 12px 34px;background:#fafafa;"><div class="pt-audit-detail"></div></td></tr>';
 		}
 
-		// TOTAL row (this batch): summed units/orders, total £ change, average % change.
+		// TOTAL row (this batch): summed units/orders, net £ change, average % change.
 		$avg_pct = $pct_n ? ( $pct_sum / $pct_n ) : 0.0;
 		echo '<tr style="border-top:2px solid #111;font-weight:700;background:#f7f7f7;">';
 		echo '<td style="padding:9px 10px;" colspan="3">TOTAL (this batch)</td>';
 		echo '<td style="padding:9px 10px;">' . esc_html( (string) $tot_units ) . '</td>';
 		echo '<td style="padding:9px 10px;">' . esc_html( (string) $tot_orders ) . '</td>';
 		echo '<td style="padding:9px 10px;" colspan="4"></td>';
-		echo '<td style="padding:9px 10px;color:#b00;">£' . esc_html( number_format( $tot_diff, 2 ) ) . '</td>';
-		echo '<td style="padding:9px 10px;color:#b00;">' . esc_html( number_format( $avg_pct, 1 ) ) . '% avg</td>';
+		echo '<td style="padding:9px 10px;">' . esc_html( ( $tot_chg >= 0 ? '+£' : '−£' ) . number_format( abs( $tot_chg ), 2 ) ) . '</td>';
+		echo '<td style="padding:9px 10px;">' . esc_html( ( $avg_pct >= 0 ? '+' : '−' ) . number_format( abs( $avg_pct ), 1 ) . '% avg' ) . '</td>';
 		echo '</tr>';
 
 		echo '</tbody></table>';
+		echo '<p style="color:#888;font-size:12px;margin:8px 0 0;">Change = last sale price vs first, over the window. <span style="background:#fff4c2;color:#7a5c00;padding:1px 6px;border-radius:3px;">yellow</span> = cheaper now than it was; <span style="background:#b00020;color:#fff;padding:1px 6px;border-radius:3px;">red</span> = ' . (int) $pt_red_pct . '%+ higher now.</p>';
 
 		// Pagination.
 		echo '<div style="display:flex;gap:14px;align-items:center;margin:20px 0 0;font-size:14px;">';
