@@ -299,6 +299,57 @@ get_header();
 	}
 	*/
 
+	// --- Special-offer / "grandmaster" diagnostic: ?special_check=<product_id> ---
+	// Explains WHY a product is (or isn't) flagged for the special-offer badge —
+	// its categories, their ancestors, the ACF special-offer set, and the match.
+	if ( isset( $_GET['special_check'] ) && function_exists( 'pt_product_in_special_category' ) ) {
+		$scid = (int) $_GET['special_check'];
+		$prod = $scid ? wc_get_product( $scid ) : null;
+		echo '<h1 style="margin:0 0 10px;font-size:24px;">Special-offer check — product ' . (int) $scid . '</h1>';
+		if ( ! $prod ) {
+			echo '<p style="color:#b00;">No product with that ID.</p>';
+		} else {
+			$special = function_exists( 'pt_campaign_special_cat_ids' ) ? pt_campaign_special_cat_ids() : array();
+			$raw     = function_exists( 'get_field' ) ? (string) get_field( 'special_offer_category_includes', 'option' ) : '';
+			$cats    = wc_get_product_term_ids( $scid, 'product_cat' );
+			$cats    = is_array( $cats ) ? $cats : array();
+
+			echo '<p><strong>' . esc_html( $prod->get_name() ) . '</strong> (type: ' . esc_html( $prod->get_type() ) . ')</p>';
+			echo '<p style="margin:0 0 4px;"><strong>Flagged special-offer:</strong> ' . ( pt_product_in_special_category( $scid ) ? '<span style="color:#b00;font-weight:700;">YES</span>' : '<span style="color:#080;font-weight:700;">no</span>' ) . '</p>';
+			echo '<p style="color:#666;margin:0 0 16px;">ACF <code>special_offer_category_includes</code> = <code>' . esc_html( '' !== $raw ? $raw : '(empty)' ) . '</code> → term IDs: <code>' . esc_html( $special ? implode( ', ', $special ) : '(none)' ) . '</code></p>';
+
+			echo '<table style="border-collapse:collapse;font-size:13px;"><thead><tr style="text-align:left;border-bottom:2px solid #111;">';
+			foreach ( array( 'Category (this product)', 'Term ID', 'Ancestors (id — name)', 'Matches special?' ) as $h ) {
+				echo '<th style="padding:6px 10px;">' . esc_html( $h ) . '</th>';
+			}
+			echo '</tr></thead><tbody>';
+			if ( ! $cats ) {
+				echo '<tr><td colspan="4" style="padding:6px 10px;color:#888;">Product has no product_cat terms.</td></tr>';
+			}
+			foreach ( $cats as $cid ) {
+				$term      = get_term( (int) $cid, 'product_cat' );
+				$ancestors = get_ancestors( (int) $cid, 'product_cat' );
+				$anc_txt   = array();
+				foreach ( $ancestors as $aid ) {
+					$at        = get_term( (int) $aid, 'product_cat' );
+					$anc_txt[] = ( $at && ! is_wp_error( $at ) ) ? ( $aid . ' — ' . $at->name ) : (string) $aid;
+				}
+				$chain    = array_merge( array( (int) $cid ), array_map( 'intval', $ancestors ) );
+				$hit      = array_intersect( $special, $chain );
+				echo '<tr style="border-bottom:1px solid #eee;">';
+				echo '<td style="padding:6px 10px;">' . esc_html( ( $term && ! is_wp_error( $term ) ) ? $term->name . ' (' . $term->slug . ')' : '#' . $cid ) . '</td>';
+				echo '<td style="padding:6px 10px;color:#999;">' . (int) $cid . '</td>';
+				echo '<td style="padding:6px 10px;color:#555;">' . esc_html( $anc_txt ? implode( ', ', $anc_txt ) : '—' ) . '</td>';
+				echo '<td style="padding:6px 10px;">' . ( $hit ? '<span style="color:#b00;font-weight:700;">via ' . esc_html( implode( ',', $hit ) ) . '</span>' : '—' ) . '</td>';
+				echo '</tr>';
+			}
+			echo '</tbody></table>';
+			echo '<p style="color:#888;font-size:12px;margin:14px 0 0;">A red match means this category (or one of its ancestors) is in the special-offer set — that\'s why the badge shows. Fix by removing the wrong category from the product, or by correcting the ACF special-offer list / the category parentage.</p>';
+		}
+		get_footer();
+		return;
+	}
+
 	// --- Price audit — paginated per-product summary + CSV export ---------
 	$pt_months   = 12;
 	$pt_per_page = 50;
