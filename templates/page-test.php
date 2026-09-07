@@ -309,14 +309,53 @@ function pt_render_price_detail( array $ids, $months = 12 ) {
 	echo '</tbody></table>';
 }
 
+/**
+ * Aggregate per-sale price rows into one summary per product — the exact shape
+ * the on-screen table and the summary CSV both render. Rows must be date-asc
+ * (as pt_test_product_price_rows returns them) so first/last read correctly.
+ *
+ * @param array $rows Rows from pt_test_product_price_rows().
+ * @return array<int,array<string,mixed>> Keyed by product id.
+ */
+function pt_aggregate_price_rows( array $rows ) {
+	$agg = array();
+	foreach ( $rows as $r ) {
+		$pid = (int) $r['product_id'];
+		$lv  = (float) $r['unit_list'];
+		if ( ! isset( $agg[ $pid ] ) ) {
+			$agg[ $pid ] = array(
+				'name'       => $r['product_name'],
+				'units'      => 0,
+				'orders'     => array(),
+				'first_list' => $lv,
+				'first_date' => $r['order_date'],
+				'last_list'  => $lv,
+				'last_date'  => $r['order_date'],
+				'min'        => $lv,
+				'max'        => $lv,
+			);
+		}
+		$agg[ $pid ]['units']                   += (int) $r['qty'];
+		$agg[ $pid ]['orders'][ $r['order_id'] ] = true;
+		$agg[ $pid ]['last_list']                = $lv; // rows are date-ascending
+		$agg[ $pid ]['last_date']                = $r['order_date'];
+		$agg[ $pid ]['min']                      = min( $agg[ $pid ]['min'], $lv );
+		$agg[ $pid ]['max']                      = max( $agg[ $pid ]['max'], $lv );
+	}
+	return $agg;
+}
+
 /*
- * CSV export (admin only) — full per-sale detail for EVERY audited product,
- * streamed in 50-ID batches so PHP memory stays flat regardless of list size.
+ * CSV export (admin only), streamed in 50-ID batches so PHP memory stays flat.
+ * Two shapes, both covering EVERY audited product:
+ *   ?export=summary → mirrors the on-screen per-product table (one row/product).
+ *   ?export=detail  → the granular per-sale trail (one row per sale).
  * Runs before any theme output and exits. Reached only by admins (the gate at
  * the top of this template returns for everyone else).
  */
+$pt_export = isset( $_GET['export'] ) ? sanitize_key( $_GET['export'] ) : '';
 if ( current_user_can( 'manage_woocommerce' )
-	&& isset( $_GET['export'] ) && 'csv' === $_GET['export']
+	&& in_array( $pt_export, array( 'summary', 'detail' ), true )
 	&& function_exists( 'wc_get_product' )
 	&& ! headers_sent()
 ) {
@@ -330,35 +369,77 @@ if ( current_user_can( 'manage_woocommerce' )
 
 	nocache_headers();
 	header( 'Content-Type: text/csv; charset=utf-8' );
-	header( 'Content-Disposition: attachment; filename="pt-price-audit-' . gmdate( 'Y-m-d' ) . '.csv"' );
-
+	header( 'Content-Disposition: attachment; filename="pt-price-audit-' . $pt_export . '-' . gmdate( 'Y-m-d' ) . '.csv"' );
 	$out = fopen( 'php://output', 'w' );
-	fputcsv( $out, array( 'product_id', 'product_name', 'order_id', 'order_date', 'qty', 'list_incvat', 'sold_incvat', 'discount_incvat' ) );
 
-	foreach ( array_chunk( $ids, 50 ) as $chunk ) {
-		$rows = pt_test_product_price_rows( $chunk, 12 );
-		foreach ( $rows as $r ) {
-			$disc = (float) $r['unit_list'] - (float) $r['unit_paid'];
-			fputcsv(
-				$out,
-				array(
-					$r['product_id'],
-					$r['product_name'],
-					$r['order_id'],
-					$r['order_date'],
-					(int) $r['qty'],
-					number_format( (float) $r['unit_list'], 2, '.', '' ),
-					number_format( (float) $r['unit_paid'], 2, '.', '' ),
-					number_format( $disc, 2, '.', '' ),
-				)
-			);
+	if ( 'summary' === $pt_export ) {
+		// Same columns as the on-screen table (dates broken out for the sheet).
+		fputcsv( $out, array( 'product_id', 'product', 'units', 'orders', 'first_price_incvat', 'first_date', 'last_price_incvat', 'last_date', 'lowest_incvat', 'highest_incvat', 'diff_incvat' ) );
+
+		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
+			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk, 12 ) );
+			foreach ( $chunk as $pid ) {
+				$pid = (int) $pid;
+				if ( ! isset( $agg[ $pid ] ) ) {
+					// No sales in period — still list the product, like the web view.
+					fputcsv( $out, array( $pid, '', 0, 0, '', '', '', '', '', '', '' ) );
+					continue;
+				}
+				$a    = $agg[ $pid ];
+				$diff = $a['max'] - $a['min'];
+				fputcsv(
+					$out,
+					array(
+						$pid,
+						$a['name'],
+						(int) $a['units'],
+						count( $a['orders'] ),
+						number_format( (float) $a['first_list'], 2, '.', '' ),
+						substr( (string) $a['first_date'], 0, 10 ),
+						number_format( (float) $a['last_list'], 2, '.', '' ),
+						substr( (string) $a['last_date'], 0, 10 ),
+						number_format( (float) $a['min'], 2, '.', '' ),
+						number_format( (float) $a['max'], 2, '.', '' ),
+						number_format( $diff, 2, '.', '' ),
+					)
+				);
+			}
+			unset( $agg );
+			if ( ob_get_level() > 0 ) {
+				@ob_flush();
+			}
+			@flush();
 		}
-		unset( $rows );
-		if ( ob_get_level() > 0 ) {
-			@ob_flush();
+	} else {
+		// Detail — one row per sale (matches the drill-down trail).
+		fputcsv( $out, array( 'product_id', 'product', 'order_id', 'order_date', 'qty', 'list_incvat', 'sold_incvat', 'discount_incvat' ) );
+
+		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
+			$rows = pt_test_product_price_rows( $chunk, 12 );
+			foreach ( $rows as $r ) {
+				$disc = (float) $r['unit_list'] - (float) $r['unit_paid'];
+				fputcsv(
+					$out,
+					array(
+						$r['product_id'],
+						$r['product_name'],
+						$r['order_id'],
+						substr( (string) $r['order_date'], 0, 10 ),
+						(int) $r['qty'],
+						number_format( (float) $r['unit_list'], 2, '.', '' ),
+						number_format( (float) $r['unit_paid'], 2, '.', '' ),
+						number_format( $disc, 2, '.', '' ),
+					)
+				);
+			}
+			unset( $rows );
+			if ( ob_get_level() > 0 ) {
+				@ob_flush();
+			}
+			@flush();
 		}
-		@flush();
 	}
+
 	fclose( $out );
 	exit;
 }
@@ -427,34 +508,13 @@ get_header();
 		printf( '<h1 style="margin:0 0 6px;font-size:26px;">Price audit — %d products, last %d months</h1>', (int) $pt_total, (int) $pt_months );
 		echo '<p style="color:#666;margin:0 0 14px;">Per-product price movement. Real orders only (completed/processing/on-hold/refunded); prices per unit <strong>inc VAT</strong>. Showing <strong>batch ' . (int) $pt_batch . ' of ' . (int) $pt_pages . '</strong> (' . count( $pt_slice ) . ' products). Click a product ID for its full per-sale trail.</p>';
 
-		echo '<p style="margin:0 0 22px;"><a href="' . esc_url( add_query_arg( array( 'export' => 'csv' ) ) ) . '" style="display:inline-block;background:#111;color:#fff;padding:9px 14px;border-radius:6px;text-decoration:none;font-size:14px;">&#8595; Download full per-sale CSV (all ' . (int) $pt_total . ' products)</a> <span style="color:#999;font-size:12px;">may take a minute</span></p>';
+		echo '<p style="margin:0 0 22px;">'
+			. '<a href="' . esc_url( add_query_arg( array( 'export' => 'summary' ) ) ) . '" style="display:inline-block;background:#111;color:#fff;padding:9px 14px;border-radius:6px;text-decoration:none;font-size:14px;">&#8595; Download summary CSV (this table, all ' . (int) $pt_total . ')</a> '
+			. '<a href="' . esc_url( add_query_arg( array( 'export' => 'detail' ) ) ) . '" style="display:inline-block;background:#fff;color:#111;border:1px solid #111;padding:8px 14px;border-radius:6px;text-decoration:none;font-size:14px;margin-left:8px;">&#8595; Full per-sale CSV</a> '
+			. '<span style="color:#999;font-size:12px;">may take a minute</span></p>';
 
 		// One bounded query for this batch's IDs, aggregated per product in PHP.
-		$rows = pt_test_product_price_rows( $pt_slice, $pt_months );
-		$agg  = array();
-		foreach ( $rows as $r ) {
-			$pid = (int) $r['product_id'];
-			$lv  = (float) $r['unit_list'];
-			if ( ! isset( $agg[ $pid ] ) ) {
-				$agg[ $pid ] = array(
-					'name'       => $r['product_name'],
-					'units'      => 0,
-					'orders'     => array(),
-					'first_list' => $lv,
-					'first_date' => $r['order_date'],
-					'last_list'  => $lv,
-					'last_date'  => $r['order_date'],
-					'min'        => $lv,
-					'max'        => $lv,
-				);
-			}
-			$agg[ $pid ]['units']                   += (int) $r['qty'];
-			$agg[ $pid ]['orders'][ $r['order_id'] ] = true;
-			$agg[ $pid ]['last_list']                = $lv; // rows are date-ascending
-			$agg[ $pid ]['last_date']                = $r['order_date'];
-			$agg[ $pid ]['min']                      = min( $agg[ $pid ]['min'], $lv );
-			$agg[ $pid ]['max']                      = max( $agg[ $pid ]['max'], $lv );
-		}
+		$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $pt_slice, $pt_months ) );
 
 		echo '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
 		echo '<thead><tr style="text-align:left;border-bottom:2px solid #111;">';
