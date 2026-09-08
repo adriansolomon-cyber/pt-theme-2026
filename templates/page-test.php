@@ -181,7 +181,7 @@ if ( current_user_can( 'manage_woocommerce' )
 	if ( 'summary' === $pt_export ) {
 		// Column-for-column mirror of the on-screen table: each list figure with
 		// its "sold" sub-line as an adjacent column, plus COGS and margin (£/%).
-		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'units', 'orders', 'first_price_exvat', 'first_date', 'last_price_exvat', 'last_date', 'lowest_list_exvat', 'lowest_sold_exvat', 'highest_list_exvat', 'highest_sold_exvat', 'change_list_exvat', 'change_sold_exvat', 'change_list_pct', 'change_sold_pct', 'listing_price_exvat', 'cogs_exvat', 'margin_exvat', 'margin_pct' ) );
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'units', 'orders', 'first_price_incvat', 'first_date', 'last_price_incvat', 'last_date', 'lowest_list_incvat', 'lowest_sold_incvat', 'highest_list_incvat', 'highest_sold_incvat', 'change_list_incvat', 'change_sold_incvat', 'change_list_pct', 'change_sold_pct', 'listing_price_incvat', 'cogs_exvat', 'net_margin', 'net_margin_pct' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk ) );
@@ -200,8 +200,8 @@ if ( current_user_can( 'manage_woocommerce' )
 				$chgpct     = ( $a['first_list'] > 0 ) ? ( $chg / (float) $a['first_list'] * 100 ) : 0.0;
 				$chg_sold   = (float) $a['last_sold'] - (float) $a['first_sold'];    // directional last − first (sold)
 				$chgpct_sld = ( $a['first_sold'] > 0 ) ? ( $chg_sold / (float) $a['first_sold'] * 100 ) : 0.0;
-				$margin     = (float) $a['last_sold'] - $cogs;                        // margin at last sold price
-				$margin_pct = ( (float) $a['last_sold'] > 0 ) ? ( $margin / (float) $a['last_sold'] * 100 ) : 0.0;
+				$margin     = (float) $a['last_sold_net'] - $cogs;                    // NET margin at last sold price
+				$margin_pct = ( (float) $a['last_sold_net'] > 0 ) ? ( $margin / (float) $a['last_sold_net'] * 100 ) : 0.0;
 				fputcsv(
 					$out,
 					array(
@@ -239,7 +239,7 @@ if ( current_user_can( 'manage_woocommerce' )
 		}
 	} else {
 		// Detail — one row per sale (matches the drill-down trail), with parent.
-		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'order_id', 'order_date', 'qty', 'list_cost_exvat', 'sold_total_exvat', 'discount_exvat' ) );
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'order_id', 'order_date', 'qty', 'list_incvat', 'sold_incvat', 'discount_incvat' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$rows = pt_test_product_price_rows( $chunk );
@@ -410,12 +410,12 @@ get_header();
 			$pt_slice = $pt_search_ids;
 			$pt_pages = 1;
 			$pt_batch = 1;
-			echo '<p style="color:#666;margin:0 0 14px;">Search results for <strong>' . count( $pt_slice ) . '</strong> ID' . ( 1 === count( $pt_slice ) ? '' : 's' ) . '. Prices are the order line&rsquo;s <strong>Cost (ex VAT)</strong> per unit. Click a row&rsquo;s &#9654; to expand its sales.</p>';
+			echo '<p style="color:#666;margin:0 0 14px;">Search results for <strong>' . count( $pt_slice ) . '</strong> ID' . ( 1 === count( $pt_slice ) ? '' : 's' ) . '. Prices per unit <strong>inc VAT</strong>; margin/COGS are net (ex VAT). Click a row&rsquo;s &#9654; to expand its sales.</p>';
 		} else {
 			$pt_pages = (int) max( 1, ceil( $pt_total / $pt_per_page ) );
 			$pt_batch = isset( $_GET['batch'] ) ? max( 1, min( $pt_pages, (int) $_GET['batch'] ) ) : 1;
 			$pt_slice = array_slice( $pt_all_ids, ( $pt_batch - 1 ) * $pt_per_page, $pt_per_page );
-			echo '<p style="color:#666;margin:0 0 14px;">Per-product price movement. Real orders only (completed/processing/on-hold/refunded); prices are the order line&rsquo;s <strong>Cost (listing, ex VAT)</strong> per unit, matching the order screen. Showing <strong>batch ' . (int) $pt_batch . ' of ' . (int) $pt_pages . '</strong> (' . count( $pt_slice ) . ' products). Click a row&rsquo;s &#9654; to expand its every sale inline (order, date, List/Sold = Cost/Total, discount, coupon) — loaded on demand, so nothing extra runs until you click.</p>';
+			echo '<p style="color:#666;margin:0 0 14px;">Per-product price movement. Real orders only (completed/processing/on-hold/refunded); prices are per unit <strong>inc VAT</strong>. Margin and COGS are net (ex VAT), since the VAT you collect isn&rsquo;t profit. Showing <strong>batch ' . (int) $pt_batch . ' of ' . (int) $pt_pages . '</strong> (' . count( $pt_slice ) . ' products). Click a row&rsquo;s &#9654; to expand its every sale inline (order, date, List/Sold, discount, coupon) — loaded on demand, so nothing extra runs until you click.</p>';
 		}
 
 		// CSV export links — scoped to the search set when searching, else all IDs.
@@ -531,9 +531,9 @@ get_header();
 			echo '<td style="padding:6px 10px;color:#555;">' . ( $listing_row > 0 ? '£' . esc_html( number_format( $listing_row, 2 ) ) : '<span style="color:#bbb;">—</span>' ) . '</td>';
 			$cogs_row = pt_audit_product_cogs( $pid );
 			if ( $cogs_row > 0 ) {
-				$m_row  = (float) $a['last_sold'] - $cogs_row;
-				$mp_row = ( (float) $a['last_sold'] > 0 ) ? ( $m_row / (float) $a['last_sold'] * 100 ) : 0.0;
-				echo '<td style="padding:6px 10px;color:#555;">£' . esc_html( number_format( $cogs_row, 2 ) ) . '<div style="color:#888;font-size:11px;">margin £' . esc_html( number_format( $m_row, 2 ) ) . ' (' . esc_html( number_format( $mp_row, 1 ) ) . '%)</div></td>';
+				$m_row  = (float) $a['last_sold_net'] - $cogs_row; // net margin at last sold price
+				$mp_row = ( (float) $a['last_sold_net'] > 0 ) ? ( $m_row / (float) $a['last_sold_net'] * 100 ) : 0.0;
+				echo '<td style="padding:6px 10px;color:#555;">£' . esc_html( number_format( $cogs_row, 2 ) ) . '<div style="color:#888;font-size:11px;">net margin £' . esc_html( number_format( $m_row, 2 ) ) . ' (' . esc_html( number_format( $mp_row, 1 ) ) . '%)</div></td>';
 			} else {
 				echo '<td style="padding:6px 10px;color:#bbb;">—</td>';
 			}

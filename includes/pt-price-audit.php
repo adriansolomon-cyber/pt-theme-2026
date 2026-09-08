@@ -8,9 +8,9 @@
  * in the page template) so the AJAX handler below is registered on every load —
  * admin-ajax.php never includes the template.
  *
- * All read-only and admin-gated at the point of use. Prices are ex VAT — the
- * order line's Cost (_line_subtotal = listing) and Total (_line_total = sold),
- * so figures reconcile 1:1 with the WooCommerce order screen.
+ * All read-only and admin-gated at the point of use. Prices are shown INC VAT
+ * (List = _line_subtotal + tax, Sold = _line_total + tax); COGS and margin are
+ * NET (ex VAT), since VAT collected isn't profit.
  *
  * @package pt-theme-2026
  */
@@ -86,11 +86,11 @@ function pt_test_product_price_rows( array $product_ids, $start = null, $min_lis
 		$date_col     = 'o.post_date';
 	}
 
-	// Ex-VAT unit price, matching the WooCommerce order screen 1:1:
-	//   unit_list = _line_subtotal / qty  → the order line's "Cost" (listing price).
-	//   unit_paid = _line_total    / qty  → the order line's "Total" (price sold).
-	// Discount = Cost − Total. VAT is a separate column on the order and is left
-	// out here so these figures reconcile exactly with the order's Cost/Total.
+	// Prices are shown INC VAT (PT prices are VAT-inclusive):
+	//   unit_list = (_line_subtotal + its tax) / qty  → List (Cost, inc VAT).
+	//   unit_paid = (_line_total    + its tax) / qty  → Sold (Total, inc VAT).
+	// unit_paid_net = _line_total / qty (ex VAT) is carried for the NET margin
+	// (net sale − COGS), since VAT collected isn't profit.
 	$sql = "
 		SELECT
 			pm.meta_value AS product_id,
@@ -98,10 +98,12 @@ function pt_test_product_price_rows( array $product_ids, $start = null, $min_lis
 			oi.order_id   AS order_id,
 			$date_col     AS order_date,
 			CAST(qm.meta_value AS UNSIGNED) AS qty,
-			ROUND( CAST(sm.meta_value AS DECIMAL(14,4))
+			ROUND( ( CAST(sm.meta_value AS DECIMAL(14,4)) + CAST(COALESCE(st.meta_value,0) AS DECIMAL(14,4)) )
 				/ NULLIF(CAST(qm.meta_value AS DECIMAL(14,4)),0), 2 ) AS unit_list,
+			ROUND( ( CAST(tm.meta_value AS DECIMAL(14,4)) + CAST(COALESCE(tt.meta_value,0) AS DECIMAL(14,4)) )
+				/ NULLIF(CAST(qm.meta_value AS DECIMAL(14,4)),0), 2 ) AS unit_paid,
 			ROUND( CAST(tm.meta_value AS DECIMAL(14,4))
-				/ NULLIF(CAST(qm.meta_value AS DECIMAL(14,4)),0), 2 ) AS unit_paid
+				/ NULLIF(CAST(qm.meta_value AS DECIMAL(14,4)),0), 2 ) AS unit_paid_net
 		FROM {$wpdb->prefix}woocommerce_order_items oi
 		JOIN {$wpdb->prefix}woocommerce_order_itemmeta pm
 			ON pm.order_item_id = oi.order_item_id AND pm.meta_key = '_product_id'
@@ -109,8 +111,12 @@ function pt_test_product_price_rows( array $product_ids, $start = null, $min_lis
 			ON qm.order_item_id = oi.order_item_id AND qm.meta_key = '_qty'
 		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta sm
 			ON sm.order_item_id = oi.order_item_id AND sm.meta_key = '_line_subtotal'
+		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta st
+			ON st.order_item_id = oi.order_item_id AND st.meta_key = '_line_subtotal_tax'
 		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta tm
 			ON tm.order_item_id = oi.order_item_id AND tm.meta_key = '_line_total'
+		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta tt
+			ON tt.order_item_id = oi.order_item_id AND tt.meta_key = '_line_tax'
 		$orders_join
 		LEFT JOIN {$wpdb->posts} p2 ON p2.ID = pm.meta_value
 		WHERE pm.meta_value IN ($in)
@@ -173,13 +179,32 @@ function pt_audit_size_url( $parent_url, $size_name ) {
 }
 
 /**
- * Current live listing price of a product (per unit, ex VAT) — what it's listed
+ * Current live listing price of a product (per unit, INC VAT) — what it's listed
  * at on the site right now, to compare against the historical sold prices.
  *
  * @param int $product_id Product ID.
  * @return float
  */
 function pt_audit_product_price( $product_id ) {
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return 0.0;
+	}
+	$p = wc_get_product( (int) $product_id );
+	if ( ! $p ) {
+		return 0.0;
+	}
+	return function_exists( 'wc_get_price_including_tax' )
+		? (float) wc_get_price_including_tax( $p )
+		: (float) $p->get_price();
+}
+
+/**
+ * Current live listing price EX VAT — used for the net margin against COGS.
+ *
+ * @param int $product_id Product ID.
+ * @return float
+ */
+function pt_audit_product_price_net( $product_id ) {
 	if ( ! function_exists( 'wc_get_product' ) ) {
 		return 0.0;
 	}
@@ -314,7 +339,7 @@ function pt_render_price_detail( array $ids ) {
 		}
 	}
 
-	echo '<p style="color:#666;margin:0 0 20px;">One row per sale, oldest first. Per unit, <strong>ex VAT</strong> (matches the order screen). <strong>List</strong> = the line&rsquo;s Cost (listing, pre-discount); <strong>Sold</strong> = the Total (price actually sold, after discounts); <strong>Disc</strong> = Cost − Total. ▲ marks a change from the previous sale.</p>';
+	echo '<p style="color:#666;margin:0 0 20px;">One row per sale, oldest first. Per unit, <strong>inc VAT</strong>. <strong>List</strong> = the line&rsquo;s Cost (listing, pre-discount); <strong>Sold</strong> = the Total (price actually sold, after discounts); <strong>Disc</strong> = List − Sold. ▲ marks a change from the previous sale.</p>';
 
 	if ( ! $rows ) {
 		echo '<p>No sales in period.</p>';
@@ -398,23 +423,25 @@ function pt_aggregate_price_rows( array $rows ) {
 	$agg = array();
 	foreach ( $rows as $r ) {
 		$pid = (int) $r['product_id'];
-		$lv  = (float) $r['unit_list']; // List (Cost)
-		$pv  = (float) $r['unit_paid']; // Sold (Total)
+		$lv  = (float) $r['unit_list']; // List (Cost, inc VAT)
+		$pv  = (float) $r['unit_paid']; // Sold (Total, inc VAT)
+		$pn  = (float) $r['unit_paid_net']; // Sold (Total, ex VAT) — for net margin
 		if ( ! isset( $agg[ $pid ] ) ) {
 			$agg[ $pid ] = array(
-				'name'        => $r['product_name'],
-				'units'       => 0,
-				'orders'      => array(),
-				'first_list'  => $lv,
-				'first_date'  => $r['order_date'],
-				'last_list'   => $lv,
-				'last_date'   => $r['order_date'],
-				'min'         => $lv,
-				'max'         => $lv,
-				'first_sold'  => $pv,
-				'last_sold'   => $pv,
-				'min_sold'    => $pv,
-				'max_sold'    => $pv,
+				'name'          => $r['product_name'],
+				'units'         => 0,
+				'orders'        => array(),
+				'first_list'    => $lv,
+				'first_date'    => $r['order_date'],
+				'last_list'     => $lv,
+				'last_date'     => $r['order_date'],
+				'min'           => $lv,
+				'max'           => $lv,
+				'first_sold'    => $pv,
+				'last_sold'     => $pv,
+				'min_sold'      => $pv,
+				'max_sold'      => $pv,
+				'last_sold_net' => $pn,
 			);
 		}
 		$agg[ $pid ]['units']                   += (int) $r['qty'];
@@ -426,6 +453,7 @@ function pt_aggregate_price_rows( array $rows ) {
 		$agg[ $pid ]['last_sold']                = $pv;
 		$agg[ $pid ]['min_sold']                 = min( $agg[ $pid ]['min_sold'], $pv );
 		$agg[ $pid ]['max_sold']                 = max( $agg[ $pid ]['max_sold'], $pv );
+		$agg[ $pid ]['last_sold_net']            = $pn;
 	}
 	return $agg;
 }
@@ -475,15 +503,10 @@ function pt_price_audit_detail_ajax() {
 		wp_send_json_error( 'bad request', 400 );
 	}
 
-	// Current live price of this size (ex VAT, to match the Cost/Total basis).
-	$cur_prod  = wc_get_product( $pid );
-	$cur_price = null;
-	if ( $cur_prod ) {
-		$cur_price = function_exists( 'wc_get_price_excluding_tax' )
-			? (float) wc_get_price_excluding_tax( $cur_prod )
-			: (float) $cur_prod->get_price();
-	}
-	$cogs = pt_audit_product_cogs( $pid ); // Cost of goods per unit (0 = unset).
+	// Current live price of this size — inc VAT for display, ex VAT (net) for margin.
+	$cur_price     = $pid ? pt_audit_product_price( $pid ) : null;      // inc VAT
+	$cur_price_net = $pid ? pt_audit_product_price_net( $pid ) : null;  // ex VAT (net)
+	$cogs          = pt_audit_product_cogs( $pid );                     // per unit (0 = unset)
 
 	$rows    = pt_test_product_price_rows( array( $pid ) );
 	$coupons = pt_price_audit_order_coupons( array_map( static function ( $r ) {
@@ -535,16 +558,17 @@ function pt_price_audit_detail_ajax() {
 		// most. It's a signal from real sales, not a demand model.
 		$byprice = array();
 		foreach ( $rows as $r ) {
-			$sold = round( (float) $r['unit_paid'], 2 );
+			$sold = round( (float) $r['unit_paid'], 2 );      // inc VAT (display)
+			$net  = round( (float) $r['unit_paid_net'], 2 );  // ex VAT (for margin)
 			$k    = number_format( $sold, 2, '.', '' );
 			if ( ! isset( $byprice[ $k ] ) ) {
-				$byprice[ $k ] = array( 'price' => $sold, 'units' => 0, 'orders' => array(), 'revenue' => 0.0, 'margin' => 0.0 );
+				$byprice[ $k ] = array( 'price' => $sold, 'net' => $net, 'units' => 0, 'orders' => array(), 'revenue' => 0.0, 'margin' => 0.0 );
 			}
 			$q                                             = max( 1, (int) $r['qty'] );
 			$byprice[ $k ]['units']                       += $q;
 			$byprice[ $k ]['orders'][ (int) $r['order_id'] ] = true;
-			$byprice[ $k ]['revenue']                     += $sold * $q;
-			$byprice[ $k ]['margin']                      += ( $sold - $cogs ) * $q; // (sold − COGS) × units
+			$byprice[ $k ]['revenue']                     += $sold * $q;              // gross revenue (inc VAT)
+			$byprice[ $k ]['margin']                      += ( $net - $cogs ) * $q;   // NET margin: (net sold − COGS) × units
 		}
 		uasort( $byprice, static function ( $x, $y ) {
 			return $x['price'] <=> $y['price'];
@@ -567,47 +591,48 @@ function pt_price_audit_detail_ajax() {
 
 		echo '<div style="margin:14px 4px 4px;padding:12px 14px;background:#eef7ee;border:1px solid #cfe6cf;border-radius:8px;">';
 		echo '<div style="font-weight:700;margin-bottom:6px;">Price performance &amp; suggestion</div>';
-		echo '<p style="margin:0 0 4px;">Current price: ' . ( null !== $cur_price ? '<strong>£' . esc_html( number_format( $cur_price, 2 ) ) . '</strong> <span style="color:#888;">(ex VAT)</span>' : '<span style="color:#999;">unknown</span>' ) . '</p>';
+		echo '<p style="margin:0 0 4px;">Current price: ' . ( null !== $cur_price ? '<strong>£' . esc_html( number_format( $cur_price, 2 ) ) . '</strong> <span style="color:#888;">(inc VAT)</span>' : '<span style="color:#999;">unknown</span>' ) . '</p>';
 		echo '<p style="margin:0 0 8px;">Cost of goods: ' . ( $cogs > 0 ? '<strong>£' . esc_html( number_format( $cogs, 2 ) ) . '</strong> <span style="color:#888;">/unit</span>' : '<span style="color:#999;">not set</span>' );
-		if ( $cogs > 0 && null !== $cur_price ) {
-			$m_now = $cur_price - $cogs;
-			echo ' &middot; margin at current price: <strong>£' . esc_html( number_format( $m_now, 2 ) ) . '</strong> (' . esc_html( number_format( $cur_price > 0 ? ( $m_now / $cur_price * 100 ) : 0, 1 ) ) . '%)';
+		if ( $cogs > 0 && null !== $cur_price_net ) {
+			$m_now = $cur_price_net - $cogs; // net margin
+			echo ' &middot; net margin at current price: <strong>£' . esc_html( number_format( $m_now, 2 ) ) . '</strong> (' . esc_html( number_format( $cur_price_net > 0 ? ( $m_now / $cur_price_net * 100 ) : 0, 1 ) ) . '%)';
 		}
 		echo '</p>';
 
 		if ( count( $byprice ) < 2 ) {
-			$m1    = $best_rev['price'] - $cogs;
-			$m1pct = ( $best_rev['price'] > 0 ) ? ( $m1 / $best_rev['price'] * 100 ) : 0.0;
-			echo '<p style="margin:0;color:#555;">Sold at a single price point (£' . esc_html( number_format( $best_rev['price'], 2 ) ) . ', ' . (int) $best_rev['units'] . ' units' . ( $cogs > 0 ? ', margin £' . esc_html( number_format( $m1, 2 ) ) . ' / ' . esc_html( number_format( $m1pct, 1 ) ) . '% per unit' : '' ) . ') — not enough price variation to compare. Test a higher and a lower price to gather signal.</p>';
+			$m1    = $best_rev['net'] - $cogs;
+			$m1pct = ( $best_rev['net'] > 0 ) ? ( $m1 / $best_rev['net'] * 100 ) : 0.0;
+			echo '<p style="margin:0;color:#555;">Sold at a single price point (£' . esc_html( number_format( $best_rev['price'], 2 ) ) . ' inc VAT, ' . (int) $best_rev['units'] . ' units' . ( $cogs > 0 ? ', net margin £' . esc_html( number_format( $m1, 2 ) ) . ' / ' . esc_html( number_format( $m1pct, 1 ) ) . '% per unit' : '' ) . ') — not enough price variation to compare. Test a higher and a lower price to gather signal.</p>';
 		} else {
 			echo '<table style="width:auto;border-collapse:collapse;font-size:12px;margin:0 0 8px;">';
 			echo '<thead><tr style="text-align:left;color:#555;border-bottom:1px solid #cfe6cf;"><th style="padding:4px 10px;">Sold £</th><th style="padding:4px 10px;">Units</th><th style="padding:4px 10px;">Orders</th><th style="padding:4px 10px;">Revenue £</th><th style="padding:4px 10px;">Margin/unit £</th><th style="padding:4px 10px;">Total margin £</th></tr></thead><tbody>';
 			foreach ( $byprice as $b ) {
 				$is_best = ( $b['price'] === $best_rev['price'] );
 				$is_cur  = ( null !== $cur_price && abs( $b['price'] - $cur_price ) < 0.005 );
-				$m_unit  = $b['price'] - $cogs;
-				$mp_unit = ( $b['price'] > 0 ) ? ( $m_unit / $b['price'] * 100 ) : 0.0;
+				$m_unit  = $b['net'] - $cogs;                                      // net margin/unit
+				$mp_unit = ( $b['net'] > 0 ) ? ( $m_unit / $b['net'] * 100 ) : 0.0;
 				echo '<tr style="' . ( $is_best ? 'background:#d7efd7;font-weight:700;' : '' ) . '">';
 				echo '<td style="padding:4px 10px;">£' . esc_html( number_format( $b['price'], 2 ) ) . ( $is_cur ? ' <span style="color:#06c;font-size:10px;">(current)</span>' : '' ) . '</td>';
 				echo '<td style="padding:4px 10px;">' . (int) $b['units'] . '</td>';
 				echo '<td style="padding:4px 10px;">' . count( $b['orders'] ) . '</td>';
 				echo '<td style="padding:4px 10px;">£' . esc_html( number_format( $b['revenue'], 2 ) ) . '</td>';
 				echo '<td style="padding:4px 10px;' . ( $cogs > 0 && $m_unit < 0 ? 'color:#b00;' : '' ) . '">' . ( $cogs > 0 ? '£' . esc_html( number_format( $m_unit, 2 ) ) . ' <span style="color:#888;">(' . esc_html( number_format( $mp_unit, 1 ) ) . '%)</span>' : '<span style="color:#bbb;">—</span>' ) . '</td>';
-				$mp_total = ( $b['revenue'] > 0 ) ? ( $b['margin'] / $b['revenue'] * 100 ) : 0.0;
+				$net_rev  = $b['net'] * $b['units'];
+				$mp_total = ( $net_rev > 0 ) ? ( $b['margin'] / $net_rev * 100 ) : 0.0;
 				echo '<td style="padding:4px 10px;' . ( $cogs > 0 && $b['margin'] < 0 ? 'color:#b00;' : '' ) . '">' . ( $cogs > 0 ? '£' . esc_html( number_format( $b['margin'], 2 ) ) . ' <span style="color:#888;">(' . esc_html( number_format( $mp_total, 1 ) ) . '%)</span>' : '<span style="color:#bbb;">—</span>' ) . '</td>';
 				echo '</tr>';
 			}
 			echo '</tbody></table>';
 
-			$best_rev_mpct = ( $best_rev['price'] > 0 ) ? ( ( $best_rev['price'] - $cogs ) / $best_rev['price'] * 100 ) : 0.0;
-			echo '<p style="margin:0 0 4px;"><strong>Suggested price: £' . esc_html( number_format( $best_rev['price'], 2 ) ) . '</strong> — earned the most revenue (£' . esc_html( number_format( $best_rev['revenue'], 2 ) ) . ' from ' . (int) $best_rev['units'] . ' units' . ( $cogs > 0 ? ', margin £' . esc_html( number_format( $best_rev['margin'], 2 ) ) . ' / ' . esc_html( number_format( $best_rev_mpct, 1 ) ) . '% per unit' : '' ) . ').';
+			$best_rev_mpct = ( $best_rev['net'] > 0 ) ? ( ( $best_rev['net'] - $cogs ) / $best_rev['net'] * 100 ) : 0.0;
+			echo '<p style="margin:0 0 4px;"><strong>Suggested price: £' . esc_html( number_format( $best_rev['price'], 2 ) ) . '</strong> inc VAT — earned the most revenue (£' . esc_html( number_format( $best_rev['revenue'], 2 ) ) . ' from ' . (int) $best_rev['units'] . ' units' . ( $cogs > 0 ? ', net margin £' . esc_html( number_format( $best_rev['margin'], 2 ) ) . ' / ' . esc_html( number_format( $best_rev_mpct, 1 ) ) . '% per unit' : '' ) . ').';
 			if ( abs( $best_vol['price'] - $best_rev['price'] ) > 0.005 ) {
 				echo ' Most volume was at £' . esc_html( number_format( $best_vol['price'], 2 ) ) . ' (' . (int) $best_vol['units'] . ' units).';
 			}
 			echo '</p>';
 			if ( $cogs > 0 && $best_margin && abs( $best_margin['price'] - $best_rev['price'] ) > 0.005 ) {
-				$bm_pct = ( $best_margin['price'] > 0 ) ? ( ( $best_margin['price'] - $cogs ) / $best_margin['price'] * 100 ) : 0.0;
-				echo '<p style="margin:0 0 4px;">Best <strong>total margin</strong> was at £' . esc_html( number_format( $best_margin['price'], 2 ) ) . ' (£' . esc_html( number_format( $best_margin['margin'], 2 ) ) . ' total, ' . esc_html( number_format( $bm_pct, 1 ) ) . '% per unit, from ' . (int) $best_margin['units'] . ' units).</p>';
+				$bm_pct = ( $best_margin['net'] > 0 ) ? ( ( $best_margin['net'] - $cogs ) / $best_margin['net'] * 100 ) : 0.0;
+				echo '<p style="margin:0 0 4px;">Best <strong>total net margin</strong> was at £' . esc_html( number_format( $best_margin['price'], 2 ) ) . ' inc VAT (£' . esc_html( number_format( $best_margin['margin'], 2 ) ) . ' total, ' . esc_html( number_format( $bm_pct, 1 ) ) . '% per unit, from ' . (int) $best_margin['units'] . ' units).</p>';
 			}
 			if ( null !== $cur_price ) {
 				$vs = $best_rev['price'] - $cur_price;
@@ -617,7 +642,7 @@ function pt_price_audit_detail_ajax() {
 					echo '<p style="margin:0 0 4px;">vs current £' . esc_html( number_format( $cur_price, 2 ) ) . ': suggested is <strong>' . ( $vs > 0 ? '+£' . esc_html( number_format( $vs, 2 ) ) . ' higher' : '−£' . esc_html( number_format( abs( $vs ), 2 ) ) . ' lower' ) . '</strong>.</p>';
 				}
 			}
-			echo '<p style="margin:0;color:#888;font-size:11px;">Heuristic from observed sales only — not adjusted for how long each price ran, seasonality, or demand trend. Margin = sold − current cost of goods (£' . esc_html( number_format( $cogs, 2 ) ) . '/unit). Treat it as a signal, not a guarantee.</p>';
+			echo '<p style="margin:0;color:#888;font-size:11px;">Prices inc VAT. Margin is NET: (sold ex VAT) − cost of goods (£' . esc_html( number_format( $cogs, 2 ) ) . '/unit). Heuristic from observed sales only — not adjusted for how long each price ran, seasonality, or demand trend. Treat it as a signal, not a guarantee.</p>';
 		}
 		echo '</div>';
 	}
