@@ -33,7 +33,10 @@ $pt_desc_html = ( '' !== trim( (string) $pt_desc ) )
 // Optional per-category banner (ACF field group "Category Banner" on product_cat).
 // The "Show category banner" toggle gates BOTH the top banner image AND the in-grid
 // promo tile below — neither shows unless it's on for this category (default off).
-$pt_banner_on  = ( function_exists( 'get_field' ) && $pt_term && get_field( 'cat_banner_enabled', $pt_term ) );
+// Also gated on the voucher/campaign being live: the banner is a promo surface, so
+// it switches off with the voucher (auto_voucher_enabled()) and returns with it.
+$pt_banner_on  = ( function_exists( 'get_field' ) && $pt_term && get_field( 'cat_banner_enabled', $pt_term ) )
+	&& ( ! function_exists( 'auto_voucher_enabled' ) || auto_voucher_enabled() );
 $pt_banner_src = $pt_banner_src_m = $pt_banner_link = $pt_banner_alt = '';
 if ( $pt_banner_on ) {
 	$pt_banner_src   = (string) get_field( 'cat_banner_image', $pt_term );
