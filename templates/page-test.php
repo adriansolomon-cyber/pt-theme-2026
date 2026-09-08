@@ -318,6 +318,74 @@ get_header();
 	}
 	*/
 
+	// --- Parent-resolution diagnostic: ?parent_check=<size_product_id> ---
+	// Shows a size product's own info (SKU, slug, post_parent, categories) and
+	// EVERY composite that lists it as a "Size" option — so we can see why the
+	// audit's parent map resolves the building it does (and if the size is shared).
+	if ( isset( $_GET['parent_check'] ) && function_exists( 'wc_get_product' ) ) {
+		$pcid = (int) $_GET['parent_check'];
+		$prod = $pcid ? wc_get_product( $pcid ) : null;
+		echo '<h1 style="margin:0 0 10px;font-size:24px;">Parent check — size product ' . (int) $pcid . '</h1>';
+		if ( ! $prod ) {
+			echo '<p style="color:#b00;">No product with that ID.</p>';
+		} else {
+			$post = get_post( $pcid );
+			echo '<p><strong>' . esc_html( $prod->get_name() ) . '</strong> (type: ' . esc_html( $prod->get_type() ) . ')</p>';
+			echo '<ul style="line-height:1.7;">';
+			echo '<li>SKU: <code>' . esc_html( $prod->get_sku() ?: '—' ) . '</code></li>';
+			echo '<li>Slug: <code>' . esc_html( $post ? $post->post_name : '—' ) . '</code></li>';
+			$ppid = (int) wp_get_post_parent_id( $pcid );
+			echo '<li>post_parent: ' . ( $ppid ? esc_html( (string) $ppid . ' — ' . get_the_title( $ppid ) ) : '<span style="color:#999;">none</span>' ) . '</li>';
+			$cats = get_the_terms( $pcid, 'product_cat' );
+			$cat_names = ( $cats && ! is_wp_error( $cats ) ) ? implode( ', ', wp_list_pluck( $cats, 'name' ) ) : '—';
+			echo '<li>Categories: ' . esc_html( $cat_names ) . '</li>';
+			echo '</ul>';
+
+			// Every composite whose "Size" component lists this product.
+			echo '<h2 style="margin:18px 0 8px;font-size:18px;">Composites listing this as a Size option</h2>';
+			$composite_ids = get_posts( array(
+				'post_type'   => 'product',
+				'post_status' => 'publish',
+				'numberposts' => -1,
+				'fields'      => 'ids',
+				'tax_query'   => array( array( 'taxonomy' => 'product_type', 'field' => 'slug', 'terms' => 'composite' ) ),
+			) );
+			$refs = array();
+			foreach ( $composite_ids as $cpid ) {
+				$composite = wc_get_product( $cpid );
+				if ( ! $composite || ! is_callable( array( $composite, 'get_components' ) ) ) {
+					continue;
+				}
+				foreach ( (array) $composite->get_components() as $comp ) {
+					if ( ! is_callable( array( $comp, 'get_title' ) ) || 'size' !== strtolower( trim( (string) $comp->get_title() ) ) ) {
+						continue;
+					}
+					$opts = is_callable( array( $comp, 'get_options' ) ) ? array_map( 'intval', (array) $comp->get_options() ) : array();
+					if ( in_array( $pcid, $opts, true ) ) {
+						$refs[] = array( 'id' => (int) $cpid, 'title' => $composite->get_name() );
+					}
+				}
+			}
+			if ( ! $refs ) {
+				echo '<p style="color:#b00;">None — this product is not a Size option on any published composite. The audit falls back to the "W x D" name match, which can pick the wrong building.</p>';
+			} else {
+				echo '<ul style="line-height:1.7;">';
+				foreach ( $refs as $r ) {
+					echo '<li>#' . (int) $r['id'] . ' — ' . esc_html( $r['title'] ) . '</li>';
+				}
+				echo '</ul>';
+				if ( count( $refs ) > 1 ) {
+					echo '<p style="color:#b00;font-weight:700;">Shared across ' . count( $refs ) . ' composites — the parent map keeps whichever it walks first, so the building shown may be wrong.</p>';
+				}
+			}
+
+			$map = pt_size_parent_map();
+			echo '<p style="margin:14px 0 0;">Audit currently resolves parent → ' . ( isset( $map[ $pcid ] ) ? '<strong>' . esc_html( $map[ $pcid ]['title'] ) . '</strong> (#' . (int) $map[ $pcid ]['id'] . ')' : '<span style="color:#999;">none</span>' ) . '</p>';
+		}
+		get_footer();
+		return;
+	}
+
 	// --- Special-offer / "grandmaster" diagnostic: ?special_check=<product_id> ---
 	// Explains WHY a product is (or isn't) flagged for the special-offer badge —
 	// its categories, their ancestors, the ACF special-offer set, and the match.
