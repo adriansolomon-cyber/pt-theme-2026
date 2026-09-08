@@ -36,53 +36,30 @@ function pt_ga_cogs_for_product($product) {
     return (float) wc_format_decimal($cost ?: 0);
 }
 
-/** True when the product (or its parent, for variations) is in the "parts" category. */
-function pt_ga_is_parts($product) {
-    if (!$product) return false;
-    $check = $product->is_type('variation') ? wc_get_product($product->get_parent_id()) : $product;
-    if (!$check) return false;
-    foreach ($check->get_category_ids() as $cat_id) {
-        $term = get_term((int) $cat_id, 'product_cat');
-        if ($term && !is_wp_error($term) && $term->slug === 'parts') {
-            return true;
-        }
-    }
-    return false;
-}
-
 /**
- * Order Cost of Goods (ex VAT) — sum of PARTS costs only, walking composite
- * components via `_composite_data`. Faithfully mirrors the margin report's
- * calculate_composite_cogs_range() so profit reconciles with it.
+ * Order Cost of Goods (ex VAT) — the SIZE product's own COGS only (that's what
+ * we carry in the product feed), NOT the parts sum. Sums `_wc_cog_cost` for the
+ * order's size line items (× qty). A line is a "size" when its product is in the
+ * composite Size-component set (pt_size_parent_map keys); if that map isn't
+ * available it falls back to the "W x D" name pattern the feed/audit use.
  */
 function pt_ga_order_cogs($order) {
     if (!$order instanceof WC_Order) return 0.0;
+
+    $size_map = function_exists('pt_size_parent_map') ? pt_size_parent_map() : array();
+    $use_map  = !empty($size_map);
+
     $cogs = 0.0;
     try {
         foreach ($order->get_items() as $item) {
             $product = $item->get_product();
             if (!$product || !is_object($product)) continue;
 
-            if ($product->get_type() === 'composite') {
-                $composite_data = $item->get_meta('_composite_data', true);
-                if ($composite_data && is_array($composite_data)) {
-                    foreach ($composite_data as $component_config) {
-                        if (empty($component_config['product_id'])) continue;
-                        $component_product = wc_get_product((int) $component_config['product_id']);
-                        if (!$component_product || !is_object($component_product)) continue;
+            $is_size = $use_map
+                ? isset($size_map[(int) $product->get_id()])
+                : (bool) preg_match('/\d+\s*x\s*\d+/i', (string) $product->get_name());
 
-                        $actual = $component_product;
-                        if (!empty($component_config['variation_id'])) {
-                            $variation = wc_get_product((int) $component_config['variation_id']);
-                            if ($variation && is_object($variation)) $actual = $variation;
-                        }
-                        if (pt_ga_is_parts($actual)) {
-                            $qty   = isset($component_config['quantity']) ? (int) $component_config['quantity'] : 1;
-                            $cogs += pt_ga_cogs_for_product($actual) * $qty * $item->get_quantity();
-                        }
-                    }
-                }
-            } elseif (pt_ga_is_parts($product)) {
+            if ($is_size) {
                 $cogs += pt_ga_cogs_for_product($product) * $item->get_quantity();
             }
         }
