@@ -255,13 +255,19 @@ function pt_audit_product_cogs( $product_id ) {
 /**
  * Map each composite SIZE-option product ID → its parent composite (id, title,
  * url). Sizes aren't linked by post_parent; they're the "Size" component's
- * options on the parent composite. We walk every composite (~60) once and cache
- * the reverse map, so resolving a size's parent is a array lookup thereafter.
+ * options on the parent composite. Walk every composite (~60) once and cache.
+ *
+ * A size product can be listed by MORE THAN ONE composite (e.g. a Cannes 8×6 is
+ * also referenced by a Grandmaster workshop by mistake/reuse). For those shared
+ * sizes we disambiguate to the composite that actually matches the size product:
+ * first by a shared product category, then by name-token overlap (the size's own
+ * range category, e.g. "Hobbyist Cannes", vs the composite name). Falls back to
+ * the first candidate only if nothing matches.
  *
  * @return array<int,array{id:int,title:string,url:string}>
  */
 function pt_size_parent_map() {
-	$cached = get_transient( 'pt_size_parent_map_v1' );
+	$cached = get_transient( 'pt_size_parent_map_v2' );
 	if ( is_array( $cached ) ) {
 		return $cached;
 	}
@@ -287,34 +293,127 @@ function pt_size_parent_map() {
 		)
 	);
 
+	// Collect every composite that lists each size, plus composite info to match on.
+	$comp = array(); // cpid => { id, title, url, cats[], name_lc }
+	$refs = array(); // size_id => [cpid, ...]
 	foreach ( $composite_ids as $cpid ) {
 		$composite = wc_get_product( $cpid );
 		if ( ! $composite || ! is_callable( array( $composite, 'get_components' ) ) ) {
 			continue;
 		}
-		$parent = array(
-			'id'    => (int) $cpid,
-			'title' => $composite->get_name(),
-			'url'   => (string) get_permalink( $cpid ),
-		);
-		foreach ( (array) $composite->get_components() as $comp ) {
-			if ( ! is_callable( array( $comp, 'get_title' ) ) || 'size' !== strtolower( trim( (string) $comp->get_title() ) ) ) {
+		$has_size = false;
+		foreach ( (array) $composite->get_components() as $comp_obj ) {
+			if ( ! is_callable( array( $comp_obj, 'get_title' ) ) || 'size' !== strtolower( trim( (string) $comp_obj->get_title() ) ) ) {
 				continue; // Only the Size component's options are size products.
 			}
-			if ( ! is_callable( array( $comp, 'get_options' ) ) ) {
+			if ( ! is_callable( array( $comp_obj, 'get_options' ) ) ) {
 				continue;
 			}
-			foreach ( (array) $comp->get_options() as $oid ) {
+			foreach ( (array) $comp_obj->get_options() as $oid ) {
 				$oid = (int) $oid;
-				if ( $oid > 0 && ! isset( $map[ $oid ] ) ) {
-					$map[ $oid ] = $parent;
+				if ( $oid > 0 ) {
+					$refs[ $oid ][] = (int) $cpid;
+					$has_size       = true;
+				}
+			}
+		}
+		if ( $has_size ) {
+			$comp[ (int) $cpid ] = array(
+				'id'      => (int) $cpid,
+				'title'   => $composite->get_name(),
+				'url'     => (string) get_permalink( $cpid ),
+				'cats'    => (array) wc_get_product_term_ids( (int) $cpid, 'product_cat' ),
+				'name_lc' => strtolower( (string) $composite->get_name() ),
+			);
+		}
+	}
+
+	foreach ( $refs as $oid => $cpids ) {
+		$cpids  = array_values( array_unique( array_filter( $cpids, static function ( $c ) use ( $comp ) {
+			return isset( $comp[ $c ] );
+		} ) ) );
+		if ( empty( $cpids ) ) {
+			continue;
+		}
+		$chosen = ( count( $cpids ) === 1 ) ? $cpids[0] : pt_size_pick_parent( (int) $oid, $cpids, $comp );
+		$c      = $comp[ $chosen ];
+		$map[ (int) $oid ] = array(
+			'id'    => $c['id'],
+			'title' => $c['title'],
+			'url'   => $c['url'],
+		);
+	}
+
+	set_transient( 'pt_size_parent_map_v2', $map, 6 * HOUR_IN_SECONDS );
+	return $map;
+}
+
+/**
+ * Pick the correct parent composite for a size shared by several composites:
+ * most shared product categories with the size product, then the composite name
+ * that best overlaps the size's own range-category words. First candidate on tie.
+ *
+ * @param int   $size_id Size product ID.
+ * @param int[] $cpids   Candidate composite IDs.
+ * @param array $comp    Composite info keyed by id (cats[], name_lc).
+ * @return int Chosen composite ID.
+ */
+function pt_size_pick_parent( $size_id, array $cpids, array $comp ) {
+	// 1) Shared product category (e.g. the size and its true composite both sit
+	//    in "ZZP Hobbyist Cannes"). Generic size-only cats won't be on composites.
+	$size_cats = (array) wc_get_product_term_ids( $size_id, 'product_cat' );
+	$best      = $cpids[0];
+	$best_hits = -1;
+	foreach ( $cpids as $cpid ) {
+		$hits = count( array_intersect( $size_cats, $comp[ $cpid ]['cats'] ) );
+		if ( $hits > $best_hits ) {
+			$best_hits = $hits;
+			$best      = $cpid;
+		}
+	}
+	if ( $best_hits > 0 ) {
+		return $best;
+	}
+
+	// 2) Name-token overlap: words from the size's range categories (minus the
+	//    "W x D", "bundles"/"parts" and a "zzp" prefix) vs each composite name.
+	$tokens = array();
+	$terms  = get_the_terms( $size_id, 'product_cat' );
+	if ( $terms && ! is_wp_error( $terms ) ) {
+		foreach ( $terms as $t ) {
+			$n = strtolower( $t->name );
+			if ( preg_match( '/^\s*\d+\s*x\s*\d+\s*$/', $n ) || in_array( $n, array( 'bundles', 'parts', 'misc', 'uncategorized' ), true ) ) {
+				continue;
+			}
+			$n = trim( str_replace( 'zzp', '', $n ) );
+			foreach ( preg_split( '/\s+/', $n ) as $tok ) {
+				if ( strlen( $tok ) > 2 ) {
+					$tokens[] = $tok;
 				}
 			}
 		}
 	}
+	if ( $tokens ) {
+		$best      = $cpids[0];
+		$best_hits = -1;
+		foreach ( $cpids as $cpid ) {
+			$hits = 0;
+			foreach ( array_unique( $tokens ) as $tok ) {
+				if ( false !== strpos( $comp[ $cpid ]['name_lc'], $tok ) ) {
+					$hits++;
+				}
+			}
+			if ( $hits > $best_hits ) {
+				$best_hits = $hits;
+				$best      = $cpid;
+			}
+		}
+		if ( $best_hits > 0 ) {
+			return $best;
+		}
+	}
 
-	set_transient( 'pt_size_parent_map_v1', $map, 6 * HOUR_IN_SECONDS );
-	return $map;
+	return $cpids[0];
 }
 
 /**
