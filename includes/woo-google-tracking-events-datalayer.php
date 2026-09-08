@@ -13,6 +13,86 @@ function pt_tracking_retrack_bypass() {
         && current_user_can('manage_woocommerce');
 }
 
+/**
+ * Cost of Goods for a product (per unit), SkyVerge method — mirrors
+ * custom-margin-report-v3.php::get_cost_of_goods(). 0 = unset.
+ */
+function pt_ga_cogs_for_product($product) {
+    if (!$product) return 0.0;
+    $cost = $product->get_meta('_wc_cog_cost', true);
+    if ($cost === '' || $cost === null) {
+        if ($product->is_type('variation')) {
+            $parent = wc_get_product($product->get_parent_id());
+            if ($parent) {
+                $cost = $parent->get_meta('_wc_cog_cost', true);
+                if ($cost === '' || $cost === null) {
+                    $cost = $parent->get_meta('_wc_cog_cost_variable', true);
+                }
+            }
+        } elseif ($product->is_type('variable')) {
+            $cost = $product->get_meta('_wc_cog_cost_variable', true);
+        }
+    }
+    return (float) wc_format_decimal($cost ?: 0);
+}
+
+/** True when the product (or its parent, for variations) is in the "parts" category. */
+function pt_ga_is_parts($product) {
+    if (!$product) return false;
+    $check = $product->is_type('variation') ? wc_get_product($product->get_parent_id()) : $product;
+    if (!$check) return false;
+    foreach ($check->get_category_ids() as $cat_id) {
+        $term = get_term((int) $cat_id, 'product_cat');
+        if ($term && !is_wp_error($term) && $term->slug === 'parts') {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Order Cost of Goods (ex VAT) — sum of PARTS costs only, walking composite
+ * components via `_composite_data`. Faithfully mirrors the margin report's
+ * calculate_composite_cogs_range() so profit reconciles with it.
+ */
+function pt_ga_order_cogs($order) {
+    if (!$order instanceof WC_Order) return 0.0;
+    $cogs = 0.0;
+    try {
+        foreach ($order->get_items() as $item) {
+            $product = $item->get_product();
+            if (!$product || !is_object($product)) continue;
+
+            if ($product->get_type() === 'composite') {
+                $composite_data = $item->get_meta('_composite_data', true);
+                if ($composite_data && is_array($composite_data)) {
+                    foreach ($composite_data as $component_config) {
+                        if (empty($component_config['product_id'])) continue;
+                        $component_product = wc_get_product((int) $component_config['product_id']);
+                        if (!$component_product || !is_object($component_product)) continue;
+
+                        $actual = $component_product;
+                        if (!empty($component_config['variation_id'])) {
+                            $variation = wc_get_product((int) $component_config['variation_id']);
+                            if ($variation && is_object($variation)) $actual = $variation;
+                        }
+                        if (pt_ga_is_parts($actual)) {
+                            $qty   = isset($component_config['quantity']) ? (int) $component_config['quantity'] : 1;
+                            $cogs += pt_ga_cogs_for_product($actual) * $qty * $item->get_quantity();
+                        }
+                    }
+                }
+            } elseif (pt_ga_is_parts($product)) {
+                $cogs += pt_ga_cogs_for_product($product) * $item->get_quantity();
+            }
+        }
+    } catch (Exception $e) {
+        error_log('PT GA order COGS error for order ' . $order->get_id() . ': ' . $e->getMessage());
+        return 0.0;
+    }
+    return $cogs;
+}
+
 add_action('woocommerce_thankyou', 'google_order_conversion');
 function google_order_conversion($order_id) {
 
@@ -82,6 +162,14 @@ function google_order_conversion($order_id) {
     $order_shipping = number_format((float) $order->get_shipping_total(), 2, '.', '');
     $order_coupon   = implode(', ', $order->get_coupon_codes());
     $tx_id          = $order->get_order_number();
+
+    // Cost of goods (parts-sum, composite-aware) + profit for GTM → profit
+    // conversion mapping. COGS is ex VAT; `profit` is order total − COGS, and
+    // `gross_profit` is ex-VAT revenue − COGS (order total − tax − COGS).
+    $order_cogs_num  = pt_ga_order_cogs($order);
+    $order_cogs      = number_format($order_cogs_num, 2, '.', '');
+    $order_profit    = number_format((float) $order->get_total() - $order_cogs_num, 2, '.', '');
+    $order_gross_pft = number_format((float) $order->get_total() - (float) $order->get_total_tax() - $order_cogs_num, 2, '.', '');
 
     // Calculate customer lifetime value
     $customer_id = $order->get_customer_id();
@@ -180,6 +268,9 @@ dataLayer.push({
         coupon: '<?php echo esc_js($order_coupon); ?>',
         affiliation: 'Project Timber',
         customer_lifetime_value: <?php echo $customer_ltv; ?>,
+        cogs: <?php echo $order_cogs; ?>,
+        profit: <?php echo $order_profit; ?>,
+        gross_profit: <?php echo $order_gross_pft; ?>,
         items: <?php echo wp_json_encode($gtag_items); ?>
     }
 });
