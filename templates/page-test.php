@@ -151,7 +151,20 @@ if ( current_user_can( 'manage_woocommerce' )
 	&& function_exists( 'wc_get_product' )
 	&& ! headers_sent()
 ) {
-	$ids        = pt_price_audit_ids();
+	// Scope: the searched IDs when ?ids= is present, else the full audit list.
+	$ids = pt_price_audit_ids();
+	if ( isset( $_GET['ids'] ) && '' !== trim( (string) $_GET['ids'] ) ) {
+		$sids = array();
+		foreach ( preg_split( '/[\s,]+/', (string) $_GET['ids'] ) as $tok ) {
+			$tok = (int) trim( $tok );
+			if ( $tok > 0 ) {
+				$sids[] = $tok;
+			}
+		}
+		if ( $sids ) {
+			$ids = array_values( array_unique( $sids ) );
+		}
+	}
 	$parent_map = pt_size_parent_map();
 
 	// A full-list export can run a while; don't let PHP time out mid-stream.
@@ -363,22 +376,53 @@ get_header();
 		echo '<p><strong>WooCommerce is not active.</strong></p>';
 	} elseif ( empty( $pt_all_ids ) ) {
 		echo '<p><strong>No product IDs loaded.</strong> Add them to <code>includes/pt-price-audit-ids.php</code>.</p>';
-	} elseif ( isset( $_GET['product'] ) && in_array( (int) $_GET['product'], $pt_all_ids, true ) ) {
-		// Single-product drill-down: full per-sale trail.
+	} elseif ( isset( $_GET['product'] ) && (int) $_GET['product'] > 0 ) {
+		// Single-product drill-down: full per-sale trail (any product id).
 		pt_render_price_detail( array( (int) $_GET['product'] ) );
 	} else {
-		// Paginated per-product aggregate (50 products per batch).
-		$pt_total = count( $pt_all_ids );
-		$pt_pages = (int) max( 1, ceil( $pt_total / $pt_per_page ) );
-		$pt_batch = isset( $_GET['batch'] ) ? max( 1, min( $pt_pages, (int) $_GET['batch'] ) ) : 1;
-		$pt_slice = array_slice( $pt_all_ids, ( $pt_batch - 1 ) * $pt_per_page, $pt_per_page );
+		// Optional search: filter the audit to specific IDs (comma-separated).
+		$pt_search_raw = isset( $_GET['ids'] ) ? (string) $_GET['ids'] : '';
+		$pt_search_ids = array();
+		foreach ( preg_split( '/[\s,]+/', $pt_search_raw ) as $tok ) {
+			$tok = (int) trim( $tok );
+			if ( $tok > 0 ) {
+				$pt_search_ids[] = $tok;
+			}
+		}
+		$pt_search_ids = array_values( array_unique( $pt_search_ids ) );
+		$pt_is_search  = ! empty( $pt_search_ids );
+		$pt_total      = count( $pt_all_ids );
 
-		printf( '<h1 style="margin:0 0 6px;font-size:26px;">Price audit — %s products, since %s</h1>', esc_html( number_format( $pt_total ) ), esc_html( $pt_start_lbl ) );
-		echo '<p style="color:#666;margin:0 0 14px;">Per-product price movement. Real orders only (completed/processing/on-hold/refunded); prices are the order line&rsquo;s <strong>Cost (listing, ex VAT)</strong> per unit, matching the order screen. Showing <strong>batch ' . (int) $pt_batch . ' of ' . (int) $pt_pages . '</strong> (' . count( $pt_slice ) . ' products). Click a row&rsquo;s &#9654; to expand its every sale inline (order, date, List/Sold = Cost/Total, discount, coupon) — loaded on demand, so nothing extra runs until you click.</p>';
+		printf( '<h1 style="margin:0 0 10px;font-size:26px;">Price audit — %s products, since %s</h1>', esc_html( number_format( $pt_total ) ), esc_html( $pt_start_lbl ) );
 
+		// Search box (GET). Submitting keeps you on this page with ?ids=...
+		echo '<form method="get" style="margin:0 0 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">';
+		echo '<input type="text" name="ids" value="' . esc_attr( $pt_search_raw ) . '" placeholder="Find product IDs — comma-separated (e.g. 7469, 7755)" style="flex:1;min-width:280px;padding:9px 12px;border:1px solid #bbb;border-radius:6px;font-size:14px;">';
+		echo '<button type="submit" style="background:#111;color:#fff;border:0;padding:10px 16px;border-radius:6px;font-size:14px;cursor:pointer;">Search</button>';
+		if ( $pt_is_search ) {
+			echo '<a href="' . esc_url( remove_query_arg( array( 'ids', 'batch', 'export' ) ) ) . '" style="color:#06c;text-decoration:none;font-size:14px;">Clear</a>';
+		}
+		echo '</form>';
+
+		if ( $pt_is_search ) {
+			$pt_slice = $pt_search_ids;
+			$pt_pages = 1;
+			$pt_batch = 1;
+			echo '<p style="color:#666;margin:0 0 14px;">Search results for <strong>' . count( $pt_slice ) . '</strong> ID' . ( 1 === count( $pt_slice ) ? '' : 's' ) . '. Prices are the order line&rsquo;s <strong>Cost (ex VAT)</strong> per unit. Click a row&rsquo;s &#9654; to expand its sales.</p>';
+		} else {
+			$pt_pages = (int) max( 1, ceil( $pt_total / $pt_per_page ) );
+			$pt_batch = isset( $_GET['batch'] ) ? max( 1, min( $pt_pages, (int) $_GET['batch'] ) ) : 1;
+			$pt_slice = array_slice( $pt_all_ids, ( $pt_batch - 1 ) * $pt_per_page, $pt_per_page );
+			echo '<p style="color:#666;margin:0 0 14px;">Per-product price movement. Real orders only (completed/processing/on-hold/refunded); prices are the order line&rsquo;s <strong>Cost (listing, ex VAT)</strong> per unit, matching the order screen. Showing <strong>batch ' . (int) $pt_batch . ' of ' . (int) $pt_pages . '</strong> (' . count( $pt_slice ) . ' products). Click a row&rsquo;s &#9654; to expand its every sale inline (order, date, List/Sold = Cost/Total, discount, coupon) — loaded on demand, so nothing extra runs until you click.</p>';
+		}
+
+		// CSV export links — scoped to the search set when searching, else all IDs.
+		$pt_exp_summary = $pt_is_search ? add_query_arg( array( 'export' => 'summary', 'ids' => $pt_search_raw ) ) : add_query_arg( array( 'export' => 'summary' ) );
+		$pt_exp_detail  = $pt_is_search ? add_query_arg( array( 'export' => 'detail', 'ids' => $pt_search_raw ) ) : add_query_arg( array( 'export' => 'detail' ) );
+		$pt_exp_label   = $pt_is_search ? 'these ' . count( $pt_slice ) . ' result' . ( 1 === count( $pt_slice ) ? '' : 's' ) : 'all ' . (int) $pt_total;
 		echo '<p style="margin:0 0 22px;">'
-			. '<a href="' . esc_url( add_query_arg( array( 'export' => 'summary' ) ) ) . '" style="display:inline-block;background:#111;color:#fff;padding:9px 14px;border-radius:6px;text-decoration:none;font-size:14px;">&#8595; Totals CSV — one row per product (matches this table, all ' . (int) $pt_total . ')</a> '
-			. '<a href="' . esc_url( add_query_arg( array( 'export' => 'detail' ) ) ) . '" style="display:inline-block;background:#fff;color:#111;border:1px solid #111;padding:8px 14px;border-radius:6px;text-decoration:none;font-size:14px;margin-left:8px;">&#8595; Every-sale CSV (all orders)</a> '
+			. '<a href="' . esc_url( $pt_exp_summary ) . '" style="display:inline-block;background:#111;color:#fff;padding:9px 14px;border-radius:6px;text-decoration:none;font-size:14px;">&#8595; Totals CSV — one row per product (' . esc_html( $pt_exp_label ) . ')</a> '
+			. '<a href="' . esc_url( $pt_exp_detail ) . '" style="display:inline-block;background:#fff;color:#111;border:1px solid #111;padding:8px 14px;border-radius:6px;text-decoration:none;font-size:14px;margin-left:8px;">&#8595; Every-sale CSV</a> '
 			. '<span style="color:#999;font-size:12px;">may take a minute</span></p>';
 
 		// One bounded query for this batch's IDs, aggregated per product in PHP.
@@ -494,7 +538,7 @@ get_header();
 		// TOTAL row (this batch): summed units/orders, net £ change, average % change.
 		$avg_pct = $pct_n ? ( $pct_sum / $pct_n ) : 0.0;
 		echo '<tr style="border-top:2px solid #111;font-weight:700;background:#f7f7f7;">';
-		echo '<td style="padding:9px 10px;" colspan="3">TOTAL (this batch)</td>';
+		echo '<td style="padding:9px 10px;" colspan="3">' . ( $pt_is_search ? 'TOTAL (results)' : 'TOTAL (this batch)' ) . '</td>';
 		echo '<td style="padding:9px 10px;">' . esc_html( (string) $tot_units ) . '</td>';
 		echo '<td style="padding:9px 10px;">' . esc_html( (string) $tot_orders ) . '</td>';
 		echo '<td style="padding:9px 10px;" colspan="4"></td>';
@@ -506,16 +550,18 @@ get_header();
 		echo '</tbody></table>';
 		echo '<p style="color:#888;font-size:12px;margin:8px 0 0;">Change = last sale price vs first, over the window. <span style="background:#fff4c2;color:#7a5c00;padding:1px 6px;border-radius:3px;">yellow</span> = cheaper now than it was; <span style="background:#b00020;color:#fff;padding:1px 6px;border-radius:3px;">red</span> = ' . (int) $pt_red_pct . '%+ higher now.</p>';
 
-		// Pagination.
-		echo '<div style="display:flex;gap:14px;align-items:center;margin:20px 0 0;font-size:14px;">';
-		if ( $pt_batch > 1 ) {
-			echo '<a href="' . esc_url( add_query_arg( array( 'batch' => $pt_batch - 1 ) ) ) . '" style="text-decoration:none;">&larr; Prev</a>';
+		// Pagination (only in the full listing, not in search results).
+		if ( ! $pt_is_search ) {
+			echo '<div style="display:flex;gap:14px;align-items:center;margin:20px 0 0;font-size:14px;">';
+			if ( $pt_batch > 1 ) {
+				echo '<a href="' . esc_url( add_query_arg( array( 'batch' => $pt_batch - 1 ) ) ) . '" style="text-decoration:none;">&larr; Prev</a>';
+			}
+			echo '<span style="color:#666;">Batch ' . (int) $pt_batch . ' of ' . (int) $pt_pages . '</span>';
+			if ( $pt_batch < $pt_pages ) {
+				echo '<a href="' . esc_url( add_query_arg( array( 'batch' => $pt_batch + 1 ) ) ) . '" style="text-decoration:none;">Next &rarr;</a>';
+			}
+			echo '</div>';
 		}
-		echo '<span style="color:#666;">Batch ' . (int) $pt_batch . ' of ' . (int) $pt_pages . '</span>';
-		if ( $pt_batch < $pt_pages ) {
-			echo '<a href="' . esc_url( add_query_arg( array( 'batch' => $pt_batch + 1 ) ) ) . '" style="text-decoration:none;">Next &rarr;</a>';
-		}
-		echo '</div>';
 
 		// Click-to-expand: fetch one product's full per-sale trail via AJAX.
 		$pt_ajax  = admin_url( 'admin-ajax.php' );
