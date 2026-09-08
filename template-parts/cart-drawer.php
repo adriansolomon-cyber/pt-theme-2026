@@ -39,7 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           </div>
         </div><!-- /#ptcItems -->
         <div class="ptc-promo">
-          <input type="text" id="ptcCouponInput" placeholder="Promo code (e.g. GM10)" aria-label="Promo code">
+          <input type="text" id="ptcCouponInput" placeholder="Promo code" aria-label="Promo code">
           <button type="button" id="ptcCouponApply">Apply</button>
         </div>
         <div id="ptcCouponMsg" class="ptc-promo-msg" hidden></div>
