@@ -278,7 +278,7 @@ if ( current_user_can( 'manage_woocommerce' )
 
 get_header();
 ?>
-<main class="pt-test" style="max-width:1000px;margin:80px auto;padding:0 20px;font-family:system-ui,Arial,sans-serif;">
+<main class="pt-test" style="max-width:min(1760px,96vw);margin:40px auto 80px;padding:0 24px;font-family:system-ui,Arial,sans-serif;overflow-x:auto;">
 	<?php
 	/*
 	 * Dormant for now. Uncomment this block to render the active-voucher count.
