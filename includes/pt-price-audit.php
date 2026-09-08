@@ -690,7 +690,7 @@ function pt_price_audit_detail_ajax() {
 
 		echo '<div style="margin:14px 4px 4px;padding:12px 14px;background:#eef7ee;border:1px solid #cfe6cf;border-radius:8px;">';
 		echo '<div style="font-weight:700;margin-bottom:6px;">Price performance &amp; suggestion</div>';
-		echo '<p style="margin:0 0 4px;">Current price: ' . ( null !== $cur_price ? '<strong>£' . esc_html( number_format( $cur_price, 2 ) ) . '</strong> <span style="color:#888;">(inc VAT)</span>' : '<span style="color:#999;">unknown</span>' ) . '</p>';
+		echo '<p style="margin:0 0 4px;">Current price: ' . ( null !== $cur_price ? '<strong style="color:#0a7d28;">£' . esc_html( number_format( $cur_price, 2 ) ) . '</strong> <span style="color:#888;">(inc VAT)</span>' : '<span style="color:#999;">unknown</span>' ) . '</p>';
 		echo '<p style="margin:0 0 8px;">Cost of goods: ' . ( $cogs > 0 ? '<strong>£' . esc_html( number_format( $cogs, 2 ) ) . '</strong> <span style="color:#888;">/unit</span>' : '<span style="color:#999;">not set</span>' );
 		if ( $cogs > 0 && null !== $cur_price_net ) {
 			$m_now = $cur_price_net - $cogs; // net margin
@@ -711,7 +711,7 @@ function pt_price_audit_detail_ajax() {
 				$m_unit  = $b['net'] - $cogs;                                      // net margin/unit
 				$mp_unit = ( $b['net'] > 0 ) ? ( $m_unit / $b['net'] * 100 ) : 0.0;
 				echo '<tr style="' . ( $is_best ? 'background:#d7efd7;font-weight:700;' : '' ) . '">';
-				echo '<td style="padding:4px 10px;">£' . esc_html( number_format( $b['price'], 2 ) ) . ( $is_cur ? ' <span style="color:#06c;font-size:10px;">(current)</span>' : '' ) . '</td>';
+				echo '<td style="padding:4px 10px;' . ( $is_cur ? 'color:#0a7d28;font-weight:700;' : '' ) . '">£' . esc_html( number_format( $b['price'], 2 ) ) . ( $is_cur ? ' <span style="color:#0a7d28;font-size:10px;">(current)</span>' : '' ) . '</td>';
 				echo '<td style="padding:4px 10px;">' . (int) $b['units'] . '</td>';
 				echo '<td style="padding:4px 10px;">' . count( $b['orders'] ) . '</td>';
 				echo '<td style="padding:4px 10px;">£' . esc_html( number_format( $b['revenue'], 2 ) ) . '</td>';
@@ -738,7 +738,7 @@ function pt_price_audit_detail_ajax() {
 				if ( abs( $vs ) < 0.005 ) {
 					echo '<p style="margin:0 0 4px;color:#080;">Suggested price matches the current price (£' . esc_html( number_format( $cur_price, 2 ) ) . ').</p>';
 				} else {
-					echo '<p style="margin:0 0 4px;">vs current £' . esc_html( number_format( $cur_price, 2 ) ) . ': suggested is <strong>' . ( $vs > 0 ? '+£' . esc_html( number_format( $vs, 2 ) ) . ' higher' : '−£' . esc_html( number_format( abs( $vs ), 2 ) ) . ' lower' ) . '</strong>.</p>';
+					echo '<p style="margin:0 0 4px;">vs current <strong style="color:#0a7d28;">£' . esc_html( number_format( $cur_price, 2 ) ) . '</strong>: suggested is <strong>' . ( $vs > 0 ? '+£' . esc_html( number_format( $vs, 2 ) ) . ' higher' : '−£' . esc_html( number_format( abs( $vs ), 2 ) ) . ' lower' ) . '</strong>.</p>';
 				}
 			}
 			echo '<p style="margin:0;color:#888;font-size:11px;">Prices inc VAT. Margin is NET: (sold ex VAT) − cost of goods (£' . esc_html( number_format( $cogs, 2 ) ) . '/unit). Heuristic from observed sales only — not adjusted for how long each price ran, seasonality, or demand trend. Treat it as a signal, not a guarantee.</p>';
