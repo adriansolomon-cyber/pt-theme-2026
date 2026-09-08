@@ -173,6 +173,26 @@ function pt_audit_size_url( $parent_url, $size_name ) {
 }
 
 /**
+ * Current live listing price of a product (per unit, ex VAT) — what it's listed
+ * at on the site right now, to compare against the historical sold prices.
+ *
+ * @param int $product_id Product ID.
+ * @return float
+ */
+function pt_audit_product_price( $product_id ) {
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return 0.0;
+	}
+	$p = wc_get_product( (int) $product_id );
+	if ( ! $p ) {
+		return 0.0;
+	}
+	return function_exists( 'wc_get_price_excluding_tax' )
+		? (float) wc_get_price_excluding_tax( $p )
+		: (float) $p->get_price();
+}
+
+/**
  * Cost of Goods for a product (per unit, ex VAT) via the SkyVerge WooCommerce
  * Cost of Goods plugin — reads `_wc_cog_cost`, falling back to the parent's
  * cost / variable cost, the same resolution the margin report uses. 0 = unset.
