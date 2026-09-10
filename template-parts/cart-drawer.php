@@ -55,7 +55,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <div class="ptc-ln"><span>Delivery</span><span>Calculated at checkout</span></div>
         <div class="ptc-tot"><span class="l">Total</span><span class="v" id="ptcTotal"><span class="ptc-sk ptc-sk-amt"></span></span></div>
         <div class="ptc-vat" id="ptcVat"></div>
-        <a class="ptc-cta" href="<?php echo esc_url( pt_checkout_url() ); ?>">Proceed to checkout <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="ptc-cta" href="<?php echo esc_url( function_exists( 'pt_checkout_url' ) ? pt_checkout_url() : home_url( '/checkout/' ) ); ?>">Proceed to checkout <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         <button class="ptc-cont" data-cart-close type="button">Continue shopping</button>
       </div>
     </div>
