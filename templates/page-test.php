@@ -136,6 +136,90 @@ function pt_test_product_sales( array $product_ids, $months = 12 ) {
 	return $wpdb->get_results( $wpdb->prepare( $sql, $months ), ARRAY_A );
 }
 
+/**
+ * Wall-thickness 11mm↔16mm pairs for every published Grandmaster composite,
+ * paired BY SIZE via the composite scenarios (the option names carry no size,
+ * so name-matching can't pair them — the size↔option link lives in the
+ * scenarios that timber-product-config.php already resolves).
+ *
+ * One row per composite×size: the size label, the 11mm option (standard, £0)
+ * and the 16mm option (the upcharge), each with inc/ex-VAT price, plus the
+ * target (16mm inc) the 11mm would move to and a shared-across-composites flag.
+ *
+ * @return array{rows:array<int,array<string,mixed>>,error:string}
+ */
+function pt_wall_pairs() {
+	if ( ! function_exists( 'timber_pcfg_build' ) ) {
+		return array( 'rows' => array(), 'error' => 'timber_pcfg_build() unavailable — the timber-product-config mu-plugin is not loaded, so scenarios cannot be read.' );
+	}
+	$gm_ids = get_posts( array(
+		'post_type'   => 'product',
+		'post_status' => 'publish',
+		'numberposts' => -1,
+		'fields'      => 'ids',
+		'tax_query'   => array(
+			'relation' => 'AND',
+			array( 'taxonomy' => 'product_type', 'field' => 'slug', 'terms' => 'composite' ),
+			array( 'taxonomy' => 'product_cat', 'field' => 'slug', 'terms' => 'grandmaster' ),
+		),
+	) );
+	$rows   = array();
+	$seen11 = array();
+	foreach ( $gm_ids as $gmid ) {
+		$data = timber_pcfg_build( (int) $gmid );
+		if ( is_wp_error( $data ) || empty( $data['components'] ) ) {
+			continue;
+		}
+		// Wall component id for this composite.
+		$wall_cid = '';
+		foreach ( (array) $data['components'] as $c ) {
+			if ( isset( $c['key'] ) && 'wall' === $c['key'] ) {
+				$wall_cid = (string) $c['id'];
+				break;
+			}
+		}
+		if ( '' === $wall_cid ) {
+			continue;
+		}
+		foreach ( (array) $data['sizes'] as $sz ) {
+			$wallopts = isset( $sz['options'][ $wall_cid ] ) ? (array) $sz['options'][ $wall_cid ] : array();
+			$o11 = null;
+			$o16 = null;
+			foreach ( $wallopts as $o ) {
+				$nm = isset( $o['name'] ) ? (string) $o['name'] : '';
+				if ( preg_match( '/11\s*mm/i', $nm ) ) {
+					$o11 = $o;
+				} elseif ( preg_match( '/16\s*mm/i', $nm ) ) {
+					$o16 = $o;
+				}
+			}
+			if ( ! $o11 && ! $o16 ) {
+				continue;
+			}
+			$o11id = $o11 ? (int) $o11['id'] : 0;
+			$o16id = $o16 ? (int) $o16['id'] : 0;
+			$rows[] = array(
+				'composite_id'   => (int) $gmid,
+				'composite_name' => isset( $data['name'] ) ? (string) $data['name'] : '',
+				'size'           => isset( $sz['name'] ) ? (string) $sz['name'] : '',
+				'o11_id'         => $o11id,
+				'o11_name'       => $o11 ? (string) $o11['name'] : '',
+				'o11_inc'        => $o11id ? (float) pt_audit_product_price( $o11id ) : null,
+				'o11_ex'         => $o11id ? (float) pt_audit_product_price_net( $o11id ) : null,
+				'o16_id'         => $o16id,
+				'o16_name'       => $o16 ? (string) $o16['name'] : '',
+				'o16_inc'        => $o16id ? (float) pt_audit_product_price( $o16id ) : null,
+				'o16_ex'         => $o16id ? (float) pt_audit_product_price_net( $o16id ) : null,
+				'shared'         => ( $o11id && isset( $seen11[ $o11id ] ) ) ? 'yes' : '',
+			);
+			if ( $o11id ) {
+				$seen11[ $o11id ] = true;
+			}
+		}
+	}
+	return array( 'rows' => $rows, 'error' => '' );
+}
+
 
 /*
  * CSV export (admin only), streamed in 50-ID batches so PHP memory stays flat.
@@ -278,9 +362,10 @@ if ( current_user_can( 'manage_woocommerce' )
 }
 
 /*
- * Wall-thickness export (admin only): every Grandmaster composite's Wall
- * Thickness options — id, name, parent composite, tier, size and inc/ex-VAT
- * price — for both 11mm and 16mm, with the 16mm target + delta for each 11mm.
+ * Wall-thickness export (admin only): one row per Grandmaster composite × size,
+ * paired 11mm↔16mm BY SCENARIO (option names carry no size). Columns cover the
+ * composite (parent), size, both option IDs/names, inc/ex-VAT prices, the 16mm
+ * target the 11mm would move to, the delta and a shared flag.
  * ?export=wall. Runs before theme output and exits.
  */
 if ( current_user_can( 'manage_woocommerce' )
@@ -291,66 +376,29 @@ if ( current_user_can( 'manage_woocommerce' )
 	@set_time_limit( 0 );
 	nocache_headers();
 	header( 'Content-Type: text/csv; charset=utf-8' );
-	header( 'Content-Disposition: attachment; filename="pt-wall-options-' . gmdate( 'Y-m-d' ) . '.csv"' );
+	header( 'Content-Disposition: attachment; filename="pt-wall-pairs-' . gmdate( 'Y-m-d' ) . '.csv"' );
 	$out = fopen( 'php://output', 'w' );
-	fputcsv( $out, array( 'composite_id', 'composite_name', 'option_id', 'option_name', 'tier_mm', 'size', 'price_inc_vat', 'price_ex_vat', 'target_16mm_inc', 'delta_inc', 'shared' ) );
-
-	$gm_ids = get_posts( array(
-		'post_type'   => 'product',
-		'post_status' => 'publish',
-		'numberposts' => -1,
-		'fields'      => 'ids',
-		'tax_query'   => array(
-			'relation' => 'AND',
-			array( 'taxonomy' => 'product_type', 'field' => 'slug', 'terms' => 'composite' ),
-			array( 'taxonomy' => 'product_cat', 'field' => 'slug', 'terms' => 'grandmaster' ),
-		),
-	) );
-	$seen_opt = array();
-	foreach ( $gm_ids as $gmid ) {
-		$comp = wc_get_product( $gmid );
-		if ( ! $comp || ! is_callable( array( $comp, 'get_components' ) ) ) {
-			continue;
-		}
-		foreach ( (array) $comp->get_components() as $component ) {
-			$ctitle = is_callable( array( $component, 'get_title' ) ) ? (string) $component->get_title() : '';
-			if ( false === strpos( strtolower( $ctitle ), 'wall' ) ) {
-				continue;
-			}
-			$opts = is_callable( array( $component, 'get_options' ) ) ? array_map( 'intval', (array) $component->get_options() ) : array();
-			$p16  = array();
-			foreach ( $opts as $oid ) {
-				$nm = (string) get_the_title( $oid );
-				if ( preg_match( '/16\s*mm/i', $nm ) ) {
-					$sk         = preg_match( '/(\d+)\s*[x×]\s*(\d+)/i', $nm, $sm ) ? ( $sm[1] . 'x' . $sm[2] ) : '_';
-					$p16[ $sk ] = (float) pt_audit_product_price( $oid );
-				}
-			}
-			foreach ( $opts as $oid ) {
-				$op = wc_get_product( $oid );
-				if ( ! $op ) {
-					continue;
-				}
-				$nm   = $op->get_name();
-				$inc  = (float) pt_audit_product_price( $oid );
-				$exx  = (float) pt_audit_product_price_net( $oid );
-				$tier = preg_match( '/(\d+)\s*mm/i', $nm, $mm ) ? $mm[1] : '';
-				$size = preg_match( '/(\d+)\s*[x×]\s*(\d+)/i', $nm, $sm ) ? ( $sm[1] . 'x' . $sm[2] ) : '';
-				$target = '';
-				$delta  = '';
-				if ( preg_match( '/11\s*mm/i', $nm ) ) {
-					$sk  = '' !== $size ? $size : '_';
-					$t   = isset( $p16[ $sk ] ) ? $p16[ $sk ] : ( isset( $p16['_'] ) ? $p16['_'] : ( 1 === count( $p16 ) ? (float) reset( $p16 ) : null ) );
-					if ( null !== $t ) {
-						$target = number_format( $t, 2, '.', '' );
-						$delta  = number_format( $t - $inc, 2, '.', '' );
-					}
-				}
-				$shared           = isset( $seen_opt[ $oid ] ) ? 'yes' : '';
-				$seen_opt[ $oid ] = true;
-				fputcsv( $out, array( (int) $gmid, $comp->get_name(), (int) $oid, $nm, $tier, $size, number_format( $inc, 2, '.', '' ), number_format( $exx, 2, '.', '' ), $target, $delta, $shared ) );
-			}
-		}
+	fputcsv( $out, array( 'composite_id', 'composite_name', 'size', 'wall11_id', 'wall11_name', 'wall11_inc', 'wall11_ex', 'wall16_id', 'wall16_name', 'wall16_inc', 'wall16_ex', 'new_11mm_inc', 'delta_inc', 'shared' ) );
+	$res = pt_wall_pairs();
+	foreach ( $res['rows'] as $r ) {
+		$new11 = ( null !== $r['o16_inc'] ) ? number_format( (float) $r['o16_inc'], 2, '.', '' ) : '';
+		$delta = ( null !== $r['o16_inc'] && null !== $r['o11_inc'] ) ? number_format( (float) $r['o16_inc'] - (float) $r['o11_inc'], 2, '.', '' ) : '';
+		fputcsv( $out, array(
+			$r['composite_id'],
+			$r['composite_name'],
+			$r['size'],
+			$r['o11_id'] ?: '',
+			$r['o11_name'],
+			( null !== $r['o11_inc'] ) ? number_format( (float) $r['o11_inc'], 2, '.', '' ) : '',
+			( null !== $r['o11_ex'] ) ? number_format( (float) $r['o11_ex'], 2, '.', '' ) : '',
+			$r['o16_id'] ?: '',
+			$r['o16_name'],
+			( null !== $r['o16_inc'] ) ? number_format( (float) $r['o16_inc'], 2, '.', '' ) : '',
+			( null !== $r['o16_ex'] ) ? number_format( (float) $r['o16_ex'], 2, '.', '' ) : '',
+			$new11,
+			$delta,
+			$r['shared'],
+		) );
 	}
 	fclose( $out );
 	exit;
@@ -552,94 +600,49 @@ get_header();
 	}
 
 	// --- Wall-thickness repricing diagnostic (READ-ONLY): ?wall_check=1 ---
-	// Lists every published Grandmaster composite's "Wall Thickness" component
-	// options with current inc/ex-VAT prices, pairs 11mm→16mm by size, and shows
-	// the price each 11mm would move to under the free-upgrade repricing. Flags any
-	// option product shared across composites (editing it would affect all). Purely
-	// read-only — verifies the numbers before any real price is touched.
+	// One row per Grandmaster composite × size, pairing 11mm↔16mm BY SCENARIO
+	// (the option names carry no size, so the size↔option link comes from the
+	// composite scenarios via pt_wall_pairs()). Shows the size, both options with
+	// inc/ex-VAT prices, and the 16mm price each 11mm would move to under the
+	// free-upgrade repricing. Read-only — verifies numbers before any real edit.
 	if ( isset( $_GET['wall_check'] ) && function_exists( 'wc_get_product' ) ) {
 		echo '<h1 style="margin:0 0 10px;font-size:24px;">Wall-thickness check — Grandmaster composites</h1>';
-		echo '<p style="color:#666;margin:0 0 14px;">Read-only. Plan: raise each 11mm option to its same-size 16mm sibling price (so upgrading to 16mm costs £0), Grandmaster only. Rows highlighted = 11mm that would change. <a href="' . esc_url( add_query_arg( array( 'export' => 'wall', 'wall_check' => false ) ) ) . '" style="font-weight:700;">⬇ Download CSV</a> (id, name, parent, tier, size, price — both tiers).</p>';
-		$gm_ids = get_posts( array(
-			'post_type'   => 'product',
-			'post_status' => 'publish',
-			'numberposts' => -1,
-			'fields'      => 'ids',
-			'tax_query'   => array(
-				'relation' => 'AND',
-				array( 'taxonomy' => 'product_type', 'field' => 'slug', 'terms' => 'composite' ),
-				array( 'taxonomy' => 'product_cat', 'field' => 'slug', 'terms' => 'grandmaster' ),
-			),
-		) );
-		if ( ! $gm_ids ) {
-			echo '<p style="color:#b00;">No published Grandmaster composites found (check the category slug).</p>';
+		echo '<p style="color:#666;margin:0 0 14px;">Read-only. Plan: raise each size&rsquo;s 11mm option (standard, £0) to its 16mm price, so upgrading to 16mm costs £0. Paired by scenario/size. <a href="' . esc_url( add_query_arg( array( 'export' => 'wall', 'wall_check' => false ) ) ) . '" style="font-weight:700;">⬇ Download CSV</a> (composite, size, both option IDs + prices).</p>';
+		$res = pt_wall_pairs();
+		if ( '' !== $res['error'] ) {
+			echo '<p style="color:#b00;">' . esc_html( $res['error'] ) . '</p>';
+		} elseif ( empty( $res['rows'] ) ) {
+			echo '<p style="color:#b00;">No Grandmaster composites with a Wall Thickness component were found (check the category slug / component title).</p>';
 		} else {
-			$seen_opt = array();
-			$changes  = 0;
+			$changes = 0;
 			echo '<table style="border-collapse:collapse;width:100%;font-size:13px;"><thead><tr style="text-align:left;border-bottom:2px solid #111;">';
-			foreach ( array( 'Composite', 'Wall option', 'Option ID', 'Tier', 'Price inc VAT', 'Price ex VAT', '→ new inc (16mm)' ) as $h ) {
+			foreach ( array( 'Composite', 'Size', '11mm ID', '11mm inc', '16mm ID', '16mm inc', '16mm ex', '→ new 11mm inc', 'Δ inc' ) as $h ) {
 				echo '<th style="padding:6px 10px;">' . esc_html( $h ) . '</th>';
 			}
 			echo '</tr></thead><tbody>';
-			foreach ( $gm_ids as $gmid ) {
-				$comp = wc_get_product( $gmid );
-				if ( ! $comp || ! is_callable( array( $comp, 'get_components' ) ) ) {
-					continue;
+			foreach ( $res['rows'] as $r ) {
+				$o11_inc = $r['o11_inc'];
+				$o16_inc = $r['o16_inc'];
+				$new11   = ( null !== $o16_inc ) ? ( '£' . number_format( (float) $o16_inc, 2 ) ) : '<span style="color:#b00;">no 16mm</span>';
+				$delta   = ( null !== $o16_inc && null !== $o11_inc ) ? ( (float) $o16_inc - (float) $o11_inc ) : null;
+				if ( null !== $delta && abs( $delta ) > 0.005 ) {
+					$changes++;
 				}
-				foreach ( (array) $comp->get_components() as $component ) {
-					$ctitle = is_callable( array( $component, 'get_title' ) ) ? (string) $component->get_title() : '';
-					if ( false === strpos( strtolower( $ctitle ), 'wall' ) ) {
-						continue;
-					}
-					$opts = is_callable( array( $component, 'get_options' ) ) ? array_map( 'intval', (array) $component->get_options() ) : array();
-					// 16mm inc price keyed by size token (e.g. "12x8"; "_" when no size in the name).
-					$p16 = array();
-					foreach ( $opts as $oid ) {
-						$nm = (string) get_the_title( $oid );
-						if ( preg_match( '/16\s*mm/i', $nm ) ) {
-							$sk         = preg_match( '/(\d+)\s*[x×]\s*(\d+)/i', $nm, $sm ) ? ( $sm[1] . 'x' . $sm[2] ) : '_';
-							$p16[ $sk ] = (float) pt_audit_product_price( $oid );
-						}
-					}
-					foreach ( $opts as $oid ) {
-						$op = wc_get_product( $oid );
-						if ( ! $op ) {
-							continue;
-						}
-						$nm     = $op->get_name();
-						$inc    = (float) pt_audit_product_price( $oid );
-						$exx    = (float) pt_audit_product_price_net( $oid );
-						$tier   = preg_match( '/(\d+)\s*mm/i', $nm, $mm ) ? ( $mm[1] . 'mm' ) : '—';
-						$is11   = (bool) preg_match( '/11\s*mm/i', $nm );
-						$newinc = '';
-						if ( $is11 ) {
-							$sk     = preg_match( '/(\d+)\s*[x×]\s*(\d+)/i', $nm, $sm ) ? ( $sm[1] . 'x' . $sm[2] ) : '_';
-							$target = isset( $p16[ $sk ] ) ? $p16[ $sk ] : ( isset( $p16['_'] ) ? $p16['_'] : ( 1 === count( $p16 ) ? (float) reset( $p16 ) : null ) );
-							if ( null !== $target ) {
-								$newinc = '£' . number_format( $target, 2 );
-								if ( abs( $target - $inc ) > 0.005 ) {
-									$changes++;
-								}
-							} else {
-								$newinc = '<span style="color:#b00;">no 16mm match</span>';
-							}
-						}
-						$shared            = isset( $seen_opt[ $oid ] ) ? ' <span style="color:#b00;font-weight:700;">(shared!)</span>' : '';
-						$seen_opt[ $oid ]  = true;
-						echo '<tr style="border-bottom:1px solid #eee;' . ( $is11 ? 'background:#fff8e6;' : '' ) . '">';
-						echo '<td style="padding:6px 10px;">#' . (int) $gmid . ' ' . esc_html( $comp->get_name() ) . '</td>';
-						echo '<td style="padding:6px 10px;">' . esc_html( $nm ) . $shared . '</td>';
-						echo '<td style="padding:6px 10px;">' . (int) $oid . '</td>';
-						echo '<td style="padding:6px 10px;">' . esc_html( $tier ) . '</td>';
-						echo '<td style="padding:6px 10px;">£' . esc_html( number_format( $inc, 2 ) ) . '</td>';
-						echo '<td style="padding:6px 10px;">£' . esc_html( number_format( $exx, 2 ) ) . '</td>';
-						echo '<td style="padding:6px 10px;font-weight:700;color:#06507a;">' . $newinc . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput -- built above with number_format/esc_html
-						echo '</tr>';
-					}
-				}
+				$sharedtag = ( 'yes' === $r['shared'] ) ? ' <span style="color:#b00;font-weight:700;">(shared!)</span>' : '';
+				echo '<tr style="border-bottom:1px solid #eee;background:#fff8e6;">';
+				echo '<td style="padding:6px 10px;">#' . (int) $r['composite_id'] . ' ' . esc_html( $r['composite_name'] ) . '</td>';
+				echo '<td style="padding:6px 10px;font-weight:700;">' . esc_html( $r['size'] ) . '</td>';
+				echo '<td style="padding:6px 10px;">' . ( $r['o11_id'] ? (int) $r['o11_id'] : '—' ) . $sharedtag . '</td>';
+				echo '<td style="padding:6px 10px;">' . ( null !== $o11_inc ? '£' . esc_html( number_format( (float) $o11_inc, 2 ) ) : '—' ) . '</td>';
+				echo '<td style="padding:6px 10px;">' . ( $r['o16_id'] ? (int) $r['o16_id'] : '—' ) . '</td>';
+				echo '<td style="padding:6px 10px;">' . ( null !== $o16_inc ? '£' . esc_html( number_format( (float) $o16_inc, 2 ) ) : '—' ) . '</td>';
+				echo '<td style="padding:6px 10px;color:#888;">' . ( null !== $r['o16_ex'] ? '£' . esc_html( number_format( (float) $r['o16_ex'], 2 ) ) : '—' ) . '</td>';
+				echo '<td style="padding:6px 10px;font-weight:700;color:#06507a;">' . $new11 . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput -- built above with number_format/esc_html
+				echo '<td style="padding:6px 10px;">' . ( null !== $delta ? esc_html( ( $delta >= 0 ? '+£' : '−£' ) . number_format( abs( $delta ), 2 ) ) : '—' ) . '</td>';
+				echo '</tr>';
 			}
 			echo '</tbody></table>';
-			echo '<p style="margin:12px 4px 0;color:#333;"><strong>' . (int) $changes . '</strong> 11mm option(s) would be repriced to their 16mm sibling price. Any <span style="color:#b00;font-weight:700;">(shared!)</span> option is used by more than one composite — confirm before editing.</p>';
+			echo '<p style="margin:12px 4px 0;color:#333;"><strong>' . (int) $changes . '</strong> size(s) whose 11mm price would change (→ its 16mm price). Any <span style="color:#b00;font-weight:700;">(shared!)</span> 11mm option is used by more than one composite — editing it affects all of them, so confirm first.</p>';
 		}
 		get_footer();
 		return;
