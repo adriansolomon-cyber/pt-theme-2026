@@ -472,6 +472,100 @@ get_header();
 		return;
 	}
 
+	// --- Wall-thickness repricing diagnostic (READ-ONLY): ?wall_check=1 ---
+	// Lists every published Grandmaster composite's "Wall Thickness" component
+	// options with current inc/ex-VAT prices, pairs 11mm→16mm by size, and shows
+	// the price each 11mm would move to under the free-upgrade repricing. Flags any
+	// option product shared across composites (editing it would affect all). Purely
+	// read-only — verifies the numbers before any real price is touched.
+	if ( isset( $_GET['wall_check'] ) && function_exists( 'wc_get_product' ) ) {
+		echo '<h1 style="margin:0 0 10px;font-size:24px;">Wall-thickness check — Grandmaster composites</h1>';
+		echo '<p style="color:#666;margin:0 0 14px;">Read-only. Plan: raise each 11mm option to its same-size 16mm sibling price (so upgrading to 16mm costs £0), Grandmaster only. Rows highlighted = 11mm that would change.</p>';
+		$gm_ids = get_posts( array(
+			'post_type'   => 'product',
+			'post_status' => 'publish',
+			'numberposts' => -1,
+			'fields'      => 'ids',
+			'tax_query'   => array(
+				'relation' => 'AND',
+				array( 'taxonomy' => 'product_type', 'field' => 'slug', 'terms' => 'composite' ),
+				array( 'taxonomy' => 'product_cat', 'field' => 'slug', 'terms' => 'grandmaster' ),
+			),
+		) );
+		if ( ! $gm_ids ) {
+			echo '<p style="color:#b00;">No published Grandmaster composites found (check the category slug).</p>';
+		} else {
+			$seen_opt = array();
+			$changes  = 0;
+			echo '<table style="border-collapse:collapse;width:100%;font-size:13px;"><thead><tr style="text-align:left;border-bottom:2px solid #111;">';
+			foreach ( array( 'Composite', 'Wall option', 'Option ID', 'Tier', 'Price inc VAT', 'Price ex VAT', '→ new inc (16mm)' ) as $h ) {
+				echo '<th style="padding:6px 10px;">' . esc_html( $h ) . '</th>';
+			}
+			echo '</tr></thead><tbody>';
+			foreach ( $gm_ids as $gmid ) {
+				$comp = wc_get_product( $gmid );
+				if ( ! $comp || ! is_callable( array( $comp, 'get_components' ) ) ) {
+					continue;
+				}
+				foreach ( (array) $comp->get_components() as $component ) {
+					$ctitle = is_callable( array( $component, 'get_title' ) ) ? (string) $component->get_title() : '';
+					if ( false === strpos( strtolower( $ctitle ), 'wall' ) ) {
+						continue;
+					}
+					$opts = is_callable( array( $component, 'get_options' ) ) ? array_map( 'intval', (array) $component->get_options() ) : array();
+					// 16mm inc price keyed by size token (e.g. "12x8"; "_" when no size in the name).
+					$p16 = array();
+					foreach ( $opts as $oid ) {
+						$nm = (string) get_the_title( $oid );
+						if ( preg_match( '/16\s*mm/i', $nm ) ) {
+							$sk         = preg_match( '/(\d+)\s*[x×]\s*(\d+)/i', $nm, $sm ) ? ( $sm[1] . 'x' . $sm[2] ) : '_';
+							$p16[ $sk ] = (float) pt_audit_product_price( $oid );
+						}
+					}
+					foreach ( $opts as $oid ) {
+						$op = wc_get_product( $oid );
+						if ( ! $op ) {
+							continue;
+						}
+						$nm     = $op->get_name();
+						$inc    = (float) pt_audit_product_price( $oid );
+						$exx    = (float) pt_audit_product_price_net( $oid );
+						$tier   = preg_match( '/(\d+)\s*mm/i', $nm, $mm ) ? ( $mm[1] . 'mm' ) : '—';
+						$is11   = (bool) preg_match( '/11\s*mm/i', $nm );
+						$newinc = '';
+						if ( $is11 ) {
+							$sk     = preg_match( '/(\d+)\s*[x×]\s*(\d+)/i', $nm, $sm ) ? ( $sm[1] . 'x' . $sm[2] ) : '_';
+							$target = isset( $p16[ $sk ] ) ? $p16[ $sk ] : ( isset( $p16['_'] ) ? $p16['_'] : ( 1 === count( $p16 ) ? (float) reset( $p16 ) : null ) );
+							if ( null !== $target ) {
+								$newinc = '£' . number_format( $target, 2 );
+								if ( abs( $target - $inc ) > 0.005 ) {
+									$changes++;
+								}
+							} else {
+								$newinc = '<span style="color:#b00;">no 16mm match</span>';
+							}
+						}
+						$shared            = isset( $seen_opt[ $oid ] ) ? ' <span style="color:#b00;font-weight:700;">(shared!)</span>' : '';
+						$seen_opt[ $oid ]  = true;
+						echo '<tr style="border-bottom:1px solid #eee;' . ( $is11 ? 'background:#fff8e6;' : '' ) . '">';
+						echo '<td style="padding:6px 10px;">#' . (int) $gmid . ' ' . esc_html( $comp->get_name() ) . '</td>';
+						echo '<td style="padding:6px 10px;">' . esc_html( $nm ) . $shared . '</td>';
+						echo '<td style="padding:6px 10px;">' . (int) $oid . '</td>';
+						echo '<td style="padding:6px 10px;">' . esc_html( $tier ) . '</td>';
+						echo '<td style="padding:6px 10px;">£' . esc_html( number_format( $inc, 2 ) ) . '</td>';
+						echo '<td style="padding:6px 10px;">£' . esc_html( number_format( $exx, 2 ) ) . '</td>';
+						echo '<td style="padding:6px 10px;font-weight:700;color:#06507a;">' . $newinc . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput -- built above with number_format/esc_html
+						echo '</tr>';
+					}
+				}
+			}
+			echo '</tbody></table>';
+			echo '<p style="margin:12px 4px 0;color:#333;"><strong>' . (int) $changes . '</strong> 11mm option(s) would be repriced to their 16mm sibling price. Any <span style="color:#b00;font-weight:700;">(shared!)</span> option is used by more than one composite — confirm before editing.</p>';
+		}
+		get_footer();
+		return;
+	}
+
 	// --- Special-offer / "grandmaster" diagnostic: ?special_check=<product_id> ---
 	// Explains WHY a product is (or isn't) flagged for the special-offer badge —
 	// its categories, their ancestors, the ACF special-offer set, and the match.
