@@ -59,7 +59,7 @@ get_header();
       <div class="glass"><h3>Summerhouses</h3><p class="d">Slow down, enjoy the garden.</p><div class="rfoot"><span class="rprice">From £903</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
     <a class="range-card" href="<?php echo esc_url( home_url( '/garden-workshops/' ) ); ?>">
-      <?php if ( function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() ) : ?><span class="range-badge">Free 16mm cladding upgrade</span><?php endif; ?>
+      <?php if ( function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() ) : ?><span class="range-badge">Premium · Free 16mm cladding upgrade</span><?php endif; ?>
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/grandmaster_workshop_1x.webp" alt="Project Timber garden workshop" loading="lazy">
       <div class="glass"><h3>Garden Workshops</h3><p class="d">Space for every project.</p><div class="rfoot"><span class="rprice">From £935</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
@@ -219,7 +219,7 @@ get_header();
   <div class="rb-grid">
     <a class="rb-card rb-feat" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>">
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/Grandmaster.webp" alt="Grandmaster range" loading="lazy">
-      <div class="rb-in"><?php if ( function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() ) : ?><span class="tag y">Free 16mm cladding upgrade</span><?php endif; ?><h3>Grandmaster</h3><p>Our heavy-duty pressure-treated range — workshops, summerhouses and cabins built to last.</p><div class="rfoot"><span class="rprice">From £1,198</span><span class="shop">Shop Grandmaster <span class="a">→</span></span></div></div>
+      <div class="rb-in"><?php if ( function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() ) : ?><span class="tag y">Premium · Free 16mm cladding upgrade</span><?php endif; ?><h3>Grandmaster</h3><p>Our heavy-duty pressure-treated range — workshops, summerhouses and cabins built to last.</p><div class="rfoot"><span class="rprice">From £1,198</span><span class="shop">Shop Grandmaster <span class="a">→</span></span></div></div>
     </a>
     <a class="rb-card" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>">
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/hobbyistrange.webp" alt="Hobbyist range" loading="lazy">
