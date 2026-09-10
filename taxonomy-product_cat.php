@@ -33,10 +33,11 @@ $pt_desc_html = ( '' !== trim( (string) $pt_desc ) )
 // Optional per-category banner (ACF field group "Category Banner" on product_cat).
 // The "Show category banner" toggle gates BOTH the top banner image AND the in-grid
 // promo tile below — neither shows unless it's on for this category (default off).
-// Also gated on the voucher/campaign being live: the banner is a promo surface, so
-// it switches off with the voucher (auto_voucher_enabled()) and returns with it.
+// Also gated on the wall free-upgrade campaign: the banner/promo card is that
+// campaign's surface, so it shows for admins in preview and everyone on go-live
+// (pt_wall_campaign_active()), and stays hidden otherwise.
 $pt_banner_on  = ( function_exists( 'get_field' ) && $pt_term && get_field( 'cat_banner_enabled', $pt_term ) )
-	&& ( ! function_exists( 'auto_voucher_enabled' ) || auto_voucher_enabled() );
+	&& ( function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() );
 $pt_banner_src = $pt_banner_src_m = $pt_banner_link = $pt_banner_alt = '';
 if ( $pt_banner_on ) {
 	$pt_banner_src   = (string) get_field( 'cat_banner_image', $pt_term );
@@ -160,7 +161,7 @@ get_header();
         if ( $pt_banner_on && 0 === $pt_i ) {
             ?>
             <a class="promo-card" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>" aria-label="Current promotion">
-              <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Square.png" alt="Current promotion">
+              <img src="https://www.projecttimber.com/wp-content/uploads/2026/09/sh16_category_card_800_800_sh16_category_card_png.webp" alt="Free 16mm cladding upgrade">
             </a>
             <?php
         }
@@ -168,7 +169,7 @@ get_header();
     if ( $pt_banner_on && 0 === $pt_count ) {
         ?>
         <a class="promo-card" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>" aria-label="Current promotion">
-          <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/Square.png" alt="Current promotion">
+          <img src="https://www.projecttimber.com/wp-content/uploads/2026/09/sh16_category_card_800_800_sh16_category_card_png.webp" alt="Free 16mm cladding upgrade">
         </a>
         <?php
     }
