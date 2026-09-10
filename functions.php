@@ -249,6 +249,14 @@ add_action(
 				// keyed by size (e.g. "12x8"); the specs diagram switches with the size.
 				$pt_spec_imgs = function_exists( 'pt_spec_size_images' ) ? pt_spec_size_images( get_queried_object_id() ) : array();
 
+				// Wall free-upgrade campaign (Grandmaster): 16mm wall is default + free.
+				// On for admins ALWAYS (live preview), and for everyone once the switch is
+				// on (constant PT_WALL_UPGRADE_LIVE or option pt_wall_upgrade_live). Prices
+				// are never edited — the configurator shows/charges the wall at £0.
+				$pt_wall_live    = defined( 'PT_WALL_UPGRADE_LIVE' ) ? (bool) PT_WALL_UPGRADE_LIVE : (bool) get_option( 'pt_wall_upgrade_live', false );
+				$pt_wall_upgrade = ( function_exists( 'pt_is_grandmaster_product' ) && pt_is_grandmaster_product( get_queried_object_id() ) )
+					&& ( $pt_wall_live || current_user_can( 'manage_woocommerce' ) );
+
 				// Admin/editor edit-button base URL (wp-admin/post.php). Only exposed to
 				// users who can edit this product; product.js appends ?post=<size>&action=edit.
 				$pt_admin_edit = current_user_can( 'edit_post', get_queried_object_id() )
@@ -266,7 +274,8 @@ add_action(
 					// cache site-wide, not just the server's. See includes/price-refresh-admin.php.
 					. 'window.PT_PRICE_VER=' . wp_json_encode( (int) get_option( 'timber_pcfg_gen', 1 ) ) . ';'
 					. 'window.PT_ADMIN_EDIT=' . wp_json_encode( $pt_admin_edit ) . ';'
-					. 'window.PT_SPEC_IMAGES=' . wp_json_encode( (object) $pt_spec_imgs ) . ';',
+					. 'window.PT_SPEC_IMAGES=' . wp_json_encode( (object) $pt_spec_imgs ) . ';'
+					. 'window.PT_WALL_UPGRADE=' . wp_json_encode( (bool) $pt_wall_upgrade ) . ';',
 					'before'
 				);
 			}
@@ -397,6 +406,38 @@ if ( ! function_exists( 'pt_account_url' ) ) {
 			}
 		}
 		return home_url( '/my-account/' );
+	}
+}
+
+if ( ! function_exists( 'pt_is_grandmaster_product' ) ) {
+	/**
+	 * Whether a product is in the Grandmaster range — the 'grandmaster' product_cat
+	 * term or any descendant of it. Scopes the wall free-upgrade campaign.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return bool
+	 */
+	function pt_is_grandmaster_product( $product_id ) {
+		$product_id = (int) $product_id;
+		if ( ! $product_id || ! function_exists( 'get_the_terms' ) ) {
+			return false;
+		}
+		$terms = get_the_terms( $product_id, 'product_cat' );
+		if ( ! $terms || is_wp_error( $terms ) ) {
+			return false;
+		}
+		foreach ( $terms as $t ) {
+			if ( 'grandmaster' === $t->slug ) {
+				return true;
+			}
+			foreach ( get_ancestors( $t->term_id, 'product_cat' ) as $aid ) {
+				$a = get_term( $aid, 'product_cat' );
+				if ( $a && ! is_wp_error( $a ) && 'grandmaster' === $a->slug ) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }
 

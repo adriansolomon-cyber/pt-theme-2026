@@ -122,8 +122,14 @@
       return '';
     }
 
+    // Wall-thickness free-upgrade campaign (Grandmaster). PT_WALL_UPGRADE is set
+    // server-side ONLY when this product qualifies AND the campaign is on for this
+    // viewer (live for all, or admin-preview). When false, every branch below is a
+    // no-op, so non-campaign products/pages behave exactly as before.
+    var WALLUP=(typeof window!=='undefined' && window.PT_WALL_UPGRADE)||false;
+
     // --- runtime state ---
-    var product=null, components=[], sizeCid=null, scenarios={}, meta={}, sel={}, sizeId=null, curPid=null, pendingSize=null;
+    var product=null, components=[], sizeCid=null, wallCid=null, scenarios={}, meta={}, sel={}, sizeId=null, curPid=null, pendingSize=null;
     // rawScenarios: the individual composite scenarios (each a map cid -> [allowed option ids]),
     // used to FILTER downstream options by prior selections (Material -> Front Window, etc.).
     // `scenarios` (merged per size) still drives the size list + prefetch. Empty => no filtering.
@@ -598,16 +604,23 @@
       var badge4w=(colour&&isNone)?'<span class="badge4w">⚠ Paint within 4 weeks!*</span>':'';
       // every price shows the discounted value when a campaign is live; £0 / "Included"
       // options render plain (fmtDisc skips the struck-through zero for n<=0).
-      var price=(opt.price==null)?'<span class="pr-sk skel-box"></span>':fmtDisc(opt.price);
+      var price;
+      if(opt.price==null){ price='<span class="pr-sk skel-box"></span>'; }
+      else if(WALLUP && wallCid && String(group)===wallCid){
+        // Wall free-upgrade: both options are £0. The paid upgrade (16mm) shows its
+        // original price struck through next to a £0.00; the £0 standard shows plain.
+        price=(opt.price>0) ? ('<span class="was">'+fmt(opt.price)+'</span><span class="free">'+fmt(0)+'</span>') : fmt(0);
+      }
+      else { price=fmtDisc(opt.price); }
       var sizeAttrs=(group===sizeCid) ? ' data-val="'+esc(label)+'"'+(isBestSize(opt.name)?' data-best="1"':'') : '';
       return '<div class="opt-card'+(selected?' sel':'')+'" data-group="'+esc(group)+'" data-opt="'+opt.id+'"'+sizeAttrs+'>'+img+badge4w+
         '<div class="nm">'+esc(label)+'</div><div class="pr">'+price+'</div>'+
         '<div class="selbtn">'+(selected?'Selected':'Select')+'</div></div>';
     }
-    function rowHTML(idx,label,selId,group,mode,cardsHTML,note){
+    function rowHTML(idx,label,selId,group,mode,cardsHTML,note,badge){
       var noteHTML=note?'<p class="cfg-note">'+esc(note)+'</p>':'';
       return '<div class="cfg-row'+(idx===1?' open':'')+'">'+
-        '<div class="cfg-head"><span class="ix">'+idx+'.</span><span class="lab">'+esc(label)+'</span>'+
+        '<div class="cfg-head"><span class="ix">'+idx+'.</span><span class="lab">'+esc(label)+'</span>'+(badge||'')+
         '<span class="sel" id="'+selId+'">—</span><span class="chev">▾</span></div>'+
         '<div class="cfg-body"><div><div class="cfg-inner">'+noteHTML+
         '<div class="opt-cards" data-group="'+esc(group)+'"'+(mode?' data-mode="'+mode+'"':'')+'>'+cardsHTML+'</div>'+
@@ -749,8 +762,16 @@
       opts.sort(function(a,b){ return (a.price||0)-(b.price||0); });
       var visIds=opts.map(function(o){ return o.id; });
       // Default to (or fall back to) the cheapest VISIBLE option if the current
-      // selection is unset or now points at a hidden option.
-      if(sel[c.id]==null || visIds.indexOf(sel[c.id])<0) sel[c.id]=opts.length?opts[0].id:null;
+      // selection is unset or now points at a hidden option. Wall free-upgrade
+      // campaign: default the wall step to the 16mm option instead of the cheapest.
+      if(sel[c.id]==null || visIds.indexOf(sel[c.id])<0){
+        var def=opts.length?opts[0].id:null;
+        if(WALLUP && c.key==='wall'){
+          var o16=opts.filter(function(o){ return /16\s*mm/i.test(o.name||''); })[0];
+          if(o16) def=o16.id;
+        }
+        sel[c.id]=def;
+      }
       return opts;
     }
 
@@ -769,7 +790,8 @@
         if(sel[c.id]!=null) active[c.id]=sel[c.id];   // lock this choice for downstream filtering
         var colour=isColourComp(c);
         var cards=opts.map(function(o){ return cardHTML(c.id,o,o.id===sel[c.id],colour); }).join('');
-        html+=rowHTML(idx,c.title,'sel-'+c.key,c.id,'',cards,stepNote(c));
+        var badge=(WALLUP && c.key==='wall') ? '<span class="freeup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Cladding upgrade</span>' : '';
+        html+=rowHTML(idx,c.title,'sel-'+c.key,c.id,'',cards,stepNote(c),badge);
       });
       elRows.insertAdjacentHTML('beforeend',html);
       components.forEach(function(c){ if(c.id===sizeCid) return; if(sel[c.id]!=null){ var m=meta[sel[c.id]]; setSelLabel('sel-'+c.key, m?m.name:('#'+sel[c.id])); } });
@@ -801,7 +823,7 @@
     }
     function setSelLabel(id,txt){ var e=$(id); if(e) e.textContent=txt; }
 
-    function total(){ var t=0; for(var cid in sel){ var m=meta[sel[cid]]; if(m) t+=m.price; } return t; }
+    function total(){ var t=0; for(var cid in sel){ if(WALLUP && wallCid && cid===wallCid) continue; var m=meta[sel[cid]]; if(m) t+=m.price; } return t; }
     function siteOrigin(){ if(product && product.permalink){ try{ return new URL(product.permalink).origin; }catch(e){} } return baseUrl(); }
     function cartUrl(){
       if(!product||sizeId==null) return '';
@@ -820,6 +842,9 @@
 
     // ====================== load ======================
     function afterParse(pid,cached){
+      // Resolve the wall component id once (for the free-upgrade campaign).
+      wallCid=(components.filter(function(c){ return c.key==='wall'; })[0]||{}).id||null;
+      if(wallCid!=null) wallCid=String(wallCid);
       if(elName) elName.textContent=(product&&product.name)||('Product '+pid);
       galleryBase=parentGalleryList();
       if(elImg && parentLead()) elImg.src=parentLead();
