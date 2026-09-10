@@ -7,7 +7,7 @@
             "label": "New product",
             "name": "pt_is_new",
             "type": "true_false",
-            "instructions": "Mark this product as New. On its category page it is pinned to the 3rd card in the default Bestsellers view (several New products stack from 3rd onward). Does not change any other sort.",
+            "instructions": "Mark this product as New. It shows a “New” badge and is pinned to the 1st card of its category page in the default Bestsellers view (several New products stack from 1st onward). Does not change any other sort.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -2206,5 +2206,5 @@
     "description": "Editable marketing content for the single-product (PDP) template. The configurator, price, sizes and spec values remain API-driven; these fields fill the surrounding copy, images and sections.",
     "show_in_rest": 0,
     "display_title": "",
-    "modified": 1789084800
+    "modified": 1789171200
 }

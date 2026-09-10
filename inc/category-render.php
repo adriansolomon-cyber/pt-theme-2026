@@ -207,6 +207,10 @@ function pt_cat_card_html( $p ) {
 		$h .= '<img class="pscene" src="' . esc_url( $img1 ) . '" alt="" aria-hidden="true">';
 	}
 	$h .= $badge;
+	// "New" badge (ACF pt_is_new), flagged on the product in taxonomy-product_cat.php.
+	if ( ! empty( $p['is_new'] ) ) {
+		$h .= '<span class="newbadge">New</span>';
+	}
 	$h .= '</div>';
 	$h .= '<div class="pbody"><h3>' . esc_html( $name ) . '</h3><div class="pprice">' . $price_html . '</div>';
 	if ( $sizes ) {

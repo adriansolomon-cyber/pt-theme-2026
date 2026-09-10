@@ -247,3 +247,5 @@
 .prod .pbadge{ position:absolute; top:12px; left:12px; z-index:3; background:var(--ink); color:#fff; border-radius:10px; padding:6px 11px; box-shadow:var(--e2); line-height:1.05; text-align:left; pointer-events:none; }
 .prod .pbadge b{ display:block; font-size:.82rem; font-weight:700; letter-spacing:.01em; }
 .prod .pbadge span{ display:block; font-size:.58rem; font-weight:400; letter-spacing:.05em; text-transform:uppercase; opacity:.85; margin-top:2px; }
+/* new-arrival badge — dark pill, sand text (top-right, clears the discount badge) */
+.prod .newbadge{ position:absolute; top:12px; right:12px; z-index:3; background:var(--ink); color:#E6D9C7; font-size:.6rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase; border-radius:999px; padding:5px 12px; box-shadow:var(--e2); pointer-events:none; }
