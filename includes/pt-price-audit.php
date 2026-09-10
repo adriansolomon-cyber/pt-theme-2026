@@ -511,15 +511,68 @@ function pt_render_price_detail( array $ids ) {
 }
 
 /**
+ * Group per-sale rows by the inc-VAT price actually sold at, tallying units,
+ * orders, gross revenue and net margin per price point, then flag the best
+ * price by revenue, by volume and by total margin. Shared by the drill-down
+ * panel and the summary table's Suggested column so both always agree.
+ *
+ * Margin needs COGS; the revenue/volume picks do not, so the table can call
+ * this with $cogs = 0 purely for the best-revenue suggested price.
+ *
+ * @param array $rows Per-sale rows (unit_paid, unit_paid_net, qty, order_id).
+ * @param float $cogs Cost of goods per unit (ex VAT).
+ * @return array{byprice:array,best_rev:?array,best_vol:?array,best_margin:?array,points:int}
+ */
+function pt_price_audit_suggest( array $rows, $cogs ) {
+	$cogs    = (float) $cogs;
+	$byprice = array();
+	foreach ( $rows as $r ) {
+		$sold = round( (float) $r['unit_paid'], 2 );      // inc VAT (display)
+		$net  = round( (float) $r['unit_paid_net'], 2 );  // ex VAT (for margin)
+		$k    = number_format( $sold, 2, '.', '' );
+		if ( ! isset( $byprice[ $k ] ) ) {
+			$byprice[ $k ] = array( 'price' => $sold, 'net' => $net, 'units' => 0, 'orders' => array(), 'revenue' => 0.0, 'margin' => 0.0 );
+		}
+		$q                                               = max( 1, (int) $r['qty'] );
+		$byprice[ $k ]['units']                         += $q;
+		$byprice[ $k ]['orders'][ (int) $r['order_id'] ] = true;
+		$byprice[ $k ]['revenue']                       += $sold * $q;             // gross revenue (inc VAT)
+		$byprice[ $k ]['margin']                        += ( $net - $cogs ) * $q;  // NET margin: (net sold − COGS) × units
+	}
+	uasort( $byprice, static function ( $x, $y ) {
+		return $x['price'] <=> $y['price'];
+	} );
+
+	$best_rev = $best_vol = $best_margin = null;
+	foreach ( $byprice as $b ) {
+		if ( null === $best_rev || $b['revenue'] > $best_rev['revenue'] ) {
+			$best_rev = $b;
+		}
+		if ( null === $best_vol || $b['units'] > $best_vol['units'] ) {
+			$best_vol = $b;
+		}
+		if ( null === $best_margin || $b['margin'] > $best_margin['margin'] ) {
+			$best_margin = $b;
+		}
+	}
+	return array( 'byprice' => $byprice, 'best_rev' => $best_rev, 'best_vol' => $best_vol, 'best_margin' => $best_margin, 'points' => count( $byprice ) );
+}
+
+/**
  * Aggregate per-sale price rows into one summary per product — the exact shape
  * the on-screen table and the summary CSV both render. Rows must be date-asc
  * (as pt_test_product_price_rows returns them) so first/last read correctly.
+ *
+ * Each product also gets `suggested` (best-revenue price, inc VAT) and
+ * `suggested_points` (how many distinct price points it was sold at), from
+ * pt_price_audit_suggest() — the same signal the drill-down headline uses.
  *
  * @param array $rows Rows from pt_test_product_price_rows().
  * @return array<int,array<string,mixed>> Keyed by product id.
  */
 function pt_aggregate_price_rows( array $rows ) {
-	$agg = array();
+	$agg    = array();
+	$by_pid = array();
 	foreach ( $rows as $r ) {
 		$pid = (int) $r['product_id'];
 		$lv  = (float) $r['unit_list']; // List (Cost, inc VAT)
@@ -553,7 +606,15 @@ function pt_aggregate_price_rows( array $rows ) {
 		$agg[ $pid ]['min_sold']                 = min( $agg[ $pid ]['min_sold'], $pv );
 		$agg[ $pid ]['max_sold']                 = max( $agg[ $pid ]['max_sold'], $pv );
 		$agg[ $pid ]['last_sold_net']            = $pn;
+		$by_pid[ $pid ][]                        = $r;
 	}
+	// Best-revenue suggested price per product (COGS not needed for that pick).
+	foreach ( $agg as $pid => &$a ) {
+		$sug                   = pt_price_audit_suggest( $by_pid[ $pid ], 0.0 );
+		$a['suggested']        = ( $sug['best_rev'] ) ? (float) $sug['best_rev']['price'] : null;
+		$a['suggested_points'] = (int) $sug['points'];
+	}
+	unset( $a );
 	return $agg;
 }
 
@@ -655,38 +716,11 @@ function pt_price_audit_detail_ajax() {
 		// Group by the price actually sold at (Total), tallying units, orders and
 		// revenue (price × units) at each, then suggest the price that earned the
 		// most. It's a signal from real sales, not a demand model.
-		$byprice = array();
-		foreach ( $rows as $r ) {
-			$sold = round( (float) $r['unit_paid'], 2 );      // inc VAT (display)
-			$net  = round( (float) $r['unit_paid_net'], 2 );  // ex VAT (for margin)
-			$k    = number_format( $sold, 2, '.', '' );
-			if ( ! isset( $byprice[ $k ] ) ) {
-				$byprice[ $k ] = array( 'price' => $sold, 'net' => $net, 'units' => 0, 'orders' => array(), 'revenue' => 0.0, 'margin' => 0.0 );
-			}
-			$q                                             = max( 1, (int) $r['qty'] );
-			$byprice[ $k ]['units']                       += $q;
-			$byprice[ $k ]['orders'][ (int) $r['order_id'] ] = true;
-			$byprice[ $k ]['revenue']                     += $sold * $q;              // gross revenue (inc VAT)
-			$byprice[ $k ]['margin']                      += ( $net - $cogs ) * $q;   // NET margin: (net sold − COGS) × units
-		}
-		uasort( $byprice, static function ( $x, $y ) {
-			return $x['price'] <=> $y['price'];
-		} );
-
-		$best_rev    = null;
-		$best_vol    = null;
-		$best_margin = null;
-		foreach ( $byprice as $b ) {
-			if ( null === $best_rev || $b['revenue'] > $best_rev['revenue'] ) {
-				$best_rev = $b;
-			}
-			if ( null === $best_vol || $b['units'] > $best_vol['units'] ) {
-				$best_vol = $b;
-			}
-			if ( null === $best_margin || $b['margin'] > $best_margin['margin'] ) {
-				$best_margin = $b;
-			}
-		}
+		$sug         = pt_price_audit_suggest( $rows, $cogs );
+		$byprice     = $sug['byprice'];
+		$best_rev    = $sug['best_rev'];
+		$best_vol    = $sug['best_vol'];
+		$best_margin = $sug['best_margin'];
 
 		echo '<div style="margin:14px 4px 4px;padding:12px 14px;background:#eef7ee;border:1px solid #cfe6cf;border-radius:8px;">';
 		echo '<div style="font-weight:700;margin-bottom:6px;">Price performance &amp; suggestion</div>';

@@ -181,7 +181,7 @@ if ( current_user_can( 'manage_woocommerce' )
 	if ( 'summary' === $pt_export ) {
 		// Column-for-column mirror of the on-screen table: each list figure with
 		// its "sold" sub-line as an adjacent column, plus COGS and margin (£/%).
-		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'units', 'orders', 'first_price_incvat', 'first_date', 'last_price_incvat', 'last_date', 'lowest_list_incvat', 'lowest_sold_incvat', 'highest_list_incvat', 'highest_sold_incvat', 'change_list_incvat', 'change_sold_incvat', 'change_list_pct', 'change_sold_pct', 'listing_price_incvat', 'cogs_exvat', 'net_margin', 'net_margin_pct' ) );
+		fputcsv( $out, array( 'product_id', 'product', 'parent_id', 'parent_title', 'parent_size_url', 'units', 'orders', 'first_price_incvat', 'first_date', 'last_price_incvat', 'last_date', 'lowest_list_incvat', 'lowest_sold_incvat', 'highest_list_incvat', 'highest_sold_incvat', 'change_list_incvat', 'change_sold_incvat', 'change_list_pct', 'change_sold_pct', 'listing_price_incvat', 'suggested_incvat', 'cogs_exvat', 'net_margin', 'net_margin_pct' ) );
 
 		foreach ( array_chunk( $ids, 50 ) as $chunk ) {
 			$agg = pt_aggregate_price_rows( pt_test_product_price_rows( $chunk ) );
@@ -192,7 +192,7 @@ if ( current_user_can( 'manage_woocommerce' )
 				$cogs    = pt_audit_product_cogs( $pid );
 				if ( ! isset( $agg[ $pid ] ) ) {
 					// No sales in period — still list the product (with parent + listing + COGS), like the web view.
-					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], pt_audit_size_url( $par['url'], get_the_title( $pid ) ), 0, 0, '', '', '', '', '', '', '', '', '', '', '', '', number_format( $listing, 2, '.', '' ), number_format( $cogs, 2, '.', '' ), '', '' ) );
+					fputcsv( $out, array( $pid, '', $par['id'], $par['title'], pt_audit_size_url( $par['url'], get_the_title( $pid ) ), 0, 0, '', '', '', '', '', '', '', '', '', '', '', '', number_format( $listing, 2, '.', '' ), '', number_format( $cogs, 2, '.', '' ), '', '' ) );
 					continue;
 				}
 				$a          = $agg[ $pid ];
@@ -225,6 +225,7 @@ if ( current_user_can( 'manage_woocommerce' )
 						number_format( $chgpct, 1, '.', '' ),
 						number_format( $chgpct_sld, 1, '.', '' ),
 						number_format( $listing, 2, '.', '' ),
+						( isset( $a['suggested'] ) && (float) $a['suggested'] > 0 ) ? number_format( (float) $a['suggested'], 2, '.', '' ) : '',
 						number_format( $cogs, 2, '.', '' ),
 						$cogs > 0 ? number_format( $margin, 2, '.', '' ) : '',
 						$cogs > 0 ? number_format( $margin_pct, 1, '.', '' ) : '',
@@ -597,7 +598,7 @@ get_header();
 
 		echo '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
 		echo '<thead><tr style="text-align:left;border-bottom:2px solid #111;">';
-		foreach ( array( 'Product ID', 'Product', 'Parent product', 'Units', 'Orders', 'First £ (date)', 'Last £ (date)', 'Lowest £', 'Highest £', 'Change £', 'Change %', 'Listing £', 'COGS £' ) as $h ) {
+		foreach ( array( 'Product ID', 'Product', 'Parent product', 'Units', 'Orders', 'First £ (date)', 'Last £ (date)', 'Lowest £', 'Highest £', 'Change £', 'Change %', 'Listing £', 'Suggested £', 'COGS £' ) as $h ) {
 			echo '<th style="padding:7px 10px;vertical-align:top;">' . esc_html( $h ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
@@ -620,6 +621,7 @@ get_header();
 				$cogs_ns    = pt_audit_product_cogs( $pid );
 				echo '<td style="padding:6px 10px;" colspan="8">no sales in period</td>';
 				echo '<td style="padding:6px 10px;color:#555;">' . ( $listing_ns > 0 ? '£' . esc_html( number_format( $listing_ns, 2 ) ) : '<span style="color:#bbb;">—</span>' ) . '</td>';
+				echo '<td style="padding:6px 10px;color:#bbb;">—</td>'; // Suggested £ (no sales → no signal)
 				echo '<td style="padding:6px 10px;color:#555;">' . ( $cogs_ns > 0 ? '£' . esc_html( number_format( $cogs_ns, 2 ) ) : '<span style="color:#bbb;">—</span>' ) . '</td></tr>';
 				continue;
 			}
@@ -682,6 +684,23 @@ get_header();
 			echo '<td style="' . $chg_style . '">' . esc_html( $chg_pct_txt ) . '<div style="font-weight:400;font-size:11px;opacity:.8;">sold ' . esc_html( $chg_sold_pct_txt ) . '</div></td>';
 			$listing_row = pt_audit_product_price( $pid );
 			echo '<td style="padding:6px 10px;color:#555;">' . ( $listing_row > 0 ? '£' . esc_html( number_format( $listing_row, 2 ) ) : '<span style="color:#bbb;">—</span>' ) . '</td>';
+			// Suggested £ = the price that earned the most revenue in the window
+			// (same pick as the drill-down), with a delta vs the current listing.
+			$sug_row = isset( $a['suggested'] ) ? (float) $a['suggested'] : 0.0;
+			if ( $sug_row > 0 ) {
+				$sug_sub = '';
+				if ( $listing_row > 0 ) {
+					$sug_d = $sug_row - $listing_row;
+					if ( abs( $sug_d ) < 0.005 ) {
+						$sug_sub = '<div style="color:#888;font-size:11px;">= listing</div>';
+					} else {
+						$sug_sub = '<div style="color:' . ( $sug_d > 0 ? '#0a7d28' : '#b00' ) . ';font-size:11px;">vs listing ' . ( $sug_d > 0 ? '+£' : '−£' ) . esc_html( number_format( abs( $sug_d ), 2 ) ) . '</div>';
+					}
+				}
+				echo '<td style="padding:6px 10px;font-weight:700;color:#06507a;">£' . esc_html( number_format( $sug_row, 2 ) ) . $sug_sub . '</td>';
+			} else {
+				echo '<td style="padding:6px 10px;color:#bbb;">—</td>';
+			}
 			$cogs_row = pt_audit_product_cogs( $pid );
 			if ( $cogs_row > 0 ) {
 				$m_row  = (float) $a['last_sold_net'] - $cogs_row; // net margin at last sold price
@@ -691,7 +710,7 @@ get_header();
 				echo '<td style="padding:6px 10px;color:#bbb;">—</td>';
 			}
 			echo '</tr>';
-			echo '<tr class="pt-detail-row" data-for="' . (int) $pid . '" hidden><td colspan="13" style="padding:0 10px 12px 34px;background:#fafafa;"><div class="pt-audit-detail"></div></td></tr>';
+			echo '<tr class="pt-detail-row" data-for="' . (int) $pid . '" hidden><td colspan="14" style="padding:0 10px 12px 34px;background:#fafafa;"><div class="pt-audit-detail"></div></td></tr>';
 		}
 
 		// TOTAL row (this batch): summed units/orders, net £ change, average % change.
@@ -704,6 +723,7 @@ get_header();
 		echo '<td style="padding:9px 10px;">' . esc_html( ( $tot_chg >= 0 ? '+£' : '−£' ) . number_format( abs( $tot_chg ), 2 ) ) . '</td>';
 		echo '<td style="padding:9px 10px;">' . esc_html( ( $avg_pct >= 0 ? '+' : '−' ) . number_format( abs( $avg_pct ), 1 ) . '% avg' ) . '</td>';
 		echo '<td style="padding:9px 10px;"></td>'; // Listing £
+		echo '<td style="padding:9px 10px;"></td>'; // Suggested £
 		echo '<td style="padding:9px 10px;"></td>'; // COGS £
 		echo '</tr>';
 
