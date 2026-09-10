@@ -22,6 +22,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// ── CAMPAIGN LIVE SWITCH ──────────────────────────────────────────────────
+// true  = the 16mm wall free-upgrade is LIVE for all customers.
+// false = admins-only preview (the campaign still shows for manage_woocommerce).
+// Guarded so a define() in wp-config.php still overrides this (wp-config loads first).
+if ( ! defined( 'PT_WALL_UPGRADE_LIVE' ) ) {
+	define( 'PT_WALL_UPGRADE_LIVE', true );
+}
+
 /**
  * Whether the wall free-upgrade campaign should act for the CURRENT viewer:
  * live for all when the switch is on, otherwise admins only (preview).
