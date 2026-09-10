@@ -76,6 +76,34 @@ usort(
 	}
 );
 
+// Pin any product flagged "New" (ACF true/false field `pt_is_new` on the product)
+// to the 3rd grid slot, keeping the two best-sellers ahead of it. If several are
+// flagged they stack from 3rd (3rd, 4th, 5th…) in their current best-seller order.
+// This only shapes THIS default server order — the client Sort dropdown re-sorts
+// the cards freely from here (category.js), so the pin is the first-paint view only.
+$pt_new  = array();
+$pt_rest = array();
+foreach ( $pt_products as $pt_p ) {
+	$pt_pid    = ! empty( $pt_p['id'] ) ? (int) $pt_p['id'] : 0;
+	$pt_is_new = $pt_pid && ( function_exists( 'get_field' )
+		? (bool) get_field( 'pt_is_new', $pt_pid )
+		: (bool) get_post_meta( $pt_pid, 'pt_is_new', true ) );
+	if ( $pt_is_new ) {
+		$pt_new[] = $pt_p;
+	} else {
+		$pt_rest[] = $pt_p;
+	}
+}
+if ( $pt_new ) {
+	// Insert after the first (up to) two non-new products; array_slice is safe
+	// when there are fewer than two, so tiny categories just get the new ones first.
+	$pt_products = array_merge(
+		array_slice( $pt_rest, 0, 2 ),
+		$pt_new,
+		array_slice( $pt_rest, 2 )
+	);
+}
+
 get_header();
 ?>
 

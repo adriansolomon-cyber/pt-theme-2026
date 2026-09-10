@@ -3,6 +3,26 @@
     "title": "Product Page Content",
     "fields": [
         {
+            "key": "field_pt_is_new",
+            "label": "New product",
+            "name": "pt_is_new",
+            "type": "true_false",
+            "instructions": "Mark this product as New. On its category page it is pinned to the 3rd card in the default Bestsellers view (several New products stack from 3rd onward). Does not change any other sort.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "This is a New product",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "New",
+            "ui_off_text": "Standard"
+        },
+        {
             "key": "field_pt_tab_sections",
             "label": "Section visibility",
             "name": "",
@@ -2186,5 +2206,5 @@
     "description": "Editable marketing content for the single-product (PDP) template. The configurator, price, sizes and spec values remain API-driven; these fields fill the surrounding copy, images and sections.",
     "show_in_rest": 0,
     "display_title": "",
-    "modified": 1786900100
+    "modified": 1789084800
 }
