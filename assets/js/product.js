@@ -106,10 +106,14 @@
       floor:"Comes with an insulated tongue-and-groove floor as standard. Upgrade for a more solid feel and heavier loads.",
       laminate:"An optional laminate finish laid over the floor for a ready-to-use interior — choose a tone, or leave it bare to finish your own way.",
       paint:"Thorndown paint, supplied in tins — buildings aren't pre-painted on delivery. Swatch colours shown are indicative approximations.",
-      assembly:"Prefer not to self-build? Add our assembly service and our team installs the building for you on delivery. Leave as None to build it yourself using the included instructions."
+      assembly:"Prefer not to self-build? Add our assembly service and our team installs the building for you on delivery. Leave as None to build it yourself using the included instructions.",
+      // Wall free-upgrade campaign copy (shown only when WALLUP is active).
+      wall_free:"16mm shiplap — free upgrade. Our thickest cladding: heavier, more rigid boards that feel rock-solid and shrug off the British weather. Usually costs extra — yours included at no charge while this offer runs."
     };
     function isColourComp(c){ return /paint|trim/i.test((c&&(c.title||c.key))||''); }
     function stepNote(c){
+      // Campaign: persuasive copy on the wall step while the free upgrade is live.
+      if(WALLUP && c && c.key==='wall') return STEP_NOTE.wall_free;
       if(c && c.description) return String(c.description);
       var t=String((c&&(c.title||c.key))||'').toLowerCase();
       if(/paint|trim/.test(t)) return STEP_NOTE.paint;
