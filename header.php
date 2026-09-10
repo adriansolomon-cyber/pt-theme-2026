@@ -297,11 +297,14 @@ $pt_free_delivery = 'FREE DELIVERY — <b>selected postcodes*</b>';
 // subnav on product pages). The offset script below keeps the sticky header/subnav
 // sitting beneath it.
 $pt_promo_sticky  = ' promo-sticky';
+// TEMPORARY: the whole sticky promo bar (countdown AND free-delivery fallback)
+// is hidden for now. Flip to true to bring it back.
+$pt_show_promo    = false;
 $pt_cd_enabled    = function_exists( 'get_field' ) ? (bool) get_field( 'enable_countdown', 'option' ) : false;
 $pt_cd_raw        = ( $pt_cd_enabled && function_exists( 'get_field' ) ) ? (string) get_field( 'set_countdown_end_date', 'option' ) : '';
 $pt_cd_end_ts     = ( '' !== trim( $pt_cd_raw ) ) ? strtotime( $pt_cd_raw ) : false;
 
-if ( $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
+if ( $pt_show_promo && $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
 	// Message from ACF (countdown_secondary_text). It may contain markup such as
 	// <b class="gm">GM10</b> to render the code as a chip, so allow safe HTML
 	// (wp_kses_post) instead of escaping it. Falls back to the original copy.
@@ -357,10 +360,10 @@ if ( $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
   tick(); var iv=setInterval(tick,1000);
 })();
 </script>
-<?php else : ?>
+<?php elseif ( $pt_show_promo ) : ?>
 <div class="promo<?php echo $pt_promo_sticky; ?>"><?php echo wp_kses_post( $pt_free_delivery ); ?></div>
 <?php endif; ?>
-<?php if ( '' !== $pt_promo_sticky ) : ?>
+<?php if ( $pt_show_promo && '' !== $pt_promo_sticky ) : ?>
 <script>
 /* PRODUCT PAGES ONLY: keep the sticky header/subnav sitting BELOW the pinned
    promo bar. Publishes the promo height as --pt-promo-h AND sets `top` inline on
