@@ -165,15 +165,34 @@ function pt_wall_pairs() {
 	) );
 	$rows   = array();
 	$seen11 = array();
+	$debug  = array( 'gm_count' => count( $gm_ids ), 'first' => '' );
+	$dbg_done = false;
 	foreach ( $gm_ids as $gmid ) {
 		$data = timber_pcfg_build( (int) $gmid );
+		if ( ! $dbg_done ) {
+			// Snapshot the first composite so an empty result can explain itself.
+			if ( is_wp_error( $data ) ) {
+				$debug['first'] = '#' . (int) $gmid . ' build error: ' . $data->get_error_message();
+			} else {
+				$comp_desc = array();
+				foreach ( (array) ( isset( $data['components'] ) ? $data['components'] : array() ) as $c ) {
+					$comp_desc[] = ( isset( $c['title'] ) ? $c['title'] : '?' ) . ' [key=' . ( isset( $c['key'] ) ? $c['key'] : '?' ) . ']';
+				}
+				$debug['first'] = '#' . (int) $gmid . ' components: ' . ( $comp_desc ? implode( ', ', $comp_desc ) : 'none' ) . ' · sizes=' . count( (array) ( isset( $data['sizes'] ) ? $data['sizes'] : array() ) );
+			}
+			$dbg_done = true;
+		}
 		if ( is_wp_error( $data ) || empty( $data['components'] ) ) {
 			continue;
 		}
-		// Wall component id for this composite.
+		// Wall component id for this composite. Match the key OR any title
+		// containing "wall" — the key is only 'wall' when the title is exactly
+		// "Wall Thickness"; a stray space/wording gives 'wall_thickness' instead.
 		$wall_cid = '';
 		foreach ( (array) $data['components'] as $c ) {
-			if ( isset( $c['key'] ) && 'wall' === $c['key'] ) {
+			$ckey   = isset( $c['key'] ) ? (string) $c['key'] : '';
+			$ctitle = isset( $c['title'] ) ? (string) $c['title'] : '';
+			if ( 'wall' === $ckey || false !== stripos( $ckey, 'wall' ) || false !== stripos( $ctitle, 'wall' ) ) {
 				$wall_cid = (string) $c['id'];
 				break;
 			}
@@ -217,7 +236,7 @@ function pt_wall_pairs() {
 			}
 		}
 	}
-	return array( 'rows' => $rows, 'error' => '' );
+	return array( 'rows' => $rows, 'error' => '', 'debug' => $debug );
 }
 
 
@@ -613,6 +632,9 @@ get_header();
 			echo '<p style="color:#b00;">' . esc_html( $res['error'] ) . '</p>';
 		} elseif ( empty( $res['rows'] ) ) {
 			echo '<p style="color:#b00;">No Grandmaster composites with a Wall Thickness component were found (check the category slug / component title).</p>';
+			if ( ! empty( $res['debug'] ) ) {
+				echo '<p style="color:#888;font-size:12px;">Debug — Grandmaster composites found: <strong>' . (int) $res['debug']['gm_count'] . '</strong>. First: ' . esc_html( (string) $res['debug']['first'] ) . '</p>';
+			}
 		} else {
 			$changes = 0;
 			echo '<table style="border-collapse:collapse;width:100%;font-size:13px;"><thead><tr style="text-align:left;border-bottom:2px solid #111;">';
