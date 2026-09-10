@@ -360,7 +360,14 @@ function pt_spec_size_images( $product_id ) {
 				$hay = get_the_title( (int) $img ) . ' ' . $url;
 			} else {
 				$url = (string) $img;
+				// ACF returns just the URL here, so the size in the Title/Alt would
+				// be invisible. Resolve the attachment back from the URL so a size
+				// held only in the Title (e.g. "…GM 24x14…") still matches.
 				$hay = $url;
+				$aid = attachment_url_to_postid( $url );
+				if ( $aid ) {
+					$hay = get_the_title( $aid ) . ' ' . get_post_meta( $aid, '_wp_attachment_image_alt', true ) . ' ' . $url;
+				}
 			}
 			if ( ! $url ) {
 				continue;
