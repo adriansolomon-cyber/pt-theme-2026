@@ -277,6 +277,85 @@ if ( current_user_can( 'manage_woocommerce' )
 	exit;
 }
 
+/*
+ * Wall-thickness export (admin only): every Grandmaster composite's Wall
+ * Thickness options — id, name, parent composite, tier, size and inc/ex-VAT
+ * price — for both 11mm and 16mm, with the 16mm target + delta for each 11mm.
+ * ?export=wall. Runs before theme output and exits.
+ */
+if ( current_user_can( 'manage_woocommerce' )
+	&& 'wall' === ( isset( $_GET['export'] ) ? sanitize_key( $_GET['export'] ) : '' )
+	&& function_exists( 'wc_get_product' )
+	&& ! headers_sent()
+) {
+	@set_time_limit( 0 );
+	nocache_headers();
+	header( 'Content-Type: text/csv; charset=utf-8' );
+	header( 'Content-Disposition: attachment; filename="pt-wall-options-' . gmdate( 'Y-m-d' ) . '.csv"' );
+	$out = fopen( 'php://output', 'w' );
+	fputcsv( $out, array( 'composite_id', 'composite_name', 'option_id', 'option_name', 'tier_mm', 'size', 'price_inc_vat', 'price_ex_vat', 'target_16mm_inc', 'delta_inc', 'shared' ) );
+
+	$gm_ids = get_posts( array(
+		'post_type'   => 'product',
+		'post_status' => 'publish',
+		'numberposts' => -1,
+		'fields'      => 'ids',
+		'tax_query'   => array(
+			'relation' => 'AND',
+			array( 'taxonomy' => 'product_type', 'field' => 'slug', 'terms' => 'composite' ),
+			array( 'taxonomy' => 'product_cat', 'field' => 'slug', 'terms' => 'grandmaster' ),
+		),
+	) );
+	$seen_opt = array();
+	foreach ( $gm_ids as $gmid ) {
+		$comp = wc_get_product( $gmid );
+		if ( ! $comp || ! is_callable( array( $comp, 'get_components' ) ) ) {
+			continue;
+		}
+		foreach ( (array) $comp->get_components() as $component ) {
+			$ctitle = is_callable( array( $component, 'get_title' ) ) ? (string) $component->get_title() : '';
+			if ( false === strpos( strtolower( $ctitle ), 'wall' ) ) {
+				continue;
+			}
+			$opts = is_callable( array( $component, 'get_options' ) ) ? array_map( 'intval', (array) $component->get_options() ) : array();
+			$p16  = array();
+			foreach ( $opts as $oid ) {
+				$nm = (string) get_the_title( $oid );
+				if ( preg_match( '/16\s*mm/i', $nm ) ) {
+					$sk         = preg_match( '/(\d+)\s*[x×]\s*(\d+)/i', $nm, $sm ) ? ( $sm[1] . 'x' . $sm[2] ) : '_';
+					$p16[ $sk ] = (float) pt_audit_product_price( $oid );
+				}
+			}
+			foreach ( $opts as $oid ) {
+				$op = wc_get_product( $oid );
+				if ( ! $op ) {
+					continue;
+				}
+				$nm   = $op->get_name();
+				$inc  = (float) pt_audit_product_price( $oid );
+				$exx  = (float) pt_audit_product_price_net( $oid );
+				$tier = preg_match( '/(\d+)\s*mm/i', $nm, $mm ) ? $mm[1] : '';
+				$size = preg_match( '/(\d+)\s*[x×]\s*(\d+)/i', $nm, $sm ) ? ( $sm[1] . 'x' . $sm[2] ) : '';
+				$target = '';
+				$delta  = '';
+				if ( preg_match( '/11\s*mm/i', $nm ) ) {
+					$sk  = '' !== $size ? $size : '_';
+					$t   = isset( $p16[ $sk ] ) ? $p16[ $sk ] : ( isset( $p16['_'] ) ? $p16['_'] : ( 1 === count( $p16 ) ? (float) reset( $p16 ) : null ) );
+					if ( null !== $t ) {
+						$target = number_format( $t, 2, '.', '' );
+						$delta  = number_format( $t - $inc, 2, '.', '' );
+					}
+				}
+				$shared           = isset( $seen_opt[ $oid ] ) ? 'yes' : '';
+				$seen_opt[ $oid ] = true;
+				fputcsv( $out, array( (int) $gmid, $comp->get_name(), (int) $oid, $nm, $tier, $size, number_format( $inc, 2, '.', '' ), number_format( $exx, 2, '.', '' ), $target, $delta, $shared ) );
+			}
+		}
+	}
+	fclose( $out );
+	exit;
+}
+
 get_header();
 ?>
 <main class="pt-test" style="max-width:min(1760px,96vw);margin:40px auto 80px;padding:0 24px;font-family:system-ui,Arial,sans-serif;overflow-x:auto;">
@@ -480,7 +559,7 @@ get_header();
 	// read-only — verifies the numbers before any real price is touched.
 	if ( isset( $_GET['wall_check'] ) && function_exists( 'wc_get_product' ) ) {
 		echo '<h1 style="margin:0 0 10px;font-size:24px;">Wall-thickness check — Grandmaster composites</h1>';
-		echo '<p style="color:#666;margin:0 0 14px;">Read-only. Plan: raise each 11mm option to its same-size 16mm sibling price (so upgrading to 16mm costs £0), Grandmaster only. Rows highlighted = 11mm that would change.</p>';
+		echo '<p style="color:#666;margin:0 0 14px;">Read-only. Plan: raise each 11mm option to its same-size 16mm sibling price (so upgrading to 16mm costs £0), Grandmaster only. Rows highlighted = 11mm that would change. <a href="' . esc_url( add_query_arg( array( 'export' => 'wall', 'wall_check' => false ) ) ) . '" style="font-weight:700;">⬇ Download CSV</a> (id, name, parent, tier, size, price — both tiers).</p>';
 		$gm_ids = get_posts( array(
 			'post_type'   => 'product',
 			'post_status' => 'publish',
