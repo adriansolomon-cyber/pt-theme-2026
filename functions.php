@@ -84,6 +84,11 @@ require_once get_stylesheet_directory() . '/includes/pt-openai-ads.php';
 // page). Read-only, admin-gated. Kept here so the AJAX handler is always loaded.
 require_once get_stylesheet_directory() . '/includes/pt-price-audit.php';
 
+// Wall free-upgrade campaign (Grandmaster) — cart/checkout £0 discount. The
+// configurator side lives in product.js (window.PT_WALL_UPGRADE). Admin-gated
+// until PT_WALL_UPGRADE_LIVE / the pt_wall_upgrade_live option is set.
+require_once get_stylesheet_directory() . '/includes/pt-campaign-wall-upgrade.php';
+
 /**
  * Theme supports.
  */
