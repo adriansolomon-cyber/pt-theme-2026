@@ -386,6 +386,91 @@ get_header();
 		return;
 	}
 
+	// --- Composite size-options diagnostic: ?config_check=<composite_id_or_slug> ---
+	// Lists the "Size" component's option products with post status, stock, whether
+	// they're purchasable and their price — so we can see why a size that's present
+	// in the backend config doesn't render on the frontend. Woo Composite hides an
+	// option when its product is unpublished, non-purchasable, out of stock or has
+	// no price; a size that's simply absent from the list was never added here.
+	if ( isset( $_GET['config_check'] ) && function_exists( 'wc_get_product' ) ) {
+		$raw = sanitize_text_field( wp_unslash( $_GET['config_check'] ) );
+		$cid = ctype_digit( $raw ) ? (int) $raw : 0;
+		if ( ! $cid ) {
+			$maybe = get_page_by_path( $raw, OBJECT, 'product' );
+			$cid   = $maybe ? (int) $maybe->ID : 0;
+		}
+		$comp = $cid ? wc_get_product( $cid ) : null;
+		echo '<h1 style="margin:0 0 10px;font-size:24px;">Config check — composite ' . (int) $cid . '</h1>';
+		if ( ! $comp || ! is_callable( array( $comp, 'get_components' ) ) ) {
+			echo '<p style="color:#b00;">No composite product with that ID or slug.</p>';
+		} else {
+			echo '<p><strong>' . esc_html( $comp->get_name() ) . '</strong> (type: ' . esc_html( $comp->get_type() ) . ', ID #' . (int) $cid . ')</p>';
+			$found_size = false;
+			foreach ( (array) $comp->get_components() as $component ) {
+				$ctitle = is_callable( array( $component, 'get_title' ) ) ? (string) $component->get_title() : '';
+				if ( 'size' !== strtolower( trim( $ctitle ) ) ) {
+					continue;
+				}
+				$found_size = true;
+				$opts = is_callable( array( $component, 'get_options' ) ) ? array_map( 'intval', (array) $component->get_options() ) : array();
+				echo '<h2 style="margin:18px 0 8px;font-size:18px;">Size options (' . count( $opts ) . ')</h2>';
+				echo '<table style="border-collapse:collapse;width:100%;font-size:13px;"><thead><tr>'
+					. '<th style="text-align:left;border-bottom:2px solid #333;padding:6px 8px;">ID</th>'
+					. '<th style="text-align:left;border-bottom:2px solid #333;padding:6px 8px;">Name</th>'
+					. '<th style="text-align:left;border-bottom:2px solid #333;padding:6px 8px;">Status</th>'
+					. '<th style="text-align:left;border-bottom:2px solid #333;padding:6px 8px;">Stock</th>'
+					. '<th style="text-align:left;border-bottom:2px solid #333;padding:6px 8px;">Purchasable</th>'
+					. '<th style="text-align:right;border-bottom:2px solid #333;padding:6px 8px;">Price</th>'
+					. '<th style="text-align:left;border-bottom:2px solid #333;padding:6px 8px;">Frontend?</th></tr></thead><tbody>';
+				foreach ( $opts as $oid ) {
+					$op   = wc_get_product( $oid );
+					$post = get_post( $oid );
+					$name = $op ? $op->get_name() : ( $post ? $post->post_title : '(product missing)' );
+					if ( ! $op ) {
+						echo '<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">' . (int) $oid . '</td>'
+							. '<td colspan="6" style="padding:6px 8px;border-bottom:1px solid #eee;color:#b00;">product record missing — will not show</td></tr>';
+						continue;
+					}
+					$status   = $post ? $post->post_status : '—';
+					$stock    = $op->get_stock_status();
+					$in_stock = $op->is_in_stock();
+					$purch    = $op->is_purchasable();
+					$price    = $op->get_price();
+					$reasons  = array();
+					if ( 'publish' !== $status ) {
+						$reasons[] = 'status: ' . $status;
+					}
+					if ( ! $purch ) {
+						$reasons[] = 'not purchasable';
+					}
+					if ( ! $in_stock ) {
+						$reasons[] = 'out of stock';
+					}
+					if ( '' === $price || null === $price ) {
+						$reasons[] = 'no price';
+					}
+					$shows = empty( $reasons );
+					$rowbg = $shows ? '#eafbea' : '#fdecec';
+					echo '<tr style="background:' . $rowbg . ';">'
+						. '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' . (int) $oid . '</td>'
+						. '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' . esc_html( $name ) . '</td>'
+						. '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' . esc_html( $status ) . '</td>'
+						. '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' . esc_html( $stock ) . '</td>'
+						. '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' . ( $purch ? 'yes' : 'no' ) . '</td>'
+						. '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">' . ( '' === $price || null === $price ? '—' : esc_html( wc_price( $price ) ) ) . '</td>'
+						. '<td style="padding:6px 8px;border-bottom:1px solid #eee;font-weight:700;color:' . ( $shows ? '#0a7d28' : '#b00' ) . ';">'
+						. ( $shows ? 'shows' : 'hidden — ' . esc_html( implode( ', ', $reasons ) ) ) . '</td></tr>';
+				}
+				echo '</tbody></table>';
+			}
+			if ( ! $found_size ) {
+				echo '<p style="color:#b00;">This composite has no component titled “Size”.</p>';
+			}
+		}
+		get_footer();
+		return;
+	}
+
 	// --- Special-offer / "grandmaster" diagnostic: ?special_check=<product_id> ---
 	// Explains WHY a product is (or isn't) flagged for the special-offer badge —
 	// its categories, their ancestors, the ACF special-offer set, and the match.
