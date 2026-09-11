@@ -90,28 +90,29 @@ function optimo_curl_post_json( $url, array $payload ) {
             return [ 'success' => false, 'action' => 'blocked', 'message' => $msg ];
         }
 
-        // Build shared fields
-        $parent_product_names = implode( ', ', array_unique( array_filter( array_map( function ( $item ) {
-            // Skip bundle/composite child items — only keep top-level products
-            if ( $item->get_meta( '_bundled_by' ) || $item->get_meta( '_composite_parent' ) ) return null;
-
-            $product = $item->get_product();
-            if ( ! $product ) return 'Unknown Product';
-            $parent_id = $product->get_parent_id();
-            $parent    = $parent_id ? wc_get_product( $parent_id ) : $product;
-            $name      = $parent ? $parent->get_name() : '';
-            return $name ?: 'Unknown Product';
-        }, $order->get_items() ) ) ) );
-
-        // Product size(s) — the composite "Size" child is named "W x D" (e.g. "12 x 10").
-        $product_sizes = implode( ', ', array_unique( array_filter( array_map( function ( $item ) {
-            $product = $item->get_product();
-            if ( ! $product ) return null;
-            if ( preg_match( '/\b(\d+)\s*[x×]\s*(\d+)\b/i', (string) $product->get_name(), $m ) ) {
-                return $m[1] . ' x ' . $m[2];
+        // Build the product name(s) for Optimo, with each composite's SIZE appended
+        // ("Grandmaster Pent 12 x 10"). Composite order items list the container
+        // followed by its component children, so group by container and pick up the
+        // size child (named "W x D") to append to that container's name.
+        $optimo_lines = [];
+        $optimo_cur   = null;
+        foreach ( $order->get_items() as $item ) {
+            $product  = $item->get_product();
+            $is_child = $item->get_meta( '_composite_parent' ) || $item->get_meta( '_bundled_by' );
+            if ( ! $is_child ) {
+                if ( $optimo_cur ) $optimo_lines[] = $optimo_cur;
+                $parent_id  = $product ? $product->get_parent_id() : 0;
+                $parent     = $parent_id ? wc_get_product( $parent_id ) : $product;
+                $optimo_cur = [ 'name' => ( $parent ? $parent->get_name() : '' ) ?: 'Unknown Product', 'size' => '' ];
+            } elseif ( $optimo_cur && $product && preg_match( '/\b(\d+)\s*[x×]\s*(\d+)\b/i', (string) $product->get_name(), $m ) ) {
+                $optimo_cur['size'] = $m[1] . ' x ' . $m[2];
             }
-            return null;
-        }, $order->get_items() ) ) ) );
+        }
+        if ( $optimo_cur ) $optimo_lines[] = $optimo_cur;
+
+        $parent_product_names = implode( ', ', array_unique( array_filter( array_map( function ( $l ) {
+            return '' !== $l['size'] ? ( $l['name'] . ' ' . $l['size'] ) : $l['name'];
+        }, $optimo_lines ) ) ) );
 
         $phone = str_replace( ' ', '', explode( '/', ( string ) $order->get_billing_phone() )[ 0 ] ?? '' );
         $address = str_replace( '<br/>', ',', $order->get_formatted_shipping_address() ?: $order->get_formatted_billing_address() );
@@ -145,7 +146,6 @@ function optimo_curl_post_json( $url, array $payload ) {
             'notificationPreference' => 'both',
             'customFields' => [
                     'product_name_custom_field' => $parent_product_names,
-                    'product_size_custom_field' => $product_sizes,
                 ],
 
         ];
@@ -182,7 +182,6 @@ function optimo_curl_post_json( $url, array $payload ) {
                     'notificationPreference' => 'both',
                     'customFields' => [
                     'product_name_custom_field' => $parent_product_names,
-                    'product_size_custom_field' => $product_sizes,
                 ],
 
                 ] ],
