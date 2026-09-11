@@ -103,6 +103,16 @@ function optimo_curl_post_json( $url, array $payload ) {
             return $name ?: 'Unknown Product';
         }, $order->get_items() ) ) ) );
 
+        // Product size(s) — the composite "Size" child is named "W x D" (e.g. "12 x 10").
+        $product_sizes = implode( ', ', array_unique( array_filter( array_map( function ( $item ) {
+            $product = $item->get_product();
+            if ( ! $product ) return null;
+            if ( preg_match( '/\b(\d+)\s*[x×]\s*(\d+)\b/i', (string) $product->get_name(), $m ) ) {
+                return $m[1] . ' x ' . $m[2];
+            }
+            return null;
+        }, $order->get_items() ) ) ) );
+
         $phone = str_replace( ' ', '', explode( '/', ( string ) $order->get_billing_phone() )[ 0 ] ?? '' );
         $address = str_replace( '<br/>', ',', $order->get_formatted_shipping_address() ?: $order->get_formatted_billing_address() );
         $total_load = round( order_get_total_weight( $order_id ), 0 );
@@ -135,6 +145,7 @@ function optimo_curl_post_json( $url, array $payload ) {
             'notificationPreference' => 'both',
             'customFields' => [
                     'product_name_custom_field' => $parent_product_names,
+                    'product_size_custom_field' => $product_sizes,
                 ],
 
         ];
@@ -171,6 +182,7 @@ function optimo_curl_post_json( $url, array $payload ) {
                     'notificationPreference' => 'both',
                     'customFields' => [
                     'product_name_custom_field' => $parent_product_names,
+                    'product_size_custom_field' => $product_sizes,
                 ],
 
                 ] ],
