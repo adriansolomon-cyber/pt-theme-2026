@@ -44,6 +44,18 @@ function pt_register_custom_checkout_fields( $fields ) {
 		'autocomplete' => 'tel',
 	);
 
+	// The Klaviyo opt-in checkboxes render right after the Phone / Phone 2 pair.
+	// They ship with only `form-row`, so they lack the `clear:both` that
+	// `form-row-wide` gives — without it the first checkbox floats up into the
+	// gutter between the two floated phone columns. Force them full-width + clear.
+	foreach ( array( 'kl_newsletter_checkbox', 'kl_sms_consent_checkbox' ) as $pt_kl_key ) {
+		if ( isset( $fields['billing'][ $pt_kl_key ] ) ) {
+			$pt_kl_cls                                = isset( $fields['billing'][ $pt_kl_key ]['class'] ) ? (array) $fields['billing'][ $pt_kl_key ]['class'] : array();
+			$fields['billing'][ $pt_kl_key ]['class'] = array_merge( $pt_kl_cls, array( 'form-row-wide' ) );
+			$fields['billing'][ $pt_kl_key ]['clear'] = true;
+		}
+	}
+
 	// Remove WooCommerce's native order-notes box; Delivery Instructions is
 	// rendered explicitly in the Delivery section instead (see below).
 	unset( $fields['order']['order_comments'] );
@@ -164,41 +176,3 @@ function pt_email_show_custom_checkout_fields( $order, $sent_to_admin, $plain_te
 	echo '</div>';
 }
 add_action( 'woocommerce_email_after_order_table', 'pt_email_show_custom_checkout_fields', 20, 4 );
-
-/**
- * TEMP DIAGNOSTIC (admins only) — prints the live billing field keys + the
- * mtime of form-billing.php so we can tell whether the deployed template edits
- * are actually running (OPcache) or whether the field keys differ from what the
- * Contact block expects. Remove once checkout field order is confirmed.
- */
-function pt_checkout_fields_debug( $checkout ) {
-	if ( ! current_user_can( 'manage_woocommerce' ) ) {
-		return;
-	}
-	$keys  = array_keys( $checkout->get_checkout_fields( 'billing' ) );
-	$tpl   = get_stylesheet_directory() . '/woocommerce/checkout/form-billing.php';
-	$mtime = file_exists( $tpl ) ? gmdate( 'Y-m-d H:i:s', filemtime( $tpl ) ) : 'missing';
-	$src   = file_exists( $tpl ) ? (string) file_get_contents( $tpl ) : '';
-	// Which template is WooCommerce ACTUALLY loading for the billing form?
-	$located = function_exists( 'wc_locate_template' ) ? wc_locate_template( 'checkout/form-billing.php' ) : 'n/a';
-	echo '<div style="background:#ffffcc;border:2px solid #cc0000;padding:10px;margin:10px 0;font:12px/1.5 monospace;white-space:pre-wrap;">';
-	echo 'PT-DEBUG billing keys: ' . esc_html( implode( ', ', $keys ) ) . "\n";
-	echo 'PT-DEBUG theme form-billing.php mtime (UTC): ' . esc_html( $mtime ) . "\n";
-	echo 'PT-DEBUG theme file has prefix-detection code: ' . ( false !== strpos( $src, 'Contact block = email + every phone field' ) ? 'YES' : 'NO' ) . "\n";
-	echo 'PT-DEBUG theme file has HTML-comment diag: ' . ( false !== strpos( $src, 'PT-DEBUG billing keys' ) ? 'YES' : 'NO' ) . "\n";
-	echo 'PT-DEBUG WooCommerce is loading template: ' . esc_html( str_replace( ABSPATH, '', (string) $located ) ) . "\n";
-	// Is a Checkout Field Editor plugin active? (it re-sorts fields by priority,
-	// overriding the theme template's Contact-block placement).
-	$active = (array) get_option( 'active_plugins', array() );
-	if ( is_multisite() ) {
-		$active = array_merge( $active, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
-	}
-	$cfe_files = array_values( array_filter( $active, function ( $p ) {
-		return false !== stripos( $p, 'checkout-field' ) || false !== stripos( $p, 'field-editor' ) || false !== stripos( $p, 'checkout-manager' ) || false !== stripos( $p, 'thwcf' );
-	} ) );
-	$cfe_class = ( class_exists( 'THWCFE_Public' ) || class_exists( 'THWCFD_Utils' ) || class_exists( 'THWCFE_Checkout_Fields' ) || function_exists( 'thwcfe_get_checkout_fields' ) ) ? 'YES' : 'NO';
-	echo 'PT-DEBUG checkout-field-editor plugin file(s): ' . esc_html( $cfe_files ? implode( ', ', $cfe_files ) : 'none found' ) . "\n";
-	echo 'PT-DEBUG THWCFE editor class/function present: ' . esc_html( $cfe_class );
-	echo '</div>';
-}
-add_action( 'woocommerce_before_checkout_billing_form', 'pt_checkout_fields_debug' );

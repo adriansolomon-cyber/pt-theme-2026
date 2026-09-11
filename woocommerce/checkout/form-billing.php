@@ -39,12 +39,6 @@ foreach ( $pt_contact_keys as $pt_k ) {
 ?>
 
 <div class="woocommerce-billing-fields">
-	<?php
-	// TEMP DIAGNOSTIC — remove after checkout field-order is fixed.
-	echo "\n<!-- PT-DEBUG billing keys: " . esc_html( implode( ', ', array_keys( $pt_fields ) ) ) . " -->\n";
-	echo '<!-- PT-DEBUG contact_keys: ' . esc_html( implode( ', ', $pt_contact_keys ) ) . " -->\n";
-	echo '<!-- PT-DEBUG has_contact: ' . ( $pt_has_contact ? 'yes' : 'no' ) . " -->\n";
-	?>
 
 	<?php do_action( 'woocommerce_before_checkout_billing_form', $checkout ); ?>
 
