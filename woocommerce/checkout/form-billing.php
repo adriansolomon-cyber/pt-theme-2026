@@ -52,21 +52,31 @@ foreach ( $pt_contact_keys as $pt_k ) {
 					woocommerce_form_field( $pt_k, $pt_fields[ $pt_k ], $checkout->get_value( $pt_k ) );
 				}
 			}
-			// The consent disclosure. The plugin's default bottom-of-form placement is
-			// removed in functions.php; its render function only echoes plain text, so we
-			// output the wrapper markup ourselves — matching the CSS-only "Read more"
-			// toggle in checkout.css (#klaviyo-toggle-1 / .klaviyo-consent-wrapper /
-			// .read-more-label). Text comes from the shared Klaviyo disclosure setting.
+			// The consent disclosure, rendered as the design's .co-consent line: the
+			// first sentence stays visible, the rest collapses behind an inline
+			// "Read more" (CSS-only checkbox toggle, styled in checkout.css). The plugin's
+			// default bottom-of-form placement is removed in functions.php, and its render
+			// function only echoes plain text, so we build the markup ourselves. Text comes
+			// from the shared Klaviyo disclosure setting (same wording as Klaviyo).
 			if ( isset( $pt_fields['kl_sms_consent_checkbox'] ) ) {
 				$pt_kl_settings   = function_exists( 'get_option' ) ? get_option( 'klaviyo_settings' ) : array();
 				$pt_kl_disclosure = is_array( $pt_kl_settings ) && ! empty( $pt_kl_settings['klaviyo_sms_consent_disclosure_text'] )
 					? trim( (string) $pt_kl_settings['klaviyo_sms_consent_disclosure_text'] )
 					: '';
 				if ( '' !== $pt_kl_disclosure ) :
+					$pt_kl_parts = preg_split( '/(?<=\.)\s+/', $pt_kl_disclosure, 2 );
+					$pt_kl_lead  = $pt_kl_parts[0];
+					$pt_kl_rest  = isset( $pt_kl_parts[1] ) ? $pt_kl_parts[1] : '';
 					?>
-					<input type="checkbox" id="klaviyo-toggle-1">
-					<div class="klaviyo-consent-wrapper"><?php echo esc_html( $pt_kl_disclosure ); ?></div>
-					<label class="read-more-label" for="klaviyo-toggle-1"><span class="show-more"><?php esc_html_e( 'Read more', 'woocommerce' ); ?></span><span class="show-less"><?php esc_html_e( 'Show less', 'woocommerce' ); ?></span></label>
+					<p class="co-consent">
+						<?php if ( '' !== $pt_kl_rest ) : ?>
+							<input type="checkbox" id="pt-sms-consent-more" class="pt-consent-toggle">
+							<?php echo esc_html( $pt_kl_lead ); ?><span class="rest"> <?php echo esc_html( $pt_kl_rest ); ?></span>
+							<label class="more" for="pt-sms-consent-more"><span class="m1"><?php esc_html_e( 'Read more', 'woocommerce' ); ?></span><span class="m2"><?php esc_html_e( 'Read less', 'woocommerce' ); ?></span></label>
+						<?php else : ?>
+							<?php echo esc_html( $pt_kl_lead ); ?>
+						<?php endif; ?>
+					</p>
 					<?php
 				endif;
 			}
