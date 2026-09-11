@@ -14,20 +14,25 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$pt_fields       = $checkout->get_checkout_fields( 'billing' );
-$pt_contact_keys = array( 'billing_email', 'billing_phone' );
+$pt_fields = $checkout->get_checkout_fields( 'billing' );
+
+// Contact block = email + every phone field. A second "Phone 2" is added by a
+// plugin/mu-plugin under an unknown key (e.g. billing_phone_2), so detect phone
+// fields by key prefix rather than hardcoding — billing_phone stays first, any
+// additional phone follows and renders inline beside it.
+$pt_phone_keys = array();
+foreach ( array_keys( $pt_fields ) as $pt_k ) {
+	if ( 0 === strpos( (string) $pt_k, 'billing_phone' ) ) {
+		$pt_phone_keys[] = $pt_k;
+	}
+}
+$pt_contact_keys = array_merge( array( 'billing_email' ), $pt_phone_keys );
 // Klaviyo marketing opt-ins (added to the billing group by the Klaviyo plugin at priority
 // 11). We render them in the Contact block to match the design instead of letting them fall
 // into "Billing details". Present only when the plugin + its checkout checkboxes are enabled.
 $pt_kl_keys = array( 'kl_newsletter_checkbox', 'kl_sms_consent_checkbox' );
 
-$pt_has_contact = false;
-foreach ( $pt_contact_keys as $pt_k ) {
-	if ( isset( $pt_fields[ $pt_k ] ) ) {
-		$pt_has_contact = true;
-		break;
-	}
-}
+$pt_has_contact = isset( $pt_fields['billing_email'] ) || ! empty( $pt_phone_keys );
 ?>
 
 <div class="woocommerce-billing-fields">
@@ -40,13 +45,22 @@ foreach ( $pt_contact_keys as $pt_k ) {
 			<h3 class="pt-contact-title"><?php esc_html_e( 'Contact', 'woocommerce' ); ?></h3>
 			<p class="pt-contact-hint"><?php esc_html_e( "We'll use this to send your order confirmation and delivery updates.", 'woocommerce' ); ?></p>
 			<?php
-			foreach ( $pt_contact_keys as $pt_k ) {
-				if ( isset( $pt_fields[ $pt_k ] ) ) {
-					woocommerce_form_field( $pt_k, $pt_fields[ $pt_k ], $checkout->get_value( $pt_k ) );
-				}
+			// 1) Email — full width, first.
+			if ( isset( $pt_fields['billing_email'] ) ) {
+				woocommerce_form_field( 'billing_email', $pt_fields['billing_email'], $checkout->get_value( 'billing_email' ) );
 			}
-
-			// Klaviyo email/SMS opt-in checkboxes, then the SMS consent disclosure.
+			// 2) Phone + Phone 2 side by side (form-row-first / form-row-last → 48% columns
+			//    via checkout.css). A lone phone stays full width.
+			$pt_pn = count( $pt_phone_keys );
+			foreach ( $pt_phone_keys as $pt_pi => $pt_k ) {
+				$pt_field = $pt_fields[ $pt_k ];
+				if ( $pt_pn >= 2 ) {
+					$pt_field['class'] = array( 0 === $pt_pi ? 'form-row-first' : 'form-row-last' );
+					$pt_field['clear'] = ( $pt_pi === $pt_pn - 1 );
+				}
+				woocommerce_form_field( $pt_k, $pt_field, $checkout->get_value( $pt_k ) );
+			}
+			// 3) Klaviyo email/SMS opt-in checkboxes, then the SMS consent disclosure below.
 			foreach ( $pt_kl_keys as $pt_k ) {
 				if ( isset( $pt_fields[ $pt_k ] ) ) {
 					woocommerce_form_field( $pt_k, $pt_fields[ $pt_k ], $checkout->get_value( $pt_k ) );
