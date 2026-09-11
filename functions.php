@@ -842,3 +842,21 @@ function pt_intercom_snippet() {
 // official Intercom plugin), not from our support modal. The pt_intercom_*
 // helpers above are left in place but are dead code while this hook is commented.
 // add_action( 'wp_footer', 'pt_intercom_snippet', 20 );
+
+/**
+ * Klaviyo checkout: hide the long SMS/WhatsApp consent disclosure paragraph.
+ *
+ * The plugin's mobile-consent update echoes the full TCPA disclosure under the
+ * billing form via kl_mobile_compliance_text() on
+ * woocommerce_after_checkout_billing_form (priority 10). We remove only that
+ * paragraph — the opt-in checkbox and its short label (kl_mobile_consent_
+ * checkout_field on woocommerce_checkout_fields) are untouched — restoring the
+ * previous checkout appearance. Safe no-op if the plugin renames/removes it.
+ */
+add_action(
+	'wp_loaded',
+	function () {
+		remove_filter( 'woocommerce_after_checkout_billing_form', 'kl_mobile_compliance_text' );
+	},
+	20
+);
