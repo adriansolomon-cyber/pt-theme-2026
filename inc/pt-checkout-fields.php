@@ -159,17 +159,19 @@ function pt_sms_consent_mover() {
 		return;
 	}
 	?>
+	<noscript><style>.co-consent{ display:block !important; }</style></noscript>
 	<script>
 	( function () {
 		function place() {
 			var cb = document.getElementById( 'kl_sms_consent_checkbox_field' );
 			var list = document.querySelectorAll( '.co-consent' );
-			if ( ! cb || ! list.length ) { return; }
+			if ( ! list.length ) { return; }
 			var keep = list[0];
 			for ( var i = 1; i < list.length; i++ ) {
 				if ( list[ i ].parentNode ) { list[ i ].parentNode.removeChild( list[ i ] ); }
 			}
-			cb.insertAdjacentElement( 'afterend', keep );
+			if ( cb ) { cb.insertAdjacentElement( 'afterend', keep ); }
+			keep.classList.add( 'pt-consent-ready' ); // reveal once positioned
 		}
 		if ( 'loading' !== document.readyState ) { place(); } else {
 			document.addEventListener( 'DOMContentLoaded', place );
