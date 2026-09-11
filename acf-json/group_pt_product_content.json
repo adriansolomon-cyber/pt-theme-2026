@@ -2185,6 +2185,451 @@
             "placeholder": "",
             "prepend": "",
             "append": ""
+        },
+        {
+            "key": "field_pt_tab_stepup",
+            "label": "Step-up / Trade-up",
+            "name": "",
+            "type": "tab",
+            "instructions": "Cross-range upsell. Hidden by default — set a Step-up target product AND switch on the placement(s) below to show them on this product's page.",
+            "placement": "top",
+            "endpoint": 0,
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_stepup_target",
+            "label": "Step-up target product",
+            "name": "stepup_target",
+            "type": "post_object",
+            "instructions": "The product this one steps up to (e.g. the matching Grandmaster). Required — nothing shows until this is set.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "post_type": [
+                "product"
+            ],
+            "post_status": [
+                "publish"
+            ],
+            "taxonomy": "",
+            "return_format": "id",
+            "multiple": 0,
+            "allow_null": 1,
+            "bidirectional": 0,
+            "ui": 1
+        },
+        {
+            "key": "field_pt_show_range_toggle",
+            "label": "Show range toggle (Option 1)",
+            "name": "show_range_toggle",
+            "type": "true_false",
+            "instructions": "Show the compact range toggle above the size selector. Off by default.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show the range toggle",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "Shown",
+            "ui_off_text": "Hidden"
+        },
+        {
+            "key": "field_pt_show_stepup",
+            "label": "Show step-up section (Option 3)",
+            "name": "show_stepup",
+            "type": "true_false",
+            "instructions": "Show the 'Step up to …' comparison section lower on the page. Off by default.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show the step-up section",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "Shown",
+            "ui_off_text": "Hidden"
+        },
+        {
+            "key": "field_pt_stepup_current_range_label",
+            "label": "Toggle: current range label",
+            "name": "stepup_current_range_label",
+            "type": "text",
+            "instructions": "Left tab label. Falls back to this product's category (singular).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_stepup_target_range_label",
+            "label": "Toggle: target range label",
+            "name": "stepup_target_range_label",
+            "type": "text",
+            "instructions": "Right tab label. Falls back to the target product's category (singular).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_stepup_toggle_caption",
+            "label": "Toggle: caption",
+            "name": "stepup_toggle_caption",
+            "type": "text",
+            "instructions": "Small line under the toggle, e.g. \"Grandmaster is now built with <b>16mm cladding</b> →\". Basic HTML allowed. Hidden if empty.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_stepup_eyebrow",
+            "label": "Section eyebrow",
+            "name": "stepup_eyebrow",
+            "type": "text",
+            "instructions": "Small label above the section heading. Falls back to \"Thinking longer-term?\".",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_stepup_heading",
+            "label": "Section heading",
+            "name": "stepup_heading",
+            "type": "text",
+            "instructions": "Section heading. Basic HTML allowed. If empty, shows \"Step up to <target range>.\" with the highlight style.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_stepup_lead",
+            "label": "Section lead",
+            "name": "stepup_lead",
+            "type": "textarea",
+            "instructions": "Intro paragraph under the heading. Hidden if empty.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": "wpautop"
+        },
+        {
+            "key": "field_pt_stepup_current_tag",
+            "label": "Current column: tag",
+            "name": "stepup_current_tag",
+            "type": "text",
+            "instructions": "Small pill on the left card. Falls back to \"You're viewing\".",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_stepup_target_tag",
+            "label": "Target column: tag",
+            "name": "stepup_target_tag",
+            "type": "text",
+            "instructions": "Small pill on the right card. Falls back to \"Built to last\".",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_stepup_current_title",
+            "label": "Current column: title",
+            "name": "stepup_current_title",
+            "type": "text",
+            "instructions": "Left card title. Falls back to this product's name.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_stepup_target_title",
+            "label": "Target column: title",
+            "name": "stepup_target_title",
+            "type": "text",
+            "instructions": "Right card title. Falls back to the target product's name.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_stepup_current_image",
+            "label": "Current column: image",
+            "name": "stepup_current_image",
+            "type": "image",
+            "instructions": "Left card image. Falls back to this product's featured image.",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_stepup_target_image",
+            "label": "Target column: image",
+            "name": "stepup_target_image",
+            "type": "image",
+            "instructions": "Right card image. Falls back to the target product's featured image.",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_stepup_current_bullets",
+            "label": "Current column: spec bullets",
+            "name": "stepup_current_bullets",
+            "type": "repeater",
+            "instructions": "Spec bullets for the left card.",
+            "layout": "table",
+            "button_label": "Add bullet",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_stepup_current_bullet_text",
+                    "label": "Bullet",
+                    "name": "text",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_stepup_current_bullets"
+                }
+            ],
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_stepup_target_bullets",
+            "label": "Target column: spec bullets",
+            "name": "stepup_target_bullets",
+            "type": "repeater",
+            "instructions": "Spec bullets for the right card (shown with tick marks).",
+            "layout": "table",
+            "button_label": "Add bullet",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_stepup_target_bullet_text",
+                    "label": "Bullet",
+                    "name": "text",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_stepup_target_bullets"
+                }
+            ],
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_stepup_cta_label",
+            "label": "Target column: button label",
+            "name": "stepup_cta_label",
+            "type": "text",
+            "instructions": "CTA button text. Falls back to \"See the <target range> →\".",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
         }
     ],
     "location": [
@@ -2206,5 +2651,5 @@
     "description": "Editable marketing content for the single-product (PDP) template. The configurator, price, sizes and spec values remain API-driven; these fields fill the surrounding copy, images and sections.",
     "show_in_rest": 0,
     "display_title": "",
-    "modified": 1789171200
+    "modified": 1789127847
 }

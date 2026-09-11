@@ -41,6 +41,7 @@ $pt_from = $pt_product ? pt_product_from_price_display( $pt_product ) : '';
 if ( '' === $pt_from ) {
 	$pt_from = 'From £—';
 }
+$pt_su = function_exists( 'pt_stepup_data' ) ? pt_stepup_data( $pt_pid ) : false; // cross-range step-up upsell (false = nothing to show)
 // Earliest delivery date — from the real business-day calculator (weekends +
 // blackout dates excluded, per-product `delivery_time`). Same value used in order
 // emails / checkout, so the PDP stays consistent. product.js keeps a today+42
@@ -240,6 +241,18 @@ get_header();
       <!-- Option steps are rendered live from the WooCommerce composite product (assets/js/product.js).
            The card / row markup the engine emits reuses the exact same design classes as the rest
            of the page — only the data is dynamic. -->
+      <?php // Range toggle (Option 1) — redirect to the matched step-up target ?>
+      <?php if ( $pt_su && $pt_show( 'show_range_toggle', false ) ) : ?>
+      <div class="rangesw">
+        <div class="rs-tabs" role="group" aria-label="Choose your range">
+          <span class="rs-tab sel" aria-current="true"><?php echo esc_html( $pt_su['cur_range'] ); ?></span>
+          <a class="rs-tab" href="<?php echo esc_url( $pt_su['target_url'] ); ?>"><?php echo esc_html( $pt_su['tgt_range'] ); ?></a>
+        </div>
+        <?php if ( '' !== trim( $pt_su['caption'] ) ) : ?>
+          <p class="rs-cap"><?php echo wp_kses_post( $pt_su['caption'] ); ?></p>
+        <?php endif; ?>
+      </div>
+      <?php endif; ?>
       <p class="cfg-status" id="cfgStatus" role="status"></p>
       <div class="cfg-rows" id="cfgRows"></div>
 
@@ -334,6 +347,64 @@ get_header();
   <?php endif; ?>
 </div></section>
 
+<?php endif; ?>
+<?php // ===================== STEP UP (Option 3) ===================== ?>
+<?php if ( $pt_su && $pt_show( 'show_stepup', false ) ) : ?>
+<section class="stepup"><div class="wrap">
+  <div class="su-head">
+    <span class="eyebrow"><?php echo esc_html( $pt_su['eyebrow'] ); ?></span>
+    <h2><?php
+      if ( '' !== trim( $pt_su['heading'] ) ) {
+        echo wp_kses_post( $pt_su['heading'] );
+      } else {
+        echo 'Step up to <span class="fade">' . esc_html( $pt_su['tgt_range'] ) . '.</span>';
+      }
+    ?></h2>
+    <?php if ( '' !== trim( $pt_su['lead'] ) ) : ?>
+      <p class="lead"><?php echo wp_kses_post( $pt_su['lead'] ); ?></p>
+    <?php endif; ?>
+  </div>
+  <div class="su-compare">
+    <div class="su-col current">
+      <span class="tag"><?php echo esc_html( $pt_su['cur_tag'] ); ?></span>
+      <div class="su-thumb">
+        <?php if ( '' !== $pt_su['cur_img'] ) : ?>
+          <img loading="lazy" src="<?php echo esc_url( $pt_su['cur_img'] ); ?>" alt="<?php echo esc_attr( $pt_su['cur_title'] ); ?>">
+        <?php else : ?>
+          <span class="ph"><?php echo esc_html( $pt_su['cur_title'] ); ?></span>
+        <?php endif; ?>
+      </div>
+      <h3><?php echo esc_html( $pt_su['cur_title'] ); ?></h3>
+      <?php if ( $pt_su['cur_bullets'] ) : ?>
+        <ul class="su-specs">
+          <?php foreach ( $pt_su['cur_bullets'] as $pt_b ) : ?>
+            <li><?php echo esc_html( $pt_b ); ?></li>
+          <?php endforeach; ?>
+        </ul>
+      <?php endif; ?>
+    </div>
+    <div class="su-arrow">&rarr;</div>
+    <div class="su-col grand">
+      <span class="tag y"><?php echo esc_html( $pt_su['tgt_tag'] ); ?></span>
+      <div class="su-thumb">
+        <?php if ( '' !== $pt_su['tgt_img'] ) : ?>
+          <img loading="lazy" src="<?php echo esc_url( $pt_su['tgt_img'] ); ?>" alt="<?php echo esc_attr( $pt_su['tgt_title'] ); ?>">
+        <?php else : ?>
+          <span class="ph"><?php echo esc_html( $pt_su['tgt_title'] ); ?></span>
+        <?php endif; ?>
+      </div>
+      <h3><?php echo esc_html( $pt_su['tgt_title'] ); ?></h3>
+      <?php if ( $pt_su['tgt_bullets'] ) : ?>
+        <ul class="su-specs up">
+          <?php foreach ( $pt_su['tgt_bullets'] as $pt_b ) : ?>
+            <li><?php echo esc_html( $pt_b ); ?></li>
+          <?php endforeach; ?>
+        </ul>
+      <?php endif; ?>
+      <a class="su-btn" href="<?php echo esc_url( $pt_su['target_url'] ); ?>"><?php echo esc_html( $pt_su['cta'] ); ?></a>
+    </div>
+  </div>
+</div></section>
 <?php endif; ?>
 <!-- ===================== WHAT'S INCLUDED ===================== -->
 <?php if ( $pt_show( 'show_included' ) ) : ?>

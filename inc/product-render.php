@@ -518,3 +518,113 @@ function pt_singularize( $s ) {
 function pt_product_line_singular( $product_id ) {
 	return pt_singularize( pt_product_line_name( $product_id ) );
 }
+
+/**
+ * Collect a step-up bullet repeater into a flat array of strings.
+ *
+ * @param string $field ACF repeater field name.
+ * @param int    $pid   Product ID.
+ * @return string[]
+ */
+function pt_stepup_bullets( $field, $pid ) {
+	$out = array();
+	if ( function_exists( 'have_rows' ) && have_rows( $field, $pid ) ) {
+		while ( have_rows( $field, $pid ) ) {
+			the_row();
+			$t = get_sub_field( 'text' );
+			if ( '' !== (string) $t ) {
+				$out[] = (string) $t;
+			}
+		}
+	}
+	return $out;
+}
+
+/**
+ * Resolve the cross-range step-up upsell data for a product.
+ *
+ * Returns a ready-to-render array, or false when there is no valid target
+ * (field empty, self-reference, or target not a published product). Both the
+ * range toggle (Option 1) and the step-up section (Option 3) render from this
+ * single source so they can never disagree. Copy fields fall back to sensible
+ * defaults / the product's own name & image.
+ *
+ * @param int $pid Product ID.
+ * @return array|false
+ */
+function pt_stepup_data( $pid ) {
+	if ( ! function_exists( 'get_field' ) || ! function_exists( 'wc_get_product' ) ) {
+		return false;
+	}
+	$target = get_field( 'stepup_target', $pid );        // return_format = id
+	$tid    = is_array( $target ) ? (int) reset( $target ) : (int) $target;
+	if ( ! $tid || $tid === (int) $pid || 'publish' !== get_post_status( $tid ) ) {
+		return false;
+	}
+	if ( ! wc_get_product( $tid ) ) {
+		return false;
+	}
+
+	$cur_range = (string) get_field( 'stepup_current_range_label', $pid );
+	if ( '' === $cur_range ) {
+		$cur_range = pt_product_line_singular( $pid );
+	}
+	$tgt_range = (string) get_field( 'stepup_target_range_label', $pid );
+	if ( '' === $tgt_range ) {
+		$tgt_range = pt_product_line_singular( $tid );
+	}
+
+	$cur_img = (string) get_field( 'stepup_current_image', $pid );
+	if ( '' === $cur_img ) {
+		$cur_img = (string) get_the_post_thumbnail_url( $pid, 'large' );
+	}
+	$tgt_img = (string) get_field( 'stepup_target_image', $pid );
+	if ( '' === $tgt_img ) {
+		$tgt_img = (string) get_the_post_thumbnail_url( $tid, 'large' );
+	}
+
+	$cur_title = (string) get_field( 'stepup_current_title', $pid );
+	if ( '' === $cur_title ) {
+		$cur_title = get_the_title( $pid );
+	}
+	$tgt_title = (string) get_field( 'stepup_target_title', $pid );
+	if ( '' === $tgt_title ) {
+		$tgt_title = get_the_title( $tid );
+	}
+
+	$eyebrow = (string) get_field( 'stepup_eyebrow', $pid );
+	if ( '' === $eyebrow ) {
+		$eyebrow = 'Thinking longer-term?';
+	}
+	$cur_tag = (string) get_field( 'stepup_current_tag', $pid );
+	if ( '' === $cur_tag ) {
+		$cur_tag = "You're viewing";
+	}
+	$tgt_tag = (string) get_field( 'stepup_target_tag', $pid );
+	if ( '' === $tgt_tag ) {
+		$tgt_tag = 'Built to last';
+	}
+	$cta = (string) get_field( 'stepup_cta_label', $pid );
+	if ( '' === $cta ) {
+		$cta = 'See the ' . $tgt_range . ' →';
+	}
+
+	return array(
+		'target_url'  => get_permalink( $tid ),
+		'cur_range'   => $cur_range,
+		'tgt_range'   => $tgt_range,
+		'caption'     => (string) get_field( 'stepup_toggle_caption', $pid ),
+		'eyebrow'     => $eyebrow,
+		'heading'     => (string) get_field( 'stepup_heading', $pid ), // '' => template renders faded default
+		'lead'        => (string) get_field( 'stepup_lead', $pid ),
+		'cur_tag'     => $cur_tag,
+		'tgt_tag'     => $tgt_tag,
+		'cur_title'   => $cur_title,
+		'tgt_title'   => $tgt_title,
+		'cur_img'     => $cur_img,
+		'tgt_img'     => $tgt_img,
+		'cur_bullets' => pt_stepup_bullets( 'stepup_current_bullets', $pid ),
+		'tgt_bullets' => pt_stepup_bullets( 'stepup_target_bullets', $pid ),
+		'cta'         => $cta,
+	);
+}
