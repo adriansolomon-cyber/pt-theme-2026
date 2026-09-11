@@ -49,11 +49,6 @@
   .co-check{ display:flex; gap:11px; align-items:flex-start; margin:11px 0; font-size:.88rem; font-weight:300; cursor:pointer; }
   .co-check input{ width:18px; height:18px; margin-top:1px; accent-color:var(--charcoal); flex:0 0 auto; }
   .co-consent{ font-size:.78rem; color:var(--txt-soft); font-weight:300; line-height:1.5; margin:6px 0 0; }
-  /* Hidden until the JS mover positions it after the SMS checkbox (avoids a flash
-     at the wrong spot while the page settles). Revealed via .pt-consent-ready;
-     a <noscript> fallback in pt_sms_consent_mover() reveals it without JS. */
-  .co-consent{ display:none; }
-  .co-consent.pt-consent-ready{ display:block; }
   .co-consent .more{ font-weight:700; color:var(--charcoal); cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
   .co-consent .rest{ display:none; } .co-consent.open .rest{ display:inline; }
   /* SMS consent — CSS-only inline "Read more" (hidden checkbox toggle). Appended
