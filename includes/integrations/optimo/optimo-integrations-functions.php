@@ -111,7 +111,7 @@ function optimo_curl_post_json( $url, array $payload ) {
         if ( $optimo_cur ) $optimo_lines[] = $optimo_cur;
 
         $parent_product_names = implode( ', ', array_unique( array_filter( array_map( function ( $l ) {
-            return '' !== $l['size'] ? ( $l['name'] . ' ' . $l['size'] ) : $l['name'];
+            return '' !== $l['size'] ? ( $l['name'] . ' - ' . $l['size'] ) : $l['name'];
         }, $optimo_lines ) ) ) );
 
         $phone = str_replace( ' ', '', explode( '/', ( string ) $order->get_billing_phone() )[ 0 ] ?? '' );
