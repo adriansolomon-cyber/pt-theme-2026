@@ -164,3 +164,23 @@ function pt_email_show_custom_checkout_fields( $order, $sent_to_admin, $plain_te
 	echo '</div>';
 }
 add_action( 'woocommerce_email_after_order_table', 'pt_email_show_custom_checkout_fields', 20, 4 );
+
+/**
+ * TEMP DIAGNOSTIC (admins only) — prints the live billing field keys + the
+ * mtime of form-billing.php so we can tell whether the deployed template edits
+ * are actually running (OPcache) or whether the field keys differ from what the
+ * Contact block expects. Remove once checkout field order is confirmed.
+ */
+function pt_checkout_fields_debug( $checkout ) {
+	if ( ! current_user_can( 'manage_woocommerce' ) ) {
+		return;
+	}
+	$keys  = array_keys( $checkout->get_checkout_fields( 'billing' ) );
+	$tpl   = get_stylesheet_directory() . '/woocommerce/checkout/form-billing.php';
+	$mtime = file_exists( $tpl ) ? gmdate( 'Y-m-d H:i:s', filemtime( $tpl ) ) : 'missing';
+	echo '<div style="background:#ffffcc;border:2px solid #cc0000;padding:10px;margin:10px 0;font:12px/1.5 monospace;white-space:pre-wrap;">';
+	echo 'PT-DEBUG billing keys: ' . esc_html( implode( ', ', $keys ) ) . "\n";
+	echo 'PT-DEBUG form-billing.php mtime (UTC): ' . esc_html( $mtime );
+	echo '</div>';
+}
+add_action( 'woocommerce_before_checkout_billing_form', 'pt_checkout_fields_debug' );
