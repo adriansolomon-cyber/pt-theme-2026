@@ -2420,6 +2420,96 @@
             "max_height": "",
             "max_size": "",
             "mime_types": ""
+        },
+        {
+            "key": "field_pt_stepup_current_bullets",
+            "label": "Current column: spec bullets",
+            "name": "stepup_current_bullets",
+            "type": "repeater",
+            "instructions": "Spec bullets for the left card. Leave empty to use the standard list.",
+            "layout": "table",
+            "button_label": "Add bullet",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_stepup_current_bullet_text",
+                    "label": "Bullet",
+                    "name": "text",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_stepup_current_bullets"
+                }
+            ],
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_stepup_target_bullets",
+            "label": "Target column: spec bullets",
+            "name": "stepup_target_bullets",
+            "type": "repeater",
+            "instructions": "Spec bullets for the right card (shown with tick marks). Leave empty to use the standard Grandmaster list.",
+            "layout": "table",
+            "button_label": "Add bullet",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_stepup_target_bullet_text",
+                    "label": "Bullet",
+                    "name": "text",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_stepup_target_bullets"
+                }
+            ],
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
         }
     ],
     "location": [
@@ -2441,5 +2531,5 @@
     "description": "Editable marketing content for the single-product (PDP) template. The configurator, price, sizes and spec values remain API-driven; these fields fill the surrounding copy, images and sections.",
     "show_in_rest": 0,
     "display_title": "",
-    "modified": 1789128862
+    "modified": 1789129183
 }

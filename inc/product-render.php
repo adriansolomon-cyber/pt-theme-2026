@@ -520,13 +520,37 @@ function pt_product_line_singular( $product_id ) {
 }
 
 /**
+ * Collect a step-up bullet repeater into a flat array of strings, falling back
+ * to a default list when the editor left the repeater empty.
+ *
+ * @param string   $field    ACF repeater field name.
+ * @param int      $pid      Product ID.
+ * @param string[] $fallback Default bullets when the repeater is empty.
+ * @return string[]
+ */
+function pt_stepup_bullets( $field, $pid, $fallback = array() ) {
+	$out = array();
+	if ( function_exists( 'have_rows' ) && have_rows( $field, $pid ) ) {
+		while ( have_rows( $field, $pid ) ) {
+			the_row();
+			$t = get_sub_field( 'text' );
+			if ( '' !== (string) $t ) {
+				$out[] = (string) $t;
+			}
+		}
+	}
+	return $out ? $out : $fallback;
+}
+
+/**
  * Resolve the cross-range step-up upsell data for a product.
  *
  * Returns a ready-to-render array, or false when there is no valid target
  * (field empty, self-reference, or target not a published product). The range
  * toggle (Option 1) and the step-up section (Option 3) both render from this
- * single source. Only product-specific data is dynamic (titles, images, target
- * link, toggle labels/caption); section copy is hardcoded in the template.
+ * single source. Section headings, tags and CTA are hardcoded in the template;
+ * the comparison bullets are ACF-editable per product (with default lists), as
+ * are the titles, images, target link and toggle labels/caption.
  *
  * @param int $pid Product ID.
  * @return array|false
@@ -576,16 +600,32 @@ function pt_stepup_data( $pid ) {
 		$caption = 'Grandmaster is now built with <b>16mm cladding</b> →';
 	}
 
-	// Section headings, tags, bullets and CTA are hardcoded in the template
-	// (shared across all step-up products); only the below is dynamic.
+	// Default comparison bullets (used when the ACF repeater is left empty).
+	$cur_bullets_default = array(
+		'34 × 27mm framing, doubled to 54mm at joints',
+		'Standard eaves height',
+		'11mm tongue-and-groove cladding',
+		'Best value — great everyday storage',
+	);
+	$tgt_bullets_default = array(
+		'44mm doubled-up framing — more strength & rigidity',
+		'Tall 2m internal eaves — more usable headroom',
+		'Toughened double glazing as standard',
+		'Built for heavy-duty, everyday, lifetime use',
+	);
+
+	// Section headings, tags and CTA are hardcoded in the template (shared);
+	// the below — including the comparison bullets — is per-product data.
 	return array(
-		'target_url' => get_permalink( $tid ),
-		'cur_range'  => $cur_range, // Option 1 left tab
-		'tgt_range'  => $tgt_range, // Option 1 right tab
-		'caption'    => $caption,   // Option 1 caption
-		'cur_title'  => $cur_title, // Option 3 left column
-		'tgt_title'  => $tgt_title, // Option 3 right column
-		'cur_img'    => $cur_img,
-		'tgt_img'    => $tgt_img,
+		'target_url'  => get_permalink( $tid ),
+		'cur_range'   => $cur_range, // Option 1 left tab
+		'tgt_range'   => $tgt_range, // Option 1 right tab
+		'caption'     => $caption,   // Option 1 caption
+		'cur_title'   => $cur_title, // Option 3 left column
+		'tgt_title'   => $tgt_title, // Option 3 right column
+		'cur_img'     => $cur_img,
+		'tgt_img'     => $tgt_img,
+		'cur_bullets' => pt_stepup_bullets( 'stepup_current_bullets', $pid, $cur_bullets_default ),
+		'tgt_bullets' => pt_stepup_bullets( 'stepup_target_bullets', $pid, $tgt_bullets_default ),
 	);
 }

@@ -349,21 +349,9 @@ get_header();
 <?php // ===================== STEP UP (Option 3) ===================== ?>
 <?php if ( $pt_su && $pt_show( 'show_stepup', false ) ) : ?>
 <?php
-// Section copy is hardcoded (shared across all step-up products). Only the
-// product-specific data — column titles, images and the target link — is
-// dynamic (from pt_stepup_data()).
-$pt_su_cur_bullets = array(
-	'34 × 27mm framing, doubled to 54mm at joints',
-	'Standard eaves height',
-	'11mm tongue-and-groove cladding',
-	'Best value — great everyday storage',
-);
-$pt_su_tgt_bullets = array(
-	'44mm doubled-up framing — more strength & rigidity',
-	'Tall 2m internal eaves — more usable headroom',
-	'Toughened double glazing as standard',
-	'Built for heavy-duty, everyday, lifetime use',
-);
+// Section headings, tags and CTA are hardcoded (shared across all step-up
+// products). Column titles, images and the comparison bullets are per-product
+// (from pt_stepup_data(), bullets ACF-editable with default lists).
 ?>
 <section class="stepup"><div class="wrap">
   <div class="su-head">
@@ -383,7 +371,7 @@ $pt_su_tgt_bullets = array(
       </div>
       <h3><?php echo esc_html( $pt_su['cur_title'] ); ?></h3>
       <ul class="su-specs">
-        <?php foreach ( $pt_su_cur_bullets as $pt_b ) : ?>
+        <?php foreach ( $pt_su['cur_bullets'] as $pt_b ) : ?>
           <li><?php echo esc_html( $pt_b ); ?></li>
         <?php endforeach; ?>
       </ul>
@@ -400,7 +388,7 @@ $pt_su_tgt_bullets = array(
       </div>
       <h3><?php echo esc_html( $pt_su['tgt_title'] ); ?></h3>
       <ul class="su-specs up">
-        <?php foreach ( $pt_su_tgt_bullets as $pt_b ) : ?>
+        <?php foreach ( $pt_su['tgt_bullets'] as $pt_b ) : ?>
           <li><?php echo esc_html( $pt_b ); ?></li>
         <?php endforeach; ?>
       </ul>
