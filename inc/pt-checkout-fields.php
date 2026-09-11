@@ -146,6 +146,42 @@ function pt_append_sms_consent( $field, $key, $args, $value ) {
 add_filter( 'woocommerce_form_field', 'pt_append_sms_consent', 10, 4 );
 
 /**
+ * Deterministically place the SMS consent line directly after the SMS checkbox.
+ *
+ * The active Checkout Field Editor plugin re-sorts field rows by priority on the
+ * server, which can leave the appended `.co-consent` paragraph orphaned. This
+ * client-side mover runs after that render (and after every WooCommerce AJAX
+ * checkout update) to move the consent right after the SMS checkbox and drop any
+ * duplicate. No-op if either element is missing.
+ */
+function pt_sms_consent_mover() {
+	if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
+		return;
+	}
+	?>
+	<script>
+	( function () {
+		function place() {
+			var cb = document.getElementById( 'kl_sms_consent_checkbox_field' );
+			var list = document.querySelectorAll( '.co-consent' );
+			if ( ! cb || ! list.length ) { return; }
+			var keep = list[0];
+			for ( var i = 1; i < list.length; i++ ) {
+				if ( list[ i ].parentNode ) { list[ i ].parentNode.removeChild( list[ i ] ); }
+			}
+			cb.insertAdjacentElement( 'afterend', keep );
+		}
+		if ( 'loading' !== document.readyState ) { place(); } else {
+			document.addEventListener( 'DOMContentLoaded', place );
+		}
+		if ( window.jQuery ) { jQuery( document.body ).on( 'updated_checkout', place ); }
+	} )();
+	</script>
+	<?php
+}
+add_action( 'wp_footer', 'pt_sms_consent_mover', 30 );
+
+/**
  * Persist the custom fields to the same order meta keys the editor used.
  *
  * @param int $order_id Order ID.
