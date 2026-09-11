@@ -608,12 +608,16 @@ function pt_stepup_data( $pid ) {
 	if ( '' === $cta ) {
 		$cta = 'See the ' . $tgt_range . ' →';
 	}
+	$caption = (string) get_field( 'stepup_toggle_caption', $pid );
+	if ( '' === $caption ) {
+		$caption = 'Grandmaster is now built with <b>16mm cladding</b> →';
+	}
 
 	return array(
 		'target_url'  => get_permalink( $tid ),
 		'cur_range'   => $cur_range,
 		'tgt_range'   => $tgt_range,
-		'caption'     => (string) get_field( 'stepup_toggle_caption', $pid ),
+		'caption'     => $caption,
 		'eyebrow'     => $eyebrow,
 		'heading'     => (string) get_field( 'stepup_heading', $pid ), // '' => template renders faded default
 		'lead'        => (string) get_field( 'stepup_lead', $pid ),

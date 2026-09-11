@@ -248,9 +248,7 @@ get_header();
           <span class="rs-tab sel" aria-current="true"><?php echo esc_html( $pt_su['cur_range'] ); ?></span>
           <a class="rs-tab" href="<?php echo esc_url( $pt_su['target_url'] ); ?>"><?php echo esc_html( $pt_su['tgt_range'] ); ?></a>
         </div>
-        <?php if ( '' !== trim( $pt_su['caption'] ) ) : ?>
-          <p class="rs-cap"><?php echo wp_kses_post( $pt_su['caption'] ); ?></p>
-        <?php endif; ?>
+        <p class="rs-cap"><?php echo wp_kses_post( $pt_su['caption'] ); ?></p>
       </div>
       <?php endif; ?>
       <p class="cfg-status" id="cfgStatus" role="status"></p>
