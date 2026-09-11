@@ -114,7 +114,7 @@ function pt_sms_consent_html() {
 
 	ob_start();
 	?>
-	<p class="co-consent">
+	<p class="co-consent" style="display:none">
 		<?php if ( '' !== $rest ) : ?>
 			<input type="checkbox" id="pt-sms-consent-more" class="pt-consent-toggle">
 			<?php echo esc_html( $lead ); ?><span class="rest"> <?php echo esc_html( $rest ); ?></span>
@@ -170,8 +170,10 @@ function pt_sms_consent_mover() {
 			for ( var i = 1; i < list.length; i++ ) {
 				if ( list[ i ].parentNode ) { list[ i ].parentNode.removeChild( list[ i ] ); }
 			}
-			if ( cb ) { cb.insertAdjacentElement( 'afterend', keep ); }
-			keep.classList.add( 'pt-consent-ready' ); // reveal once positioned
+			if ( cb ) {
+				cb.insertAdjacentElement( 'afterend', keep );
+				keep.style.display = ''; // reveal ONLY once positioned next to the checkbox
+			}
 		}
 		if ( 'loading' !== document.readyState ) { place(); } else {
 			document.addEventListener( 'DOMContentLoaded', place );
