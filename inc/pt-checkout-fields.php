@@ -93,6 +93,59 @@ function pt_render_delivery_instructions( $checkout ) {
 add_action( 'woocommerce_after_order_notes', 'pt_render_delivery_instructions', 11 );
 
 /**
+ * Build the SMS consent disclosure markup (design's .co-consent line): first
+ * sentence visible, the rest behind an inline "Read more" (CSS-only toggle).
+ * Text comes from the shared Klaviyo disclosure setting. Empty string when the
+ * setting is blank.
+ *
+ * @return string
+ */
+function pt_sms_consent_html() {
+	$settings = function_exists( 'get_option' ) ? get_option( 'klaviyo_settings' ) : array();
+	$text     = is_array( $settings ) && ! empty( $settings['klaviyo_sms_consent_disclosure_text'] )
+		? trim( (string) $settings['klaviyo_sms_consent_disclosure_text'] )
+		: '';
+	if ( '' === $text ) {
+		return '';
+	}
+	$parts = preg_split( '/(?<=\.)\s+/', $text, 2 );
+	$lead  = $parts[0];
+	$rest  = isset( $parts[1] ) ? $parts[1] : '';
+
+	ob_start();
+	?>
+	<p class="co-consent">
+		<?php if ( '' !== $rest ) : ?>
+			<input type="checkbox" id="pt-sms-consent-more" class="pt-consent-toggle">
+			<?php echo esc_html( $lead ); ?><span class="rest"> <?php echo esc_html( $rest ); ?></span>
+			<label class="more" for="pt-sms-consent-more"><span class="m1"><?php esc_html_e( 'Read more', 'woocommerce' ); ?></span><span class="m2"><?php esc_html_e( 'Read less', 'woocommerce' ); ?></span></label>
+		<?php else : ?>
+			<?php echo esc_html( $lead ); ?>
+		<?php endif; ?>
+	</p>
+	<?php
+	return (string) ob_get_clean();
+}
+
+/**
+ * Append the SMS consent disclosure right after the Klaviyo SMS opt-in checkbox,
+ * wherever that checkbox is rendered (survives the field-editor's re-sorting).
+ *
+ * @param string $field HTML for the field.
+ * @param string $key   Field key.
+ * @param array  $args  Field args.
+ * @param mixed  $value Field value.
+ * @return string
+ */
+function pt_append_sms_consent( $field, $key, $args, $value ) {
+	if ( 'kl_sms_consent_checkbox' === $key ) {
+		$field .= pt_sms_consent_html();
+	}
+	return $field;
+}
+add_filter( 'woocommerce_form_field', 'pt_append_sms_consent', 10, 4 );
+
+/**
  * Persist the custom fields to the same order meta keys the editor used.
  *
  * @param int $order_id Order ID.
