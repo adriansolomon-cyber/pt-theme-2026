@@ -46,16 +46,29 @@ foreach ( $pt_contact_keys as $pt_k ) {
 				}
 			}
 
-			// Klaviyo email/SMS opt-in checkboxes, then the SMS consent disclosure
-			// (kl_sms_compliance_text() is normally hooked to the bottom of the billing
-			// form; functions.php removes that placement so it renders here instead).
+			// Klaviyo email/SMS opt-in checkboxes, then the SMS consent disclosure.
 			foreach ( $pt_kl_keys as $pt_k ) {
 				if ( isset( $pt_fields[ $pt_k ] ) ) {
 					woocommerce_form_field( $pt_k, $pt_fields[ $pt_k ], $checkout->get_value( $pt_k ) );
 				}
 			}
-			if ( isset( $pt_fields['kl_sms_consent_checkbox'] ) && function_exists( 'kl_sms_compliance_text' ) ) {
-				kl_sms_compliance_text();
+			// The consent disclosure. The plugin's default bottom-of-form placement is
+			// removed in functions.php; its render function only echoes plain text, so we
+			// output the wrapper markup ourselves — matching the CSS-only "Read more"
+			// toggle in checkout.css (#klaviyo-toggle-1 / .klaviyo-consent-wrapper /
+			// .read-more-label). Text comes from the shared Klaviyo disclosure setting.
+			if ( isset( $pt_fields['kl_sms_consent_checkbox'] ) ) {
+				$pt_kl_settings   = function_exists( 'get_option' ) ? get_option( 'klaviyo_settings' ) : array();
+				$pt_kl_disclosure = is_array( $pt_kl_settings ) && ! empty( $pt_kl_settings['klaviyo_sms_consent_disclosure_text'] )
+					? trim( (string) $pt_kl_settings['klaviyo_sms_consent_disclosure_text'] )
+					: '';
+				if ( '' !== $pt_kl_disclosure ) :
+					?>
+					<input type="checkbox" id="klaviyo-toggle-1">
+					<div class="klaviyo-consent-wrapper"><?php echo esc_html( $pt_kl_disclosure ); ?></div>
+					<label class="read-more-label" for="klaviyo-toggle-1"><span class="show-more"><?php esc_html_e( 'Read more', 'woocommerce' ); ?></span><span class="show-less"><?php esc_html_e( 'Show less', 'woocommerce' ); ?></span></label>
+					<?php
+				endif;
 			}
 			?>
 		<?php endif; ?>
