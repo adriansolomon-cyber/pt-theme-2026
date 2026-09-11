@@ -44,21 +44,41 @@ function pt_register_custom_checkout_fields( $fields ) {
 		'autocomplete' => 'tel',
 	);
 
-	// Delivery Instructions replaces the native order-notes box (removed here) so
-	// there is only one instructions field, shown in the Delivery section.
+	// Remove WooCommerce's native order-notes box; Delivery Instructions is
+	// rendered explicitly in the Delivery section instead (see below).
 	unset( $fields['order']['order_comments'] );
-	$fields['order']['special_instructions'] = array(
-		'type'        => 'textarea',
-		'label'       => __( 'Special instructions', 'woocommerce' ),
-		'placeholder' => __( 'Curbside access notes — e.g. parking, narrow road, or where to set down the delivery…', 'woocommerce' ),
-		'required'    => false,
-		'class'       => array( 'form-row-wide', 'notes' ),
-		'priority'    => 10,
-	);
 
 	return $fields;
 }
 add_filter( 'woocommerce_checkout_fields', 'pt_register_custom_checkout_fields', 30 );
+
+/**
+ * Render Delivery Instructions inside the Delivery section, right after the
+ * "Preferred delivery date" field (rendered by the lead-time module on the same
+ * hook at priority 10), followed by the delivery-cost note. Rendered manually —
+ * not as a checkout field — so it always sits in this one Delivery section and
+ * never duplicates. Its value still posts as `special_instructions` and is saved
+ * by pt_save_custom_checkout_fields().
+ *
+ * @param WC_Checkout $checkout Checkout object.
+ */
+function pt_render_delivery_instructions( $checkout ) {
+	woocommerce_form_field(
+		'special_instructions',
+		array(
+			'type'        => 'textarea',
+			'label'       => __( 'Special instructions', 'woocommerce' ),
+			'placeholder' => __( 'Curbside access notes — e.g. parking, narrow road, or where to set down the delivery…', 'woocommerce' ),
+			'required'    => false,
+			'class'       => array( 'form-row-wide', 'notes' ),
+		),
+		$checkout->get_value( 'special_instructions' )
+	);
+	?>
+	<div class="co-delnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span><b><?php esc_html_e( 'Delivery cost is calculated from your delivery postcode.', 'woocommerce' ); ?></b> <?php esc_html_e( "It's free to selected areas near our Nottinghamshire workshop; more distant locations may carry a delivery charge, and a small number of remote areas we're unfortunately unable to reach. We'll always confirm the final cost and date with you before dispatch.", 'woocommerce' ); ?></span></div>
+	<?php
+}
+add_action( 'woocommerce_after_order_notes', 'pt_render_delivery_instructions', 11 );
 
 /**
  * Persist the custom fields to the same order meta keys the editor used.
