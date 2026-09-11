@@ -186,7 +186,19 @@ function pt_checkout_fields_debug( $checkout ) {
 	echo 'PT-DEBUG theme form-billing.php mtime (UTC): ' . esc_html( $mtime ) . "\n";
 	echo 'PT-DEBUG theme file has prefix-detection code: ' . ( false !== strpos( $src, 'Contact block = email + every phone field' ) ? 'YES' : 'NO' ) . "\n";
 	echo 'PT-DEBUG theme file has HTML-comment diag: ' . ( false !== strpos( $src, 'PT-DEBUG billing keys' ) ? 'YES' : 'NO' ) . "\n";
-	echo 'PT-DEBUG WooCommerce is loading template: ' . esc_html( str_replace( ABSPATH, '', (string) $located ) );
+	echo 'PT-DEBUG WooCommerce is loading template: ' . esc_html( str_replace( ABSPATH, '', (string) $located ) ) . "\n";
+	// Is a Checkout Field Editor plugin active? (it re-sorts fields by priority,
+	// overriding the theme template's Contact-block placement).
+	$active = (array) get_option( 'active_plugins', array() );
+	if ( is_multisite() ) {
+		$active = array_merge( $active, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
+	}
+	$cfe_files = array_values( array_filter( $active, function ( $p ) {
+		return false !== stripos( $p, 'checkout-field' ) || false !== stripos( $p, 'field-editor' ) || false !== stripos( $p, 'checkout-manager' ) || false !== stripos( $p, 'thwcf' );
+	} ) );
+	$cfe_class = ( class_exists( 'THWCFE_Public' ) || class_exists( 'THWCFD_Utils' ) || class_exists( 'THWCFE_Checkout_Fields' ) || function_exists( 'thwcfe_get_checkout_fields' ) ) ? 'YES' : 'NO';
+	echo 'PT-DEBUG checkout-field-editor plugin file(s): ' . esc_html( $cfe_files ? implode( ', ', $cfe_files ) : 'none found' ) . "\n";
+	echo 'PT-DEBUG THWCFE editor class/function present: ' . esc_html( $cfe_class );
 	echo '</div>';
 }
 add_action( 'woocommerce_before_checkout_billing_form', 'pt_checkout_fields_debug' );
