@@ -155,24 +155,9 @@ get_header();
     <?php
     foreach ( $pt_products as $pt_i => $pt_p ) {
         echo pt_cat_card_html( $pt_p ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped within helper
-        // Promo banner as the 2nd grid item (matches category.js placePromo()).
-        // Only when the category's banner switcher is on. category.js placePromo()
-        // just repositions this card, so omitting it here removes it everywhere.
-        if ( $pt_banner_on && 0 === $pt_i ) {
-            ?>
-            <a class="promo-card" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>" aria-label="Current promotion">
-              <img src="https://www.projecttimber.com/wp-content/uploads/2026/09/sh16_category_card_800_800_sh16_category_card_png.webp" alt="Free 16mm cladding upgrade">
-            </a>
-            <?php
-        }
     }
-    if ( $pt_banner_on && 0 === $pt_count ) {
-        ?>
-        <a class="promo-card" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>" aria-label="Current promotion">
-          <img src="https://www.projecttimber.com/wp-content/uploads/2026/09/sh16_category_card_800_800_sh16_category_card_png.webp" alt="Free 16mm cladding upgrade">
-        </a>
-        <?php
-    }
+    // In-grid promo card removed 2026-09-11. category.js placePromo() is a no-op
+    // when no server-rendered .promo-card exists, so nothing else needs changing.
     ?>
     <p class="noresults" id="noresults"<?php echo $pt_count ? ' hidden' : ''; ?>><?php echo $pt_count ? 'No products match those filters. <a href="#" id="clearFilters" style="color:var(--charcoal);font-weight:700">Clear filters</a>' : 'No products found in this category.'; ?></p>
   </div>
