@@ -14,25 +14,20 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$pt_fields = $checkout->get_checkout_fields( 'billing' );
-
-// Contact block = email + every phone field. A second "Phone 2" is added by a
-// plugin/mu-plugin under an unknown key (e.g. billing_phone_2), so detect phone
-// fields by key prefix rather than hardcoding — billing_phone stays first, any
-// additional phone follows and renders inline beside it.
-$pt_phone_keys = array();
-foreach ( array_keys( $pt_fields ) as $pt_k ) {
-	if ( 0 === strpos( (string) $pt_k, 'billing_phone' ) ) {
-		$pt_phone_keys[] = $pt_k;
-	}
-}
-$pt_contact_keys = array_merge( array( 'billing_email' ), $pt_phone_keys );
+$pt_fields       = $checkout->get_checkout_fields( 'billing' );
+$pt_contact_keys = array( 'billing_email', 'billing_phone' );
 // Klaviyo marketing opt-ins (added to the billing group by the Klaviyo plugin at priority
 // 11). We render them in the Contact block to match the design instead of letting them fall
 // into "Billing details". Present only when the plugin + its checkout checkboxes are enabled.
 $pt_kl_keys = array( 'kl_newsletter_checkbox', 'kl_sms_consent_checkbox' );
 
-$pt_has_contact = isset( $pt_fields['billing_email'] ) || ! empty( $pt_phone_keys );
+$pt_has_contact = false;
+foreach ( $pt_contact_keys as $pt_k ) {
+	if ( isset( $pt_fields[ $pt_k ] ) ) {
+		$pt_has_contact = true;
+		break;
+	}
+}
 ?>
 
 <div class="woocommerce-billing-fields">
@@ -45,54 +40,22 @@ $pt_has_contact = isset( $pt_fields['billing_email'] ) || ! empty( $pt_phone_key
 			<h3 class="pt-contact-title"><?php esc_html_e( 'Contact', 'woocommerce' ); ?></h3>
 			<p class="pt-contact-hint"><?php esc_html_e( "We'll use this to send your order confirmation and delivery updates.", 'woocommerce' ); ?></p>
 			<?php
-			// 1) Email — full width, first.
-			if ( isset( $pt_fields['billing_email'] ) ) {
-				woocommerce_form_field( 'billing_email', $pt_fields['billing_email'], $checkout->get_value( 'billing_email' ) );
-			}
-			// 2) Phone + Phone 2 side by side (form-row-first / form-row-last → 48% columns
-			//    via checkout.css). A lone phone stays full width.
-			$pt_pn = count( $pt_phone_keys );
-			foreach ( $pt_phone_keys as $pt_pi => $pt_k ) {
-				$pt_field = $pt_fields[ $pt_k ];
-				if ( $pt_pn >= 2 ) {
-					$pt_field['class'] = array( 0 === $pt_pi ? 'form-row-first' : 'form-row-last' );
-					$pt_field['clear'] = ( $pt_pi === $pt_pn - 1 );
+			foreach ( $pt_contact_keys as $pt_k ) {
+				if ( isset( $pt_fields[ $pt_k ] ) ) {
+					woocommerce_form_field( $pt_k, $pt_fields[ $pt_k ], $checkout->get_value( $pt_k ) );
 				}
-				woocommerce_form_field( $pt_k, $pt_field, $checkout->get_value( $pt_k ) );
 			}
-			// 3) Klaviyo email/SMS opt-in checkboxes, then the SMS consent disclosure below.
+
+			// Klaviyo email/SMS opt-in checkboxes, then the SMS consent disclosure
+			// (kl_sms_compliance_text() is normally hooked to the bottom of the billing
+			// form; functions.php removes that placement so it renders here instead).
 			foreach ( $pt_kl_keys as $pt_k ) {
 				if ( isset( $pt_fields[ $pt_k ] ) ) {
 					woocommerce_form_field( $pt_k, $pt_fields[ $pt_k ], $checkout->get_value( $pt_k ) );
 				}
 			}
-			// The consent disclosure, rendered as the design's .co-consent line: the
-			// first sentence stays visible, the rest collapses behind an inline
-			// "Read more" (CSS-only checkbox toggle, styled in checkout.css). The plugin's
-			// default bottom-of-form placement is removed in functions.php, and its render
-			// function only echoes plain text, so we build the markup ourselves. Text comes
-			// from the shared Klaviyo disclosure setting (same wording as Klaviyo).
-			if ( isset( $pt_fields['kl_sms_consent_checkbox'] ) ) {
-				$pt_kl_settings   = function_exists( 'get_option' ) ? get_option( 'klaviyo_settings' ) : array();
-				$pt_kl_disclosure = is_array( $pt_kl_settings ) && ! empty( $pt_kl_settings['klaviyo_sms_consent_disclosure_text'] )
-					? trim( (string) $pt_kl_settings['klaviyo_sms_consent_disclosure_text'] )
-					: '';
-				if ( '' !== $pt_kl_disclosure ) :
-					$pt_kl_parts = preg_split( '/(?<=\.)\s+/', $pt_kl_disclosure, 2 );
-					$pt_kl_lead  = $pt_kl_parts[0];
-					$pt_kl_rest  = isset( $pt_kl_parts[1] ) ? $pt_kl_parts[1] : '';
-					?>
-					<p class="co-consent">
-						<?php if ( '' !== $pt_kl_rest ) : ?>
-							<input type="checkbox" id="pt-sms-consent-more" class="pt-consent-toggle">
-							<?php echo esc_html( $pt_kl_lead ); ?><span class="rest"> <?php echo esc_html( $pt_kl_rest ); ?></span>
-							<label class="more" for="pt-sms-consent-more"><span class="m1"><?php esc_html_e( 'Read more', 'woocommerce' ); ?></span><span class="m2"><?php esc_html_e( 'Read less', 'woocommerce' ); ?></span></label>
-						<?php else : ?>
-							<?php echo esc_html( $pt_kl_lead ); ?>
-						<?php endif; ?>
-					</p>
-					<?php
-				endif;
+			if ( isset( $pt_fields['kl_sms_consent_checkbox'] ) && function_exists( 'kl_sms_compliance_text' ) ) {
+				kl_sms_compliance_text();
 			}
 			?>
 		<?php endif; ?>
