@@ -49,24 +49,19 @@ defined( 'ABSPATH' ) || exit;
 	<?php endif; ?>
 </div>
 
-<div class="woocommerce-additional-fields">
+<div class="woocommerce-additional-fields co-sec co-delivery">
 	<?php do_action( 'woocommerce_before_order_notes', $checkout ); ?>
 
-	<?php if ( apply_filters( 'woocommerce_enable_order_notes_field', 'yes' === get_option( 'woocommerce_enable_order_comments', 'yes' ) ) ) : ?>
+	<h2><?php esc_html_e( 'Delivery', 'woocommerce' ); ?></h2>
+	<p class="hint"><?php esc_html_e( "Add any access notes for the delivery — we'll confirm the final delivery window with you.", 'woocommerce' ); ?></p>
 
-		<?php if ( ! WC()->cart->needs_shipping() || wc_ship_to_billing_address_only() ) : ?>
-			<h3><?php esc_html_e( 'Additional information', 'woocommerce' ); ?></h3>
-		<?php endif; ?>
+	<div class="woocommerce-additional-fields__field-wrapper">
+		<?php foreach ( $checkout->get_checkout_fields( 'order' ) as $key => $field ) : ?>
+			<?php woocommerce_form_field( $key, $field, $checkout->get_value( $key ) ); ?>
+		<?php endforeach; ?>
+	</div>
 
-		<div class="woocommerce-additional-fields__field-wrapper">
-			<?php foreach ( $checkout->get_checkout_fields( 'order' ) as $key => $field ) : ?>
-				<?php woocommerce_form_field( $key, $field, $checkout->get_value( $key ) ); ?>
-			<?php endforeach; ?>
-		</div>
-
-		<div class="co-delnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span><b><?php esc_html_e( 'Delivery cost is calculated from your delivery postcode.', 'woocommerce' ); ?></b> <?php esc_html_e( "It's free to selected areas near our Nottinghamshire workshop; more distant locations may carry a delivery charge, and a small number of remote areas we're unfortunately unable to reach. We'll always confirm the final cost and date with you before dispatch.", 'woocommerce' ); ?></span></div>
-
-	<?php endif; ?>
+	<div class="co-delnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span><b><?php esc_html_e( 'Delivery cost is calculated from your delivery postcode.', 'woocommerce' ); ?></b> <?php esc_html_e( "It's free to selected areas near our Nottinghamshire workshop; more distant locations may carry a delivery charge, and a small number of remote areas we're unfortunately unable to reach. We'll always confirm the final cost and date with you before dispatch.", 'woocommerce' ); ?></span></div>
 
 	<?php do_action( 'woocommerce_after_order_notes', $checkout ); ?>
 </div>

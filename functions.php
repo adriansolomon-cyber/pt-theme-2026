@@ -51,6 +51,7 @@ require_once get_stylesheet_directory() . '/inc/order-statuses.php';   // custom
 require_once get_stylesheet_directory() . '/includes/woocommerce-filters.php';
 require_once get_stylesheet_directory() . '/includes/custom-functions.php';
 require_once get_stylesheet_directory() . '/includes/wc-custom-checkout-functions.php';
+require_once get_stylesheet_directory() . '/inc/pt-checkout-fields.php'; // Phone 2 + Delivery Instructions custom checkout fields (replaces Checkout Field Editor)
 require_once get_stylesheet_directory() . '/includes/woo-google-tracking-events-datalayer.php';
 require_once get_stylesheet_directory() . '/includes/woo-google-ads-tracking.php';
 require_once get_stylesheet_directory() . '/includes/woocommerce-my-account.php';
@@ -642,11 +643,10 @@ add_filter(
 			unset( $shipping );
 		}
 
-		// ── Order notes → the mockup's "Special instructions" field. ──
-		if ( ! empty( $fields['order']['order_comments'] ) ) {
-			$fields['order']['order_comments']['label']       = __( 'Special instructions', 'woocommerce' );
-			$fields['order']['order_comments']['placeholder'] = __( 'Curbside access notes — e.g. parking, narrow road, or where to set down the delivery…', 'woocommerce' );
-		}
+		// Delivery Instructions is handled by the custom `special_instructions`
+		// field (inc/pt-checkout-fields.php), which also removes order_comments —
+		// so the native order-notes relabel that used to live here is no longer
+		// needed.
 
 		return $fields;
 	},

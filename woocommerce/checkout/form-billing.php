@@ -14,8 +14,16 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$pt_fields       = $checkout->get_checkout_fields( 'billing' );
-$pt_contact_keys = array( 'billing_email', 'billing_phone' );
+$pt_fields = $checkout->get_checkout_fields( 'billing' );
+// Contact block = email + every phone field (billing_phone plus billing_phone_2,
+// added by inc/pt-checkout-fields.php). Detected by key prefix so both are pulled
+// up and rendered inline (their form-row-first/last classes come from that filter).
+$pt_contact_keys = array( 'billing_email' );
+foreach ( array_keys( $pt_fields ) as $pt_k ) {
+	if ( 0 === strpos( (string) $pt_k, 'billing_phone' ) ) {
+		$pt_contact_keys[] = $pt_k;
+	}
+}
 // Klaviyo marketing opt-ins (added to the billing group by the Klaviyo plugin at priority
 // 11). We render them in the Contact block to match the design instead of letting them fall
 // into "Billing details". Present only when the plugin + its checkout checkboxes are enabled.
