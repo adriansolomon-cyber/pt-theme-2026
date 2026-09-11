@@ -571,7 +571,7 @@ function pt_stepup_data( $pid ) {
 	}
 	$tgt_range = (string) get_field( 'stepup_target_range_label', $pid );
 	if ( '' === $tgt_range ) {
-		$tgt_range = pt_product_line_singular( $tid );
+		$tgt_range = 'Grandmaster'; // target is always the Grandmaster range
 	}
 
 	$cur_img = (string) get_field( 'stepup_current_image', $pid );
