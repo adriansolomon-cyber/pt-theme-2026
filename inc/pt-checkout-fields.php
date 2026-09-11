@@ -178,9 +178,15 @@ function pt_checkout_fields_debug( $checkout ) {
 	$keys  = array_keys( $checkout->get_checkout_fields( 'billing' ) );
 	$tpl   = get_stylesheet_directory() . '/woocommerce/checkout/form-billing.php';
 	$mtime = file_exists( $tpl ) ? gmdate( 'Y-m-d H:i:s', filemtime( $tpl ) ) : 'missing';
+	$src   = file_exists( $tpl ) ? (string) file_get_contents( $tpl ) : '';
+	// Which template is WooCommerce ACTUALLY loading for the billing form?
+	$located = function_exists( 'wc_locate_template' ) ? wc_locate_template( 'checkout/form-billing.php' ) : 'n/a';
 	echo '<div style="background:#ffffcc;border:2px solid #cc0000;padding:10px;margin:10px 0;font:12px/1.5 monospace;white-space:pre-wrap;">';
 	echo 'PT-DEBUG billing keys: ' . esc_html( implode( ', ', $keys ) ) . "\n";
-	echo 'PT-DEBUG form-billing.php mtime (UTC): ' . esc_html( $mtime );
+	echo 'PT-DEBUG theme form-billing.php mtime (UTC): ' . esc_html( $mtime ) . "\n";
+	echo 'PT-DEBUG theme file has prefix-detection code: ' . ( false !== strpos( $src, 'Contact block = email + every phone field' ) ? 'YES' : 'NO' ) . "\n";
+	echo 'PT-DEBUG theme file has HTML-comment diag: ' . ( false !== strpos( $src, 'PT-DEBUG billing keys' ) ? 'YES' : 'NO' ) . "\n";
+	echo 'PT-DEBUG WooCommerce is loading template: ' . esc_html( str_replace( ABSPATH, '', (string) $located ) );
 	echo '</div>';
 }
 add_action( 'woocommerce_before_checkout_billing_form', 'pt_checkout_fields_debug' );
