@@ -259,10 +259,12 @@
    date field, then "Special instructions". The datepicker fires AFTER the notes field
    (woocommerce_after_order_notes), so reorder with flex to put the date first. */
 .co-form .woocommerce-additional-fields{ display:flex; flex-direction:column; }
+/* Catch-all: every direct child sits at order 2 (the notes wrapper AND the custom
+   special_instructions field, which renders as a direct sibling of the wrapper). The
+   date (order 1) and the cost note (order 3) override this. A field with no order rule
+   would otherwise default to 0 and float above the Delivery heading. */
+.co-form .woocommerce-additional-fields > *{ order:2; }
 .co-form #order_pickup_date_field{ order:1; }
-.co-form .woocommerce-additional-fields__field-wrapper{ order:2; }
-/* Delivery-cost disclaimer sits last, snug under "Special instructions" (mockup). Without
-   an explicit order it defaults to 0 and floats above the Delivery heading. */
 .co-form .woocommerce-additional-fields .co-delnote{ order:3; margin-top:14px; }
 .co-form #order_pickup_date_field > h3{ font-size:1.15rem; margin:0 0 4px; font-weight:700; }
 .co-form .pt-delivery-hint{ font-size:.84rem; font-weight:300; color:var(--txt-soft); margin:0 0 16px; }
