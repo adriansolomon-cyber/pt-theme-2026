@@ -348,23 +348,32 @@ get_header();
 <?php endif; ?>
 <?php // ===================== STEP UP (Option 3) ===================== ?>
 <?php if ( $pt_su && $pt_show( 'show_stepup', false ) ) : ?>
+<?php
+// Section copy is hardcoded (shared across all step-up products). Only the
+// product-specific data — column titles, images and the target link — is
+// dynamic (from pt_stepup_data()).
+$pt_su_cur_bullets = array(
+	'34 × 27mm framing, doubled to 54mm at joints',
+	'Standard eaves height',
+	'11mm tongue-and-groove cladding',
+	'Best value — great everyday storage',
+);
+$pt_su_tgt_bullets = array(
+	'44mm doubled-up framing — more strength & rigidity',
+	'Tall 2m internal eaves — more usable headroom',
+	'Toughened double glazing as standard',
+	'Built for heavy-duty, everyday, lifetime use',
+);
+?>
 <section class="stepup"><div class="wrap">
   <div class="su-head">
-    <span class="eyebrow"><?php echo esc_html( $pt_su['eyebrow'] ); ?></span>
-    <h2><?php
-      if ( '' !== trim( $pt_su['heading'] ) ) {
-        echo wp_kses_post( $pt_su['heading'] );
-      } else {
-        echo 'Step up to <span class="fade">' . esc_html( $pt_su['tgt_range'] ) . '.</span>';
-      }
-    ?></h2>
-    <?php if ( '' !== trim( $pt_su['lead'] ) ) : ?>
-      <p class="lead"><?php echo wp_kses_post( $pt_su['lead'] ); ?></p>
-    <?php endif; ?>
+    <span class="eyebrow">Thinking longer-term?</span>
+    <h2>Step up to <span class="fade">Grandmaster.</span></h2>
+    <p class="lead">If you want a heavier, harder-wearing build with more headroom, Grandmaster is the natural step up — and it carries the same 25-year anti-rot guarantee.</p>
   </div>
   <div class="su-compare">
     <div class="su-col current">
-      <span class="tag"><?php echo esc_html( $pt_su['cur_tag'] ); ?></span>
+      <span class="tag">You're viewing</span>
       <div class="su-thumb">
         <?php if ( '' !== $pt_su['cur_img'] ) : ?>
           <img loading="lazy" src="<?php echo esc_url( $pt_su['cur_img'] ); ?>" alt="<?php echo esc_attr( $pt_su['cur_title'] ); ?>">
@@ -373,17 +382,15 @@ get_header();
         <?php endif; ?>
       </div>
       <h3><?php echo esc_html( $pt_su['cur_title'] ); ?></h3>
-      <?php if ( $pt_su['cur_bullets'] ) : ?>
-        <ul class="su-specs">
-          <?php foreach ( $pt_su['cur_bullets'] as $pt_b ) : ?>
-            <li><?php echo esc_html( $pt_b ); ?></li>
-          <?php endforeach; ?>
-        </ul>
-      <?php endif; ?>
+      <ul class="su-specs">
+        <?php foreach ( $pt_su_cur_bullets as $pt_b ) : ?>
+          <li><?php echo esc_html( $pt_b ); ?></li>
+        <?php endforeach; ?>
+      </ul>
     </div>
     <div class="su-arrow">&rarr;</div>
     <div class="su-col grand">
-      <span class="tag y"><?php echo esc_html( $pt_su['tgt_tag'] ); ?></span>
+      <span class="tag y">Built to last</span>
       <div class="su-thumb">
         <?php if ( '' !== $pt_su['tgt_img'] ) : ?>
           <img loading="lazy" src="<?php echo esc_url( $pt_su['tgt_img'] ); ?>" alt="<?php echo esc_attr( $pt_su['tgt_title'] ); ?>">
@@ -392,14 +399,12 @@ get_header();
         <?php endif; ?>
       </div>
       <h3><?php echo esc_html( $pt_su['tgt_title'] ); ?></h3>
-      <?php if ( $pt_su['tgt_bullets'] ) : ?>
-        <ul class="su-specs up">
-          <?php foreach ( $pt_su['tgt_bullets'] as $pt_b ) : ?>
-            <li><?php echo esc_html( $pt_b ); ?></li>
-          <?php endforeach; ?>
-        </ul>
-      <?php endif; ?>
-      <a class="su-btn" href="<?php echo esc_url( $pt_su['target_url'] ); ?>"><?php echo esc_html( $pt_su['cta'] ); ?></a>
+      <ul class="su-specs up">
+        <?php foreach ( $pt_su_tgt_bullets as $pt_b ) : ?>
+          <li><?php echo esc_html( $pt_b ); ?></li>
+        <?php endforeach; ?>
+      </ul>
+      <a class="su-btn" href="<?php echo esc_url( $pt_su['target_url'] ); ?>">See the Grandmaster &rarr;</a>
     </div>
   </div>
 </div></section>
