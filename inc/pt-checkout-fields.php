@@ -162,23 +162,31 @@ function pt_sms_consent_mover() {
 	<noscript><style>.co-consent{ display:block !important; }</style></noscript>
 	<script>
 	( function () {
-		function place() {
+		function move() {
 			var cb = document.getElementById( 'kl_sms_consent_checkbox_field' );
 			var list = document.querySelectorAll( '.co-consent' );
-			if ( ! list.length ) { return; }
+			if ( ! list.length ) { return null; }
 			var keep = list[0];
 			for ( var i = 1; i < list.length; i++ ) {
 				if ( list[ i ].parentNode ) { list[ i ].parentNode.removeChild( list[ i ] ); }
 			}
-			if ( cb ) {
-				cb.insertAdjacentElement( 'afterend', keep );
-				keep.style.display = ''; // reveal ONLY once positioned next to the checkbox
-			}
+			if ( cb ) { cb.insertAdjacentElement( 'afterend', keep ); }
+			return keep;
 		}
-		if ( 'loading' !== document.readyState ) { place(); } else {
-			document.addEventListener( 'DOMContentLoaded', place );
+		function reveal() {
+			var keep = move();
+			if ( keep ) { keep.style.display = ''; }
 		}
-		if ( window.jQuery ) { jQuery( document.body ).on( 'updated_checkout', place ); }
+		// Position early but keep it hidden; the checkout fields aren't in their
+		// final order until WooCommerce's first AJAX update (updated_checkout),
+		// so only reveal after that has settled — otherwise it flashes at the top.
+		if ( 'loading' !== document.readyState ) { move(); } else {
+			document.addEventListener( 'DOMContentLoaded', move );
+		}
+		if ( window.jQuery ) {
+			jQuery( document.body ).on( 'updated_checkout', function () { setTimeout( reveal, 50 ); } );
+		}
+		setTimeout( reveal, 2500 ); // fallback reveal if updated_checkout never fires
 	} )();
 	</script>
 	<?php
