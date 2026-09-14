@@ -223,7 +223,7 @@ get_header();
     </a>
     <a class="rb-card" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>">
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/hobbyistrange.webp" alt="Hobbyist range" loading="lazy">
-      <div class="rb-in"><span class="tag">Entry</span><h3>Hobbyist</h3><p>Quality sheds, summerhouses &amp; greenhouses at accessible prices.</p><div class="rfoot"><span class="rprice">From £668</span><span class="shop">Shop Hobbyist <span class="a">→</span></span></div></div>
+      <div class="rb-in"><?php if ( function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() ) : ?><span class="tag y">20% off</span><?php endif; ?><span class="tag">Entry</span><h3>Hobbyist</h3><p>Quality sheds, summerhouses &amp; greenhouses at accessible prices.</p><div class="rfoot"><span class="rprice">From £668</span><span class="shop">Shop Hobbyist <span class="a">→</span></span></div></div>
     </a>
     <a class="rb-card" href="<?php echo $pt_myden; ?>">
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/Insulated-garden-buildings.webp" alt="Evolution range" loading="lazy">

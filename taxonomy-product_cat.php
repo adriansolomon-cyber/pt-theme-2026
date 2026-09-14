@@ -38,6 +38,16 @@ $pt_desc_html = ( '' !== trim( (string) $pt_desc ) )
 // (pt_wall_campaign_active()), and stays hidden otherwise.
 $pt_banner_on  = ( function_exists( 'get_field' ) && $pt_term && get_field( 'cat_banner_enabled', $pt_term ) )
 	&& ( function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() );
+// Hobbyist 20% promo — hardcoded in-grid promo card, shown on the hobbyist /
+// garden-sheds / summerhouses category pages only, gated on the auto-voucher
+// campaign being live (auto_voucher_enabled(): ACF "Show coupon" on + not expired;
+// admins get the preview). Independent of the wall campaign / $pt_banner_on.
+$pt_promo_card = ( $pt_term
+	&& (
+		( isset( $pt_term->term_id ) && 4359 === (int) $pt_term->term_id )                                   // Hobbyist (by ID)
+		|| ( ! empty( $pt_term->slug ) && in_array( $pt_term->slug, array( 'hobbyist', 'garden-sheds', 'summerhouses' ), true ) )
+	)
+	&& function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() );
 $pt_banner_src = $pt_banner_src_m = $pt_banner_link = $pt_banner_alt = '';
 if ( $pt_banner_on ) {
 	$pt_banner_src   = (string) get_field( 'cat_banner_image', $pt_term );
@@ -155,9 +165,24 @@ get_header();
     <?php
     foreach ( $pt_products as $pt_i => $pt_p ) {
         echo pt_cat_card_html( $pt_p ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped within helper
+        // Hobbyist 20% promo card as the 2nd grid item (category.js placePromo()
+        // repositions it). Omitting it — campaign off or a non-target category —
+        // removes it everywhere.
+        if ( $pt_promo_card && 0 === $pt_i ) {
+            ?>
+            <a class="promo-card" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>" aria-label="20% off the Hobbyist range">
+              <img src="<?php echo esc_url( 'https://www.projecttimber.com/wp-content/uploads/2026/09/SH16-·-Category-card-800×800-—-sh16-category-cardv3.png' ); ?>" alt="20% off the Hobbyist range">
+            </a>
+            <?php
+        }
     }
-    // In-grid promo card removed 2026-09-11. category.js placePromo() is a no-op
-    // when no server-rendered .promo-card exists, so nothing else needs changing.
+    if ( $pt_promo_card && 0 === $pt_count ) {
+        ?>
+        <a class="promo-card" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>" aria-label="20% off the Hobbyist range">
+          <img src="<?php echo esc_url( 'https://www.projecttimber.com/wp-content/uploads/2026/09/SH16-·-Category-card-800×800-—-sh16-category-cardv3.png' ); ?>" alt="20% off the Hobbyist range">
+        </a>
+        <?php
+    }
     ?>
     <p class="noresults" id="noresults"<?php echo $pt_count ? ' hidden' : ''; ?>><?php echo $pt_count ? 'No products match those filters. <a href="#" id="clearFilters" style="color:var(--charcoal);font-weight:700">Clear filters</a>' : 'No products found in this category.'; ?></p>
   </div>
