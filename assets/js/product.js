@@ -645,6 +645,9 @@
       // size that genuinely has no gallery).
       var sizes=Object.keys(scenarios).map(function(id){ var m=meta[id]; var g=sizeGalCache[id];
         return { id:+id, name:scenarios[id].name||((m&&m.name)||('#'+id)), price:m?m.price:null, img:(g&&g.length&&g[0])||(m&&m.img)||'' }; });
+      // Only show sizes with a real price greater than £0 — £0 (or missing) is a
+      // data error, and such sizes must not be selectable/purchasable.
+      sizes=sizes.filter(function(s){ return typeof s.price==='number' && s.price>0; });
       // Sort width-first then depth (ascending) so the list reads cleanly small ->
       // large, matching the category-page Size filter; non-dimensional sizes last.
       sizes.sort(function(a,b){ var A=sizeSortVal(a.name),B=sizeSortVal(b.name); var Ad=(A[1]||A[2])?0:1,Bd=(B[1]||B[2])?0:1; return (Ad-Bd)||(A[1]-B[1])||(A[2]-B[2]); });
@@ -715,6 +718,9 @@
       var want=pendingSize; pendingSize=null;
       var id=scenarios[want]?+want:null;
       if(id==null){ var norm=function(s){ return String(s).toLowerCase().replace(/×/g,'x').replace(/[^a-z0-9]+/g,''); }; Object.keys(scenarios).forEach(function(k){ if(id==null && norm(scenarios[k].name)===norm(want)) id=+k; }); }
+      // A £0 / missing-price (hidden) size in the URL must not be selectable — treat
+      // it as unknown and fall back to a valid default below.
+      if(id!=null && !(meta[id] && typeof meta[id].price==='number' && meta[id].price>0)) id=null;
       // Unknown URL size → fall back to the default rather than nothing.
       if(id==null) id=defaultSizeId();
       return id!=null ? selectSize(id) : null;
