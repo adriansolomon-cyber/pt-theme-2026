@@ -103,6 +103,9 @@
     // Read the action via getAttribute — the hidden <input name="action"> shadows form.action.
     var actionUrl=form.getAttribute('action');
     function fail(btn,message){ if(btn){ btn.disabled=false; if(btn._html!=null) btn.innerHTML=btn._html; } alert(message||"Sorry — we couldn't send your booking request. Please call us on 01777 553392."); }
+    // GA4/GTM: fire form_start once, on first interaction (funnel start).
+    var ptStarted=false;
+    form.addEventListener('focusin',function(){ if(ptStarted) return; ptStarted=true; try{ window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: 'form_start', form_name: 'book_viewing', form_id: 'showsite-form' }); }catch(e){} });
     form.addEventListener('submit',function(e){
       e.preventDefault();
       if(typeof form.reportValidity==='function' && !form.reportValidity()) return;

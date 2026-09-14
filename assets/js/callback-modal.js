@@ -47,6 +47,14 @@
 	// Read the action via getAttribute — the hidden <input name="action"> shadows form.action.
 	var actionUrl = form.getAttribute('action');
 
+	// GA4/GTM: fire form_start once, on first interaction (funnel start).
+	var ptStarted = false;
+	form.addEventListener('focusin', function () {
+		if (ptStarted) { return; }
+		ptStarted = true;
+		try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: 'form_start', form_name: 'callback', form_id: 'callback-form' }); } catch (e) {}
+	});
+
 	form.addEventListener('submit', function (e) {
 		if (typeof form.reportValidity === 'function' && !form.reportValidity()) {
 			return;
