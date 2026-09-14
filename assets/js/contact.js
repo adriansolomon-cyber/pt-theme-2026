@@ -43,6 +43,9 @@
 			.then(function (r) { return r.json().catch(function () { return null; }); })
 			.then(function (res) {
 				if (res && res.success) {
+					// GA4/GTM: explicit success event (these forms submit via fetch, so
+					// GA4's automatic form tracking never sees them). Trigger on `form_submit`.
+					try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: 'form_submit', form_name: 'contact', form_id: 'contact-form' }); } catch (e) {}
 					// Meta conversion (browser copy) — same event_id as the server sent,
 					// so they deduplicate. Held automatically if consent isn't granted.
 					if (res.data && res.data.fb && typeof window.fbq === 'function') {

@@ -116,6 +116,9 @@
         .then(function(r){ return r.json().catch(function(){ return null; }); })
         .then(function(res){
           if(res && res.success){
+            // GA4/GTM: explicit success event (fetch submit is invisible to GA4's
+            // automatic form tracking). Trigger on `form_submit`.
+            try{ window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: 'form_submit', form_name: 'book_viewing', form_id: 'showsite-form' }); }catch(e){}
             // Meta Schedule (browser copy) — same event_id as the server sent, so they
             // deduplicate. Held automatically if consent isn't granted.
             if(res.data && res.data.fb && typeof window.fbq==='function'){
