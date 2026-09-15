@@ -392,35 +392,73 @@ if ( $pt_show_promo && $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
 <?php endif; ?>
 
 <!-- Phone numbers — single source of truth: Phone_Numbers.md (website default = 01777 553392). -->
-<header class="mainhead">
+<?php
+// Header phone — working-hours aware (UK time). Both open/closed variants render
+// (desktop text link + mobile icon); the initial state is set here server-side and
+// re-checked client-side (see the script below) so it stays correct on
+// Cloudflare-cached pages. Keep the JS hours config in sync with pt_phone_lines_open().
+$pt_lines_open = ! function_exists( 'pt_phone_lines_open' ) || pt_phone_lines_open();
+$pt_ph_svg     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>';
+$pt_mail_svg   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
+?>
+<header class="mainhead" data-lines="<?php echo $pt_lines_open ? 'open' : 'closed'; ?>">
   <button class="menu" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
   <a class="logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="Project Timber home"><img src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/tplogo.svg" alt="Project Timber"></a>
-  <?php // Header phone — working-hours aware (UK time). Open = call link; out of hours = email fallback, per the old design. Desktop only. ?>
-  <?php $pt_lines_open = ! function_exists( 'pt_phone_lines_open' ) || pt_phone_lines_open(); ?>
-  <?php if ( $pt_lines_open ) : ?>
-    <a class="hphone" href="tel:+441777553392" aria-label="Call us on 01777 553392"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><span class="hp-t"><small>Call us</small><b>01777 553392</b></span></a>
-  <?php else : ?>
-    <a class="hphone hphone-closed" href="mailto:sales@projecttimber.co.uk" aria-label="Phone lines closed — email us at sales@projecttimber.co.uk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><span class="hp-t"><small>Lines closed — email us</small><b>01777 553392</b></span></a>
-  <?php endif; ?>
+  <?php // Desktop phone (text link). Both variants render; CSS shows the right one per [data-lines]. ?>
+  <a class="hphone is-open" href="tel:+441777553392" aria-label="Call us on 01777 553392"><?php echo $pt_ph_svg; // phpcs:ignore WordPress.Security.EscapeOutput -- static trusted SVG ?><span class="hp-t"><small>Call us</small><b>01777 553392</b></span></a>
+  <a class="hphone is-closed" href="mailto:sales@projecttimber.co.uk" aria-label="Phone lines closed — email us at sales@projecttimber.co.uk"><?php echo $pt_ph_svg; // phpcs:ignore WordPress.Security.EscapeOutput -- static trusted SVG ?><span class="hp-t"><small>Lines closed — email us</small><b>01777 553392</b></span></a>
   <style>
     .mainhead .hphone{ display:inline-flex; align-items:center; gap:9px; text-decoration:none; color:var(--ink); margin-left:6px; padding:6px 8px; border-radius:12px; }
     .mainhead .hphone svg{ width:20px; height:20px; color:var(--charcoal); flex:0 0 auto; }
     .mainhead .hphone .hp-t{ display:flex; flex-direction:column; line-height:1.05; }
     .mainhead .hphone .hp-t small{ font-size:.6rem; letter-spacing:.14em; text-transform:uppercase; color:var(--txt-soft); font-weight:400; }
     .mainhead .hphone .hp-t b{ font-size:1rem; font-weight:700; letter-spacing:.01em; }
-    .mainhead .hphone.hphone-closed .hp-t small{ color:var(--danger,#a3402c); }
+    .mainhead .hphone.is-closed .hp-t small{ color:var(--danger,#a3402c); }
     @media(hover:hover){ .mainhead .hphone:hover .hp-t b{ text-decoration:underline; text-underline-offset:2px; } }
-    @media(max-width:859px){ .mainhead .hphone{ display:none; } }
+    /* Open/closed toggle via the state attribute (PHP initial, JS-corrected). */
+    .mainhead[data-lines="open"] .hphone.is-closed, .mainhead[data-lines="open"] .hphone-mob.is-closed{ display:none !important; }
+    .mainhead[data-lines="closed"] .hphone.is-open, .mainhead[data-lines="closed"] .hphone-mob.is-open{ display:none !important; }
+    /* Desktop = text link; mobile = icon in the .icons row. */
+    .mainhead .hphone-mob{ display:none; }
+    @media(max-width:859px){ .mainhead .hphone{ display:none !important; } .mainhead .hphone-mob{ display:inline-flex; } }
+    .mainhead .hphone-mob.is-closed{ color:var(--danger,#a3402c); }
   </style>
   <button class="search" type="button" aria-label="Search Project Timber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg> Search Project Timber</button>
   <div class="icons">
     <button class="ic searchic" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></button>
+    <?php // Mobile phone: call icon when open, email icon when closed (CSS shows the right one per [data-lines]). ?>
+    <a class="ic hphone-mob is-open" href="tel:+441777553392" aria-label="Call us on 01777 553392"><?php echo $pt_ph_svg; // phpcs:ignore WordPress.Security.EscapeOutput -- static trusted SVG ?></a>
+    <a class="ic hphone-mob is-closed" href="mailto:sales@projecttimber.co.uk" aria-label="Phone lines closed — email us"><?php echo $pt_mail_svg; // phpcs:ignore WordPress.Security.EscapeOutput -- static trusted SVG ?></a>
     <button class="ic supporttrigger" type="button" aria-label="Customer support"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""></button>
     <?php // Account icon hidden (2026-08-11). To restore, uncomment the link and set its href to the pt_account_url() value. NOTE: PHP inside an HTML comment still executes, so the href is kept static (#) here to avoid calling pt_account_url() while the icon is hidden. ?>
     <!-- <a class="ic" href="#" aria-label="My account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a> -->
     <button class="ic cartopen" type="button" aria-label="Basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.3 12.3a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L22 8H6"/></svg><span class="badge cartbadge">0</span></button>
   </div>
 </header>
+<script>
+// Header phone: re-check open/closed on the client (UK time) so the state is
+// correct even when the page HTML is served from Cloudflare cache. Falls back to
+// the server-rendered [data-lines] if Intl/timezone is unavailable. Keep this
+// hours config in sync with pt_phone_lines_open() in functions.php.
+(function(){
+  var mh=document.querySelector('.mainhead'); if(!mh) return;
+  function isOpen(){
+    var f;
+    try{ f=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',weekday:'short',hour12:false}); }
+    catch(e){ return null; }
+    var p={}; f.formatToParts(new Date()).forEach(function(x){ p[x.type]=x.value; });
+    var date=p.year+'-'+p.month+'-'+p.day, time=((p.hour==='24')?'00':p.hour)+':'+p.minute, wk=p.weekday;
+    var closedRanges=[['2025-12-24','2025-12-26'],['2025-12-31','2026-01-04']];
+    for(var i=0;i<closedRanges.length;i++){ if(date>=closedRanges[i][0] && date<=closedRanges[i][1]) return false; }
+    var special={'2025-12-22':['10:00','18:00'],'2025-12-23':['10:00','18:00'],'2025-12-29':['10:00','18:00'],'2025-12-30':['10:00','18:00']};
+    if(special[date]) return time>=special[date][0] && time<=special[date][1];
+    if(['Mon','Tue','Wed','Thu','Fri'].indexOf(wk)>=0) return time>='08:30' && time<='18:00';
+    return false;
+  }
+  var o=isOpen();
+  if(o!==null) mh.setAttribute('data-lines', o?'open':'closed');
+})();
+</script>
 
 <!-- Nav → top-level WooCommerce product-category archives (slugs match the live projecttimber.com URLs). -->
 <nav class="primnav" id="primnav"><ul>
