@@ -153,3 +153,41 @@
     if(launch && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){ setInterval(function(){ if(!sup.classList.contains('open')) launch.classList.toggle('show-phone'); }, 3000); }
   })();
 
+
+  /* ===== SEPT20 rotating hero carousel ===== */
+  (function(){
+    var hero=document.querySelector('.pshero'); if(!hero) return;
+    var slides=[].slice.call(hero.querySelectorAll('.pshero-slide'));
+    var dotsWrap=hero.querySelector('#psheroDots');
+    if(slides.length<1 || !dotsWrap) return;
+    var i=0, timer=null;
+    var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Build a dot per slide
+    slides.forEach(function(s,idx){
+      var b=document.createElement('button');
+      b.type='button'; b.setAttribute('role','tab');
+      b.setAttribute('aria-label','Slide '+(idx+1));
+      b.addEventListener('click',function(){ go(idx); restart(); });
+      dotsWrap.appendChild(b);
+    });
+    var dots=[].slice.call(dotsWrap.querySelectorAll('button'));
+
+    function go(n){
+      i=(n+slides.length)%slides.length;
+      slides.forEach(function(s,idx){ s.classList.toggle('is-on',idx===i); });
+      dots.forEach(function(d,idx){ d.classList.toggle('on',idx===i); d.setAttribute('aria-selected',idx===i?'true':'false'); });
+      // Dark dots when the active slide is the yellow sale slide
+      dotsWrap.classList.toggle('on-yellow', slides[i].classList.contains('pshero-sale'));
+    }
+    function next(){ go(i+1); }
+    function start(){ if(reduce || slides.length<2) return; timer=setInterval(next,5000); }
+    function restart(){ if(timer) clearInterval(timer); start(); }
+
+    go(0);
+    // Pause on hover / when tab hidden
+    hero.addEventListener('mouseenter',function(){ if(timer) clearInterval(timer); });
+    hero.addEventListener('mouseleave',restart);
+    document.addEventListener('visibilitychange',function(){ if(document.hidden){ if(timer) clearInterval(timer); } else { restart(); } });
+    start();
+  })();

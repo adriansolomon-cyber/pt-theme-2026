@@ -280,6 +280,40 @@ _mhct.push(['mhCampaignID', 'VA-13595']);
 
 <?php
 /*
+ * SEPT20 sale — rotating announcement strip (site-wide). Campaign-gated: only
+ * shown while auto_voucher_enabled() is true. Cross-fades through the messages;
+ * the strip auto-heights to the active message (.is-on is position:relative,
+ * the rest overlay it), so long lines don't clip on mobile. Inline rotate script
+ * (base.css/header run on every page; home.js is homepage-only).
+ */
+if ( function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() ) : ?>
+<div class="pt-annstrip" id="ptAnnStrip" role="region" aria-label="Store announcements">
+  <div class="pt-annstrip-track">
+    <span class="pt-annmsg is-on"><span class="pt-anndot" aria-hidden="true"></span><b>FACTORY DIRECT</b> — best price guaranteed, straight from the maker.</span>
+    <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>20% OFF</b> the Hobbyist range — code <b>SEPT20</b> applied automatically.</span>
+    <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>GRANDMASTER</b> — 16mm cladding upgrade &amp; double glazing as standard.</span>
+    <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>FREE DELIVERY</b> on selected postcodes* — on our own vehicles, direct to you.</span>
+    <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>25-YEAR ANTI-ROT GUARANTEE*</b> — on every pressure-treated building we make.</span>
+  </div>
+</div>
+<script>
+( function () {
+	var strip = document.getElementById( 'ptAnnStrip' );
+	if ( ! strip ) { return; }
+	var msgs = strip.querySelectorAll( '.pt-annmsg' );
+	if ( msgs.length < 2 ) { return; }
+	if ( window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) { return; }
+	var i = 0;
+	setInterval( function () {
+		msgs[ i ].classList.remove( 'is-on' );
+		i = ( i + 1 ) % msgs.length;
+		msgs[ i ].classList.add( 'is-on' );
+	}, 4000 );
+} )();
+</script>
+<?php endif;
+
+/*
  * Promo bar with live countdown. Driven by the same ACF Options fields the old
  * theme used (template-parts/countdown-template.php):
  *   enable_countdown        — master on/off toggle

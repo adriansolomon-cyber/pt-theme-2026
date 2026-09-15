@@ -21,22 +21,65 @@ $pt_myden = esc_url( home_url( '/evolution/' ) );
 get_header();
 ?>
 
-<!-- ===================== HERO ===================== -->
-<header class="hero" id="main" tabindex="-1">
-  <video id="heroVideo" autoplay muted loop playsinline preload="metadata" poster="https://www.projecttimber.com/wp-content/uploads/2026/06/8x6_My_Den_Composite_Garden_Office_01.jpg" aria-label="A Project Timber garden building in a landscaped garden">
-    <source src="https://www.projecttimber.com/wp-content/uploads/2026/08/08104.mp4" type="video/mp4">
-  </video>
-  <button class="hero-vtoggle" id="heroVtoggle" type="button" aria-label="Pause background video"><svg class="ip" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="ipl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
-  <div class="scrim"></div>
-  <div class="inner">
-    <div class="eyebrow">British-made garden buildings</div>
-    <h1>Room to work, rest and play — at the bottom of the garden.</h1>
-    <p class="sub">Sheds, summerhouses, workshops and fully-insulated garden offices — designed and made in Britain. Built to last up to 25 years.</p>
-    <div class="cta-row">
-      <a class="btn-primary" href="#ranges">Shop the range <span class="a">→</span></a>
-      <a class="btn-ghost" href="#explore">Find your building</a>
+<!-- ===================== HERO (rotating sale carousel — replaces the video hero) ===================== -->
+<?php
+// The 20%-off Hobbyist slide only appears while the campaign is live; when it's
+// off the carousel is a 2-slide brand hero (factory + Grandmaster).
+$pt_sale_on   = function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled();
+$pt_hobbyist  = esc_url( home_url( '/hobbyist/' ) );
+$pt_grandm    = esc_url( home_url( '/grandmaster/' ) );
+$pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*';
+?>
+<header class="pshero" id="main" tabindex="-1" aria-roledescription="carousel" aria-label="Featured ranges">
+  <div class="pshero-slides">
+
+    <!-- Slide 1 — factory direct -->
+    <div class="pshero-slide pshero-img is-on" aria-roledescription="slide">
+      <img class="pshero-bg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/workshop_2_1.webp" alt="Inside the Project Timber workshop">
+      <div class="pshero-ov"></div>
+      <div class="pshero-inner">
+        <div class="pshero-kick">Straight from the maker</div>
+        <h1 class="pshero-h">Best price guaranteed. Direct from the factory.</h1>
+        <p class="pshero-sub">No middlemen — every building is designed and made at our Nottinghamshire workshop.</p>
+        <a class="pshero-cta" href="#ranges">Shop the range <span class="a">→</span></a>
+        <div class="pshero-trust"><?php echo esc_html( $pt_trustline ); ?></div>
+      </div>
     </div>
+
+    <?php if ( $pt_sale_on ) : ?>
+    <!-- Slide 2 — Hobbyist 20% off (campaign-gated) -->
+    <div class="pshero-slide pshero-sale" aria-roledescription="slide">
+      <div class="pshero-saleinner">
+        <div class="pshero-salekick">● Hobbyist range</div>
+        <div class="pshero-bighead"><span>20%</span><span>Off</span></div>
+        <div class="pshero-salesub">the Hobbyist Apex &amp; Pent range</div>
+        <div class="pshero-saledir">Direct from the factory</div>
+        <div class="pshero-cards">
+          <div class="pshero-card"><div class="ps-sz">8 × 6 H100 Apex</div><div class="ps-pr"><span class="ps-was">£1,005</span><span class="ps-now">£804</span></div></div>
+          <div class="pshero-card"><div class="ps-sz">10 × 8 H100 Pent</div><div class="ps-pr"><span class="ps-was">£1,320</span><span class="ps-now">£1,056</span></div></div>
+          <div class="pshero-card"><div class="ps-sz">16 × 8 H100 Apex</div><div class="ps-pr"><span class="ps-was">£1,749</span><span class="ps-now">£1,399</span></div></div>
+        </div>
+        <a class="pshero-darkcta" href="<?php echo $pt_hobbyist; ?>">Shop the range <span class="a">→</span></a>
+        <div class="pshero-saletrust"><?php echo esc_html( $pt_trustline ); ?></div>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Slide 3 — Grandmaster flagship -->
+    <div class="pshero-slide pshero-img" aria-roledescription="slide">
+      <img class="pshero-bg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/Grandmaster.webp" alt="A Grandmaster garden building" loading="lazy">
+      <div class="pshero-ov"></div>
+      <div class="pshero-inner">
+        <div class="pshero-kick">Factory direct</div>
+        <h1 class="pshero-h">The Flagship Grandmaster Range</h1>
+        <p class="pshero-sub">Our strongest build, double-glazed as standard with stronger shiplap cladding.</p>
+        <a class="pshero-cta" href="<?php echo $pt_grandm; ?>">Explore Grandmaster <span class="a">→</span></a>
+        <div class="pshero-trust"><?php echo esc_html( $pt_trustline ); ?></div>
+      </div>
+    </div>
+
   </div>
+  <div class="pshero-dots" id="psheroDots" role="tablist" aria-label="Choose slide"></div>
 </header>
 
 <!-- ===================== TRUST BAR ===================== -->

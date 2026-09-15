@@ -383,3 +383,67 @@
   .rb-in .shop .a{ transition:transform .25s var(--ease); } @media(hover:hover){ .rb-card:hover .rb-in .shop .a{ transform:translateX(4px); } }
 
   /* ===== Cart drawer (shared, namespaced ptc-) ===== */
+
+/* ===== SEPT20 rotating hero carousel (replaces the video hero) ===== */
+.pshero{ position:relative; }
+.pshero-slides{ position:relative; min-height:clamp(460px,74vh,600px); }
+.pshero-slide{ position:absolute; inset:0; opacity:0; transition:opacity .7s ease; pointer-events:none; }
+.pshero-slide.is-on{ opacity:1; pointer-events:auto; }
+@media(prefers-reduced-motion:reduce){ .pshero-slide{ transition:none; } }
+
+/* Image slides (factory / Grandmaster) */
+.pshero-img .pshero-bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.pshero-img .pshero-ov{ position:absolute; inset:0; background:linear-gradient(90deg,rgba(33,30,36,.9) 0%,rgba(33,30,36,.68) 55%,rgba(33,30,36,.38) 100%); }
+.pshero-inner{ position:relative; height:100%; display:flex; flex-direction:column; justify-content:center; gap:14px; max-width:var(--maxw); margin:0 auto; padding:40px 20px; width:100%; box-sizing:border-box; }
+.pshero-inner > *{ max-width:560px; }
+.pshero-kick{ font-family:var(--font); font-size:.8rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); }
+.pshero-h{ font-family:var(--font); font-weight:800; font-size:clamp(2rem,5vw,2.6rem); line-height:1.1; letter-spacing:-.02em; color:#fff; margin:0; text-wrap:balance; }
+.pshero-sub{ font-family:var(--font); font-size:clamp(.95rem,2.2vw,1.05rem); line-height:1.5; color:#e6e6e6; margin:0; max-width:460px; }
+.pshero-cta{ align-self:flex-start; background:var(--accent); color:var(--charcoal); font-family:var(--font); font-weight:700; font-size:.95rem; border-radius:999px; padding:13px 26px; text-decoration:none; transition:transform .2s var(--ease,ease); }
+.pshero-cta:hover{ transform:translateY(-1px); }
+.pshero-cta .a{ margin-left:4px; }
+.pshero-trust{ font-family:var(--font); font-size:.68rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#e6e6e6; margin-top:6px; }
+
+/* Sale slide (Hobbyist 20% off) — full yellow */
+.pshero-sale{ background:var(--accent); }
+.pshero-saleinner{ height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; padding:34px 20px; box-sizing:border-box; }
+.pshero-salekick{ font-family:var(--font); font-size:.8rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--charcoal); margin-bottom:6px; }
+.pshero-bighead{ display:flex; align-items:baseline; gap:14px; }
+.pshero-bighead span{ font-family:var(--font); font-weight:800; font-size:clamp(3.6rem,12vw,7rem); line-height:.9; color:var(--charcoal); text-transform:uppercase; }
+.pshero-salesub{ font-family:var(--font); font-weight:700; font-size:clamp(1.1rem,3vw,1.55rem); color:var(--charcoal); }
+.pshero-saledir{ font-family:var(--font); font-weight:600; font-size:clamp(.9rem,2vw,1.05rem); color:var(--charcoal); margin-bottom:16px; }
+.pshero-cards{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
+.pshero-card{ background:#fff; border-radius:12px; padding:14px 20px; min-width:150px; }
+.pshero-card .ps-sz{ font-family:var(--font); font-size:.86rem; font-weight:600; color:var(--charcoal); margin-bottom:7px; }
+.pshero-card .ps-was{ font-size:.85rem; color:#9a9a9d; text-decoration:line-through; }
+.pshero-card .ps-now{ font-family:var(--font); font-weight:800; font-size:1.25rem; color:#C0392B; margin-left:7px; }
+.pshero-darkcta{ background:var(--charcoal); color:#fff; font-family:var(--font); font-weight:700; font-size:1rem; border-radius:999px; padding:13px 30px; text-decoration:none; margin-bottom:12px; transition:transform .2s var(--ease,ease); }
+.pshero-darkcta:hover{ transform:translateY(-1px); }
+.pshero-darkcta .a{ margin-left:4px; }
+.pshero-saletrust{ font-family:var(--font); font-size:.66rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--charcoal); }
+
+/* Dots */
+.pshero-dots{ position:absolute; left:0; right:0; bottom:20px; display:flex; justify-content:center; gap:8px; z-index:5; }
+.pshero-dots button{ width:22px; height:6px; border-radius:3px; border:none; padding:0; cursor:pointer; background:rgba(255,255,255,.5); transition:background .2s ease, width .2s ease; }
+.pshero-dots button.on{ width:28px; background:var(--accent); }
+/* On the yellow sale slide, dark dots read better (JS toggles .on-yellow). */
+.pshero-dots.on-yellow button{ background:rgba(59,51,61,.35); }
+.pshero-dots.on-yellow button.on{ background:var(--charcoal); }
+
+@media(max-width:640px){
+  .pshero-slides{ min-height:clamp(520px,92vh,680px); }
+  /* Image slides: text sits at the bottom, so add a vertical bottom scrim on top
+     of the horizontal one for guaranteed legibility on narrow screens. */
+  .pshero-img .pshero-ov{ background:linear-gradient(180deg,rgba(33,30,36,.25) 0%,rgba(33,30,36,.35) 40%,rgba(33,30,36,.82) 100%); }
+  .pshero-inner{ justify-content:flex-end; padding-bottom:56px; gap:11px; }
+  .pshero-inner > *{ max-width:100%; }
+  /* Sale slide: a lot stacks vertically — tighten it and let it scroll internally
+     rather than clip if a very short viewport can't fit it all. */
+  .pshero-saleinner{ justify-content:flex-start; padding:26px 18px; gap:5px; max-height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .pshero-bighead{ gap:10px; }
+  .pshero-bighead span{ font-size:clamp(3rem,17vw,4.4rem); }
+  .pshero-cards{ gap:10px; margin-bottom:14px; }
+  .pshero-card{ flex:1 1 44%; min-width:0; padding:11px 12px; }
+  .pshero-card .ps-now{ font-size:1.1rem; }
+  .pshero-saletrust, .pshero-trust{ font-size:.6rem; }
+}
