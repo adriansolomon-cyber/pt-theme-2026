@@ -87,7 +87,10 @@ function pt_render_delivery_instructions( $checkout ) {
 		$checkout->get_value( 'special_instructions' )
 	);
 	?>
-	<div class="co-delnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span><b><?php esc_html_e( 'Delivery cost is calculated from your delivery postcode.', 'woocommerce' ); ?></b> <?php esc_html_e( "It's free to selected areas near our Nottinghamshire workshop; more distant locations may carry a delivery charge, and a small number of remote areas we're unfortunately unable to reach. We'll always confirm the final cost and date with you before dispatch.", 'woocommerce' ); ?></span></div>
+	<?php // Delivery cost note — temporarily hidden. Change false → true to restore. ?>
+		<?php if ( false ) : ?>
+		<div class="co-delnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span><b><?php esc_html_e( 'Delivery cost is calculated from your delivery postcode.', 'woocommerce' ); ?></b> <?php esc_html_e( "It's free to selected areas near our Nottinghamshire workshop; more distant locations may carry a delivery charge, and a small number of remote areas we're unfortunately unable to reach. We'll always confirm the final cost and date with you before dispatch.", 'woocommerce' ); ?></span></div>
+		<?php endif; ?>
 	<?php
 }
 add_action( 'woocommerce_after_order_notes', 'pt_render_delivery_instructions', 11 );
