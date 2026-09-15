@@ -469,3 +469,12 @@
 .ty .ty-foot{ text-align:center; margin-top:30px; }
 .ty .ty-continue{ display:inline-flex; align-items:center; gap:8px; font-weight:700; color:var(--ink); text-decoration:none; font-size:.95rem; border:1px solid rgba(33,30,36,.18); border-radius:999px; padding:13px 28px; transition:border-color .15s; }
 .ty .ty-continue:hover{ border-color:var(--ink); }
+
+/* Checkout: tidy gap + alignment below payment options */
+.woocommerce-checkout #payment ul.payment_methods::before,
+.woocommerce-checkout #payment ul.payment_methods::after,
+.woocommerce-checkout #payment .place-order::before,
+.woocommerce-checkout #payment .place-order::after,
+.woocommerce-checkout #payment .place-order > noscript{display:none}
+.woocommerce-checkout #payment .place-order{margin-top:0;padding:16px 0 0}
+.woocommerce-checkout #payment .woocommerce-terms-and-conditions-wrapper{margin-top:0}
