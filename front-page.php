@@ -35,7 +35,7 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
 
     <!-- Slide 1 — factory direct -->
     <div class="pshero-slide pshero-img is-on" aria-roledescription="slide">
-      <img class="pshero-bg" src="https://www.projecttimber.com/wp-content/uploads/2026/07/workshop_2_1.webp" alt="Inside the Project Timber workshop">
+      <img class="pshero-bg" src="https://www.projecttimber.com/wp-content/uploads/2026/09/project-timber-factory-direct-homepage-banner-scaled.webp" alt="Project Timber garden buildings — factory direct">
       <div class="pshero-ov"></div>
       <div class="pshero-inner">
         <div class="pshero-kick">Straight from the maker</div>
