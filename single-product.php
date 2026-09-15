@@ -178,6 +178,9 @@ get_header();
   </div>
 </div></header>
 
+<!-- ===================== EXPLORE PREMIUM RANGES (below the price pill) ===================== -->
+<?php if ( $pt_show( 'show_ranges', false ) ) { get_template_part( 'template-parts/product-ranges' ); } ?>
+
 <!-- ===================== INLINE CONFIGURATOR (non-popup) ===================== -->
 <section class="configurator" id="configure"><div class="wrap">
   <?php $pt_cfg_heading = $pt_f( 'configurator_heading', '' ); ?>

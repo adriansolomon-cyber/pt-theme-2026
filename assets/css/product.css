@@ -647,3 +647,23 @@
 .rangesw a.rs-tab:hover{ color:var(--ink); }
 .rangesw .rs-cap{ font-size:.72rem; font-weight:300; color:var(--txt-soft); text-align:center; margin:9px 4px 0; }
 .rangesw .rs-cap b{ color:var(--ink); font-weight:700; }
+
+/* ===== Explore Premium Ranges strip (below hero price pill) — ported from theTimber ===== */
+.pt-ranges{ padding:34px 0 8px; }
+.pt-ranges .wrap{ max-width:1200px; margin:0 auto; padding:0 20px; }
+.pt-ranges-title{ font-size:clamp(1.15rem,2.6vw,1.5rem); font-weight:700; letter-spacing:-.01em; color:var(--ink); margin:0 0 16px; }
+.pt-ranges-rail{ display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x proximity; scroll-padding-inline:20px; -webkit-overflow-scrolling:touch; padding:2px 20px 14px; margin:0 -20px; scrollbar-width:none; }
+.pt-ranges-rail::-webkit-scrollbar{ display:none; }
+.pt-range-card{ scroll-snap-align:start; flex:0 0 62%; max-width:260px; display:flex; flex-direction:column; background:var(--white); border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); overflow:hidden; box-shadow:var(--e1); text-decoration:none; color:var(--ink); transition:transform .25s var(--ease), box-shadow .25s var(--ease); }
+@media(hover:hover){ .pt-range-card:hover{ transform:translateY(-3px); box-shadow:var(--e2); } }
+.pt-range-media{ display:block; aspect-ratio:4/3; background:var(--mist); overflow:hidden; }
+.pt-range-media img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s var(--ease); }
+@media(hover:hover){ .pt-range-card:hover .pt-range-media img{ transform:scale(1.04); } }
+.pt-range-label{ display:flex; flex-direction:column; gap:2px; padding:13px 15px 15px; }
+.pt-range-name{ font-size:1rem; font-weight:700; line-height:1.15; color:var(--ink); }
+.pt-range-type{ font-size:.78rem; font-weight:300; color:var(--txt-soft); }
+@media(min-width:760px){
+  .pt-ranges{ padding:44px 0 10px; }
+  .pt-ranges-rail{ gap:18px; }
+  .pt-range-card{ flex:0 0 210px; max-width:210px; }
+}

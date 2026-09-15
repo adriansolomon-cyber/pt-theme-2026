@@ -1,0 +1,154 @@
+{
+    "key": "group_pt_premium_ranges",
+    "title": "Premium Ranges (product page strip)",
+    "fields": [
+        {
+            "key": "field_pt_products_range_heading",
+            "label": "Strip heading",
+            "name": "products_range_heading",
+            "type": "text",
+            "instructions": "Heading shown above the ranges strip on product pages. Leave blank to use the default.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "Need more? Explore premium ranges",
+            "placeholder": "Need more? Explore premium ranges",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_pt_products_range",
+            "label": "Ranges",
+            "name": "products_range",
+            "type": "repeater",
+            "instructions": "The premium ranges shown in the strip. Edited once here — they appear on every product where \"Explore premium ranges\" is switched on (in that product's Section visibility tab).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "field_pt_products_range_name",
+            "button_label": "Add range",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_pt_products_range_name",
+                    "label": "Name",
+                    "name": "name",
+                    "type": "text",
+                    "instructions": "Range name, e.g. \"Grandmaster\".",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": "",
+                    "parent_repeater": "field_pt_products_range"
+                },
+                {
+                    "key": "field_pt_products_range_type",
+                    "label": "Type / subtitle",
+                    "name": "type",
+                    "type": "text",
+                    "instructions": "Short line under the name, e.g. \"Heavy-duty\".",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": "",
+                    "parent_repeater": "field_pt_products_range"
+                },
+                {
+                    "key": "field_pt_products_range_image",
+                    "label": "Image",
+                    "name": "image",
+                    "type": "image",
+                    "instructions": "Card image (roughly 4:3).",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "return_format": "url",
+                    "preview_size": "medium",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_products_range"
+                },
+                {
+                    "key": "field_pt_products_range_link",
+                    "label": "Link",
+                    "name": "link",
+                    "type": "link",
+                    "instructions": "Where the card links, e.g. the range page.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "return_format": "array",
+                    "parent_repeater": "field_pt_products_range"
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "acf-options-theme-settings"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Global list of premium ranges shown in the product-page \"Explore premium ranges\" strip. Enable per product via the Section visibility tab.",
+    "show_in_rest": 0,
+    "modified": 1789461778
+}

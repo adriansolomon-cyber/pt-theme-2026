@@ -321,6 +321,26 @@
             "ui_off_text": ""
         },
         {
+            "key": "field_pt_show_ranges",
+            "label": "Explore premium ranges",
+            "name": "show_ranges",
+            "type": "true_false",
+            "instructions": "Show the \"Explore premium ranges\" strip below the hero price pill. The ranges themselves are edited once under Theme Settings → Premium ranges. Off by default.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show this section",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
             "key": "field_pt_tab_hero",
             "label": "Hero",
             "name": "",
@@ -2531,5 +2551,5 @@
     "description": "Editable marketing content for the single-product (PDP) template. The configurator, price, sizes and spec values remain API-driven; these fields fill the surrounding copy, images and sections.",
     "show_in_rest": 0,
     "display_title": "",
-    "modified": 1789129183
+    "modified": 1789461778
 }
