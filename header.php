@@ -431,6 +431,21 @@ if ( $pt_show_promo && $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
     <button class="ic cartopen" type="button" aria-label="Basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.3 12.3a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L22 8H6"/></svg><span class="badge cartbadge">0</span></button>
   </div>
 </header>
+<script>
+// GA4/GTM: track header phone clicks (a click_to_call event). Covers the desktop
+// "Call us" link and the mobile icon — method 'tel' (call), 'email' (desktop
+// closed → mailto), or 'callback' (mobile closed → opens the Request-a-callback
+// modal). Capture phase so it fires before the tel:/mailto navigation.
+(function(){
+  document.addEventListener('click', function(e){
+    var el = e.target.closest ? e.target.closest('.hphone, .hphone-mob') : null;
+    if(!el) return;
+    var href = (el.getAttribute('href')||'').toLowerCase();
+    var method = el.hasAttribute('data-callback') ? 'callback' : (href.indexOf('mailto:')===0 ? 'email' : 'tel');
+    try{ window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event:'click_to_call', source: el.classList.contains('hphone-mob') ? 'header_mobile' : 'header_desktop', method: method }); }catch(err){}
+  }, true);
+})();
+</script>
 
 <!-- Nav → top-level WooCommerce product-category archives (slugs match the live projecttimber.com URLs). -->
 <nav class="primnav" id="primnav"><ul>
