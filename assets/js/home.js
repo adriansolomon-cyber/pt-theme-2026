@@ -181,13 +181,28 @@
       dotsWrap.classList.toggle('on-yellow', slides[i].classList.contains('pshero-sale'));
     }
     function next(){ go(i+1); }
-    function start(){ if(reduce || slides.length<2) return; timer=setInterval(next,5000); }
-    function restart(){ if(timer) clearInterval(timer); start(); }
+    function prev(){ go(i-1); }
+    function stop(){ if(timer){ clearInterval(timer); timer=null; } }
+    function start(){ stop(); if(reduce || slides.length<2) return; timer=setInterval(next,3000); }
+    function restart(){ start(); }
 
     go(0);
     // Pause on hover / when tab hidden
-    hero.addEventListener('mouseenter',function(){ if(timer) clearInterval(timer); });
+    hero.addEventListener('mouseenter',stop);
     hero.addEventListener('mouseleave',restart);
-    document.addEventListener('visibilitychange',function(){ if(document.hidden){ if(timer) clearInterval(timer); } else { restart(); } });
+    document.addEventListener('visibilitychange',function(){ if(document.hidden){ stop(); } else { restart(); } });
+
+    // Swipe (touch) — left = next, right = prev; pause while dragging.
+    var x0=null, y0=null;
+    hero.addEventListener('touchstart',function(e){ var t=e.touches[0]; x0=t.clientX; y0=t.clientY; stop(); }, {passive:true});
+    hero.addEventListener('touchend',function(e){
+      if(x0===null) return;
+      var t=e.changedTouches[0], dx=t.clientX-x0, dy=t.clientY-y0;
+      x0=y0=null;
+      // Only treat as a swipe if it's mostly horizontal and past a threshold.
+      if(Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)){ if(dx<0) next(); else prev(); }
+      restart();
+    }, {passive:true});
+
     start();
   })();

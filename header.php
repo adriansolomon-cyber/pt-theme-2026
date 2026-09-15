@@ -308,7 +308,7 @@ if ( function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() ) : ?>
 		msgs[ i ].classList.remove( 'is-on' );
 		i = ( i + 1 ) % msgs.length;
 		msgs[ i ].classList.add( 'is-on' );
-	}, 4000 );
+	}, 3000 );
 } )();
 </script>
 <?php endif;
