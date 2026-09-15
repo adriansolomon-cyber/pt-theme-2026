@@ -22,7 +22,7 @@
   /* promo + header */
    
   .mainhead{ display:flex; align-items:center; gap:14px; padding:10px 20px; border-bottom:1px solid rgba(33,30,36,.07); position:sticky; top:0; z-index:50; background:rgba(255,255,255,.85); backdrop-filter:saturate(160%) blur(18px); -webkit-backdrop-filter:saturate(160%) blur(18px); }
-  .mainhead .logo{ display:inline-flex; margin:0 auto 0 0; } 
+  .mainhead .logo{ display:inline-flex; } /* was margin:0 auto 0 0 (old minimal-checkout header) — pushed the phone to centre */
   .mainhead .securenote{ margin-left:auto; display:none; align-items:center; gap:7px; font-size:.8rem; color:var(--txt-soft); } .mainhead .securenote svg{ width:15px; height:15px; color:var(--ok); }
   @media(min-width:560px){ .mainhead .securenote{ display:flex; } }
 
