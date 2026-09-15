@@ -72,6 +72,10 @@
 
   /* ---------------- INLINE CONFIGURATOR ---------------- */
   .configurator{ background:var(--white); padding-bottom:28px; } /* trim the big white gap before the next section */
+  /* Mobile: 64px section padding reads as a huge gap on a phone — tighten the
+     rhythm and mirror the configurator gap trim (declared AFTER the base rules
+     so it wins the cascade). */
+  @media(max-width:640px){ section{ padding:40px 0; } .configurator{ padding-bottom:14px; } }
   .cfg-grid{ display:grid; gap:26px; align-items:start; }
   @media(min-width:860px){ .cfg-grid{ grid-template-columns:1fr 1fr; gap:44px; } }
   .cfg-preview img{ width:100%; border-radius:var(--r); box-shadow:var(--e2); display:block; aspect-ratio:16/9; object-fit:cover; background:var(--mist); }
