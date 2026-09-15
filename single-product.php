@@ -817,7 +817,7 @@ if ( $pt_rec_ids ) :
 <?php endif; ?>
 <div class="buybar">
   <div class="p"><?php echo wp_kses_post( $pt_from ); ?> <small>FREE DELIVERY*</small></div>
-  <button class="go">Customise &amp; buy</button>
+  <button class="go cfgadd">Add to cart</button>
 </div>
 
 <!-- ===================== GALLERY LIGHTBOX ===================== -->

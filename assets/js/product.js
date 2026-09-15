@@ -988,15 +988,24 @@
       setTimeout(fin, 1300); // hard fallback if eventCallback never fires (GTM blocked).
     }
     // add to basket → fire add_to_cart, then go to the native composite add-to-cart URL
-    if(elAdd) elAdd.addEventListener('click',function(){
-      var u=cartUrl(); if(!u) return;
-      elAdd.disabled=true;
+    function doAddToCart(btn){
+      var u=cartUrl(); if(!u) return false;   // no valid size yet → caller decides fallback
+      if(btn) btn.disabled=true;
       atcPush(function(){ window.location.href=u; });
-    });
+      return true;
+    }
+    if(elAdd) elAdd.addEventListener('click',function(){ doAddToCart(elAdd); });
+    // Mobile sticky bar "Add to cart" → add the CURRENT configuration (a default size +
+    // options are always preselected, so cartUrl() is valid). If somehow not ready yet,
+    // fall back to scrolling to the configurator.
+    document.querySelectorAll('.buybar .go').forEach(function(b){ b.addEventListener('click',function(){
+      if(doAddToCart(b)) return;
+      var c=document.getElementById('configure'); if(c) c.scrollIntoView({behavior:'smooth'});
+    }); });
     // finance / cash toggle (hidden by default)
     document.querySelectorAll('.cfg-summary .ptoggle button').forEach(function(b){ b.addEventListener('click',function(){ document.querySelectorAll('.cfg-summary .ptoggle button').forEach(function(x){ x.classList.remove('on'); }); b.classList.add('on'); recalc(); }); });
     // route page CTAs to configurator (add-to-basket excluded via .cfgadd)
-    document.querySelectorAll('.subnav .buy, .pricepill .go, .buybar .go, .final .go').forEach(function(b){ b.addEventListener('click',function(){ var c=document.getElementById('configure'); if(c) c.scrollIntoView({behavior:'smooth'}); }); });
+    document.querySelectorAll('.subnav .buy, .pricepill .go, .final .go').forEach(function(b){ b.addEventListener('click',function(){ var c=document.getElementById('configure'); if(c) c.scrollIntoView({behavior:'smooth'}); }); });
     // CTAs that jump to a SPECIFIC configurator step (e.g. "Add assembly at checkout")
     // carry data-cfg-open="<keyword>"; open that step's accordion row (matched by its
     // label) and scroll to it, so the option is right there. Falls back to the top of
