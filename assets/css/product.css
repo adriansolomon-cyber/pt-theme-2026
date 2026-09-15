@@ -648,22 +648,43 @@
 .rangesw .rs-cap{ font-size:.72rem; font-weight:300; color:var(--txt-soft); text-align:center; margin:9px 4px 0; }
 .rangesw .rs-cap b{ color:var(--ink); font-weight:700; }
 
-/* ===== Explore Premium Ranges strip (below hero price pill) — ported from theTimber ===== */
-.pt-ranges{ padding:34px 0 8px; }
+/* ===== Explore Premium Ranges strip — faithful port of the old theTimber range slider ===== */
+.pt-ranges{ padding:30px 0 12px; }
 .pt-ranges .wrap{ max-width:1200px; margin:0 auto; padding:0 20px; }
-.pt-ranges-title{ font-size:clamp(1.15rem,2.6vw,1.5rem); font-weight:700; letter-spacing:-.01em; color:var(--ink); margin:0 0 16px; }
-.pt-ranges-rail{ display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x proximity; scroll-padding-inline:20px; -webkit-overflow-scrolling:touch; padding:2px 20px 14px; margin:0 -20px; scrollbar-width:none; }
-.pt-ranges-rail::-webkit-scrollbar{ display:none; }
-.pt-range-card{ scroll-snap-align:start; flex:0 0 62%; max-width:260px; display:flex; flex-direction:column; background:var(--white); border:1px solid rgba(33,30,36,.1); border-radius:var(--r-sm); overflow:hidden; box-shadow:var(--e1); text-decoration:none; color:var(--ink); transition:transform .25s var(--ease), box-shadow .25s var(--ease); }
-@media(hover:hover){ .pt-range-card:hover{ transform:translateY(-3px); box-shadow:var(--e2); } }
-.pt-range-media{ display:block; aspect-ratio:4/3; background:var(--mist); overflow:hidden; }
-.pt-range-media img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s var(--ease); }
-@media(hover:hover){ .pt-range-card:hover .pt-range-media img{ transform:scale(1.04); } }
-.pt-range-label{ display:flex; flex-direction:column; gap:2px; padding:13px 15px 15px; }
-.pt-range-name{ font-size:1rem; font-weight:700; line-height:1.15; color:var(--ink); }
-.pt-range-type{ font-size:.78rem; font-weight:300; color:var(--txt-soft); }
-@media(min-width:760px){
-  .pt-ranges{ padding:44px 0 10px; }
-  .pt-ranges-rail{ gap:18px; }
-  .pt-range-card{ flex:0 0 210px; max-width:210px; }
-}
+.range-slider-widget{ position:relative; width:100%; }
+
+/* Prev / next navigation arrows */
+.pt-ranges-nav{ position:absolute; top:73px; transform:translateY(-50%); z-index:4; width:38px; height:38px; border-radius:999px; border:1px solid rgba(33,30,36,.14); background:rgba(255,255,255,.94); color:var(--ink); font-size:20px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:var(--e1); transition:opacity .2s var(--ease), background .2s var(--ease); }
+.pt-ranges-nav.prev{ left:-6px; } .pt-ranges-nav.next{ right:-6px; }
+@media(hover:hover){ .pt-ranges-nav:hover{ background:#fff; } }
+.pt-ranges-nav[disabled]{ opacity:.28; pointer-events:none; }
+@media(min-width:760px){ .pt-ranges-nav.prev{ left:-14px; } .pt-ranges-nav.next{ right:-14px; } }
+
+/* The rail (was Swiper — now a flex scroll rail) */
+.range-slider-container{ overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.range-slider-container::-webkit-scrollbar{ display:none; }
+.range-slider-container .swiper-wrapper{ display:flex; padding:0; margin:0; list-style:none; }
+
+/* Slide cards */
+.range-slider-container .swiper-slide{ width:202px; flex:0 0 202px; margin-right:20px; display:flex; flex-direction:column; align-items:center; text-align:center; user-select:none; text-decoration:none; color:inherit; transition:transform .2s ease, opacity .2s ease; }
+.range-slider-container .swiper-slide:first-child{ margin-left:20px; }
+.range-slider-container .swiper-slide:last-child{ margin-right:20px; }
+@media(hover:hover){ .range-slider-container .swiper-slide:hover{ opacity:.82; } }
+
+/* Image */
+.range-slider-container .swiper-slide figure{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; height:145px; width:100%; margin:0 0 14px; padding:0; overflow:hidden; border-radius:10px; }
+.range-slider-container .swiper-slide img{ width:100%; height:100%; object-fit:cover; border-radius:10px; user-select:none; pointer-events:none; display:block; }
+
+/* Highlight gradient over the active card's image */
+.range-slider-container .swiper-slide.active figure::after{ content:""; position:absolute; inset:0; z-index:1; background:linear-gradient(180deg, rgba(238,238,238,0) 0%, rgba(255,255,0,.20) 100%); pointer-events:none; }
+
+/* Pill label + connecting line */
+.range-slider-container .item-label{ position:relative; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%; min-height:42px; font-size:12px; font-weight:600; border:1px solid #9a9a9a; border-radius:50px; background:#fff; color:#444; line-height:normal; padding:5px 10px; gap:2px; }
+.range-slider-container .item-label .title{ font-weight:700; color:var(--ink); font-size:13px; }
+.range-slider-container .swiper-slide.active .item-label{ background:#ff0; border-color:#ff0; color:#000; }
+.range-slider-container .swiper-slide.active .item-label .title{ color:#000; }
+.range-slider-container .swiper-slide:first-child .item-label::before{ content:""; position:absolute; left:-22px; top:50%; transform:translateY(-50%); width:22px; height:1px; background:#9a9a9a; }
+.range-slider-container .swiper-slide .item-label::after{ content:""; position:absolute; right:-22px; top:50%; transform:translateY(-50%); width:22px; height:1px; background:#9a9a9a; }
+.range-slider-container .swiper-slide:last-child .item-label::after{ display:none; }
+
+@media(max-width:600px){ .range-slider-container .swiper-slide{ width:150px; flex:0 0 150px; } }
