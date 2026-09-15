@@ -125,16 +125,6 @@ get_header();
     <a href="<?php echo esc_url( home_url( '/' ) ); ?>">Home</a><span class="sep">/</span><span class="here" aria-current="page"><?php echo esc_html( $pt_name ); ?></span>
   </nav>
 
-  <?php if ( $pt_sale_banner ) : ?>
-  <aside class="pt-catsale" aria-label="Sale offer">
-    <div class="pt-catsale-kick">● Factory outlet deal</div>
-    <div class="pt-catsale-head"><span>20%</span><span>Off</span></div>
-    <div class="pt-catsale-sub">the Hobbyist Apex &amp; Pent range — while stocks last</div>
-    <a class="pt-catsale-chip" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>">Shop the deal — code <b>SEPT20</b> <span class="a">→</span></a>
-    <div class="pt-catsale-trust">FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*</div>
-  </aside>
-  <?php endif; ?>
-
   <?php if ( '' !== $pt_banner_src ) : ?>
     <?php
     // Picture element so an optional mobile image can swap in under 640px.
@@ -159,6 +149,16 @@ get_header();
       <p></p>
     <?php endif; ?>
   </div>
+
+  <?php if ( $pt_sale_banner ) : ?>
+  <aside class="pt-catsale" aria-label="Sale offer">
+    <div class="pt-catsale-kick">● Factory outlet deal</div>
+    <div class="pt-catsale-head"><span>20%</span><span>Off</span></div>
+    <div class="pt-catsale-sub">the Hobbyist Apex &amp; Pent range — while stocks last</div>
+    <a class="pt-catsale-chip" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>">Shop the deal — code <b>SEPT20</b> <span class="a">→</span></a>
+    <div class="pt-catsale-trust">FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*</div>
+  </aside>
+  <?php endif; ?>
 
   <!-- toolbar -->
   <div class="cat-toolbar">
