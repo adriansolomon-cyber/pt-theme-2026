@@ -65,8 +65,8 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
     </div>
     <?php endif; ?>
 
-    <!-- Slide 3 — Grandmaster flagship -->
-    <div class="pshero-slide pshero-img" aria-roledescription="slide">
+    <!-- Slide 3 — Grandmaster flagship (lighter overlay so the image reads through) -->
+    <div class="pshero-slide pshero-img pshero-light" aria-roledescription="slide">
       <img class="pshero-bg" src="https://www.projecttimber.com/wp-content/uploads/2026/09/project-timber-grandmaster-diplomat-summerhouse-garden-shed-homepage-banner.webp" alt="A Grandmaster Diplomat summerhouse and garden shed" loading="lazy">
       <div class="pshero-ov"></div>
       <div class="pshero-inner">
