@@ -395,6 +395,23 @@ if ( $pt_show_promo && $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
 <header class="mainhead">
   <button class="menu" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
   <a class="logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="Project Timber home"><img src="https://www.projecttimber.com/wp-content/themes/theTimber/assets/images/tplogo.svg" alt="Project Timber"></a>
+  <?php // Header phone — working-hours aware (UK time). Open = call link; out of hours = email fallback, per the old design. Desktop only. ?>
+  <?php $pt_lines_open = ! function_exists( 'pt_phone_lines_open' ) || pt_phone_lines_open(); ?>
+  <?php if ( $pt_lines_open ) : ?>
+    <a class="hphone" href="tel:+441777553392" aria-label="Call us on 01777 553392"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><span class="hp-t"><small>Call us</small><b>01777 553392</b></span></a>
+  <?php else : ?>
+    <a class="hphone hphone-closed" href="mailto:sales@projecttimber.co.uk" aria-label="Phone lines closed — email us at sales@projecttimber.co.uk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><span class="hp-t"><small>Lines closed — email us</small><b>01777 553392</b></span></a>
+  <?php endif; ?>
+  <style>
+    .mainhead .hphone{ display:inline-flex; align-items:center; gap:9px; text-decoration:none; color:var(--ink); margin-left:6px; padding:6px 8px; border-radius:12px; }
+    .mainhead .hphone svg{ width:20px; height:20px; color:var(--charcoal); flex:0 0 auto; }
+    .mainhead .hphone .hp-t{ display:flex; flex-direction:column; line-height:1.05; }
+    .mainhead .hphone .hp-t small{ font-size:.6rem; letter-spacing:.14em; text-transform:uppercase; color:var(--txt-soft); font-weight:400; }
+    .mainhead .hphone .hp-t b{ font-size:1rem; font-weight:700; letter-spacing:.01em; }
+    .mainhead .hphone.hphone-closed .hp-t small{ color:var(--danger,#a3402c); }
+    @media(hover:hover){ .mainhead .hphone:hover .hp-t b{ text-decoration:underline; text-underline-offset:2px; } }
+    @media(max-width:859px){ .mainhead .hphone{ display:none; } }
+  </style>
   <button class="search" type="button" aria-label="Search Project Timber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg> Search Project Timber</button>
   <div class="icons">
     <button class="ic searchic" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></button>

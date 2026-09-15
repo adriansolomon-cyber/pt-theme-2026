@@ -447,6 +447,49 @@ if ( ! function_exists( 'pt_is_grandmaster_product' ) ) {
 	}
 }
 
+if ( ! function_exists( 'pt_phone_lines_open' ) ) {
+	/**
+	 * Whether the phone lines are open right now (UK time). Mon–Fri 08:30–18:00;
+	 * closed at weekends, on the fully-closed date ranges, and outside the reduced
+	 * hours on special days. Ported from the old theme's time_schedule(); update
+	 * the holiday date arrays each year. Fails OPEN if the clock can't be read.
+	 *
+	 * @return bool
+	 */
+	function pt_phone_lines_open() {
+		try {
+			$now = new DateTime( 'now', new DateTimeZone( 'Europe/London' ) );
+		} catch ( \Exception $e ) {
+			return true;
+		}
+		$date = $now->format( 'Y-m-d' );
+		$time = $now->format( 'H:i:s' );
+		$dow  = (int) $now->format( 'N' ); // 1 = Mon … 7 = Sun.
+
+		// Fully-closed date ranges (e.g. Christmas / New Year). Update annually.
+		$closed_ranges = array(
+			array( '2025-12-24', '2025-12-26' ),
+			array( '2025-12-31', '2026-01-04' ),
+		);
+		foreach ( $closed_ranges as $r ) {
+			if ( $date >= $r[0] && $date <= $r[1] ) {
+				return false;
+			}
+		}
+		// Special reduced-hours days: open 10:00–18:00 only.
+		$special_days = array( '2025-12-22', '2025-12-23', '2025-12-29', '2025-12-30' );
+		if ( in_array( $date, $special_days, true ) ) {
+			return ( $time >= '10:00:00' && $time <= '18:00:00' );
+		}
+		// Normal weekdays: open 08:30–18:00.
+		if ( $dow >= 1 && $dow <= 5 ) {
+			return ( $time >= '08:30:00' && $time <= '18:00:00' );
+		}
+		// Weekends: closed.
+		return false;
+	}
+}
+
 if ( ! function_exists( 'pt_checkout_url' ) ) {
 	function pt_checkout_url() {
 		if ( function_exists( 'wc_get_checkout_url' ) ) {
