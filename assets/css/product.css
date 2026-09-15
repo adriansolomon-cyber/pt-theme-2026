@@ -695,3 +695,8 @@
 .pt-prodsale-code{ display:inline-flex; align-items:center; gap:8px; font-family:var(--font); font-size:.92rem; font-weight:800; letter-spacing:.06em; color:var(--charcoal); margin-bottom:7px; }
 .pt-prodsale-code svg{ width:15px; height:15px; flex:0 0 auto; }
 .pt-prodsale-note{ font-family:var(--font); font-size:.85rem; font-weight:400; color:var(--charcoal); line-height:1.5; }
+
+/* Configurator summary — "Code X applied" line (discounted products only) */
+.cfg-coupon{ font-family:var(--font); font-weight:700; font-size:.85rem; line-height:1.35; color:var(--ink); margin:2px 0 12px; }
+.cfg-coupon .ck{ color:var(--ink); font-weight:800; }
+.cfg-coupon b{ font-weight:800; }

@@ -285,6 +285,9 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
         -->
         <div class="price" id="cfgPrice">£4,461.00</div>
         <div class="pvat">inc. VAT</div>
+        <?php if ( $pt_disc_pct > 0 ) : ?>
+        <div class="cfg-coupon"><span class="ck" aria-hidden="true">✓</span> <?php if ( '' !== $pt_disc_code ) : ?>Code <b><?php echo esc_html( $pt_disc_code ); ?></b> applied — <?php endif; ?><?php echo (int) round( $pt_disc_pct ); ?>% off your whole order</div>
+        <?php endif; ?>
         <button class="addbtn cfgadd" id="cfgAdd" disabled>Add to basket</button>
         <p class="fineprint">Prices as per the live configurator. Paint/trim swatch colours are indicative approximations.</p>
       </div>
