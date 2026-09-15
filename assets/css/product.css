@@ -71,7 +71,7 @@
   @media(hover:hover){ .filmlink:hover .pp{ background:#3B333D; color:#fff; } }
 
   /* ---------------- INLINE CONFIGURATOR ---------------- */
-  .configurator{ background:var(--white); }
+  .configurator{ background:var(--white); padding-bottom:28px; } /* trim the big white gap before the next section */
   .cfg-grid{ display:grid; gap:26px; align-items:start; }
   @media(min-width:860px){ .cfg-grid{ grid-template-columns:1fr 1fr; gap:44px; } }
   .cfg-preview img{ width:100%; border-radius:var(--r); box-shadow:var(--e2); display:block; aspect-ratio:16/9; object-fit:cover; background:var(--mist); }
