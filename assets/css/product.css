@@ -688,3 +688,12 @@
 .range-slider-container .swiper-slide:last-child .item-label::after{ display:none; }
 
 @media(max-width:600px){ .range-slider-container .swiper-slide{ width:150px; flex:0 0 150px; } }
+
+/* ===== SEPT20 product-page sale banner (above the configurator) ===== */
+.pt-prodsale{ margin:18px 0 -6px; }
+.pt-prodsale .wrap{ max-width:1200px; margin:0 auto; padding:0 20px; }
+.pt-prodsale-box{ background:var(--accent); border-radius:12px; padding:18px 22px; }
+.pt-prodsale-head{ font-family:var(--font); font-weight:800; font-size:clamp(1.15rem,3vw,1.4rem); line-height:1.2; color:var(--charcoal); margin-bottom:7px; }
+.pt-prodsale-code{ display:inline-flex; align-items:center; gap:8px; font-family:var(--font); font-size:.92rem; font-weight:800; letter-spacing:.06em; color:var(--charcoal); margin-bottom:7px; }
+.pt-prodsale-code svg{ width:15px; height:15px; flex:0 0 auto; }
+.pt-prodsale-note{ font-family:var(--font); font-size:.85rem; font-weight:400; color:var(--charcoal); line-height:1.5; }
