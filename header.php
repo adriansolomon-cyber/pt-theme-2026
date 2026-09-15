@@ -411,9 +411,10 @@ if ( $pt_show_promo && $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
     .mainhead .hphone.hphone-closed .hp-t small{ color:var(--danger,#a3402c); }
     @media(hover:hover){ .mainhead .hphone:hover .hp-t b{ text-decoration:underline; text-underline-offset:2px; } }
     @media(max-width:859px){ .mainhead .hphone{ display:none; } }
-    /* Mobile phone icon (in the .icons row, after search): shown only on mobile. */
+    /* Mobile phone icon (in the .icons row): shown only on mobile, ordered right
+       after the search icon (base.css: menu=1, searchic=2, cart=9). */
     .mainhead .hphone-mob{ display:none; }
-    @media(max-width:859px){ .mainhead .hphone-mob{ display:inline-flex; } }
+    @media(max-width:859px){ .mainhead .hphone-mob{ display:inline-flex; order:3; } }
   </style>
   <button class="search" type="button" aria-label="Search Project Timber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg> Search Project Timber</button>
   <div class="icons">
