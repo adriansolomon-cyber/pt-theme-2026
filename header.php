@@ -411,10 +411,19 @@ if ( $pt_show_promo && $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
     .mainhead .hphone.hphone-closed .hp-t small{ color:var(--danger,#a3402c); }
     @media(hover:hover){ .mainhead .hphone:hover .hp-t b{ text-decoration:underline; text-underline-offset:2px; } }
     @media(max-width:859px){ .mainhead .hphone{ display:none; } }
+    /* Mobile phone icon (in the .icons row, after search): shown only on mobile. */
+    .mainhead .hphone-mob{ display:none; }
+    @media(max-width:859px){ .mainhead .hphone-mob{ display:inline-flex; } }
   </style>
   <button class="search" type="button" aria-label="Search Project Timber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg> Search Project Timber</button>
   <div class="icons">
     <button class="ic searchic" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></button>
+    <?php // Mobile phone (after search): in working hours → tap to call; out of hours → envelope that opens the Request-a-callback modal ([data-callback]). ?>
+    <?php if ( $pt_lines_open ) : ?>
+      <a class="ic hphone-mob" href="tel:+441777553392" aria-label="Call us on 01777 553392"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></a>
+    <?php else : ?>
+      <button class="ic hphone-mob" type="button" data-callback aria-label="Phone lines closed — request a callback"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></button>
+    <?php endif; ?>
     <button class="ic supporttrigger" type="button" aria-label="Customer support"><img src="https://www.projecttimber.com/wp-content/uploads/2026/06/proicons_chat.png" alt=""></button>
     <?php // Account icon hidden (2026-08-11). To restore, uncomment the link and set its href to the pt_account_url() value. NOTE: PHP inside an HTML comment still executes, so the href is kept static (#) here to avoid calling pt_account_url() while the icon is hidden. ?>
     <!-- <a class="ic" href="#" aria-label="My account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a> -->
