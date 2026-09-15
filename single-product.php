@@ -181,24 +181,13 @@ get_header();
 <!-- ===================== EXPLORE PREMIUM RANGES (below the price pill) ===================== -->
 <?php if ( $pt_show( 'show_ranges', false ) ) { get_template_part( 'template-parts/product-ranges' ); } ?>
 
-<!-- ===================== SALE BANNER (above the configurator) ===================== -->
 <?php
-// SEPT20 sale box — shown only when this product is actually discounted
-// (pt_product_discount_pct() is 0 when the campaign is off or the product isn't
-// in the discounted category). Uses the real coupon code + live percentage.
+// SEPT20 sale box — shown at the top of the config column, only when this
+// product is actually discounted (pt_product_discount_pct() is 0 when the
+// campaign is off or the product isn't in the discounted category).
 $pt_disc_pct  = ( $pt_product && function_exists( 'pt_product_discount_pct' ) ) ? (float) pt_product_discount_pct( $pt_pid ) : 0.0;
 $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code' ) ) ? pt_product_discount_code( $pt_pid ) : '';
-if ( $pt_disc_pct > 0 ) : ?>
-<section class="pt-prodsale"><div class="wrap">
-  <div class="pt-prodsale-box">
-    <div class="pt-prodsale-head"><?php echo (int) round( $pt_disc_pct ); ?>% OFF your whole order!</div>
-    <?php if ( '' !== $pt_disc_code ) : ?>
-    <div class="pt-prodsale-code"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> CODE <?php echo esc_html( $pt_disc_code ); ?></div>
-    <?php endif; ?>
-    <div class="pt-prodsale-note">Applied automatically at checkout — no code needed.</div>
-  </div>
-</div></section>
-<?php endif; ?>
+?>
 
 <!-- ===================== INLINE CONFIGURATOR (non-popup) ===================== -->
 <section class="configurator" id="configure"><div class="wrap">
@@ -263,6 +252,15 @@ if ( $pt_disc_pct > 0 ) : ?>
       <!-- Option steps are rendered live from the WooCommerce composite product (assets/js/product.js).
            The card / row markup the engine emits reuses the exact same design classes as the rest
            of the page — only the data is dynamic. -->
+      <?php if ( $pt_disc_pct > 0 ) : ?>
+      <div class="pt-prodsale-box">
+        <div class="pt-prodsale-head"><?php echo (int) round( $pt_disc_pct ); ?>% OFF your whole order!</div>
+        <?php if ( '' !== $pt_disc_code ) : ?>
+        <div class="pt-prodsale-code"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> CODE <?php echo esc_html( $pt_disc_code ); ?></div>
+        <?php endif; ?>
+        <div class="pt-prodsale-note">Applied automatically at checkout — no code needed.</div>
+      </div>
+      <?php endif; ?>
       <?php // Range toggle (Option 1) — redirect to the matched step-up target ?>
       <?php if ( $pt_su && $pt_show( 'show_range_toggle', false ) ) : ?>
       <div class="rangesw">
