@@ -152,17 +152,18 @@ function pt_cart_has_assembly_service() {
 // which bypasses pt_advance_past_blackout — only weekends + lead_time_excluded_dates apply.
 
 // Composite products resolved as a unit: size child → parent → 0
-// from_size is only true if the parent also has include_fast_delivery enabled
+// from_size (fast delivery) is read from the SIZE child — the include_fast_delivery
+// flag lives on the size product, NOT the parent.
 function pt_resolve_composite_delivery_days($cart_item, $cart) {
 
     $parent_id = $cart_item['data']->get_id();
-    $is_fast   = (bool) get_field('include_fast_delivery', $parent_id);
 
     foreach ($cart_item['composite_children'] as $child_key) {
         if (!isset($cart[$child_key]['data'])) continue;
         $child = $cart[$child_key]['data'];
         if (preg_match('/^\d+\s*x\s*\d+$/i', trim($child->get_title()))) {
-            $days = (int) get_field('delivery_time', $child->get_id());
+            $days    = (int) get_field('delivery_time', $child->get_id());
+            $is_fast = (bool) get_field('include_fast_delivery', $child->get_id()); // per-SIZE flag
             if ($days > 0) return ['days' => $days, 'from_size' => $is_fast];
             break; // size found but empty — fall through to parent
         }
@@ -174,13 +175,15 @@ function pt_resolve_composite_delivery_days($cart_item, $cart) {
     return ['days' => 0, 'from_size' => false];
 }
 
-// Simple/variable products: size-format title → ACF → product ACF
+// Simple/variable products: size-format title → ACF → product ACF.
+// from_size (fast delivery) requires the product's own include_fast_delivery tick.
 function pt_resolve_delivery_days($product) {
     $title = trim($product->get_title());
 
     if (preg_match('/^\d+\s*x\s*\d+$/i', $title)) {
-        $days = (int) get_field('delivery_time', $product->get_id());
-        if ($days > 0) return ['days' => $days, 'from_size' => true];
+        $days    = (int) get_field('delivery_time', $product->get_id());
+        $is_fast = (bool) get_field('include_fast_delivery', $product->get_id());
+        if ($days > 0) return ['days' => $days, 'from_size' => $is_fast];
     }
 
     return ['days' => (int) get_field('delivery_time', $product->get_id()), 'from_size' => false];
