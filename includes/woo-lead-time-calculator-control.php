@@ -266,15 +266,13 @@ function pt_fast_delivery_badge_html( $id = '', $hidden = false ) {
 }
 
 /**
- * Size product IDs that qualify for fast delivery — empty unless the parent has
- * include_fast_delivery ON. A size qualifies when it has its own delivery_time set,
- * mirroring pt_resolve_composite_delivery_days()'s from_size rule, per size. Used to
- * drive the per-size badge on the product page.
+ * Size product IDs that qualify for fast delivery — a size qualifies when that
+ * SIZE child itself has "include_fast_delivery" ticked. Per-size flag (not the
+ * parent). Drives the per-size badge on the product page.
  */
 function pt_fast_delivery_size_ids( $product_id ) {
     $out = array();
     if ( ! function_exists( 'get_field' ) ) return $out;
-    if ( ! (bool) get_field( 'include_fast_delivery', $product_id ) ) return $out;
     $product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
     if ( ! $product ) return $out;
     if ( $product->is_type( 'composite' ) && is_callable( array( $product, 'get_components' ) ) ) {
@@ -283,15 +281,46 @@ function pt_fast_delivery_size_ids( $product_id ) {
             if ( 'size' !== $title ) continue;
             $opts = is_callable( array( $component, 'get_options' ) ) ? (array) $component->get_options() : array();
             foreach ( $opts as $oid ) {
-                if ( (int) get_field( 'delivery_time', (int) $oid ) > 0 ) {
+                if ( (bool) get_field( 'include_fast_delivery', (int) $oid ) ) {
                     $out[] = (int) $oid;
                 }
             }
         }
-    } elseif ( (int) get_field( 'delivery_time', $product_id ) > 0 ) {
+    } elseif ( (bool) get_field( 'include_fast_delivery', $product_id ) ) {
         $out[] = (int) $product_id;
     }
     return array_values( array_unique( $out ) );
+}
+
+/**
+ * True only when EVERY item in the cart is a fast-delivery size (the selected
+ * size child has include_fast_delivery ticked). A single non-fast item means the
+ * order can't dispatch fast, so the pill is hidden.
+ */
+function pt_cart_is_all_fast_delivery() {
+    if ( ! function_exists( 'WC' ) || ! WC()->cart || ! function_exists( 'get_field' ) ) return false;
+    $cart = WC()->cart->get_cart();
+    $any  = false;
+    foreach ( $cart as $cart_item ) {
+        if ( ! isset( $cart_item['data'] ) ) continue;
+        if ( isset( $cart_item['composite_parent'] ) ) continue; // counted via its parent
+        $fast = false;
+        if ( isset( $cart_item['composite_children'] ) && is_array( $cart_item['composite_children'] ) ) {
+            foreach ( $cart_item['composite_children'] as $child_key ) {
+                if ( ! isset( $cart[ $child_key ]['data'] ) ) continue;
+                $child = $cart[ $child_key ]['data'];
+                if ( preg_match( '/^\d+\s*x\s*\d+$/i', trim( $child->get_title() ) ) ) {
+                    $fast = (bool) get_field( 'include_fast_delivery', $child->get_id() );
+                    break;
+                }
+            }
+        } else {
+            $fast = (bool) get_field( 'include_fast_delivery', $cart_item['data']->get_id() );
+        }
+        $any = true;
+        if ( ! $fast ) return false;
+    }
+    return $any;
 }
 
 add_action('woocommerce_after_order_notes', 'pt_render_pickup_date_field');
@@ -361,8 +390,9 @@ function pt_render_pickup_date_field($checkout) {
         'placeholder' => 'Choose your preferred date',
     ], $checkout->get_value('order_pickup_date'));
 
-    // Fast-delivery pill below the date field, when the cart's lead time is a fast one.
-    if ( ! empty( $pickup['from_size'] ) ) {
+    // Fast-delivery pill below the date field — only when every item in the cart is
+    // a fast-delivery size (that size child has include_fast_delivery ticked).
+    if ( pt_cart_is_all_fast_delivery() ) {
         echo pt_fast_delivery_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_html__ inside
     }
 
