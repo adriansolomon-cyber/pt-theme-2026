@@ -327,7 +327,7 @@ function pt_render_pickup_date_field($checkout) {
     // lead time and no fast message is shown.
     if ( ! empty( $pickup['from_size'] ) ) {
         echo '<div class="co-fastline"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>'
-            . '<span class="co-fastline-t"><b>' . esc_html__( 'Dispatched within 48 hours', 'woocommerce' ) . '</b>'
+            . '<span class="co-fastline-t"><b>' . esc_html__( 'Dispatched from 48 hours', 'woocommerce' ) . '</b>'
             . '<small>' . esc_html__( 'Order by 12pm · in stock at Parry Works', 'woocommerce' ) . '</small></span></div>';
     }
 
