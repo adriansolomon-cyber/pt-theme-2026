@@ -263,7 +263,7 @@ function pt_get_min_pickup_date() {
  *  - return true;                        → live to all customers
  */
 function pt_fast_badge_visible() {
-    return false;
+    return function_exists( 'current_user_can' ) && current_user_can( 'manage_options' ); // admin-only preview
 }
 
 function pt_fast_delivery_badge_html( $id = '', $hidden = false ) {
