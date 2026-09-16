@@ -287,9 +287,9 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
         $pt_fast_sizes = ( function_exists( 'pt_fast_delivery_size_ids' ) && function_exists( 'pt_fast_badge_visible' ) && pt_fast_badge_visible() )
             ? pt_fast_delivery_size_ids( $pt_pid )
             : array();
-        if ( function_exists( 'pt_fast_delivery_badge_html' ) ) {
-            echo pt_fast_delivery_badge_html( 'cfgFastBadge', true ); // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_html__ inside
-        }
+        // if ( function_exists( 'pt_fast_delivery_badge_html' ) ) {
+        //     echo pt_fast_delivery_badge_html( 'cfgFastBadge', true ); // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_html__ inside
+        // }
         ?>
         <script>window.PT_FAST_SIZES = <?php echo wp_json_encode( array_map( 'intval', (array) $pt_fast_sizes ) ); ?>;</script>
         <!-- FINANCE HIDDEN (re-enable when a finance provider is in place):
