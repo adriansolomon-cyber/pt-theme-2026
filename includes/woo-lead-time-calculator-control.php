@@ -326,9 +326,14 @@ function pt_render_pickup_date_field($checkout) {
     // is longer, from_size is false: the calendar's min date reflects that greater
     // lead time and no fast message is shown.
     if ( ! empty( $pickup['from_size'] ) ) {
+        $fast_min = esc_html( $min_date->format( 'D j M' ) ); // e.g. "Mon 18 Sep"
         echo '<div class="co-fastline"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>'
-            . '<span class="co-fastline-t"><b>' . esc_html__( 'Dispatched from 48 hours', 'woocommerce' ) . '</b>'
-            . '<small>' . esc_html__( 'Order by 12pm · in stock at Parry Works', 'woocommerce' ) . '</small></span></div>';
+            . '<span class="co-fastline-t"><b>' . esc_html__( 'Dispatched from 48 hours · in stock at Parry Works', 'woocommerce' ) . '</b>'
+            . '<small>' . sprintf(
+                /* translators: %s is the earliest delivery date, e.g. "Mon 18 Sep". */
+                esc_html__( 'Choose the earliest date (%s) or any date after — order by 12pm.', 'woocommerce' ),
+                $fast_min
+            ) . '</small></span></div>';
     }
 
     echo "<script>
