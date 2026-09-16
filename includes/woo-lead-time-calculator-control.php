@@ -174,7 +174,13 @@ function pt_resolve_composite_delivery_days($cart_item, $cart) {
 
     // Consider BOTH values — the greater lead time paces the item.
     $days = max($size_days, $parent_days);
-    if ($days <= 0) return ['days' => 0, 'from_size' => false];
+
+    // No specific lead time on this building → fall back to the global default
+    // (the standard lead time). This is a building, so it must still pace the order
+    // (never 0). Not fast.
+    if ($days <= 0) {
+        return ['days' => (int) get_field('global_delivery_days', 'option'), 'from_size' => false];
+    }
 
     // Fast (48h) only when the size is ticked AND its own lead time is the one that
     // applies (the parent doesn't impose a longer one).
@@ -327,8 +333,12 @@ function pt_render_pickup_date_field($checkout) {
         }
         echo '<pre style="background:#111;color:#eee;padding:12px;font-size:11px;overflow:auto">PT LEAD-TIME DEBUG (admin only)' . "\n";
         var_dump($debug);
+        echo 'global_delivery_days (fallback): ';
+        var_dump(get_field('global_delivery_days', 'option'));
         echo 'FINAL from cart: ';
         var_dump(pt_get_product_delivery_days_from_cart());
+        echo 'MIN pickup: ';
+        var_dump(pt_get_min_pickup_date()['date']->format('Y-m-d'));
         echo '</pre>';
     }
     // END DEBUG
