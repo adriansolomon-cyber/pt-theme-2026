@@ -156,37 +156,39 @@ function pt_cart_has_assembly_service() {
 // flag lives on the size product, NOT the parent.
 function pt_resolve_composite_delivery_days($cart_item, $cart) {
 
-    $parent_id = $cart_item['data']->get_id();
+    $parent_id   = $cart_item['data']->get_id();
+    $parent_days = (int) get_field('delivery_time', $parent_id);
 
+    // Lead time may be set on the size child, the parent, or both.
+    $size_days = 0;
+    $size_fast = false;
     foreach ($cart_item['composite_children'] as $child_key) {
         if (!isset($cart[$child_key]['data'])) continue;
         $child = $cart[$child_key]['data'];
         if (preg_match('/^\d+\s*x\s*\d+$/i', trim($child->get_title()))) {
-            $days    = (int) get_field('delivery_time', $child->get_id());
-            $is_fast = (bool) get_field('include_fast_delivery', $child->get_id()); // per-SIZE flag
-            if ($days > 0) return ['days' => $days, 'from_size' => $is_fast];
-            break; // size found but empty — fall through to parent
+            $size_days = (int) get_field('delivery_time', $child->get_id());
+            $size_fast = (bool) get_field('include_fast_delivery', $child->get_id()); // per-SIZE flag
+            break;
         }
     }
 
-    $days = (int) get_field('delivery_time', $parent_id);
-    if ($days > 0) return ['days' => $days, 'from_size' => false];
+    // Consider BOTH values — the greater lead time paces the item.
+    $days = max($size_days, $parent_days);
+    if ($days <= 0) return ['days' => 0, 'from_size' => false];
 
-    return ['days' => 0, 'from_size' => false];
+    // Fast (48h) only when the size is ticked AND its own lead time is the one that
+    // applies (the parent doesn't impose a longer one).
+    $from_size = $size_fast && $size_days > 0 && $size_days >= $parent_days;
+    return ['days' => $days, 'from_size' => $from_size];
 }
 
-// Simple/variable products: size-format title → ACF → product ACF.
-// from_size (fast delivery) requires the product's own include_fast_delivery tick.
+// Simple/variable products: days from the product's delivery_time; from_size (fast
+// delivery) requires its own include_fast_delivery tick.
 function pt_resolve_delivery_days($product) {
-    $title = trim($product->get_title());
-
-    if (preg_match('/^\d+\s*x\s*\d+$/i', $title)) {
-        $days    = (int) get_field('delivery_time', $product->get_id());
-        $is_fast = (bool) get_field('include_fast_delivery', $product->get_id());
-        if ($days > 0) return ['days' => $days, 'from_size' => $is_fast];
-    }
-
-    return ['days' => (int) get_field('delivery_time', $product->get_id()), 'from_size' => false];
+    $days = (int) get_field('delivery_time', $product->get_id());
+    if ($days <= 0) return ['days' => 0, 'from_size' => false];
+    $is_fast = (bool) get_field('include_fast_delivery', $product->get_id());
+    return ['days' => $days, 'from_size' => $is_fast];
 }
 
 // Returns ['days' => int, 'from_size' => bool] or null.
@@ -256,61 +258,33 @@ function pt_get_min_pickup_date() {
  * 8. CHECKOUT FIELD + DATEPICKER
  * ====================================================== */
 /**
- * Size product IDs that have "Include fast delivery" ticked (per-size flag on the
- * size child, not the parent). Used to render a small "48h" pill on those size
- * cards in the configurator (product.js reads the injected window.PT_FAST_SIZES).
+ * Size product IDs eligible for the "48h" pill on the configurator card. A size
+ * qualifies when it has "Include fast delivery" ticked AND its own delivery_time is
+ * set and isn't overridden by a longer parent lead time — the same rule the checkout
+ * uses for from_size. (product.js reads the injected window.PT_FAST_SIZES.)
  */
 function pt_fast_delivery_size_ids( $product_id ) {
     $out = array();
     if ( ! function_exists( 'get_field' ) ) return $out;
     $product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
     if ( ! $product ) return $out;
+    $parent_days = (int) get_field( 'delivery_time', $product_id );
     if ( $product->is_type( 'composite' ) && is_callable( array( $product, 'get_components' ) ) ) {
         foreach ( (array) $product->get_components() as $component ) {
             $title = ( is_object( $component ) && is_callable( array( $component, 'get_title' ) ) ) ? strtolower( trim( (string) $component->get_title() ) ) : '';
             if ( 'size' !== $title ) continue;
             $opts = is_callable( array( $component, 'get_options' ) ) ? (array) $component->get_options() : array();
             foreach ( $opts as $oid ) {
-                if ( (bool) get_field( 'include_fast_delivery', (int) $oid ) ) {
+                $sd = (int) get_field( 'delivery_time', (int) $oid );
+                if ( (bool) get_field( 'include_fast_delivery', (int) $oid ) && $sd > 0 && $sd >= $parent_days ) {
                     $out[] = (int) $oid;
                 }
             }
         }
-    } elseif ( (bool) get_field( 'include_fast_delivery', $product_id ) ) {
+    } elseif ( (bool) get_field( 'include_fast_delivery', $product_id ) && $parent_days > 0 ) {
         $out[] = (int) $product_id;
     }
     return array_values( array_unique( $out ) );
-}
-
-/**
- * True only when EVERY item in the cart is a fast-delivery size (its size child
- * has include_fast_delivery ticked). A single slower item (lead time > 48h) means
- * the order is paced by that item, so fast delivery does not apply.
- */
-function pt_cart_is_all_fast_delivery() {
-    if ( ! function_exists( 'WC' ) || ! WC()->cart || ! function_exists( 'get_field' ) ) return false;
-    $cart = WC()->cart->get_cart();
-    $any  = false;
-    foreach ( $cart as $cart_item ) {
-        if ( ! isset( $cart_item['data'] ) ) continue;
-        if ( isset( $cart_item['composite_parent'] ) ) continue; // counted via its parent
-        $fast = false;
-        if ( isset( $cart_item['composite_children'] ) && is_array( $cart_item['composite_children'] ) ) {
-            foreach ( $cart_item['composite_children'] as $child_key ) {
-                if ( ! isset( $cart[ $child_key ]['data'] ) ) continue;
-                $child = $cart[ $child_key ]['data'];
-                if ( preg_match( '/^\d+\s*x\s*\d+$/i', trim( $child->get_title() ) ) ) {
-                    $fast = (bool) get_field( 'include_fast_delivery', $child->get_id() );
-                    break;
-                }
-            }
-        } else {
-            $fast = (bool) get_field( 'include_fast_delivery', $cart_item['data']->get_id() );
-        }
-        $any = true;
-        if ( ! $fast ) return false;
-    }
-    return $any;
 }
 
 add_action('woocommerce_after_order_notes', 'pt_render_pickup_date_field');
@@ -380,10 +354,11 @@ function pt_render_pickup_date_field($checkout) {
         'placeholder' => 'Choose your preferred date',
     ], $checkout->get_value('order_pickup_date'));
 
-    // 48h fast-delivery line below the calendar — only when the whole cart is fast.
-    // A slower item paces the order, so the calendar's min date already reflects the
-    // greater lead time and no fast message is shown.
-    if ( pt_cart_is_all_fast_delivery() ) {
+    // 48h fast-delivery line below the calendar — only when the resolved order lead
+    // time is itself a fast (from_size) one. If any item's lead time (size OR parent)
+    // is longer, from_size is false: the calendar's min date reflects that greater
+    // lead time and no fast message is shown.
+    if ( ! empty( $pickup['from_size'] ) ) {
         echo '<div class="co-fastline"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg> <span><b>' . esc_html__( 'Dispatched within 48 hours', 'woocommerce' ) . '</b> · ' . esc_html__( 'Order by 12pm', 'woocommerce' ) . ' <span class="soft">· ' . esc_html__( 'in stock at Parry Works', 'woocommerce' ) . '</span></span></div>';
     }
 
