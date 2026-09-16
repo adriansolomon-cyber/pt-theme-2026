@@ -154,7 +154,7 @@ get_header();
     if ( $pt_show( 'show_specs' ) ) { echo '<a href="#specs">Specs</a>'; }
     if ( $pt_show( 'show_faq' ) ) { echo '<a href="#faq">FAQ</a>'; }
   ?></nav>
-  <button class="buy">Customise &amp; buy</button>
+  <button class="buy customize-btn">Customise &amp; buy</button>
 </div>
 
 <!-- ===================== HERO ===================== -->
@@ -174,7 +174,7 @@ get_header();
   <?php endif; ?>
   <div class="pricepill">
     <span class="pl"><b><?php echo wp_kses_post( $pt_from ); ?></b></span>
-    <button class="go">Customise &amp; buy</button>
+    <button class="go customize-btn">Customise &amp; buy</button>
   </div>
 </div></header>
 
@@ -834,7 +834,7 @@ if ( $pt_rec_ids ) :
 <?php if ( $pt_show( 'show_final' ) ) : ?>
 <section class="final"><div class="wrap">
   <h2>Your building is<br>ready when you are.</h2>
-  <button class="go">Customise &amp; buy →</button>
+  <button class="go customize-btn">Customise &amp; buy →</button>
 </div></section>
 
 <?php endif; ?>
