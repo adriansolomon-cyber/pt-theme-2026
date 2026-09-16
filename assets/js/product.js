@@ -913,6 +913,29 @@
       }catch(e){}
     }
 
+    // GA4 "customize_buy" micro-conversion parity. The old site fired this from a
+    // GTM Click trigger (Click Classes contains "customize-btn"). Shoppers who
+    // scroll straight into the inline configurator never click a "Customise & buy"
+    // button, so — on their FIRST genuine size/option choice — we simulate that
+    // click on a hidden element carrying the class, letting the SAME GTM trigger
+    // fire naturally (no GTM change, no duplicate tag). Fires once per page.
+    var customizeClickFired=false;
+    function simulateCustomizeClick(){
+      if(customizeClickFired) return; customizeClickFired=true;
+      try{
+        var el=document.getElementById('ptCustomizeBeacon');
+        if(!el){
+          el=document.createElement('span');
+          el.id='ptCustomizeBeacon';
+          el.className='customize-btn';
+          el.setAttribute('aria-hidden','true');
+          el.style.cssText='position:absolute;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;pointer-events:none;';
+          document.body.appendChild(el);
+        }
+        el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+      }catch(e){}
+    }
+
     // ====================== events ======================
     // Single-open accordion helpers: selecting an option collapses that step (its
     // chosen value stays visible in the header) and opens the NEXT step to choose.
@@ -942,7 +965,8 @@
       if(e.target.closest('.opt-edit')) return;   // edit button → let the link open wp-admin, don't select the card
       var card=e.target.closest('.opt-card'); if(!card) return;
       var group=card.dataset.group, optId=+card.dataset.opt;
-      fireCustomize();   // first genuine size/option choice → Meta CustomizeProduct (once)
+      fireCustomize();          // first genuine size/option choice → Meta CustomizeProduct (once)
+      simulateCustomizeClick(); // + GA4 customize_buy parity via a simulated customize-btn click (once)
       // size re-renders the option steps; advance once the (async) render settles
       if(group===sizeCid){ var p=selectSize(optId); var go=function(){ cfgAdvance(cfgRowsList()[0]); }; if(p&&p.then){ p.then(go); } else { go(); } return; }
       var row=card.closest('.cfg-row');       // capture before refilter rebuilds the cards
