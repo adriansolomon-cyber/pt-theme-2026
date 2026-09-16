@@ -140,13 +140,9 @@ function google_order_conversion($order_id) {
     $order_coupon   = implode(', ', $order->get_coupon_codes());
     $tx_id          = $order->get_order_number();
 
-    // Cost of goods (parts-sum, composite-aware) + profit for GTM → profit
-    // conversion mapping. COGS is ex VAT; `profit` is order total − COGS, and
-    // `gross_profit` is ex-VAT revenue − COGS (order total − tax − COGS).
-    $order_cogs_num  = pt_ga_order_cogs($order);
-    $order_cogs      = number_format($order_cogs_num, 2, '.', '');
-    $order_profit    = number_format((float) $order->get_total() - $order_cogs_num, 2, '.', '');
-    $order_gross_pft = number_format((float) $order->get_total() - (float) $order->get_total_tax() - $order_cogs_num, 2, '.', '');
+    // COGS / profit / gross_profit removed from the purchase dataLayer — sensitive
+    // margin data shouldn't be exposed client-side. (pt_ga_order_cogs() /
+    // pt_ga_cogs_for_product() kept for potential server-side use.)
 
     // Calculate customer lifetime value
     $customer_id = $order->get_customer_id();
@@ -245,9 +241,6 @@ dataLayer.push({
         coupon: '<?php echo esc_js($order_coupon); ?>',
         affiliation: 'Project Timber',
         customer_lifetime_value: <?php echo $customer_ltv; ?>,
-        cogs: <?php echo $order_cogs; ?>,
-        profit: <?php echo $order_profit; ?>,
-        gross_profit: <?php echo $order_gross_pft; ?>,
         items: <?php echo wp_json_encode($gtag_items); ?>
     }
 });
