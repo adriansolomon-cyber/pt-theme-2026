@@ -402,9 +402,9 @@ function pt_render_pickup_date_field($checkout) {
 
     // Fast-delivery pill below the date field — only when every item in the cart is
     // a fast-delivery size (that size child has include_fast_delivery ticked).
-    if ( pt_fast_badge_visible() && pt_cart_is_all_fast_delivery() ) {
-        echo pt_fast_delivery_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_html__ inside
-    }
+    // if ( pt_fast_badge_visible() && pt_cart_is_all_fast_delivery() ) {
+    //     echo pt_fast_delivery_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_html__ inside
+    // }
 
     echo "<script>
     const minDate = new Date('{$min_date_js}T00:00:00');
