@@ -263,7 +263,9 @@ function pt_get_min_pickup_date() {
  *  - return true;                        → live to all customers
  */
 function pt_fast_badge_visible() {
-    return function_exists( 'current_user_can' ) && current_user_can( 'manage_options' ); // admin-only preview
+    return false; // DISABLED by default. Flip to true to launch (then the pill still only
+                  // shows for sizes that have "Include fast delivery" ticked), or use
+                  // current_user_can( 'manage_options' ) for an admin-only preview.
 }
 
 function pt_fast_delivery_badge_html( $id = '', $hidden = false ) {
