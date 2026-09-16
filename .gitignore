@@ -2,6 +2,11 @@
 # Repo root IS the theme (deploys to wp-content/themes/pt-new-wp-theme-2026/).
 # Keep only what belongs in the shipped theme; exclude everything else.
 
+# Secrets — WooCommerce REST API credentials for local verification only.
+# NEVER commit. Read-only key, revoked after use.
+wc-api-credentials.json
+*.secret
+
 # macOS cruft
 .DS_Store
 ._*
