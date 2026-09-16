@@ -587,6 +587,11 @@
       if(selCard){ sizeFilterShow(selCard); }
       else { showKey(bests.length ? '__best' : depths[0]); }
     }
+    // Size has "Include fast delivery" ticked (ids from window.PT_FAST_SIZES).
+    function isFastSize(id){
+      var list=(typeof window.PT_FAST_SIZES!=='undefined'&&window.PT_FAST_SIZES)?window.PT_FAST_SIZES:[];
+      return id!=null && list.indexOf(+id)>=0;
+    }
     function cardHTML(group,opt,selected,colour){
       var label=(group===sizeCid)?sizeDisplay(opt.name):opt.name;
       var isNone=/^\s*none\s*$/i.test(opt.name||'');
@@ -594,6 +599,8 @@
       var tins=(colour&&!isNone)?'<span class="tins">*SUPPLIED IN TINS</span>':'';
       // Admin/editor edit shortcut, on SIZE cards only (each card = one size sub-product).
       var edit=(group===sizeCid)?sizeEditBtn(opt.id):'';
+      // Fast-delivery pill (top-left) on SIZE cards whose size has fast delivery ticked.
+      var fastPill=(group===sizeCid && isFastSize(opt.id))?'<span class="opt-fast"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>48h</span>':'';
       var img;
       if(group===sizeCid){
         // SIZE cards: hold a loading skeleton until this size's OWN image is fetched
@@ -601,7 +608,7 @@
         // (if a src is already known) starts hidden and reveals on load (see
         // revealCardImg); patchSizeCardImages() fills the skeletons after fetch.
         var imEl=opt.img?'<img class="opt-im" src="'+esc(opt.img)+'" alt="'+esc(label)+'">':'';
-        img='<div class="im loading">'+imEl+'<span class="im-skel skel-box" aria-hidden="true"></span>'+tins+edit+'</div>';
+        img='<div class="im loading">'+imEl+'<span class="im-skel skel-box" aria-hidden="true"></span>'+tins+edit+fastPill+'</div>';
       } else {
         img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+edit+'</div>':'<div class="im ph">'+tins+edit+'</div>';
       }

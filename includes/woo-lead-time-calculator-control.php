@@ -252,6 +252,33 @@ function pt_get_min_pickup_date() {
 /* ======================================================
  * 8. CHECKOUT FIELD + DATEPICKER
  * ====================================================== */
+/**
+ * Size product IDs that have "Include fast delivery" ticked (per-size flag on the
+ * size child, not the parent). Used to render a small "48h" pill on those size
+ * cards in the configurator (product.js reads the injected window.PT_FAST_SIZES).
+ */
+function pt_fast_delivery_size_ids( $product_id ) {
+    $out = array();
+    if ( ! function_exists( 'get_field' ) ) return $out;
+    $product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
+    if ( ! $product ) return $out;
+    if ( $product->is_type( 'composite' ) && is_callable( array( $product, 'get_components' ) ) ) {
+        foreach ( (array) $product->get_components() as $component ) {
+            $title = ( is_object( $component ) && is_callable( array( $component, 'get_title' ) ) ) ? strtolower( trim( (string) $component->get_title() ) ) : '';
+            if ( 'size' !== $title ) continue;
+            $opts = is_callable( array( $component, 'get_options' ) ) ? (array) $component->get_options() : array();
+            foreach ( $opts as $oid ) {
+                if ( (bool) get_field( 'include_fast_delivery', (int) $oid ) ) {
+                    $out[] = (int) $oid;
+                }
+            }
+        }
+    } elseif ( (bool) get_field( 'include_fast_delivery', $product_id ) ) {
+        $out[] = (int) $product_id;
+    }
+    return array_values( array_unique( $out ) );
+}
+
 add_action('woocommerce_after_order_notes', 'pt_render_pickup_date_field');
 function pt_render_pickup_date_field($checkout) {
 

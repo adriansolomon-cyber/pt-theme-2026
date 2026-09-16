@@ -191,6 +191,12 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
 
 <!-- ===================== INLINE CONFIGURATOR (non-popup) ===================== -->
 <section class="configurator" id="configure"><div class="wrap">
+  <?php
+  // Size product IDs with "Include fast delivery" ticked — product.js renders a
+  // small "48h" pill on those size cards.
+  $pt_fast_sizes = function_exists( 'pt_fast_delivery_size_ids' ) ? pt_fast_delivery_size_ids( $pt_pid ) : array();
+  ?>
+  <script>window.PT_FAST_SIZES = <?php echo wp_json_encode( array_map( 'intval', (array) $pt_fast_sizes ) ); ?>;</script>
   <?php $pt_cfg_heading = $pt_f( 'configurator_heading', '' ); ?>
   <div class="sec-head"><h2><?php if ( $pt_cfg_heading ) : echo wp_kses_post( $pt_cfg_heading ); else : ?>Build <span class="fade">your <?php echo esc_html( $pt_line ); ?>.</span><?php endif; ?></h2></div>
   <div class="cfg-grid">
