@@ -855,6 +855,14 @@
       var bb=document.querySelector('.buybar .p'); if(bb) bb.innerHTML=fmtDisc(t)+' <small>FREE DELIVERY*</small>';
       if(elAdd) elAdd.disabled=(sizeId==null);
       if(elDeliv && sizeId!=null) elDeliv.textContent='Ready to add · '+(scenarios[sizeId]?scenarios[sizeId].name:'');
+      updateFastLine();
+    }
+    // When a fast-delivery size is selected, show the "Dispatched within 48 hours"
+    // line instead of the global "Delivery available from …" line; revert otherwise.
+    function updateFastLine(){
+      var fast=isFastSize(sizeId);
+      var dl=document.getElementById('cfgDelivLine'); if(dl) dl.hidden=fast;
+      var fl=document.getElementById('cfgFastLine');  if(fl) fl.hidden=!fast;
     }
 
     // ====================== load ======================

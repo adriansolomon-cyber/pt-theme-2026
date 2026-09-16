@@ -708,3 +708,10 @@
 /* Fast-delivery pill on a size card (top-left corner of the image) */
 .opt-card .opt-fast{ position:absolute; top:6px; left:6px; z-index:3; display:inline-flex; align-items:center; gap:3px; background:#166B3B; color:#fff; font-size:.6rem; font-weight:800; letter-spacing:.02em; line-height:1; padding:4px 7px 4px 5px; border-radius:999px; box-shadow:0 1px 4px rgba(0,0,0,.25); pointer-events:none; }
 .opt-card .opt-fast svg{ width:11px; height:11px; flex:0 0 auto; color:#B7F5CE; }
+
+/* Fast-delivery line — replaces the "Delivery available from …" line for fast sizes */
+.cfg-summary .cfg-di[hidden]{ display:none; } /* .cfg-di sets display:flex, which would beat [hidden] */
+.cfg-di.cfg-fastline{ color:#166B3B; }
+.cfg-di.cfg-fastline svg{ color:#1E8A4C; }
+.cfg-di.cfg-fastline b{ font-weight:800; }
+.cfg-di.cfg-fastline .soft{ color:#3F6B52; }
