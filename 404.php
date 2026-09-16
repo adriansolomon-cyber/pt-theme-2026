@@ -28,4 +28,22 @@ get_header();
 </main>
 
 <?php
+// Track 404s in code (not via fragile page-title/DOM detection, which broke with
+// the relaunch). Feeds the existing GA4 "404_not_found" event — point a GTM
+// Custom Event trigger at '404_not_found' → your GA4 event tag.
+?>
+<script>
+( function () {
+	try {
+		window.dataLayer = window.dataLayer || [];
+		window.dataLayer.push({
+			event: '404_not_found',
+			page_path: window.location.pathname + window.location.search,
+			page_location: window.location.href,
+			referrer: document.referrer || ''
+		});
+	} catch ( e ) {}
+} )();
+</script>
+<?php
 get_footer();
