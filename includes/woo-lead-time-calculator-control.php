@@ -279,6 +279,37 @@ function pt_fast_delivery_size_ids( $product_id ) {
     return array_values( array_unique( $out ) );
 }
 
+/**
+ * True only when EVERY item in the cart is a fast-delivery size (its size child
+ * has include_fast_delivery ticked). A single slower item (lead time > 48h) means
+ * the order is paced by that item, so fast delivery does not apply.
+ */
+function pt_cart_is_all_fast_delivery() {
+    if ( ! function_exists( 'WC' ) || ! WC()->cart || ! function_exists( 'get_field' ) ) return false;
+    $cart = WC()->cart->get_cart();
+    $any  = false;
+    foreach ( $cart as $cart_item ) {
+        if ( ! isset( $cart_item['data'] ) ) continue;
+        if ( isset( $cart_item['composite_parent'] ) ) continue; // counted via its parent
+        $fast = false;
+        if ( isset( $cart_item['composite_children'] ) && is_array( $cart_item['composite_children'] ) ) {
+            foreach ( $cart_item['composite_children'] as $child_key ) {
+                if ( ! isset( $cart[ $child_key ]['data'] ) ) continue;
+                $child = $cart[ $child_key ]['data'];
+                if ( preg_match( '/^\d+\s*x\s*\d+$/i', trim( $child->get_title() ) ) ) {
+                    $fast = (bool) get_field( 'include_fast_delivery', $child->get_id() );
+                    break;
+                }
+            }
+        } else {
+            $fast = (bool) get_field( 'include_fast_delivery', $cart_item['data']->get_id() );
+        }
+        $any = true;
+        if ( ! $fast ) return false;
+    }
+    return $any;
+}
+
 add_action('woocommerce_after_order_notes', 'pt_render_pickup_date_field');
 function pt_render_pickup_date_field($checkout) {
 
@@ -345,6 +376,13 @@ function pt_render_pickup_date_field($checkout) {
         'custom_attributes' => ['readonly' => 'readonly'],
         'placeholder' => 'Choose your preferred date',
     ], $checkout->get_value('order_pickup_date'));
+
+    // 48h fast-delivery line below the calendar — only when the whole cart is fast.
+    // A slower item paces the order, so the calendar's min date already reflects the
+    // greater lead time and no fast message is shown.
+    if ( pt_cart_is_all_fast_delivery() ) {
+        echo '<div class="co-fastline"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg> <span><b>' . esc_html__( 'Dispatched within 48 hours', 'woocommerce' ) . '</b> · ' . esc_html__( 'Order by 12pm', 'woocommerce' ) . ' <span class="soft">· ' . esc_html__( 'in stock at Parry Works', 'woocommerce' ) . '</span></span></div>';
+    }
 
     echo "<script>
     const minDate = new Date('{$min_date_js}T00:00:00');

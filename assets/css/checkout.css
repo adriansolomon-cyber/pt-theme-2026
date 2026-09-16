@@ -478,3 +478,9 @@
 .woocommerce-checkout #payment .place-order > noscript{display:none}
 .woocommerce-checkout #payment .place-order{margin-top:0;padding:16px 0 0}
 .woocommerce-checkout #payment .woocommerce-terms-and-conditions-wrapper{margin-top:0}
+
+/* Fast-delivery info line below the delivery-date field (all-fast carts) */
+.co-fastline{ display:flex; align-items:flex-start; gap:8px; margin:10px 0 4px; font-family:var(--font); font-size:.86rem; font-weight:400; line-height:1.4; color:#166B3B; }
+.co-fastline svg{ width:16px; height:16px; flex:0 0 auto; margin-top:2px; color:#1E8A4C; }
+.co-fastline b{ font-weight:800; }
+.co-fastline .soft{ color:#3F6B52; }
