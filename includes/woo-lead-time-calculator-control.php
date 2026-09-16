@@ -256,9 +256,14 @@ function pt_get_min_pickup_date() {
  * Green "fast delivery" pill (product page + checkout). Same markup both places.
  * $id / $hidden let the product page render it hidden and toggle it per size.
  */
-/** TEMP: the fast-delivery pill is admin-only for now. Remove the guard to go live. */
+/**
+ * TEMP: the fast-delivery pill is hidden for EVERYONE for now.
+ *  - return false;                       → hidden from all (current)
+ *  - return current_user_can(...);       → admin-only preview
+ *  - return true;                        → live to all customers
+ */
 function pt_fast_badge_visible() {
-    return function_exists( 'current_user_can' ) && current_user_can( 'manage_options' );
+    return false;
 }
 
 function pt_fast_delivery_badge_html( $id = '', $hidden = false ) {
