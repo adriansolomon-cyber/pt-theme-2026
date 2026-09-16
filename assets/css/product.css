@@ -712,7 +712,7 @@
 /* Fast-delivery line — replaces the "Delivery available from …" line for fast sizes */
 .cfg-summary .cfg-di[hidden]{ display:none; } /* .cfg-di sets display:flex, which would beat [hidden] */
 /* Boxed green pill (matches the checkout .co-fastline) */
-.cfg-di.cfg-fastline{ align-items:center; gap:10px; padding:11px 14px; background:#E7F5EC; border:1px solid #CDE9D6; border-radius:12px; color:#166B3B; }
+.cfg-di.cfg-fastline{ align-items:center; gap:10px; margin:4px 0 10px; padding:11px 14px; background:#E7F5EC; border:1px solid #CDE9D6; border-radius:12px; color:#166B3B; }
 .cfg-di.cfg-fastline svg{ width:18px; height:18px; margin-top:0; color:#1E8A4C; }
 .cfg-fastline-t{ display:flex; flex-direction:column; line-height:1.25; }
 .cfg-fastline-t b{ font-size:.9rem; font-weight:800; color:#166B3B; letter-spacing:-.01em; }
