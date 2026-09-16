@@ -600,7 +600,7 @@
       // Admin/editor edit shortcut, on SIZE cards only (each card = one size sub-product).
       var edit=(group===sizeCid)?sizeEditBtn(opt.id):'';
       // Fast-delivery pill (top-left) on SIZE cards whose size has fast delivery ticked.
-      var fastPill=(group===sizeCid && isFastSize(opt.id))?'<span class="opt-fast"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>48h</span>':'';
+      var fastPill=(group===sizeCid && isFastSize(opt.id))?'<span class="opt-fast"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>48h delivery</span>':'';
       var img;
       if(group===sizeCid){
         // SIZE cards: hold a loading skeleton until this size's OWN image is fetched
