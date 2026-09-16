@@ -63,6 +63,13 @@ require_once get_stylesheet_directory() . '/includes/woo-lead-time-calculator-co
 // __DIR__-relative includes (inc/*-email.php etc.) resolve as in the old theme.
 require_once get_stylesheet_directory() . '/legacy-functions.php';
 
+// TEMP: disable the relaunch URL-recovery redirects (both in legacy-functions.php):
+//  - child-category / renamed-product canonicalizer (pt_child_cat_canonical)
+//  - broken-nested-URL → top-level category 404 fallback (pt_404_cat_fallback)
+// Remove these two lines to re-enable.
+add_filter( 'pt_child_cat_canonical', '__return_false' );
+add_filter( 'pt_404_cat_fallback', '__return_false' );
+
 // Order-status customer emails: delivery (planned/palletways) + assembly (completed).
 require_once get_stylesheet_directory() . '/emails-handler-functions.php';
 
