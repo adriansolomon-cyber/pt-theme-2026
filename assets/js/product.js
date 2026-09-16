@@ -848,6 +848,15 @@
       var bb=document.querySelector('.buybar .p'); if(bb) bb.innerHTML=fmtDisc(t)+' <small>FREE DELIVERY*</small>';
       if(elAdd) elAdd.disabled=(sizeId==null);
       if(elDeliv && sizeId!=null) elDeliv.textContent='Ready to add · '+(scenarios[sizeId]?scenarios[sizeId].name:'');
+      updateFastBadge();
+    }
+    // Reveal the "Dispatched within 48 hours" pill only when the selected size is
+    // fast-delivery eligible (its product id is in window.PT_FAST_SIZES, injected by
+    // single-product.php). Mirrors the checkout rule per size.
+    function updateFastBadge(){
+      var fb=document.getElementById('cfgFastBadge'); if(!fb) return;
+      var list=(typeof window.PT_FAST_SIZES!=='undefined'&&window.PT_FAST_SIZES)?window.PT_FAST_SIZES:[];
+      fb.hidden=!(sizeId!=null && list.indexOf(+sizeId)>=0);
     }
 
     // ====================== load ======================

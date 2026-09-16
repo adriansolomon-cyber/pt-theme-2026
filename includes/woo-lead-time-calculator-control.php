@@ -252,6 +252,48 @@ function pt_get_min_pickup_date() {
 /* ======================================================
  * 8. CHECKOUT FIELD + DATEPICKER
  * ====================================================== */
+/**
+ * Green "fast delivery" pill (product page + checkout). Same markup both places.
+ * $id / $hidden let the product page render it hidden and toggle it per size.
+ */
+function pt_fast_delivery_badge_html( $id = '', $hidden = false ) {
+    $attrs = ( '' !== $id ? ' id="' . esc_attr( $id ) . '"' : '' ) . ( $hidden ? ' hidden' : '' );
+    return '<div class="pt-fastbadge"' . $attrs . '>'
+        . '<svg class="pt-fastbadge-i" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>'
+        . '<span class="pt-fastbadge-t"><b>' . esc_html__( 'Dispatched within 48 hours', 'woocommerce' ) . '</b>'
+        . '<small>' . esc_html__( 'Order by 12pm · in stock at Parry Works', 'woocommerce' ) . '</small></span>'
+        . '</div>';
+}
+
+/**
+ * Size product IDs that qualify for fast delivery — empty unless the parent has
+ * include_fast_delivery ON. A size qualifies when it has its own delivery_time set,
+ * mirroring pt_resolve_composite_delivery_days()'s from_size rule, per size. Used to
+ * drive the per-size badge on the product page.
+ */
+function pt_fast_delivery_size_ids( $product_id ) {
+    $out = array();
+    if ( ! function_exists( 'get_field' ) ) return $out;
+    if ( ! (bool) get_field( 'include_fast_delivery', $product_id ) ) return $out;
+    $product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
+    if ( ! $product ) return $out;
+    if ( $product->is_type( 'composite' ) && is_callable( array( $product, 'get_components' ) ) ) {
+        foreach ( (array) $product->get_components() as $component ) {
+            $title = ( is_object( $component ) && is_callable( array( $component, 'get_title' ) ) ) ? strtolower( trim( (string) $component->get_title() ) ) : '';
+            if ( 'size' !== $title ) continue;
+            $opts = is_callable( array( $component, 'get_options' ) ) ? (array) $component->get_options() : array();
+            foreach ( $opts as $oid ) {
+                if ( (int) get_field( 'delivery_time', (int) $oid ) > 0 ) {
+                    $out[] = (int) $oid;
+                }
+            }
+        }
+    } elseif ( (int) get_field( 'delivery_time', $product_id ) > 0 ) {
+        $out[] = (int) $product_id;
+    }
+    return array_values( array_unique( $out ) );
+}
+
 add_action('woocommerce_after_order_notes', 'pt_render_pickup_date_field');
 function pt_render_pickup_date_field($checkout) {
 
@@ -318,6 +360,11 @@ function pt_render_pickup_date_field($checkout) {
         'custom_attributes' => ['readonly' => 'readonly'],
         'placeholder' => 'Choose your preferred date',
     ], $checkout->get_value('order_pickup_date'));
+
+    // Fast-delivery pill below the date field, when the cart's lead time is a fast one.
+    if ( ! empty( $pickup['from_size'] ) ) {
+        echo pt_fast_delivery_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_html__ inside
+    }
 
     echo "<script>
     const minDate = new Date('{$min_date_js}T00:00:00');
