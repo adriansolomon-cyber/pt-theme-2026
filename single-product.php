@@ -283,7 +283,10 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
         <?php
         // Fast-delivery pill — hidden by default; product.js reveals it when the
         // selected size is fast-eligible (id present in window.PT_FAST_SIZES).
-        $pt_fast_sizes = function_exists( 'pt_fast_delivery_size_ids' ) ? pt_fast_delivery_size_ids( $pt_pid ) : array();
+        // TEMP: admin-only for now — non-admins get an empty list, so the pill never reveals.
+        $pt_fast_sizes = ( function_exists( 'pt_fast_delivery_size_ids' ) && function_exists( 'pt_fast_badge_visible' ) && pt_fast_badge_visible() )
+            ? pt_fast_delivery_size_ids( $pt_pid )
+            : array();
         if ( function_exists( 'pt_fast_delivery_badge_html' ) ) {
             echo pt_fast_delivery_badge_html( 'cfgFastBadge', true ); // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_html__ inside
         }

@@ -256,6 +256,11 @@ function pt_get_min_pickup_date() {
  * Green "fast delivery" pill (product page + checkout). Same markup both places.
  * $id / $hidden let the product page render it hidden and toggle it per size.
  */
+/** TEMP: the fast-delivery pill is admin-only for now. Remove the guard to go live. */
+function pt_fast_badge_visible() {
+    return function_exists( 'current_user_can' ) && current_user_can( 'manage_options' );
+}
+
 function pt_fast_delivery_badge_html( $id = '', $hidden = false ) {
     $attrs = ( '' !== $id ? ' id="' . esc_attr( $id ) . '"' : '' ) . ( $hidden ? ' hidden' : '' );
     return '<div class="pt-fastbadge"' . $attrs . '>'
@@ -392,7 +397,7 @@ function pt_render_pickup_date_field($checkout) {
 
     // Fast-delivery pill below the date field — only when every item in the cart is
     // a fast-delivery size (that size child has include_fast_delivery ticked).
-    if ( pt_cart_is_all_fast_delivery() ) {
+    if ( pt_fast_badge_visible() && pt_cart_is_all_fast_delivery() ) {
         echo pt_fast_delivery_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_html__ inside
     }
 
