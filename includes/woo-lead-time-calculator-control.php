@@ -296,53 +296,6 @@ function pt_fast_delivery_size_ids( $product_id ) {
 add_action('woocommerce_after_order_notes', 'pt_render_pickup_date_field');
 function pt_render_pickup_date_field($checkout) {
 
-    // DEBUG (admin-only) — TEMP: shows where each product's lead time lives + the
-    // resolved result, so we can see why the min date is what it is. Remove when done.
-    if ( function_exists( 'current_user_can' ) && current_user_can( 'manage_options' ) ) {
-        $cart  = WC()->cart->get_cart();
-        $debug = [];
-        foreach ($cart as $key => $cart_item) {
-            if (!isset($cart_item['data']) || isset($cart_item['composite_parent'])) continue;
-            $product   = $cart_item['data'];
-            $parent_id = $product->get_id();
-            $entry = [
-                'title'                 => $product->get_name(),
-                'id'                    => $parent_id,
-                'type'                  => $product->get_type(),
-                'parent_include_fast'   => get_field('include_fast_delivery', $parent_id),
-                'parent_delivery_time'  => get_field('delivery_time', $parent_id),
-                'children'              => [],
-            ];
-            if (isset($cart_item['composite_children'])) {
-                foreach ($cart_item['composite_children'] as $child_key) {
-                    if (!isset($cart[$child_key]['data'])) continue;
-                    $child = $cart[$child_key]['data'];
-                    $entry['children'][] = [
-                        'title'          => $child->get_title(),
-                        'id'             => $child->get_id(),
-                        'is_size(NxN)'   => (bool) preg_match('/^\d+\s*x\s*\d+$/i', trim($child->get_title())),
-                        'delivery_time'  => get_field('delivery_time', $child->get_id()),
-                        'include_fast'   => get_field('include_fast_delivery', $child->get_id()),
-                    ];
-                }
-                $entry['resolved'] = pt_resolve_composite_delivery_days($cart_item, $cart);
-            } else {
-                $entry['resolved'] = pt_resolve_delivery_days($product);
-            }
-            $debug[] = $entry;
-        }
-        echo '<pre style="background:#111;color:#eee;padding:12px;font-size:11px;overflow:auto">PT LEAD-TIME DEBUG (admin only)' . "\n";
-        var_dump($debug);
-        echo 'global_delivery_days (fallback): ';
-        var_dump(get_field('global_delivery_days', 'option'));
-        echo 'FINAL from cart: ';
-        var_dump(pt_get_product_delivery_days_from_cart());
-        echo 'MIN pickup: ';
-        var_dump(pt_get_min_pickup_date()['date']->format('Y-m-d'));
-        echo '</pre>';
-    }
-    // END DEBUG
-
     $pickup        = pt_get_min_pickup_date();
     $min_date      = $pickup['date'];
     // Size-driven lead times: only grey out lead_time_excluded_dates + weekends, not blackout dates
