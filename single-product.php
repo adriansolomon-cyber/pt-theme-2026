@@ -278,20 +278,8 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
       <div class="cfg-summary">
         <div class="cfg-deliv-group">
           <div class="cfg-di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h11v9H3z"/><path d="M14 9h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.7"/><circle cx="17.5" cy="18" r="1.7"/></svg> Free delivery to most mainland UK postcodes*</div>
-          <div class="cfg-di" id="cfgDelivLine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg> <span>Delivery available from <b id="delivFrom"><?php echo esc_html( '' !== $pt_deliv_from ? $pt_deliv_from : '—' ); ?></b> · <span class="soft">choose your delivery date at checkout</span></span></div>
+          <div class="cfg-di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg> <span>Delivery available from <b id="delivFrom"><?php echo esc_html( '' !== $pt_deliv_from ? $pt_deliv_from : '—' ); ?></b> · <span class="soft">choose your delivery date at checkout</span></span></div>
         </div>
-        <?php
-        // Fast-delivery pill — hidden by default; product.js reveals it when the
-        // selected size is fast-eligible (id present in window.PT_FAST_SIZES).
-        // TEMP: admin-only for now — non-admins get an empty list, so the pill never reveals.
-        $pt_fast_sizes = ( function_exists( 'pt_fast_delivery_size_ids' ) && function_exists( 'pt_fast_badge_visible' ) && pt_fast_badge_visible() )
-            ? pt_fast_delivery_size_ids( $pt_pid )
-            : array();
-        // if ( function_exists( 'pt_fast_delivery_badge_html' ) ) {
-        //     echo pt_fast_delivery_badge_html( 'cfgFastBadge', true ); // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_html__ inside
-        // }
-        ?>
-        <script>window.PT_FAST_SIZES = <?php echo wp_json_encode( array_map( 'intval', (array) $pt_fast_sizes ) ); ?>;</script>
         <!-- FINANCE HIDDEN (re-enable when a finance provider is in place):
         <div class="ptoggle"><button class="on" data-pay="cash">Cash</button><button data-pay="finance">Finance</button></div>
         -->

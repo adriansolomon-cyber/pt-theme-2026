@@ -252,89 +252,6 @@ function pt_get_min_pickup_date() {
 /* ======================================================
  * 8. CHECKOUT FIELD + DATEPICKER
  * ====================================================== */
-/**
- * Green "fast delivery" pill (product page + checkout). Same markup both places.
- * $id / $hidden let the product page render it hidden and toggle it per size.
- */
-/**
- * TEMP: the fast-delivery pill is hidden for EVERYONE for now.
- *  - return false;                       → hidden from all (current)
- *  - return current_user_can(...);       → admin-only preview
- *  - return true;                        → live to all customers
- */
-function pt_fast_badge_visible() {
-    return false; // DISABLED by default. Flip to true to launch (then the pill still only
-                  // shows for sizes that have "Include fast delivery" ticked), or use
-                  // current_user_can( 'manage_options' ) for an admin-only preview.
-}
-
-function pt_fast_delivery_badge_html( $id = '', $hidden = false ) {
-    $attrs = ( '' !== $id ? ' id="' . esc_attr( $id ) . '"' : '' ) . ( $hidden ? ' hidden' : '' );
-    return '<div class="pt-fastbadge"' . $attrs . '>'
-        . '<svg class="pt-fastbadge-i" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>'
-        . '<span class="pt-fastbadge-t"><b>' . esc_html__( 'Dispatched within 48 hours', 'woocommerce' ) . '</b>'
-        . '<small>' . esc_html__( 'Order by 12pm · in stock at Parry Works', 'woocommerce' ) . '</small></span>'
-        . '</div>';
-}
-
-/**
- * Size product IDs that qualify for fast delivery — a size qualifies when that
- * SIZE child itself has "include_fast_delivery" ticked. Per-size flag (not the
- * parent). Drives the per-size badge on the product page.
- */
-function pt_fast_delivery_size_ids( $product_id ) {
-    $out = array();
-    if ( ! function_exists( 'get_field' ) ) return $out;
-    $product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
-    if ( ! $product ) return $out;
-    if ( $product->is_type( 'composite' ) && is_callable( array( $product, 'get_components' ) ) ) {
-        foreach ( (array) $product->get_components() as $component ) {
-            $title = ( is_object( $component ) && is_callable( array( $component, 'get_title' ) ) ) ? strtolower( trim( (string) $component->get_title() ) ) : '';
-            if ( 'size' !== $title ) continue;
-            $opts = is_callable( array( $component, 'get_options' ) ) ? (array) $component->get_options() : array();
-            foreach ( $opts as $oid ) {
-                if ( (bool) get_field( 'include_fast_delivery', (int) $oid ) ) {
-                    $out[] = (int) $oid;
-                }
-            }
-        }
-    } elseif ( (bool) get_field( 'include_fast_delivery', $product_id ) ) {
-        $out[] = (int) $product_id;
-    }
-    return array_values( array_unique( $out ) );
-}
-
-/**
- * True only when EVERY item in the cart is a fast-delivery size (the selected
- * size child has include_fast_delivery ticked). A single non-fast item means the
- * order can't dispatch fast, so the pill is hidden.
- */
-function pt_cart_is_all_fast_delivery() {
-    if ( ! function_exists( 'WC' ) || ! WC()->cart || ! function_exists( 'get_field' ) ) return false;
-    $cart = WC()->cart->get_cart();
-    $any  = false;
-    foreach ( $cart as $cart_item ) {
-        if ( ! isset( $cart_item['data'] ) ) continue;
-        if ( isset( $cart_item['composite_parent'] ) ) continue; // counted via its parent
-        $fast = false;
-        if ( isset( $cart_item['composite_children'] ) && is_array( $cart_item['composite_children'] ) ) {
-            foreach ( $cart_item['composite_children'] as $child_key ) {
-                if ( ! isset( $cart[ $child_key ]['data'] ) ) continue;
-                $child = $cart[ $child_key ]['data'];
-                if ( preg_match( '/^\d+\s*x\s*\d+$/i', trim( $child->get_title() ) ) ) {
-                    $fast = (bool) get_field( 'include_fast_delivery', $child->get_id() );
-                    break;
-                }
-            }
-        } else {
-            $fast = (bool) get_field( 'include_fast_delivery', $cart_item['data']->get_id() );
-        }
-        $any = true;
-        if ( ! $fast ) return false;
-    }
-    return $any;
-}
-
 add_action('woocommerce_after_order_notes', 'pt_render_pickup_date_field');
 function pt_render_pickup_date_field($checkout) {
 
@@ -401,12 +318,6 @@ function pt_render_pickup_date_field($checkout) {
         'custom_attributes' => ['readonly' => 'readonly'],
         'placeholder' => 'Choose your preferred date',
     ], $checkout->get_value('order_pickup_date'));
-
-    // Fast-delivery pill below the date field — only when every item in the cart is
-    // a fast-delivery size (that size child has include_fast_delivery ticked).
-    // if ( pt_fast_badge_visible() && pt_cart_is_all_fast_delivery() ) {
-    //     echo pt_fast_delivery_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_html__ inside
-    // }
 
     echo "<script>
     const minDate = new Date('{$min_date_js}T00:00:00');

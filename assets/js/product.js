@@ -616,7 +616,7 @@
         price=(opt.price>0) ? ('<span class="was">'+fmt(opt.price)+'</span><span class="free">'+fmt(0)+'</span>') : fmt(0);
       }
       else { price=fmtDisc(opt.price); }
-      var sizeAttrs=(group===sizeCid) ? ' data-val="'+esc(label)+'"'+(isBestSize(opt.name)?' data-best="1"':'')+(isFastSize(opt.id)?' data-fast="1"':'') : '';
+      var sizeAttrs=(group===sizeCid) ? ' data-val="'+esc(label)+'"'+(isBestSize(opt.name)?' data-best="1"':'') : '';
       return '<div class="opt-card'+(selected?' sel':'')+'" data-group="'+esc(group)+'" data-opt="'+opt.id+'"'+sizeAttrs+'>'+img+badge4w+
         '<div class="nm">'+esc(label)+'</div><div class="pr">'+price+'</div>'+
         '<div class="selbtn">'+(selected?'Selected':'Select')+'</div></div>';
@@ -848,20 +848,6 @@
       var bb=document.querySelector('.buybar .p'); if(bb) bb.innerHTML=fmtDisc(t)+' <small>FREE DELIVERY*</small>';
       if(elAdd) elAdd.disabled=(sizeId==null);
       if(elDeliv && sizeId!=null) elDeliv.textContent='Ready to add · '+(scenarios[sizeId]?scenarios[sizeId].name:'');
-      updateFastBadge();
-    }
-    // Fast-delivery sizes carry data-fast="1" (list from window.PT_FAST_SIZES, injected
-    // by single-product.php). When the selected size is fast, REPLACE the "Delivery
-    // available from …" line with the green "Dispatched within 48 hours" pill; otherwise
-    // show the normal date line. Pure JS swap — no per-product date logic.
-    function isFastSize(id){
-      var list=(typeof window.PT_FAST_SIZES!=='undefined'&&window.PT_FAST_SIZES)?window.PT_FAST_SIZES:[];
-      return id!=null && list.indexOf(+id)>=0;
-    }
-    function updateFastBadge(){
-      var fast=isFastSize(sizeId);
-      var fb=document.getElementById('cfgFastBadge'); if(fb) fb.hidden=!fast;
-      var dl=document.getElementById('cfgDelivLine'); if(dl) dl.hidden=fast; // date line ⇄ pill
     }
 
     // ====================== load ======================

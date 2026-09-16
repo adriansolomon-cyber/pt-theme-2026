@@ -379,10 +379,3 @@ a{ color:inherit; }
 @keyframes pt-anndot{ 0%,100%{ opacity:1; } 50%{ opacity:.28; } }
 @media(max-width:560px){ .pt-annmsg{ font-size:.72rem; gap:7px; padding:10px 14px; } }
 @media(prefers-reduced-motion:reduce){ .pt-anndot{ animation:none; } .pt-annmsg{ transition:none; } }
-
-/* ===== Fast-delivery pill (product page + checkout) ===== */
-.pt-fastbadge{ display:inline-flex; align-items:center; gap:10px; background:#E7F5EC; border:1px solid #CDE9D6; border-radius:12px; padding:11px 15px; margin:12px 0; max-width:100%; }
-.pt-fastbadge-i{ width:18px; height:18px; flex:0 0 auto; color:#1E8A4C; }
-.pt-fastbadge-t{ display:flex; flex-direction:column; line-height:1.25; font-family:var(--font); }
-.pt-fastbadge-t b{ font-size:.9rem; font-weight:800; color:#166B3B; letter-spacing:-.01em; }
-.pt-fastbadge-t small{ font-size:.78rem; font-weight:400; color:#3F6B52; }
