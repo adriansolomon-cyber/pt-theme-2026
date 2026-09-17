@@ -256,10 +256,12 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
             strips.forEach( function ( el ) { el.hidden = false; el.classList.remove( 'pt-preview-only' ); } );
           }
 
-          // Drag-to-scroll so the row stays on one line and can be dragged.
+          // Mouse drag-to-scroll only. Touch/pen use the browser's native
+          // horizontal scrolling (overflow-x) so we don't fight momentum swipes.
           strips.forEach( function ( strip ) {
             var down = false, moved = false, startX = 0, startLeft = 0;
             strip.addEventListener( 'pointerdown', function ( e ) {
+              if ( e.pointerType && e.pointerType !== 'mouse' ) return;
               down = true; moved = false; startX = e.clientX; startLeft = strip.scrollLeft;
               try { strip.setPointerCapture( e.pointerId ); } catch ( _ ) {}
             } );
