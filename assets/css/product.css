@@ -718,10 +718,12 @@
 .cfg-fastline-t b{ font-size:.9rem; font-weight:800; color:#166B3B; letter-spacing:-.01em; }
 .cfg-fastline-t small{ font-size:.76rem; font-weight:400; color:#3F6B52; }
 
-/* Section 5b — key-features strip (main_features) above the "Eight reasons"
-   grid. Bordered top/bottom row of uppercase label + muted subtitle. */
-.why-choose .pt-mainfeat{ display:flex; flex-wrap:wrap; gap:16px; justify-content:center; padding:20px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin:0 0 26px; }
-.why-choose .pt-mainfeat .mf-col{ flex:1 1 150px; min-width:0; text-align:center; }
-.why-choose .pt-mainfeat h4{ margin:0 0 4px; font-family:var(--font); font-size:.82rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--charcoal); }
-.why-choose .pt-mainfeat p{ margin:0; font-size:.88rem; color:var(--graphite); font-weight:300; line-height:1.35; }
-@media (max-width:560px){ .why-choose .pt-mainfeat{ gap:12px 10px; } .why-choose .pt-mainfeat .mf-col{ flex-basis:40%; } }
+/* Section 5b — key-features strip (main_features), under "View full
+   specifications". Bordered top/bottom row of uppercase label + muted subtitle.
+   Admin-only preview for now: hidden until revealed client-side. */
+.pt-preview-only{ display:none !important; }
+.pt-mainfeat{ display:flex; flex-wrap:wrap; gap:16px; justify-content:center; padding:16px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin:14px 0 0; }
+.pt-mainfeat .mf-col{ flex:1 1 130px; min-width:0; text-align:center; }
+.pt-mainfeat h4{ margin:0 0 4px; font-family:var(--font); font-size:.8rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--charcoal); }
+.pt-mainfeat p{ margin:0; font-size:.86rem; color:var(--graphite); font-weight:300; line-height:1.35; }
+@media (max-width:560px){ .pt-mainfeat{ gap:12px 10px; } .pt-mainfeat .mf-col{ flex-basis:40%; } }

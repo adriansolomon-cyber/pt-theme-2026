@@ -896,3 +896,32 @@ function pt_intercom_snippet() {
 // official Intercom plugin), not from our support modal. The pt_intercom_*
 // helpers above are left in place but are dead code while this hook is commented.
 // add_action( 'wp_footer', 'pt_intercom_snippet', 20 );
+
+/**
+ * JS-readable preview flag cookie for shop managers / admins.
+ *
+ * Lets client-side code reveal admin-only preview UI (e.g. the product-page
+ * highlights strip) WITHOUT any server-side admin branch that the edge cache
+ * could capture and serve to everyone. Anonymous visitors get cache hits, so
+ * this never runs for them and they never receive the cookie; logged-in admins
+ * bypass the page cache, so it runs on their requests and sets it.
+ */
+add_action(
+	'init',
+	function () {
+		if ( is_admin() || wp_doing_ajax() || wp_doing_cron() || headers_sent() ) {
+			return;
+		}
+		$can = current_user_can( 'manage_woocommerce' );
+		$has = ! empty( $_COOKIE['pt_can_preview'] );
+		$path   = ( defined( 'COOKIEPATH' ) && COOKIEPATH ) ? COOKIEPATH : '/';
+		$domain = defined( 'COOKIE_DOMAIN' ) ? COOKIE_DOMAIN : '';
+		if ( $can && ! $has ) {
+			setcookie( 'pt_can_preview', '1', time() + DAY_IN_SECONDS, $path, $domain, is_ssl(), false );
+			$_COOKIE['pt_can_preview'] = '1';
+		} elseif ( ! $can && $has ) {
+			setcookie( 'pt_can_preview', '', time() - 3600, $path, $domain, is_ssl(), false );
+			unset( $_COOKIE['pt_can_preview'] );
+		}
+	}
+);

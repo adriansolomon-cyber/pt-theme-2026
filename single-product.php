@@ -266,6 +266,36 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
           <?php endif; ?>
         </details>
         <a class="cfg-specs-link" href="#specs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg> View full specifications <span class="a">→</span></a>
+
+        <?php
+        // Section 5b key-features strip (Heavy-Duty / Taller / …), under "View
+        // full specifications". Dynamic from the parent product's `main_features`
+        // ACF repeater (heading + subheading), gated by show_highlights (default
+        // off) AND requiring rows so an empty/enabled toggle never shows a bare box.
+        //
+        // ADMIN-ONLY FOR NOW: rendered hidden (.pt-preview-only) and revealed
+        // client-side only when the pt_can_preview cookie is present (set for
+        // manage_woocommerce users in functions.php). A client-side reveal is
+        // cache-safe on edge-cached pages — no server-side admin branch that the
+        // edge cache could capture and serve to everyone.
+        if ( $pt_show( 'show_highlights', false ) && $pt_has_rows( 'main_features' ) ) :
+          ?>
+          <div class="pt-mainfeat pt-preview-only" hidden>
+            <?php while ( have_rows( 'main_features', $pt_pid ) ) : the_row(); ?>
+              <div class="mf-col"><h4><?php echo wp_kses_post( get_sub_field( 'heading' ) ); ?></h4><p><?php echo wp_kses_post( get_sub_field( 'subheading' ) ); ?></p></div>
+            <?php endwhile; ?>
+          </div>
+          <script>
+          ( function () {
+            if ( /(?:^|;\s*)pt_can_preview=1/.test( document.cookie ) ) {
+              document.querySelectorAll( '.pt-mainfeat.pt-preview-only' ).forEach( function ( el ) {
+                el.hidden = false;
+                el.classList.remove( 'pt-preview-only' );
+              } );
+            }
+          } )();
+          </script>
+        <?php endif; ?>
       </div>
     </div>
 
@@ -486,22 +516,6 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
   <div class="eyebrow"><?php echo $pt_why_eyebrow ? wp_kses_post( $pt_why_eyebrow ) : 'Why the ' . esc_html( $pt_line ); ?></div>
   <?php // Heading forced static so the fade effect always shows (ACF why_heading override disabled for now). ?>
   <h2>Eight reasons it's <span class="fade">built differently. </span></h2>
-  <?php
-  // Section 5b key-features strip (Heavy-Duty / Taller / …). Gated by the
-  // `show_highlights` toggle (default OFF) AND requires the parent product's
-  // `main_features` ACF repeater (subfields: heading, subheading) to have rows,
-  // so an enabled-but-empty toggle never renders a bare bordered box.
-  if ( $pt_show( 'show_highlights', false ) && $pt_has_rows( 'main_features' ) ) :
-    ?>
-    <div class="pt-mainfeat">
-      <?php while ( have_rows( 'main_features', $pt_pid ) ) : the_row(); ?>
-        <div class="mf-col">
-          <h4><?php echo wp_kses_post( get_sub_field( 'heading' ) ); ?></h4>
-          <p><?php echo wp_kses_post( get_sub_field( 'subheading' ) ); ?></p>
-        </div>
-      <?php endwhile; ?>
-    </div>
-  <?php endif; ?>
   <div class="wc-grid">
     <?php if ( $pt_has_rows( 'why_reasons' ) ) : ?>
       <?php while ( have_rows( 'why_reasons', $pt_pid ) ) : the_row(); ?>
