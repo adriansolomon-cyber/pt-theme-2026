@@ -247,36 +247,15 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
           <?php endwhile; ?>
         </div>
         <script>
+        // Admin-only preview reveal (cache-safe, cookie-driven). The strip is a
+        // container-query grid (see product.css) — no drag/scroll behaviour.
         ( function () {
-          var strips = document.querySelectorAll( '.pt-mainfeat' );
-          if ( ! strips.length ) return;
-
-          // Admin-only preview reveal (cache-safe, cookie-driven).
           if ( /(?:^|;\s*)pt_can_preview=1/.test( document.cookie ) ) {
-            strips.forEach( function ( el ) { el.hidden = false; el.classList.remove( 'pt-preview-only' ); } );
+            document.querySelectorAll( '.pt-mainfeat.pt-preview-only' ).forEach( function ( el ) {
+              el.hidden = false;
+              el.classList.remove( 'pt-preview-only' );
+            } );
           }
-
-          // Mouse drag-to-scroll only. Touch/pen use the browser's native
-          // horizontal scrolling (overflow-x) so we don't fight momentum swipes.
-          strips.forEach( function ( strip ) {
-            var down = false, moved = false, startX = 0, startLeft = 0;
-            strip.addEventListener( 'pointerdown', function ( e ) {
-              if ( e.pointerType && e.pointerType !== 'mouse' ) return;
-              down = true; moved = false; startX = e.clientX; startLeft = strip.scrollLeft;
-              try { strip.setPointerCapture( e.pointerId ); } catch ( _ ) {}
-            } );
-            strip.addEventListener( 'pointermove', function ( e ) {
-              if ( ! down ) return;
-              var dx = e.clientX - startX;
-              if ( Math.abs( dx ) > 3 ) { moved = true; strip.classList.add( 'is-drag' ); }
-              strip.scrollLeft = startLeft - dx;
-            } );
-            function end() { down = false; strip.classList.remove( 'is-drag' ); }
-            strip.addEventListener( 'pointerup', end );
-            strip.addEventListener( 'pointercancel', end );
-            // Swallow the click that follows a drag so links inside don't fire.
-            strip.addEventListener( 'click', function ( e ) { if ( moved ) { e.preventDefault(); e.stopPropagation(); } }, true );
-          } );
         } )();
         </script>
       <?php endif; ?>

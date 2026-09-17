@@ -718,44 +718,37 @@
 .cfg-fastline-t b{ font-size:.9rem; font-weight:800; color:#166B3B; letter-spacing:-.01em; }
 .cfg-fastline-t small{ font-size:.76rem; font-weight:400; color:#3F6B52; }
 
-/* Section 5b — key-features strip (main_features), under "View full
-   specifications". Bordered top/bottom row of uppercase label + muted subtitle.
+/* Section 5b — key-features strip (main_features), under the gallery. One row at
+   any width, any number of columns: a container-query grid so the text scales to
+   the strip (not the viewport) and columns divide evenly regardless of count.
    Admin-only preview for now: hidden until revealed client-side. */
 .pt-preview-only{ display:none !important; }
-.pt-mainfeat{ display:flex; flex-wrap:nowrap; gap:8px; overflow-x:auto; scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:16px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin:14px 0 0; cursor:grab; }
-.pt-mainfeat::-webkit-scrollbar{ display:none; }
-.pt-mainfeat.is-drag{ cursor:grabbing; }
-.pt-mainfeat.is-drag .mf-col{ pointer-events:none; }
-.pt-mainfeat .mf-col{ flex:0 0 auto; min-width:132px; text-align:center; scroll-snap-align:start; }
-.pt-mainfeat h4{ margin:0 0 4px; font-family:var(--font); font-size:.8rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--charcoal); }
-.pt-mainfeat p{ margin:0; font-size:.86rem; color:var(--graphite); font-weight:300; line-height:1.35; }
-/* Safety net: flex/grid children default to min-width:auto, which lets the
-   strip's min-content width stretch the whole column (and the page) instead of
-   letting the scroller scroll. Allow these to shrink below their content. */
-.cfg-grid, .cfg-preview{ min-width:0; }
-/* Narrow screens: keep all 4 across but let the columns shrink (minmax(0,1fr) +
-   min-width:0) and scale the text with the viewport (clamp) so nothing clips or
-   overflows the page. subgrid rows line the 4 headings/captions up on one
-   baseline despite uneven wrapping. */
-@media (max-width:640px){
-  .pt-mainfeat{
-    display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    grid-template-rows:auto auto;
-    gap:4px 6px;
-    align-items:start;
-    overflow:visible;
-    cursor:default;
-  }
-  .pt-mainfeat .mf-col{
-    display:grid;
-    grid-row:span 2;
-    grid-template-rows:subgrid;  /* headings + captions line up across all 4 */
-    gap:2px;
-    min-width:0;                 /* the bit that stops the page overflowing */
-    width:auto;
-    text-align:center;
-  }
-  .pt-mainfeat .mf-col h4{ font-size:clamp(9px,2.7vw,13px); line-height:1.15; margin:0; overflow-wrap:break-word; hyphens:auto; }
-  .pt-mainfeat .mf-col p{ font-size:clamp(8px,2.3vw,11px); line-height:1.2; margin:0; }
+.pt-mainfeat{
+  container-type:inline-size;          /* text scales to the strip, not the viewport */
+  display:grid;
+  grid-auto-flow:column;               /* one track per .mf-col, count-agnostic */
+  grid-auto-columns:minmax(0,1fr);
+  grid-template-rows:auto auto;
+  align-items:start;
+  gap:4px clamp(4px,1.5cqi,12px);
+  padding:16px 0;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  margin:14px 0 0;
 }
+.pt-mainfeat .mf-col{
+  display:grid;
+  grid-row:span 2;
+  grid-template-rows:subgrid;          /* headings + captions share baselines */
+  gap:2px;
+  min-width:0;                         /* kills the min-width that broke mobile */
+  width:auto;
+  text-align:center;
+  overflow-wrap:anywhere;
+  hyphens:auto;
+}
+.pt-mainfeat .mf-col h4{ margin:0; font-family:var(--font); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--charcoal); font-size:clamp(9px,2.6cqi,14px); line-height:1.15; }
+.pt-mainfeat .mf-col p{ margin:0; color:var(--graphite); font-weight:300; font-size:clamp(8px,2.3cqi,13px); line-height:1.2; }
+/* Safety net: flex/grid children default to min-width:auto, which lets a wide
+   child stretch the whole column (and the page). Allow these to shrink. */
+.cfg-grid, .cfg-preview{ min-width:0; }
