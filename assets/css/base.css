@@ -34,6 +34,14 @@ body{ margin:0; background:var(--white); color:var(--txt); font-family:var(--fon
 p{ margin:0; }
 a{ color:inherit; }
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+/* iOS Safari zooms the page in whenever a focused text control's font-size is
+   under 16px — which shifts the whole layout while typing (worst on checkout).
+   Keep every text-entry control at 16px on small screens to hold it steady.
+   Desktop keeps its smaller field type; checkboxes/radios/ranges are exempt. */
+@media (max-width:768px){
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),
+  select, textarea{ font-size:16px !important; }
+}
 /* Accessibility skip link (header.php) — site-wide chrome, so it lives here (not
    home.css). Hidden off-screen until keyboard-focused. */
 .skip{ position:absolute; left:-9999px; top:0; z-index:300; background:var(--ink); color:#fff; padding:12px 18px; border-radius:0 0 10px 0; font-weight:700; text-decoration:none; }
