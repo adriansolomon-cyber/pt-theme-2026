@@ -722,8 +722,10 @@
    specifications". Bordered top/bottom row of uppercase label + muted subtitle.
    Admin-only preview for now: hidden until revealed client-side. */
 .pt-preview-only{ display:none !important; }
-.pt-mainfeat{ display:flex; flex-wrap:wrap; gap:16px; justify-content:center; padding:16px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin:14px 0 0; }
-.pt-mainfeat .mf-col{ flex:1 1 130px; min-width:0; text-align:center; }
+.pt-mainfeat{ display:flex; flex-wrap:nowrap; gap:8px; overflow-x:auto; scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:16px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin:14px 0 0; cursor:grab; }
+.pt-mainfeat::-webkit-scrollbar{ display:none; }
+.pt-mainfeat.is-drag{ cursor:grabbing; }
+.pt-mainfeat.is-drag .mf-col{ pointer-events:none; }
+.pt-mainfeat .mf-col{ flex:0 0 auto; min-width:132px; text-align:center; scroll-snap-align:start; }
 .pt-mainfeat h4{ margin:0 0 4px; font-family:var(--font); font-size:.8rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--charcoal); }
 .pt-mainfeat p{ margin:0; font-size:.86rem; color:var(--graphite); font-weight:300; line-height:1.35; }
-@media (max-width:560px){ .pt-mainfeat{ gap:12px 10px; } .pt-mainfeat .mf-col{ flex-basis:40%; } }

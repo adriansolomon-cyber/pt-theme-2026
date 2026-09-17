@@ -287,12 +287,33 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
           </div>
           <script>
           ( function () {
+            var strips = document.querySelectorAll( '.pt-mainfeat' );
+            if ( ! strips.length ) return;
+
+            // Admin-only preview reveal (cache-safe, cookie-driven).
             if ( /(?:^|;\s*)pt_can_preview=1/.test( document.cookie ) ) {
-              document.querySelectorAll( '.pt-mainfeat.pt-preview-only' ).forEach( function ( el ) {
-                el.hidden = false;
-                el.classList.remove( 'pt-preview-only' );
-              } );
+              strips.forEach( function ( el ) { el.hidden = false; el.classList.remove( 'pt-preview-only' ); } );
             }
+
+            // Drag-to-scroll so the row stays on one line and can be dragged.
+            strips.forEach( function ( strip ) {
+              var down = false, moved = false, startX = 0, startLeft = 0;
+              strip.addEventListener( 'pointerdown', function ( e ) {
+                down = true; moved = false; startX = e.clientX; startLeft = strip.scrollLeft;
+                try { strip.setPointerCapture( e.pointerId ); } catch ( _ ) {}
+              } );
+              strip.addEventListener( 'pointermove', function ( e ) {
+                if ( ! down ) return;
+                var dx = e.clientX - startX;
+                if ( Math.abs( dx ) > 3 ) { moved = true; strip.classList.add( 'is-drag' ); }
+                strip.scrollLeft = startLeft - dx;
+              } );
+              function end() { down = false; strip.classList.remove( 'is-drag' ); }
+              strip.addEventListener( 'pointerup', end );
+              strip.addEventListener( 'pointercancel', end );
+              // Swallow the click that follows a drag so links inside don't fire.
+              strip.addEventListener( 'click', function ( e ) { if ( moved ) { e.preventDefault(); e.stopPropagation(); } }, true );
+            } );
           } )();
           </script>
         <?php endif; ?>
