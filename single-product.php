@@ -227,6 +227,58 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
         <button class="cfg-navbtn next" type="button" aria-label="Next image">&rsaquo;</button>
         <div class="cfg-dots" id="cfgDots"></div>
       </div>
+
+      <?php
+      // Section 5b key-features strip (Heavy-Duty / Taller / …), directly under
+      // the gallery. Dynamic from the parent product's `main_features` ACF
+      // repeater (heading + subheading), gated by show_highlights (default off)
+      // AND requiring rows so an empty/enabled toggle never shows a bare box.
+      //
+      // ADMIN-ONLY FOR NOW: rendered hidden (.pt-preview-only) and revealed
+      // client-side only when the pt_can_preview cookie is present (set for
+      // manage_woocommerce users in functions.php). A client-side reveal is
+      // cache-safe on edge-cached pages — no server-side admin branch that the
+      // edge cache could capture and serve to everyone.
+      if ( $pt_show( 'show_highlights', false ) && $pt_has_rows( 'main_features' ) ) :
+        ?>
+        <div class="pt-mainfeat pt-preview-only" hidden>
+          <?php while ( have_rows( 'main_features', $pt_pid ) ) : the_row(); ?>
+            <div class="mf-col"><h4><?php echo wp_kses_post( get_sub_field( 'heading' ) ); ?></h4><p><?php echo wp_kses_post( get_sub_field( 'subheading' ) ); ?></p></div>
+          <?php endwhile; ?>
+        </div>
+        <script>
+        ( function () {
+          var strips = document.querySelectorAll( '.pt-mainfeat' );
+          if ( ! strips.length ) return;
+
+          // Admin-only preview reveal (cache-safe, cookie-driven).
+          if ( /(?:^|;\s*)pt_can_preview=1/.test( document.cookie ) ) {
+            strips.forEach( function ( el ) { el.hidden = false; el.classList.remove( 'pt-preview-only' ); } );
+          }
+
+          // Drag-to-scroll so the row stays on one line and can be dragged.
+          strips.forEach( function ( strip ) {
+            var down = false, moved = false, startX = 0, startLeft = 0;
+            strip.addEventListener( 'pointerdown', function ( e ) {
+              down = true; moved = false; startX = e.clientX; startLeft = strip.scrollLeft;
+              try { strip.setPointerCapture( e.pointerId ); } catch ( _ ) {}
+            } );
+            strip.addEventListener( 'pointermove', function ( e ) {
+              if ( ! down ) return;
+              var dx = e.clientX - startX;
+              if ( Math.abs( dx ) > 3 ) { moved = true; strip.classList.add( 'is-drag' ); }
+              strip.scrollLeft = startLeft - dx;
+            } );
+            function end() { down = false; strip.classList.remove( 'is-drag' ); }
+            strip.addEventListener( 'pointerup', end );
+            strip.addEventListener( 'pointercancel', end );
+            // Swallow the click that follows a drag so links inside don't fire.
+            strip.addEventListener( 'click', function ( e ) { if ( moved ) { e.preventDefault(); e.stopPropagation(); } }, true );
+          } );
+        } )();
+        </script>
+      <?php endif; ?>
+
       <div class="cfg-info">
         <div class="cfg-titlerow">
           <h1 class="cfg-title" id="cfgProdName"><?php echo esc_html( $pt_name ); ?></h1>
@@ -266,57 +318,6 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
           <?php endif; ?>
         </details>
         <a class="cfg-specs-link" href="#specs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg> View full specifications <span class="a">→</span></a>
-
-        <?php
-        // Section 5b key-features strip (Heavy-Duty / Taller / …), under "View
-        // full specifications". Dynamic from the parent product's `main_features`
-        // ACF repeater (heading + subheading), gated by show_highlights (default
-        // off) AND requiring rows so an empty/enabled toggle never shows a bare box.
-        //
-        // ADMIN-ONLY FOR NOW: rendered hidden (.pt-preview-only) and revealed
-        // client-side only when the pt_can_preview cookie is present (set for
-        // manage_woocommerce users in functions.php). A client-side reveal is
-        // cache-safe on edge-cached pages — no server-side admin branch that the
-        // edge cache could capture and serve to everyone.
-        if ( $pt_show( 'show_highlights', false ) && $pt_has_rows( 'main_features' ) ) :
-          ?>
-          <div class="pt-mainfeat pt-preview-only" hidden>
-            <?php while ( have_rows( 'main_features', $pt_pid ) ) : the_row(); ?>
-              <div class="mf-col"><h4><?php echo wp_kses_post( get_sub_field( 'heading' ) ); ?></h4><p><?php echo wp_kses_post( get_sub_field( 'subheading' ) ); ?></p></div>
-            <?php endwhile; ?>
-          </div>
-          <script>
-          ( function () {
-            var strips = document.querySelectorAll( '.pt-mainfeat' );
-            if ( ! strips.length ) return;
-
-            // Admin-only preview reveal (cache-safe, cookie-driven).
-            if ( /(?:^|;\s*)pt_can_preview=1/.test( document.cookie ) ) {
-              strips.forEach( function ( el ) { el.hidden = false; el.classList.remove( 'pt-preview-only' ); } );
-            }
-
-            // Drag-to-scroll so the row stays on one line and can be dragged.
-            strips.forEach( function ( strip ) {
-              var down = false, moved = false, startX = 0, startLeft = 0;
-              strip.addEventListener( 'pointerdown', function ( e ) {
-                down = true; moved = false; startX = e.clientX; startLeft = strip.scrollLeft;
-                try { strip.setPointerCapture( e.pointerId ); } catch ( _ ) {}
-              } );
-              strip.addEventListener( 'pointermove', function ( e ) {
-                if ( ! down ) return;
-                var dx = e.clientX - startX;
-                if ( Math.abs( dx ) > 3 ) { moved = true; strip.classList.add( 'is-drag' ); }
-                strip.scrollLeft = startLeft - dx;
-              } );
-              function end() { down = false; strip.classList.remove( 'is-drag' ); }
-              strip.addEventListener( 'pointerup', end );
-              strip.addEventListener( 'pointercancel', end );
-              // Swallow the click that follows a drag so links inside don't fire.
-              strip.addEventListener( 'click', function ( e ) { if ( moved ) { e.preventDefault(); e.stopPropagation(); } }, true );
-            } );
-          } )();
-          </script>
-        <?php endif; ?>
       </div>
     </div>
 
