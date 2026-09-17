@@ -1095,85 +1095,20 @@ function order_pickup_date_validate()
 
 
 
-add_action('wp_footer', function () {
-	if ( ! is_checkout() ) return;
-	?>
-
-<script>
-(function() {
-
-    let zoneApplied = false;
-    let originalBeforeShowDay = null;
-    let originalMinDate = null;
-
-    function getPicker() {
-        if (!window.jQuery) return null;
-
-        const $picker = jQuery('#datepicker');
-        if (!$picker.length || typeof $picker.datepicker !== 'function') {
-            return null;
-        }
-        return $picker;
-    }
-
-    function checkZoneWarning() {
-        const zoneActive = !!document.querySelector('.pt-zone-warning');
-        const leadMsg = document.querySelector('.lead-time-msg');
-        const picker = getPicker();
-
-        // Toggle message purely based on zone state
-        if (leadMsg) {
-            leadMsg.style.display = zoneActive ? '' : 'none';
-        }
-
-        if (!picker) return;
-
-        // Cache originals ONCE
-        if (originalBeforeShowDay === null) {
-            originalBeforeShowDay = picker.datepicker('option', 'beforeShowDay');
-        }
-        if (originalMinDate === null) {
-            originalMinDate = picker.datepicker('option', 'minDate');
-        }
-
-        const forcedMinDate = new Date(2026, 0, 6); // 6 January 2026
-
-        // 🔒 APPLY override
-        if (zoneActive && !zoneApplied) {
-
-            picker.datepicker('option', 'minDate', forcedMinDate);
-            picker.datepicker('option', 'beforeShowDay', function(date) {
-                return [date >= forcedMinDate];
-            });
-
-            zoneApplied = true;
-        }
-
-        // 🔓 RESTORE original behavior
-        if (!zoneActive && zoneApplied) {
-
-            picker.datepicker('option', 'minDate', originalMinDate);
-            picker.datepicker('option', 'beforeShowDay', originalBeforeShowDay);
-
-            zoneApplied = false;
-        }
-    }
-
-    // Initial check
-    checkZoneWarning();
-
-    // Observe Woo fragment updates
-    const observer = new MutationObserver(checkZoneWarning);
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-
-})();
-</script>
-
-<?php
-});
+/*
+ * RETIRED — zone-aware datepicker override.
+ *
+ * This block used to force the delivery datepicker's min date to a hardcoded
+ * "6 January 2026" whenever a non–Zone-A shipping method matched (a `.pt-zone-
+ * warning` element in the order review). That date is now in the past, so the
+ * override effectively removed the lead-time restriction for surcharge zones.
+ *
+ * Delivery-zone lead time is now handled server-side and per-zone: Zone C adds
+ * +5 working days via pt_delivery_zone_extra_days(), the pickup field re-renders
+ * as an AJAX fragment on each postcode change, and pt_pickup_datepicker_script()
+ * re-inits the calendar from the field's data-pt-* attributes. See
+ * includes/woo-lead-time-calculator-control.php.
+ */
 
         function postcode_restriction_validation($data, $errors) {
             $postcode = isset($data['billing_postcode']) ? $data['billing_postcode'] : '';

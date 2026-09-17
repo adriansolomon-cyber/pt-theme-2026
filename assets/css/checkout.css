@@ -485,3 +485,9 @@
 .co-fastline-t{ display:flex; flex-direction:column; line-height:1.25; }
 .co-fastline-t b{ font-size:.9rem; font-weight:800; color:#166B3B; letter-spacing:-.01em; }
 .co-fastline-t small{ font-size:.78rem; font-weight:400; color:#3F6B52; }
+/* Surcharge-zone lead-time note (Highlands & Islands) — neutral blue. */
+.co-zoneline{ display:flex; align-items:center; gap:10px; width:100%; box-sizing:border-box; margin:12px 0 4px; padding:13px 16px; background:#EEF4FB; border:1px solid #D3E2F2; border-radius:12px; font-family:var(--font); }
+.co-zoneline svg{ width:18px; height:18px; flex:0 0 auto; color:#2C6BB3; }
+.co-zoneline-t{ display:flex; flex-direction:column; line-height:1.25; }
+.co-zoneline-t b{ font-size:.9rem; font-weight:800; color:#1F4E82; letter-spacing:-.01em; }
+.co-zoneline-t small{ font-size:.78rem; font-weight:400; color:#3B5A7C; }

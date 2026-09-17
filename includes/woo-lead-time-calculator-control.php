@@ -238,26 +238,72 @@ function pt_get_product_delivery_days_from_cart() {
  * 7. FINAL MIN PICKUP DATE (ORDER OF PRECEDENCE)
  * ====================================================== */
 
+/**
+ * Extra working days added to the lead time for surcharge delivery zones.
+ * Zone C (Scottish Highlands & Islands) = +5 working days. The zone is read from
+ * the WooCommerce shipping zone that matches the customer's shipping package, so
+ * it follows whatever postcodes are configured under "UK | Zone C" in
+ * WooCommerce → Shipping. Filter `pt_delivery_zone_extra_days` to change the
+ * amount or add other zones.
+ *
+ * @return int Extra working days (0 when none apply).
+ */
+function pt_delivery_zone_extra_days() {
+    $extra = 0;
+
+    if ( function_exists('WC') && WC() && WC()->cart && class_exists('WC_Shipping_Zones') ) {
+        $packages = WC()->cart->get_shipping_packages();
+        if ( ! empty($packages) ) {
+            $zone = WC_Shipping_Zones::get_zone_matching_package( reset($packages) );
+            if ( $zone ) {
+                $name = (string) $zone->get_zone_name();
+                // "UK | Zone C" etc. — match the "Zone C" token, case-insensitive.
+                if ( preg_match('/zone\s*c\b/i', $name) ) {
+                    $extra = 5;
+                }
+                $extra = (int) apply_filters('pt_delivery_zone_extra_days', $extra, $zone, $name);
+            }
+        }
+    }
+
+    return max(0, $extra);
+}
+
 function pt_get_min_pickup_date() {
 
     $result = pt_get_product_delivery_days_from_cart();
+    $extra  = pt_delivery_zone_extra_days();
 
-    // 1️⃣ Assembly service: always 35 business days, or max with product days if higher
+    // Resolve the base business-day count and whether it's a fast (from_size) lead time.
     if (pt_cart_has_assembly_service()) {
-        $days = is_null($result) ? 35 : max($result['days'], 35);
-        return ['date' => pt_date_from_business_days($days, pt_get_blackout_dates()), 'from_size' => false];
+        // 1️⃣ Assembly service: always 35 business days, or the product days if higher.
+        $days      = is_null($result) ? 35 : max($result['days'], 35);
+        $from_size = false;
+    } elseif (!is_null($result)) {
+        // 2️⃣ Product-level delivery days (MAX across cart).
+        $days      = (int) $result['days'];
+        $from_size = (bool) $result['from_size'];
+    } else {
+        // 3️⃣ Global cutoff fallback.
+        $days      = (int) (get_field('global_delivery_days', 'option') ?: 1);
+        $from_size = false;
     }
 
-    // 2️⃣ Product-level delivery days (MAX across cart)
-    if (!is_null($result)) {
-        // Fast (from_size): skip blackout in count — only holidays + weekends apply
-        // Standard: blackout dates are excluded from the business day count
-        $blackout = $result['from_size'] ? [] : pt_get_blackout_dates();
-        return ['date' => pt_date_from_business_days($result['days'], $blackout), 'from_size' => $result['from_size']];
+    // Surcharge zones (e.g. Highlands & Islands) add working days and cancel the
+    // 48h fast promise — those areas can't be reached in 48 hours.
+    if ($extra > 0) {
+        $days      += $extra;
+        $from_size  = false;
     }
 
-    // 3️⃣ Global cutoff fallback
-    return ['date' => pt_calculate_pickup_date(), 'from_size' => false];
+    // Fast keeps blackout dates out of the count; everything else respects them.
+    $blackout = $from_size ? [] : pt_get_blackout_dates();
+
+    return [
+        'date'       => pt_date_from_business_days($days, $blackout),
+        'from_size'  => $from_size,
+        'extra_days' => $extra,
+    ];
 }
 
 /* ======================================================
@@ -295,17 +341,52 @@ function pt_fast_delivery_size_ids( $product_id ) {
 
 add_action('woocommerce_after_order_notes', 'pt_render_pickup_date_field');
 function pt_render_pickup_date_field($checkout) {
+    echo pt_pickup_date_field_html( $checkout ? $checkout->get_value('order_pickup_date') : '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML built + escaped in helper.
+}
 
-    $pickup        = pt_get_min_pickup_date();
-    $min_date      = $pickup['date'];
+/**
+ * Re-render the pickup-date field on every AJAX order-review refresh, so its
+ * earliest selectable date always reflects the current postcode's delivery zone
+ * (Zone C adds working days). WooCommerce replaces the matching selector in the
+ * DOM; pt_pickup_datepicker_script() re-inits the datepicker on updated_checkout.
+ */
+add_filter('woocommerce_update_order_review_fragments', 'pt_pickup_date_field_fragment');
+function pt_pickup_date_field_fragment($fragments) {
+    $selected = '';
+    if ( isset($_POST['post_data']) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- read-only, WooCommerce's own AJAX payload.
+        parse_str( wp_unslash($_POST['post_data']), $pd ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+        if ( ! empty($pd['order_pickup_date']) ) {
+            $selected = wc_clean($pd['order_pickup_date']);
+        }
+    }
+    $fragments['#order_pickup_date_field'] = pt_pickup_date_field_html($selected);
+    return $fragments;
+}
+
+/**
+ * Markup for the checkout "Preferred delivery date" field, returned as a string
+ * so it can be echoed on first render AND served as an AJAX fragment. Carries no
+ * <script> of its own — the datepicker is initialised from the data-pt-*
+ * attributes by pt_pickup_datepicker_script().
+ *
+ * @param string $selected Currently chosen date value to preserve across refreshes.
+ * @return string
+ */
+function pt_pickup_date_field_html($selected = '') {
+
+    $pickup         = pt_get_min_pickup_date();
+    $min_date       = $pickup['date'];
+    $extra_days     = (int) $pickup['extra_days'];
     // Size-driven lead times: only grey out lead_time_excluded_dates + weekends, not blackout dates
     $disabled_dates = $pickup['from_size']
         ? pt_get_lead_time_excluded_dates()
         : pt_get_blackout_dates();
 
-    $min_date_js  = esc_js($min_date->format('Y-m-d'));
-    $holidays_js  = wp_json_encode($disabled_dates);
-    
+    $min_date_js = $min_date->format('Y-m-d');
+    $holidays_js = wp_json_encode( array_values( $disabled_dates ) );
+
+    ob_start();
+
     echo '<div id="order_pickup_date_field">';
     echo '<h3>' . esc_html__( 'Delivery', 'woocommerce' ) . '</h3>';
     echo '<p class="pt-delivery-hint">' . esc_html__( "Pick a preferred date — we'll confirm the final delivery window with you.", 'woocommerce' ) . '</p>';
@@ -317,9 +398,13 @@ function pt_render_pickup_date_field($checkout) {
         'class'       => ['form-row-wide'],
         'id'          => 'datepicker',
         'autocomplete'=> 'off',
-        'custom_attributes' => ['readonly' => 'readonly'],
+        'custom_attributes' => [
+            'readonly'         => 'readonly',
+            'data-pt-min'      => $min_date_js,
+            'data-pt-holidays' => $holidays_js,
+        ],
         'placeholder' => 'Choose your preferred date',
-    ], $checkout->get_value('order_pickup_date'));
+    ], $selected);
 
     // 48h fast-delivery line below the calendar — only when the resolved order lead
     // time is itself a fast (from_size) one. If any item's lead time (size OR parent)
@@ -336,27 +421,84 @@ function pt_render_pickup_date_field($checkout) {
             ) . '</small></span></div>';
     }
 
-    echo "<script>
-    const minDate = new Date('{$min_date_js}T00:00:00');
-    const holidays = {$holidays_js};
-
-    function disableHoliday(date) {
-        const ymd = jQuery.datepicker.formatDate('yy-mm-dd', date);
-        const day = date.getDay();
-        return [day !== 0 && day !== 6 && !holidays.includes(ymd)];
+    // Surcharge-zone note (Scottish Highlands & Islands = Zone C): the earliest date
+    // already includes the extra working days; explain why to the customer.
+    if ( $extra_days > 0 ) {
+        $zone_min = esc_html( $min_date->format( 'D j M' ) ); // e.g. "Mon 25 Sep"
+        echo '<div class="co-zoneline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>'
+            . '<span class="co-zoneline-t"><b>' . esc_html(
+                sprintf(
+                    /* translators: %d is the number of extra working days. */
+                    _n( 'Highlands & Islands delivery · %d extra working day', 'Highlands & Islands delivery · %d extra working days', $extra_days, 'woocommerce' ),
+                    $extra_days
+                )
+            ) . '</b>'
+            . '<small>' . sprintf(
+                /* translators: %s is the earliest delivery date, e.g. "Mon 25 Sep". */
+                esc_html__( 'Deliveries to your area take a little longer — the earliest date (%s) already includes this.', 'woocommerce' ),
+                $zone_min
+            ) . '</small></span></div>';
     }
 
-    jQuery(function($){
-        $('#datepicker').datepicker({
-            minDate: minDate,
-            defaultDate: minDate,
-            beforeShowDay: disableHoliday,
-            showButtonPanel: true
-        });
-    });
-    </script>";
-
     echo '</div>';
+
+    return ob_get_clean();
+}
+
+/**
+ * Initialise — and re-initialise after each AJAX order-review update — the
+ * jQuery UI datepicker from the field's data-pt-* attributes. Centralising it
+ * here (instead of an inline script inside the fragment) keeps a single source
+ * of truth for the calendar's min date and greyed-out days.
+ */
+add_action('wp_footer', 'pt_pickup_datepicker_script');
+function pt_pickup_datepicker_script() {
+    if ( ! function_exists('is_checkout') || ! is_checkout() ) {
+        return;
+    }
+    ?>
+<script>
+(function () {
+    function ptInitPicker() {
+        if (!window.jQuery) return;
+        var $ = jQuery, $p = $('#datepicker');
+        if (!$p.length || typeof $p.datepicker !== 'function') return;
+
+        var min = $p.attr('data-pt-min');
+        if (!min) return;
+
+        var holidays = [];
+        try { holidays = JSON.parse($p.attr('data-pt-holidays') || '[]'); } catch (e) {}
+
+        var minDate = new Date(min + 'T00:00:00');
+        function disableHoliday(date) {
+            var ymd = $.datepicker.formatDate('yy-mm-dd', date);
+            var day = date.getDay();
+            return [day !== 0 && day !== 6 && holidays.indexOf(ymd) === -1];
+        }
+
+        if ($p.hasClass('hasDatepicker')) {
+            $p.datepicker('option', { minDate: minDate, defaultDate: minDate, beforeShowDay: disableHoliday });
+        } else {
+            $p.datepicker({ minDate: minDate, defaultDate: minDate, beforeShowDay: disableHoliday, showButtonPanel: true });
+        }
+
+        // Drop a previously chosen date that is now earlier than the new minimum.
+        var val = $p.val();
+        if (val) {
+            var d = null;
+            try { d = $.datepicker.parseDate($p.datepicker('option', 'dateFormat'), val); } catch (e) {}
+            if (d && d < minDate) { $p.val(''); }
+        }
+    }
+
+    if (window.jQuery) {
+        jQuery(function () { ptInitPicker(); });
+        jQuery(document.body).on('updated_checkout', ptInitPicker);
+    }
+})();
+</script>
+    <?php
 }
 // function svg_icon_package() {
 //     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
