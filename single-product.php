@@ -486,6 +486,21 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
   <div class="eyebrow"><?php echo $pt_why_eyebrow ? wp_kses_post( $pt_why_eyebrow ) : 'Why the ' . esc_html( $pt_line ); ?></div>
   <?php // Heading forced static so the fade effect always shows (ACF why_heading override disabled for now). ?>
   <h2>Eight reasons it's <span class="fade">built differently. </span></h2>
+  <?php
+  // Section 5b key-features strip (Heavy-Duty / Taller / …). Dynamic from the
+  // parent product's `main_features` ACF repeater (subfields: heading,
+  // subheading). Presence of rows is the per-product switcher — no rows = hidden.
+  if ( $pt_has_rows( 'main_features' ) ) :
+    ?>
+    <div class="pt-mainfeat">
+      <?php while ( have_rows( 'main_features', $pt_pid ) ) : the_row(); ?>
+        <div class="mf-col">
+          <h4><?php echo wp_kses_post( get_sub_field( 'heading' ) ); ?></h4>
+          <p><?php echo wp_kses_post( get_sub_field( 'subheading' ) ); ?></p>
+        </div>
+      <?php endwhile; ?>
+    </div>
+  <?php endif; ?>
   <div class="wc-grid">
     <?php if ( $pt_has_rows( 'why_reasons' ) ) : ?>
       <?php while ( have_rows( 'why_reasons', $pt_pid ) ) : the_row(); ?>
