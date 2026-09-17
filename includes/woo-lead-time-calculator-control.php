@@ -289,11 +289,16 @@ function pt_get_min_pickup_date() {
         $from_size = false;
     }
 
-    // Surcharge zones (e.g. Highlands & Islands) add working days and cancel the
-    // 48h fast promise — those areas can't be reached in 48 hours.
-    if ($extra > 0) {
-        $days      += $extra;
-        $from_size  = false;
+    // Surcharge zones (e.g. Highlands & Islands) only extend a FAST (48h) order.
+    // A cart with any non-fast item already carries a long enough lead time that
+    // the extra Highlands transit is absorbed — so the +5 applies only when the
+    // resolved order is itself the 48h one. When it does apply, it cancels the
+    // 48h promise (those areas can't be reached in 48 hours).
+    $extra_applied = 0;
+    if ($extra > 0 && $from_size) {
+        $days         += $extra;
+        $from_size     = false;
+        $extra_applied = $extra;
     }
 
     // Fast keeps blackout dates out of the count; everything else respects them.
@@ -302,7 +307,7 @@ function pt_get_min_pickup_date() {
     return [
         'date'       => pt_date_from_business_days($days, $blackout),
         'from_size'  => $from_size,
-        'extra_days' => $extra,
+        'extra_days' => $extra_applied,
     ];
 }
 
