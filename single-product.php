@@ -269,8 +269,9 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
 
         <?php
         // Key-features strip + "eight reasons" icon grid, ported from the old
-        // product page. Section-visibility toggle (defaults to shown).
-        if ( $pt_show( 'show_keyfeatures' ) ) :
+        // product page. Section-visibility toggle (defaults to HIDDEN — enable
+        // the show_keyfeatures field per product to show it).
+        if ( $pt_show( 'show_keyfeatures', false ) ) :
           $pt_keyfeat_highlights = array(
             array( 'HEAVY-DUTY', 'with thicker walls' ),
             array( 'TALLER', '2m eaves height' ),
