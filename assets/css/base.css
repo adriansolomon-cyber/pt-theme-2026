@@ -378,12 +378,33 @@ a{ color:inherit; }
 @media(hover:hover){ .pagination a.page-numbers:hover{ border-color:var(--ink); } }
 
 /* ===== SEPT20 sale — site-wide rotating announcement strip ===== */
+/* Announcement strip — constant height + balanced wrapping. All five messages
+   share one grid cell, so the strip is always as tall as the TALLEST message and
+   nothing shifts when the active class flips (was jumping ~16px as messages of
+   different line-counts rotated). Prose (display:block) + text-wrap:balance gives
+   an even two-line split instead of ragged flex-item wrapping. */
 .pt-annstrip{ background:var(--charcoal); overflow:hidden; }
-.pt-annstrip-track{ position:relative; }
-.pt-annmsg{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:9px; padding:11px 18px; font-family:var(--font); font-size:.8rem; font-weight:600; letter-spacing:.2px; line-height:1.25; color:#fff; text-align:center; opacity:0; transition:opacity .6s ease; pointer-events:none; }
-.pt-annmsg.is-on{ position:relative; opacity:1; pointer-events:auto; }
-.pt-annmsg b{ color:var(--accent); font-weight:800; }
-.pt-anndot{ flex:0 0 auto; width:7px; height:7px; border-radius:50%; background:var(--accent); animation:pt-anndot 1.4s ease-in-out infinite; }
+.pt-annstrip-track{ display:grid; }
+.pt-annmsg{
+  grid-area:1/1;                      /* all messages stack in the same cell */
+  align-self:center;
+  display:block;
+  padding:8px 12px;
+  font-family:var(--font);
+  font-size:clamp(11px,3.1vw,12.5px);
+  font-weight:600;
+  letter-spacing:.2px;
+  line-height:1.35;
+  color:#fff;
+  text-align:center;
+  text-wrap:balance;
+  opacity:0;
+  visibility:hidden;                  /* also stops hidden messages swallowing taps */
+  pointer-events:none;
+  transition:opacity .45s ease, visibility 0s linear .45s;
+}
+.pt-annmsg.is-on{ opacity:1; visibility:visible; pointer-events:auto; transition:opacity .45s ease, visibility 0s; }
+.pt-annmsg b{ color:var(--accent); font-weight:800; white-space:nowrap; }   /* never split "20% OFF" / "SEPT20" */
+.pt-anndot{ display:inline-block; vertical-align:middle; margin-right:6px; width:7px; height:7px; border-radius:50%; background:var(--accent); animation:pt-anndot 1.4s ease-in-out infinite; }
 @keyframes pt-anndot{ 0%,100%{ opacity:1; } 50%{ opacity:.28; } }
-@media(max-width:560px){ .pt-annmsg{ font-size:.72rem; gap:7px; padding:10px 14px; } }
 @media(prefers-reduced-motion:reduce){ .pt-anndot{ animation:none; } .pt-annmsg{ transition:none; } }

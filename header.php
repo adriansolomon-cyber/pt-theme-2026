@@ -282,9 +282,9 @@ _mhct.push(['mhCampaignID', 'VA-13595']);
 /*
  * SEPT20 sale — rotating announcement strip (site-wide). Campaign-gated: only
  * shown while auto_voucher_enabled() is true. Cross-fades through the messages;
- * the strip auto-heights to the active message (.is-on is position:relative,
- * the rest overlay it), so long lines don't clip on mobile. Inline rotate script
- * (base.css/header run on every page; home.js is homepage-only).
+ * all messages share one CSS grid cell (base.css) so the strip is a constant
+ * height (the tallest message) and doesn't jump as lines of different heights
+ * rotate on mobile. Inline rotate script only toggles .is-on every 3s.
  */
 if ( function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() ) : ?>
 <div class="pt-annstrip" id="ptAnnStrip" role="region" aria-label="Store announcements">
