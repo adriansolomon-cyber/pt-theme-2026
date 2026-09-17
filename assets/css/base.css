@@ -28,6 +28,11 @@
   --e3:0 10px 30px rgba(33,30,36,.14), 0 30px 70px rgba(33,30,36,.16);
   --font:"F37 Jagger","Trebuchet MS","Segoe UI",system-ui,sans-serif;
 }
+/* On ~13" laptops (MacBook Air 13 and similar, ≲1536px wide) the 1280 content
+   width crowds the edges — fall back to the previous 1180. `html:root` (0,1,1)
+   out-specifies the per-page `:root` (0,1,0) redeclarations of --maxw, so this
+   wins regardless of stylesheet load order; larger monitors keep 1280. */
+@media(max-width:1536px){ html:root{ --maxw:1180px; } }
 *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html{ scroll-behavior:smooth; }
 body{ margin:0; background:var(--white); color:var(--txt); font-family:var(--font); font-weight:400; line-height:1.55; -webkit-font-smoothing:antialiased; }
