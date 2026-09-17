@@ -346,38 +346,52 @@ function pt_fast_delivery_size_ids( $product_id ) {
 
 add_action('woocommerce_after_order_notes', 'pt_render_pickup_date_field');
 function pt_render_pickup_date_field($checkout) {
-    echo pt_pickup_date_field_html( $checkout ? $checkout->get_value('order_pickup_date') : '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML built + escaped in helper.
+    $selected = $checkout ? $checkout->get_value('order_pickup_date') : '';
+
+    echo '<div id="order_pickup_date_field">';
+    echo '<h3>' . esc_html__( 'Delivery', 'woocommerce' ) . '</h3>';
+    echo '<p class="pt-delivery-hint">' . esc_html__( "Pick a preferred date — we'll confirm the final delivery window with you.", 'woocommerce' ) . '</p>';
+
+    // The input is rendered ONCE and never replaced — replacing a jQuery UI
+    // datepicker's input via an AJAX fragment destroys the widget and leaves the
+    // shared calendar popup bound to a detached node (calendar "freezes"). The
+    // live-changing bits (min date, greyed days, messages) live in #pt-lead-msg,
+    // which is the only thing swapped on postcode change; the datepicker's
+    // options are then updated in place by pt_pickup_datepicker_script().
+    woocommerce_form_field('order_pickup_date', [
+        'type'        => 'text',
+        'required'    => true,
+        'label'       => __( 'Preferred delivery date', 'woocommerce' ),
+        'class'       => ['form-row-wide'],
+        'id'          => 'datepicker',
+        'autocomplete'=> 'off',
+        'custom_attributes' => ['readonly' => 'readonly'],
+        'placeholder' => 'Choose your preferred date',
+    ], $selected);
+
+    echo pt_pickup_lead_msg_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built + escaped in helper.
+    echo '</div>';
 }
 
 /**
- * Re-render the pickup-date field on every AJAX order-review refresh, so its
- * earliest selectable date always reflects the current postcode's delivery zone
- * (Zone C adds working days). WooCommerce replaces the matching selector in the
- * DOM; pt_pickup_datepicker_script() re-inits the datepicker on updated_checkout.
+ * Swap ONLY the lead-time message/data block on each AJAX order-review refresh,
+ * so the calendar's earliest date and the delivery messages track the current
+ * postcode's zone without ever touching the datepicker input.
  */
-add_filter('woocommerce_update_order_review_fragments', 'pt_pickup_date_field_fragment');
-function pt_pickup_date_field_fragment($fragments) {
-    $selected = '';
-    if ( isset($_POST['post_data']) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- read-only, WooCommerce's own AJAX payload.
-        parse_str( wp_unslash($_POST['post_data']), $pd ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-        if ( ! empty($pd['order_pickup_date']) ) {
-            $selected = wc_clean($pd['order_pickup_date']);
-        }
-    }
-    $fragments['#order_pickup_date_field'] = pt_pickup_date_field_html($selected);
+add_filter('woocommerce_update_order_review_fragments', 'pt_pickup_lead_msg_fragment');
+function pt_pickup_lead_msg_fragment($fragments) {
+    $fragments['#pt-lead-msg'] = pt_pickup_lead_msg_html();
     return $fragments;
 }
 
 /**
- * Markup for the checkout "Preferred delivery date" field, returned as a string
- * so it can be echoed on first render AND served as an AJAX fragment. Carries no
- * <script> of its own — the datepicker is initialised from the data-pt-*
- * attributes by pt_pickup_datepicker_script().
+ * The min date + greyed-out days (as data-pt-* attributes for the datepicker)
+ * plus the 48h and surcharge-zone messages. Returned as a string so it can be
+ * echoed on first render AND served as an AJAX fragment (#pt-lead-msg).
  *
- * @param string $selected Currently chosen date value to preserve across refreshes.
  * @return string
  */
-function pt_pickup_date_field_html($selected = '') {
+function pt_pickup_lead_msg_html() {
 
     $pickup         = pt_get_min_pickup_date();
     $min_date       = $pickup['date'];
@@ -392,29 +406,11 @@ function pt_pickup_date_field_html($selected = '') {
 
     ob_start();
 
-    echo '<div id="order_pickup_date_field">';
-    echo '<h3>' . esc_html__( 'Delivery', 'woocommerce' ) . '</h3>';
-    echo '<p class="pt-delivery-hint">' . esc_html__( "Pick a preferred date — we'll confirm the final delivery window with you.", 'woocommerce' ) . '</p>';
+    echo '<div id="pt-lead-msg" data-pt-min="' . esc_attr( $min_date_js ) . '" data-pt-holidays="' . esc_attr( $holidays_js ) . '">';
 
-    woocommerce_form_field('order_pickup_date', [
-        'type'        => 'text',
-        'required'    => true,
-        'label'       => __( 'Preferred delivery date', 'woocommerce' ),
-        'class'       => ['form-row-wide'],
-        'id'          => 'datepicker',
-        'autocomplete'=> 'off',
-        'custom_attributes' => [
-            'readonly'         => 'readonly',
-            'data-pt-min'      => $min_date_js,
-            'data-pt-holidays' => $holidays_js,
-        ],
-        'placeholder' => 'Choose your preferred date',
-    ], $selected);
-
-    // 48h fast-delivery line below the calendar — only when the resolved order lead
-    // time is itself a fast (from_size) one. If any item's lead time (size OR parent)
-    // is longer, from_size is false: the calendar's min date reflects that greater
-    // lead time and no fast message is shown.
+    // 48h fast-delivery line — only when the resolved order lead time is itself a
+    // fast (from_size) one. If any item's lead time (size OR parent) is longer,
+    // from_size is false: the calendar's min date reflects that greater lead time.
     if ( ! empty( $pickup['from_size'] ) ) {
         $fast_min = esc_html( $min_date->format( 'D j M' ) ); // e.g. "Mon 18 Sep"
         echo '<div class="co-fastline"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>'
@@ -464,16 +460,21 @@ function pt_pickup_datepicker_script() {
     ?>
 <script>
 (function () {
-    function ptInitPicker() {
+    // Read the current min date + greyed-out days from #pt-lead-msg (which is
+    // the only thing WooCommerce swaps on a postcode change) and apply them to
+    // the stable #datepicker input — initialising it once, then only updating
+    // its options thereafter. The input is never replaced, so the calendar can
+    // never end up bound to a detached node (the "freeze" bug).
+    function ptSyncPicker() {
         if (!window.jQuery) return;
-        var $ = jQuery, $p = $('#datepicker');
-        if (!$p.length || typeof $p.datepicker !== 'function') return;
+        var $ = jQuery, $p = $('#datepicker'), $d = $('#pt-lead-msg');
+        if (!$p.length || !$d.length || typeof $p.datepicker !== 'function') return;
 
-        var min = $p.attr('data-pt-min');
+        var min = $d.attr('data-pt-min');
         if (!min) return;
 
         var holidays = [];
-        try { holidays = JSON.parse($p.attr('data-pt-holidays') || '[]'); } catch (e) {}
+        try { holidays = JSON.parse($d.attr('data-pt-holidays') || '[]'); } catch (e) {}
 
         var minDate = new Date(min + 'T00:00:00');
         function disableHoliday(date) {
@@ -482,24 +483,26 @@ function pt_pickup_datepicker_script() {
             return [day !== 0 && day !== 6 && holidays.indexOf(ymd) === -1];
         }
 
-        if ($p.hasClass('hasDatepicker')) {
-            $p.datepicker('option', { minDate: minDate, defaultDate: minDate, beforeShowDay: disableHoliday });
-        } else {
-            $p.datepicker({ minDate: minDate, defaultDate: minDate, beforeShowDay: disableHoliday, showButtonPanel: true });
-        }
+        try {
+            if ($p.hasClass('hasDatepicker')) {
+                $p.datepicker('option', { minDate: minDate, beforeShowDay: disableHoliday });
+            } else {
+                $p.datepicker({ minDate: minDate, defaultDate: minDate, beforeShowDay: disableHoliday, showButtonPanel: true });
+            }
 
-        // Drop a previously chosen date that is now earlier than the new minimum.
-        var val = $p.val();
-        if (val) {
-            var d = null;
-            try { d = $.datepicker.parseDate($p.datepicker('option', 'dateFormat'), val); } catch (e) {}
-            if (d && d < minDate) { $p.val(''); }
-        }
+            // Drop a previously chosen date that is now earlier than the new minimum.
+            var val = $p.val();
+            if (val) {
+                var chosen = null;
+                try { chosen = $.datepicker.parseDate($p.datepicker('option', 'dateFormat'), val); } catch (e) {}
+                if (chosen && chosen < minDate) { $p.val(''); }
+            }
+        } catch (e) {}
     }
 
     if (window.jQuery) {
-        jQuery(function () { ptInitPicker(); });
-        jQuery(document.body).on('updated_checkout', ptInitPicker);
+        jQuery(function () { ptSyncPicker(); });
+        jQuery(document.body).on('updated_checkout', ptSyncPicker);
     }
 })();
 </script>
