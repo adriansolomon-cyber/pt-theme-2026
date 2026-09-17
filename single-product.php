@@ -33,6 +33,21 @@ if ( '' === $pt_name_short ) {
 	$pt_name_short = $pt_name;
 }
 $pt_product = function_exists( 'wc_get_product' ) ? wc_get_product( $pt_pid ) : null;
+// Insulated buildings (product category 1639, incl. its sub-categories) carry
+// the upgraded 25-year anti-rot guarantee and always show the "Bought with
+// confidence" trust section.
+$pt_is_insulated = false;
+if ( function_exists( 'has_term' ) ) {
+	$pt_ins_terms = array( 1639 );
+	if ( function_exists( 'get_term_children' ) ) {
+		$pt_ins_kids = get_term_children( 1639, 'product_cat' );
+		if ( ! is_wp_error( $pt_ins_kids ) && ! empty( $pt_ins_kids ) ) {
+			$pt_ins_terms = array_merge( $pt_ins_terms, array_map( 'intval', $pt_ins_kids ) );
+		}
+	}
+	$pt_is_insulated = has_term( $pt_ins_terms, 'product_cat', $pt_pid );
+}
+$pt_guar_years = $pt_is_insulated ? '25' : '15';
 $pt_line    = pt_product_line_singular( $pt_pid );            // singular category (e.g. "Summerhouse")
 if ( '' === $pt_line ) {
 	$pt_line = $pt_name;
@@ -229,7 +244,7 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
           <?php elseif ( $pt_cfg_short ) : ?>
             <?php echo wp_kses_post( $pt_cfg_short ); ?>
           <?php else : ?>
-            <p>A fully insulated, all-season garden office designed to be used every day of the year. Low-maintenance composite cladding pairs with pre-insulated modular panels in the walls, floor and roof — warm in winter, cool in summer. Double glazing and a UPVC door with multi-point locking come as standard, every building is hand-crafted in Nottinghamshire, and it is backed by a 15-year anti-rot guarantee on the composite. Delivered as pre-assembled panels for a faster build.</p>
+            <p>A fully insulated, all-season garden office designed to be used every day of the year. Low-maintenance composite cladding pairs with pre-insulated modular panels in the walls, floor and roof — warm in winter, cool in summer. Double glazing and a UPVC door with multi-point locking come as standard, every building is hand-crafted in Nottinghamshire, and it is backed by a <?php echo esc_html( $pt_guar_years ); ?>-year anti-rot guarantee on the composite. Delivered as pre-assembled panels for a faster build.</p>
           <?php endif; ?>
         </details>
         <?php $pt_kf = function_exists( 'get_field' ) ? get_field( 'cfg_key_features', $pt_pid ) : ''; ?>
@@ -245,7 +260,7 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
               <li>80mm total wall thickness</li>
               <li>Insulated metal roof</li>
               <li>Double glazing as standard</li>
-              <li>15-year anti-rot guarantee*</li>
+              <li><?php echo esc_html( $pt_guar_years ); ?>-year anti-rot guarantee*</li>
               <li>Easy self-assembly</li>
             </ul>
           <?php endif; ?>
@@ -358,9 +373,9 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
       <div class="ctxt"><h3>Double glazing &amp; UPVC door</h3><p class="sub">Multi-point locking, as standard</p></div>
     </div>
     <div class="card photo">
-      <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/15-years-anti-rot-composite.webp" alt="15-year anti-rot guarantee">
+      <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/15-years-anti-rot-composite.webp" alt="<?php echo esc_attr( $pt_guar_years ); ?>-year anti-rot guarantee">
       <div class="scrim"></div>
-      <div class="ctxt"><h3>15-year guarantee</h3><p class="sub">Anti-rot — composite*</p></div>
+      <div class="ctxt"><h3><?php echo esc_html( $pt_guar_years ); ?>-year guarantee</h3><p class="sub">Anti-rot — composite*</p></div>
     </div>
     <div class="card photo c-wide">
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/06/metal_roof.webp" alt="Insulated metal roof">
@@ -513,7 +528,7 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
     </div>
     <div class="wc-card">
       <div class="ic"><img src="https://www.projecttimber.com/wp-content/uploads/2020/11/15-Year-Anti-rot-Guarantee.png" alt=""></div>
-      <h3>15-year anti-rot guarantee*</h3>
+      <h3><?php echo esc_html( $pt_guar_years ); ?>-year anti-rot guarantee*</h3>
       <p>Backed for the long term on composite.</p>
     </div>
     <div class="wc-card">
@@ -788,9 +803,9 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
 
 <?php endif; ?>
 <!-- ===================== TRUST ===================== -->
-<?php if ( $pt_show( 'show_trust' ) ) : ?>
+<?php if ( $pt_show( 'show_trust' ) || $pt_is_insulated ) : ?>
 <section class="trust" id="trust"><div class="wrap">
-  <span class="g">★ <?php echo wp_kses_post( $pt_f( 'trust_guarantee', '15-year anti-rot guarantee' ) ); ?></span>
+  <span class="g">★ <?php echo wp_kses_post( $pt_f( 'trust_guarantee', $pt_guar_years . '-year anti-rot guarantee' ) ); ?></span>
   <?php $pt_trust_heading = get_field( 'trust_heading', $pt_pid ); ?>
   <?php if ( $pt_trust_heading ) : ?>
     <h2><?php echo wp_kses_post( $pt_trust_heading ); ?></h2>
