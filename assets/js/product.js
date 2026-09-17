@@ -855,7 +855,20 @@
       var bb=document.querySelector('.buybar .p'); if(bb) bb.innerHTML=fmtDisc(t)+' <small>FREE DELIVERY*</small>';
       if(elAdd) elAdd.disabled=(sizeId==null);
       if(elDeliv && sizeId!=null) elDeliv.textContent='Ready to add · '+(scenarios[sizeId]?scenarios[sizeId].name:'');
+      updateTreatLine(t);
       updateFastLine();
+    }
+    // "FREE Pressure Treatment as standard worth £X" — matches the old template:
+    // 20% of the full (pre-discount) configured price, whole £. Shown only once a
+    // size is chosen (there's a real price to base it on).
+    function updateTreatLine(t){
+      var line=document.getElementById('cfgTreatLine');
+      if(!line) return;
+      if(sizeId==null || !(t>0)){ line.hidden=true; return; }
+      var worth=Math.round(t*0.20);
+      var val=document.getElementById('cfgTreatVal');
+      if(val) val.textContent='£'+worth.toLocaleString('en-GB');
+      line.hidden=false;
     }
     // When a fast-delivery size is selected, show the "Dispatched within 48 hours"
     // line instead of the global "Delivery available from …" line; revert otherwise.

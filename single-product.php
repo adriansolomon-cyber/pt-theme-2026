@@ -352,6 +352,8 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
       <!-- live summary -->
       <div class="cfg-summary">
         <div class="cfg-deliv-group">
+          <?php // FREE Pressure Treatment "worth" line — value is 20% of the live configured price, set by product.js on each size change. Hidden until a size is chosen. ?>
+          <div class="cfg-di cfg-treatline" id="cfgTreatLine" hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#2a8f57"/><path d="M7.4 12.5l3 3 6.2-6.6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> <span>FREE Pressure Treatment as standard <b>worth <span id="cfgTreatVal">£0</span></b></span></div>
           <div class="cfg-di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h11v9H3z"/><path d="M14 9h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.7"/><circle cx="17.5" cy="18" r="1.7"/></svg> Free delivery to most mainland UK postcodes*</div>
           <div class="cfg-di" id="cfgDelivLine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg> <span>Delivery available from <b id="delivFrom"><?php echo esc_html( '' !== $pt_deliv_from ? $pt_deliv_from : '—' ); ?></b> · <span class="soft">choose your delivery date at checkout</span></span></div>
           <?php // Shown in place of the line above when a fast-delivery size is selected (product.js). ?>
