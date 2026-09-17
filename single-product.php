@@ -293,7 +293,6 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
                 <div class="kf-col"><h4><?php echo esc_html( $pt_hl[0] ); ?></h4><p><?php echo esc_html( $pt_hl[1] ); ?></p></div>
               <?php endforeach; ?>
             </div>
-            <p class="pt-keyfeat-disc">Disclaimer: Painted buildings are for illustration purposes only. All buildings are in their standard or pressure-treated colour upon delivery, where the colour may vary from those shown. Adequate distance must be kept between the boundary and your building to allow access to apply the annual treatment to comply with the anti-rot guarantee*.</p>
             <div class="pt-keyfeat-grid">
               <?php foreach ( $pt_keyfeat_reasons as $pt_rs ) : ?>
                 <div class="kf-item"><span class="kf-ic"><img src="<?php echo esc_url( $pt_rs[1] ); ?>" alt="" loading="lazy"></span><span class="kf-t"><?php echo esc_html( $pt_rs[0] ); ?></span></div>
