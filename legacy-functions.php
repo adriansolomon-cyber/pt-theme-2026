@@ -20,8 +20,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Load custom WooCommerce email classes early
 function load_custom_wc_emails( $email_classes ) {
-    require_once get_stylesheet_directory() . '/includes/classes/class-wc-customer-cancelled-order-email.php';
-    $email_classes['WC_Customer_Cancelled_Order_Email'] = new WC_Customer_Cancelled_Order_Email();
+    // Guard the require so a momentarily-missing/half-written file (e.g. during a
+    // non-atomic WP Pusher deploy) degrades gracefully — skip the custom email —
+    // instead of fataling WooCommerce email init for that request.
+    $path = get_stylesheet_directory() . '/includes/classes/class-wc-customer-cancelled-order-email.php';
+    if ( is_readable( $path ) ) {
+        require_once $path;
+        if ( class_exists( 'WC_Customer_Cancelled_Order_Email' ) ) {
+            $email_classes['WC_Customer_Cancelled_Order_Email'] = new WC_Customer_Cancelled_Order_Email();
+        }
+    }
     return $email_classes;
 }
 add_filter( 'woocommerce_email_classes', 'load_custom_wc_emails', 5 );
