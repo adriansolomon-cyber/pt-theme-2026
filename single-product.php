@@ -487,10 +487,11 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
   <?php // Heading forced static so the fade effect always shows (ACF why_heading override disabled for now). ?>
   <h2>Eight reasons it's <span class="fade">built differently. </span></h2>
   <?php
-  // Section 5b key-features strip (Heavy-Duty / Taller / …). Dynamic from the
-  // parent product's `main_features` ACF repeater (subfields: heading,
-  // subheading). Presence of rows is the per-product switcher — no rows = hidden.
-  if ( $pt_has_rows( 'main_features' ) ) :
+  // Section 5b key-features strip (Heavy-Duty / Taller / …). Gated by the
+  // `show_highlights` toggle (default OFF) AND requires the parent product's
+  // `main_features` ACF repeater (subfields: heading, subheading) to have rows,
+  // so an enabled-but-empty toggle never renders a bare bordered box.
+  if ( $pt_show( 'show_highlights', false ) && $pt_has_rows( 'main_features' ) ) :
     ?>
     <div class="pt-mainfeat">
       <?php while ( have_rows( 'main_features', $pt_pid ) ) : the_row(); ?>
