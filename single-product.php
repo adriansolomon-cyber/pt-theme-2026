@@ -266,41 +266,6 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
           <?php endif; ?>
         </details>
         <a class="cfg-specs-link" href="#specs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg> View full specifications <span class="a">→</span></a>
-
-        <?php
-        // Key-features strip + "eight reasons" icon grid, ported from the old
-        // product page. Section-visibility toggle (defaults to HIDDEN — enable
-        // the show_keyfeatures field per product to show it).
-        if ( $pt_show( 'show_keyfeatures', false ) ) :
-          $pt_keyfeat_highlights = array(
-            array( 'HEAVY-DUTY', 'with thicker walls' ),
-            array( 'TALLER', '2m eaves height' ),
-            array( 'LONGER LASTING', 'with pressure treatment' ),
-          );
-          $pt_keyfeat_reasons = array(
-            array( 'Free Pressure Treatment',           'https://www.projecttimber.com/wp-content/uploads/2017/10/Group-1358.png' ),
-            array( '16mm Shiplap Upgrade',              'https://www.projecttimber.com/wp-content/uploads/2018/06/shiplap-1.png' ),
-            array( 'T&G Floor and Roof',                'https://www.projecttimber.com/wp-content/uploads/2017/10/Tounge-and-Groove.png' ),
-            array( 'All Fixtures and Fittings Included','https://www.projecttimber.com/wp-content/uploads/2018/06/All-Fixtures-Included.png' ),
-            array( 'Double Framing',                    'https://www.projecttimber.com/wp-content/uploads/2018/06/framing-1.png' ),
-            array( 'Modular Panels',                    'https://www.projecttimber.com/wp-content/uploads/2017/10/Modular-Panels.png' ),
-            array( '25 Year Anti-rot Guarantee*',       'https://www.projecttimber.com/wp-content/uploads/2018/06/25-Year-Anti-rot-Guarantee.png' ),
-            array( 'Easy Self Assembly',                'https://www.projecttimber.com/wp-content/uploads/2018/06/Easy-Self-Assembly.png' ),
-          );
-          ?>
-          <section class="pt-keyfeat">
-            <div class="pt-keyfeat-strip">
-              <?php foreach ( $pt_keyfeat_highlights as $pt_hl ) : ?>
-                <div class="kf-col"><h4><?php echo esc_html( $pt_hl[0] ); ?></h4><p><?php echo esc_html( $pt_hl[1] ); ?></p></div>
-              <?php endforeach; ?>
-            </div>
-            <div class="pt-keyfeat-grid">
-              <?php foreach ( $pt_keyfeat_reasons as $pt_rs ) : ?>
-                <div class="kf-item"><span class="kf-ic"><img src="<?php echo esc_url( $pt_rs[1] ); ?>" alt="" loading="lazy"></span><span class="kf-t"><?php echo esc_html( $pt_rs[0] ); ?></span></div>
-              <?php endforeach; ?>
-            </div>
-          </section>
-        <?php endif; ?>
       </div>
     </div>
 
