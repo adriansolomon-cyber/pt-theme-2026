@@ -231,33 +231,16 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
       <?php
       // Section 5b key-features strip (Heavy-Duty / Taller / …), directly under
       // the gallery. Dynamic from the parent product's `main_features` ACF
-      // repeater (heading + subheading), gated by show_highlights (default off)
-      // AND requiring rows so an empty/enabled toggle never shows a bare box.
-      //
-      // ADMIN-ONLY FOR NOW: rendered hidden (.pt-preview-only) and revealed
-      // client-side only when the pt_can_preview cookie is present (set for
-      // manage_woocommerce users in functions.php). A client-side reveal is
-      // cache-safe on edge-cached pages — no server-side admin branch that the
-      // edge cache could capture and serve to everyone.
+      // repeater (heading + subheading), gated by the show_highlights toggle
+      // (default off) AND requiring rows so an empty/enabled toggle never shows a
+      // bare box. Public — shown to everyone where enabled.
       if ( $pt_show( 'show_highlights', false ) && $pt_has_rows( 'main_features' ) ) :
         ?>
-        <div class="pt-mainfeat pt-preview-only" hidden>
+        <div class="pt-mainfeat">
           <?php while ( have_rows( 'main_features', $pt_pid ) ) : the_row(); ?>
             <div class="mf-col"><h4><?php echo wp_kses_post( get_sub_field( 'heading' ) ); ?></h4><p><?php echo wp_kses_post( get_sub_field( 'subheading' ) ); ?></p></div>
           <?php endwhile; ?>
         </div>
-        <script>
-        // Admin-only preview reveal (cache-safe, cookie-driven). The strip is a
-        // container-query grid (see product.css) — no drag/scroll behaviour.
-        ( function () {
-          if ( /(?:^|;\s*)pt_can_preview=1/.test( document.cookie ) ) {
-            document.querySelectorAll( '.pt-mainfeat.pt-preview-only' ).forEach( function ( el ) {
-              el.hidden = false;
-              el.classList.remove( 'pt-preview-only' );
-            } );
-          }
-        } )();
-        </script>
       <?php endif; ?>
 
       <div class="cfg-info">

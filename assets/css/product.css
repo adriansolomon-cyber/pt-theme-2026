@@ -721,8 +721,7 @@
 /* Section 5b — key-features strip (main_features), under the gallery. One row at
    any width, any number of columns: a container-query grid so the text scales to
    the strip (not the viewport) and columns divide evenly regardless of count.
-   Admin-only preview for now: hidden until revealed client-side. */
-.pt-preview-only{ display:none !important; }
+   Public — shown to everyone where enabled. */
 .pt-mainfeat{
   container-type:inline-size;          /* text scales to the strip, not the viewport */
   display:grid;
