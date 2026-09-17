@@ -135,6 +135,15 @@
   .opt-cards{ display:flex; gap:12px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none; }
   .opt-cards::-webkit-scrollbar{ display:none; }
   @media(min-width:560px){ .opt-cards{ flex-wrap:wrap; overflow:visible; } }
+  /* ≥560px: fill the panel with a grid instead of leaving a dead column from the
+     fixed 150px flex basis. Below 560px the base flex rule + .opt-card{flex:0 0
+     150px} keep the horizontal swipe carousel — don't grid it there. The
+     `.opt-cards > .opt-card` override (0,2,0) out-specifies `.opt-card{width:150px}`
+     so cards fill each track instead of staying 150px. */
+  @media(min-width:560px){
+    .opt-cards{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; align-items:stretch; }
+    .opt-cards > .opt-card{ flex:none; width:auto; min-width:0; max-width:none; }
+  }
   .opt-card{ flex:0 0 150px; width:150px; border:1.5px solid rgba(33,30,36,.12); border-radius:12px; overflow:hidden;
     cursor:pointer; background:var(--white); display:flex; flex-direction:column; transition:border-color .2s, box-shadow .2s; }
   .opt-card:active{ transform:scale(.985); }
