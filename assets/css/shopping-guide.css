@@ -74,18 +74,6 @@
 .pt-sguide .cta-wrapper .cta-button:hover{ opacity: .85; transform: translateY(-1px); }
 .pt-sguide .cta-button .ar{ transform: rotate(90deg); }
 
-/* ── Editable guide body (the WordPress page content) ───────────────── */
-.pt-sguide .pdf-preview{
-  max-width: 820px;
-  margin: 8px auto 0;
-  color: var(--charcoal);
-  font-size: 1rem;
-  line-height: 1.7;
-}
-.pt-sguide .pdf-preview :where(h2, h3){ text-align: left; margin: 1.4em 0 .5em; }
-.pt-sguide .pdf-preview img{ border-radius: 16px; }
-.pt-sguide .pdf-preview :where(p, ul, ol){ margin: 0 0 1em; }
-
 /* ── Perfect-match carousel (scroll-snap, no JS) ────────────────────── */
 .pt-sguide .perfect-match-slider{ width: 100%; gap: 26px; }
 
