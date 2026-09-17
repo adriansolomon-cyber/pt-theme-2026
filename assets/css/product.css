@@ -733,8 +733,29 @@
    strip's min-content width stretch the whole column (and the page) instead of
    letting the scroller scroll. Allow these to shrink below their content. */
 .cfg-grid, .cfg-preview{ min-width:0; }
-/* Narrow screens: 2×2 grid instead of a single row that overflows the viewport. */
+/* Narrow screens: keep all 4 across but let the columns shrink (minmax(0,1fr) +
+   min-width:0) and scale the text with the viewport (clamp) so nothing clips or
+   overflows the page. subgrid rows line the 4 headings/captions up on one
+   baseline despite uneven wrapping. */
 @media (max-width:640px){
-  .pt-mainfeat{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 8px; overflow:visible; cursor:default; }
-  .pt-mainfeat .mf-col{ min-width:0; width:auto; }
+  .pt-mainfeat{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    grid-template-rows:auto auto;
+    gap:4px 6px;
+    align-items:start;
+    overflow:visible;
+    cursor:default;
+  }
+  .pt-mainfeat .mf-col{
+    display:grid;
+    grid-row:span 2;
+    grid-template-rows:subgrid;  /* headings + captions line up across all 4 */
+    gap:2px;
+    min-width:0;                 /* the bit that stops the page overflowing */
+    width:auto;
+    text-align:center;
+  }
+  .pt-mainfeat .mf-col h4{ font-size:clamp(9px,2.7vw,13px); line-height:1.15; margin:0; overflow-wrap:break-word; hyphens:auto; }
+  .pt-mainfeat .mf-col p{ font-size:clamp(8px,2.3vw,11px); line-height:1.2; margin:0; }
 }
