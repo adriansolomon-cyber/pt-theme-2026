@@ -729,3 +729,12 @@
 .pt-mainfeat .mf-col{ flex:0 0 auto; min-width:132px; text-align:center; scroll-snap-align:start; }
 .pt-mainfeat h4{ margin:0 0 4px; font-family:var(--font); font-size:.8rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--charcoal); }
 .pt-mainfeat p{ margin:0; font-size:.86rem; color:var(--graphite); font-weight:300; line-height:1.35; }
+/* Safety net: flex/grid children default to min-width:auto, which lets the
+   strip's min-content width stretch the whole column (and the page) instead of
+   letting the scroller scroll. Allow these to shrink below their content. */
+.cfg-grid, .cfg-preview{ min-width:0; }
+/* Narrow screens: 2×2 grid instead of a single row that overflows the viewport. */
+@media (max-width:640px){
+  .pt-mainfeat{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 8px; overflow:visible; cursor:default; }
+  .pt-mainfeat .mf-col{ min-width:0; width:auto; }
+}
