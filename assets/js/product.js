@@ -855,17 +855,19 @@
       var bb=document.querySelector('.buybar .p'); if(bb) bb.innerHTML=fmtDisc(t)+' <small>FREE DELIVERY*</small>';
       if(elAdd) elAdd.disabled=(sizeId==null);
       if(elDeliv && sizeId!=null) elDeliv.textContent='Ready to add · '+(scenarios[sizeId]?scenarios[sizeId].name:'');
-      updateTreatLine(t);
+      updateTreatLine();
       updateFastLine();
     }
-    // "FREE Pressure Treatment as standard worth £X" — matches the old template:
-    // 20% of the full (pre-discount) configured price, whole £. Shown only once a
-    // size is chosen (there's a real price to base it on).
-    function updateTreatLine(t){
+    // "FREE Pressure Treatment as standard worth £X" — 20% of the SIZE's price
+    // (the base building), whole £. Based on the size, not the running total, so
+    // upgrades/other options don't inflate the figure. Shown once a size is chosen.
+    function updateTreatLine(){
       var line=document.getElementById('cfgTreatLine');
       if(!line) return;
-      if(sizeId==null || !(t>0)){ line.hidden=true; return; }
-      var worth=Math.round(t*0.20);
+      var m=(sizeId!=null)?meta[sizeId]:null;
+      var base=(m && typeof m.price==='number')?m.price:0;
+      if(sizeId==null || !(base>0)){ line.hidden=true; return; }
+      var worth=Math.round(base*0.20);
       var val=document.getElementById('cfgTreatVal');
       if(val) val.textContent='£'+worth.toLocaleString('en-GB');
       line.hidden=false;
