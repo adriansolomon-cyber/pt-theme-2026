@@ -1,32 +1,69 @@
-/* Project Timber — Intercom Messenger trigger wiring (global).
+/* Project Timber — Intercom Messenger trigger wiring + position sync (global).
 
-   Ported from the old theTimber theme, where the "Chat to us" link (#chat-us)
-   opened the Intercom Messenger via Intercom("show"). The Messenger itself is
-   booted by the official Intercom WordPress plugin; this file opens it from our
-   support widget's "Chat to Us" option, positions it just above our support
-   button, and keeps the launcher (X icon) in sync.
+   The Messenger itself is booted by the official Intercom WordPress plugin.
+   This file:
+   - opens it from our bottom-left support widget's "Chat to Us" option;
+   - hides Intercom's own default launcher and anchors the Messenger, the in-app
+     notification card and the unread badge to our #support button, measured at
+     RUNTIME (so it survives breakpoint changes, rotation and any future
+     restyling of the button — nothing is hardcoded);
+   - keeps our launcher (the X icon) in sync when the Messenger closes.
+
+   Paired with the #intercom-container rules in base.css, which read the
+   --pt-ic-clear variable this script sets. On mobile Intercom ignores
+   vertical_padding, so that CSS is what actually lifts the card off the button.
 
    Enqueued site-wide because the support widget is global chrome present in the
-   footer on every page. The click is always intercepted (no #-anchor scroll);
-   it only calls Intercom('show') when the Messenger is actually booted. */
+   footer on every page. Safe to run before or after the Intercom boot code — it
+   waits for window.Intercom and re-runs on load/resize/orientation. */
 (function () {
 	'use strict';
 
 	var support = document.getElementById('support');
-	var launch = support ? support.querySelector('.launch') : null;
+	var launch  = support ? support.querySelector('.launch') : null;
 
-	// Position the Messenger just ABOVE our bottom-left support button — same
-	// corner, lifted clear so their frames don't overlap (overlap is what left the
-	// button unclickable after closing). vertical_padding is the gap from the
-	// viewport bottom; the button spans ~18–74px, so 90 sits the Messenger above it.
+	var SEL  = '#support'; // the custom yellow launcher
+	var GAP  = 16;         // breathing room above the button
+	var BOX  = 48;         // Intercom's own launcher box size
+	var root = document.documentElement;
+	var raf, last = '';
+
+	// Measure #support and drive Intercom's padding + the --pt-ic-clear CSS var
+	// from it, so the Messenger/card/badge anchor to our button at any size.
 	function placeIntercom() {
-		if (typeof window.Intercom === 'function') {
-			window.Intercom('update', {
-				alignment: 'left',
-				horizontal_padding: 18,
-				vertical_padding: 94
-			});
+		var btn = document.querySelector( SEL );
+		if ( ! btn ) { return; }
+
+		var r = btn.getBoundingClientRect();
+		if ( ! r.height ) { return; } // not laid out yet
+
+		var left  = Math.round( r.left );
+		var clear = Math.round( window.innerHeight - r.bottom ) + Math.round( r.height ) + GAP;
+
+		var key = left + ':' + clear;
+		if ( key !== last ) { // skip the Intercom round-trip when nothing moved
+			last = key;
+			root.style.setProperty( '--pt-ic-clear', clear + 'px' );
+			if ( typeof window.Intercom === 'function' ) {
+				window.Intercom( 'update', {
+					hide_default_launcher: true,
+					alignment: 'left',
+					horizontal_padding: left,
+					vertical_padding: Math.max( 0, clear - BOX - 8 )
+				} );
+			}
 		}
+
+		// Re-measure if the button itself ever changes size.
+		if ( window.ResizeObserver && ! btn.__ptRO ) {
+			btn.__ptRO = new ResizeObserver( queue );
+			btn.__ptRO.observe( btn );
+		}
+	}
+
+	function queue() {
+		cancelAnimationFrame( raf );
+		raf = requestAnimationFrame( placeIntercom );
 	}
 
 	// Bind Intercom('onHide') once, lazily — both this script and the plugin's boot
@@ -36,61 +73,64 @@
 	// guaranteed present) makes the reset reliable.
 	var hideBound = false;
 	function bindHideSync() {
-		if (hideBound || typeof window.Intercom !== 'function') { return; }
+		if ( hideBound || typeof window.Intercom !== 'function' ) { return; }
 		hideBound = true;
-		window.Intercom('onHide', function () {
-			if (support) { support.classList.remove('chat-open'); }
-		});
+		window.Intercom( 'onHide', function () {
+			if ( support ) { support.classList.remove( 'chat-open' ); }
+		} );
 	}
 
-	function openChat(e) {
+	function openChat( e ) {
 		// Always stop the link's default #-anchor jump (which scrolls the page up).
-		if (e) { e.preventDefault(); }
+		if ( e ) { e.preventDefault(); }
 		// The boot snippet defines window.Intercom as a queueing stub immediately,
 		// so 'show' is safe even before the widget finishes loading. If Intercom
 		// isn't present at all (not configured / blocked) we simply do nothing.
-		if (typeof window.Intercom !== 'function') { return; }
+		if ( typeof window.Intercom !== 'function' ) { return; }
 		bindHideSync();
 		// Collapse the support panel but keep the launcher as an X (chat-open) so
 		// the user keeps a clear control to close the chat again.
-		if (support) {
-			support.classList.remove('open');
-			support.classList.add('chat-open');
+		if ( support ) {
+			support.classList.remove( 'open' );
+			support.classList.add( 'chat-open' );
 		}
 		placeIntercom();
-		window.Intercom('show');
+		window.Intercom( 'show' );
 	}
 
 	function closeChat() {
-		if (support) { support.classList.remove('chat-open'); }
-		if (typeof window.Intercom === 'function') { window.Intercom('hide'); }
+		if ( support ) { support.classList.remove( 'chat-open' ); }
+		if ( typeof window.Intercom === 'function' ) { window.Intercom( 'hide' ); }
 	}
 
 	// Triggers: support widget "Chat to Us", plus any other [data-intercom] and the
 	// legacy #chat-us id (kept for parity with the old theme markup).
-	document.querySelectorAll('[data-intercom], #chat-us').forEach(function (t) {
-		if (t.getAttribute('data-pt-intercom-bound')) { return; }
-		t.setAttribute('data-pt-intercom-bound', '1');
-		t.addEventListener('click', openChat);
-	});
+	document.querySelectorAll( '[data-intercom], #chat-us' ).forEach( function ( t ) {
+		if ( t.getAttribute( 'data-pt-intercom-bound' ) ) { return; }
+		t.setAttribute( 'data-pt-intercom-bound', '1' );
+		t.addEventListener( 'click', openChat );
+	} );
 
 	// While the chat is open the launcher shows an X — clicking it closes the chat
 	// instead of re-opening our support panel. Capture phase + stopImmediatePropagation
 	// pre-empts the panel-toggle handler bound elsewhere (header.js / per-page JS).
-	if (launch) {
-		launch.addEventListener('click', function (e) {
-			if (support && support.classList.contains('chat-open')) {
+	if ( launch ) {
+		launch.addEventListener( 'click', function ( e ) {
+			if ( support && support.classList.contains( 'chat-open' ) ) {
 				e.preventDefault();
 				e.stopImmediatePropagation();
 				closeChat();
 			}
-		}, true);
+		}, true );
 	}
 
-	// If Intercom is already loaded at run time, bind close-sync + placement now
-	// too; otherwise the first openChat() handles it (see bindHideSync above).
-	if (typeof window.Intercom === 'function') {
-		bindHideSync();
+	// Position on ready, again after Intercom boots (load), and on any reflow.
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', placeIntercom );
+	} else {
 		placeIntercom();
 	}
+	window.addEventListener( 'load', function () { bindHideSync(); placeIntercom(); } );
+	window.addEventListener( 'resize', queue );
+	window.addEventListener( 'orientationchange', queue );
 })();
