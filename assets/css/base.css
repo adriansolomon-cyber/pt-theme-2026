@@ -189,19 +189,6 @@ a{ color:inherit; }
 /* While chatting, keep the launcher (X) at the same stacking level as normal;
    the Messenger opens above the button so no extreme z-index is needed. */
 .support.chat-open{ z-index:299; }
-/* Intercom position — anchor its messenger, notification card and unread badge
-   to the #support button. --pt-ic-clear is set at runtime by intercom.js from
-   the live button position; --pt-ic-reserve compensates for Intercom's internal
-   iframe padding (~52px desktop / ~36px mobile; 30 splits the difference). */
-:root{ --pt-ic-clear:96px; --pt-ic-reserve:30px; }
-/* Intercom's hidden launcher slot (and its children) must never swallow taps
-   meant for #support. */
-#intercom-container .intercom-app > div:has(> iframe.intercom-launcher-frame),
-#intercom-container .intercom-app > div:has(> iframe.intercom-launcher-frame) *{ pointer-events:none !important; }
-/* In-app notification card clears the button at any viewport size (incl. iframes
-   Intercom injects later). On mobile Intercom ignores vertical_padding and pins
-   to bottom:0, so this CSS is what actually lifts the card off the button. */
-#intercom-container .intercom-app > iframe{ bottom:max(0px, calc(var(--pt-ic-clear) - var(--pt-ic-reserve))) !important; }
 .support .panel .ttl img{ height:34px; width:auto; display:block; }
 .support .panel .sub{ font-weight:400; font-size:.9rem; margin:10px 0 16px; line-height:1.35; }
 .support .sheet{ background:#fff; border-radius:16px; padding:12px; }
