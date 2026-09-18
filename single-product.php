@@ -33,9 +33,12 @@ if ( '' === $pt_name_short ) {
 	$pt_name_short = $pt_name;
 }
 $pt_product = function_exists( 'wc_get_product' ) ? wc_get_product( $pt_pid ) : null;
-// Insulated buildings (product category 1639, incl. its sub-categories) carry
-// the upgraded 25-year anti-rot guarantee and always show the "Bought with
-// confidence" trust section.
+// Anti-rot guarantee term shown across the product page (description, key
+// features, guarantee cards, trust badge). 25 years site-wide; a product can
+// override just the trust badge via its `trust_guarantee` field.
+$pt_guar_years = apply_filters( 'pt_guarantee_years', '25', $pt_pid );
+// Insulated buildings (product category 1639, incl. its sub-categories) always
+// show the "Bought with confidence" trust section regardless of the toggle.
 $pt_is_insulated = false;
 if ( function_exists( 'has_term' ) ) {
 	$pt_ins_terms = array( 1639 );
@@ -47,7 +50,6 @@ if ( function_exists( 'has_term' ) ) {
 	}
 	$pt_is_insulated = has_term( $pt_ins_terms, 'product_cat', $pt_pid );
 }
-$pt_guar_years = $pt_is_insulated ? '25' : '15';
 $pt_line    = pt_product_line_singular( $pt_pid );            // singular category (e.g. "Summerhouse")
 if ( '' === $pt_line ) {
 	$pt_line = $pt_name;
