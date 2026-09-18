@@ -194,8 +194,10 @@ a{ color:inherit; }
    the live button position; --pt-ic-reserve compensates for Intercom's internal
    iframe padding (~52px desktop / ~36px mobile; 30 splits the difference). */
 :root{ --pt-ic-clear:96px; --pt-ic-reserve:30px; }
-/* Intercom's hidden launcher slot must never swallow taps meant for #support. */
-#intercom-container .intercom-app > div:has(> iframe.intercom-launcher-frame){ pointer-events:none !important; }
+/* Intercom's hidden launcher slot (and its children) must never swallow taps
+   meant for #support. */
+#intercom-container .intercom-app > div:has(> iframe.intercom-launcher-frame),
+#intercom-container .intercom-app > div:has(> iframe.intercom-launcher-frame) *{ pointer-events:none !important; }
 /* In-app notification card clears the button at any viewport size (incl. iframes
    Intercom injects later). On mobile Intercom ignores vertical_padding and pins
    to bottom:0, so this CSS is what actually lifts the card off the button. */
