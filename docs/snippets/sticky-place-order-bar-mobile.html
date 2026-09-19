@@ -1,0 +1,256 @@
+<!--
+===============================================================================
+ PROJECT TIMBER — STICKY "PLACE ORDER" BAR (MOBILE CHECKOUT)
+ Full-bleed bar, auto-hides when the real button scrolls into view,
+ lifts #support (and therefore Intercom) clear of it.
+ Tested on: https://www.projecttimber.com/checkout/  @ 414x896   (2026-09-19)
+
+ STATUS: NOT YET APPLIED — saved as a potential change. This is a standalone
+ WPCode/footer snippet (Option A/B below); it is NOT enqueued by the theme and
+ does nothing until installed. Pairs with docs/snippets/intercom-position-fix
+ behaviour (the runtime #support measurement in assets/js/intercom.js).
+===============================================================================
+
+ WHAT IT DOES
+ ------------
+ Below 768px, a full-width yellow "Place order · £totalx" bar is pinned to the
+ bottom of the checkout. It slides away as soon as the real #place_order button
+ enters the viewport, so the customer never sees two buttons at once.
+
+ WHY A PROXY BUTTON, NOT position:fixed ON #place_order
+ ------------------------------------------------------
+ The real button has to stay where it is, because:
+   * it must remain in the form's tab order and validation flow;
+   * WooCommerce REPLACES the whole .woocommerce-checkout-payment block on
+     every AJAX total update, destroying any inline styles we put on it;
+   * we need both buttons to exist so the sticky one can hide when the real
+     one is on screen.
+ So the bar holds a proxy button that mirrors the real one and forwards clicks.
+
+ EDGE CASES HANDLED
+ ------------------
+   * Total changes (coupon, shipping) ......... label mirrors the real button
+   * AJAX replaces the payment block .......... re-attaches on updated_checkout
+   * Gateway hides #place_order (PayPal, GPay)  bar hides with it
+   * WooCommerce disables the button ......... proxy disables too
+   * Content hidden behind the bar ........... body padding-bottom = bar height
+   * iPhone home indicator ................... env(safe-area-inset-bottom)
+   * Support launcher collides with bar ...... #support lifts by the bar height
+   * Intercom card collides with bar ......... follows #support automatically
+   * Desktop ................................. bar never renders (>=768px)
+
+ INTERACTION WITH THE INTERCOM FIX
+ ---------------------------------
+ The Intercom fix measures #support and derives --pt-ic-clear from it. This
+ script lifts #support, then dispatches a resize event so that script
+ re-measures. Verified live: --pt-ic-clear went 96px -> 152px when the bar
+ appeared, and back to 96px when it hid. No coupling between the two files
+ beyond that one event, so either can be removed independently.
+
+ If you have NOT installed the Intercom position fix, this still works — the
+ resize dispatch is simply a no-op.
+
+ VERIFIED RESULTS  (414 x 896)
+ -----------------------------
+   Scrolled mid-page   bar y 840-896 (56px, full width)   #support bottom 74px
+                       body padding-bottom 56px           no overlap
+   Real button in view bar y 902 (off-screen)             #support bottom 18px
+                       only one Place order visible
+   Proxy click         forwarded to #place_order          confirmed, submission
+                                                          blocked during test
+
+ NOTE: #support currently computes to `transition: all 0s`, so its lift is
+ instant and there is no animation race. The transitionend listener below is a
+ safeguard in case a duration is ever added to that transition — without it, a
+ measurement taken mid-animation could freeze --pt-ic-clear at a wrong value.
+
+
+ ============================== INSTALLATION ==============================
+
+ OPTION A — WPCode / Code Snippets  (recommended)
+   1. WP Admin > Code Snippets > + Add Snippet > "Add Your Custom Code".
+   2. Title:      Sticky Place order bar (mobile)
+   3. Code Type:  HTML Snippet
+   4. Paste everything below the "PASTE FROM HERE" line.
+   5. Insertion:  Auto Insert  ->  Site Wide Footer
+      (the CSS is scoped to body.woocommerce-checkout, so it is inert
+       everywhere else — site-wide insertion is safe)
+   6. Save and Activate.
+
+ OPTION B — Theme footer
+   Paste immediately before </body> in your child theme's footer.php.
+
+ ORDER RELATIVE TO THE INTERCOM SNIPPET DOES NOT MATTER.
+
+
+ ================================ TESTING =================================
+   1. Open /checkout/ on a phone or in DevTools device mode (<768px).
+   2. Mid-page: yellow bar pinned at the bottom, nothing cut off underneath,
+      yellow support button sitting just above the bar.
+   3. Scroll to the real Place order button: the bar slides away.
+   4. Apply a coupon: the bar's total updates to match.
+   5. Select PayPal: the bar disappears with the card button.
+   6. Resize past 768px: the bar is gone entirely.
+   7. Console:
+        getComputedStyle(document.documentElement).getPropertyValue('--pt-cta-h')
+
+   DO A REAL TEST ORDER before going live. This script forwards a click to the
+   genuine submit button, so the final confirmation is the only way to be sure
+   the gateway flow is untouched.
+
+
+ ================================ TUNING ==================================
+   #pt-cta-btn height (56px) ...... tap target; 48px minimum is sensible
+   rootMargin '0px 0px -40px 0px' . how far the real button must come into
+                                     view before the bar hides
+   breakpoint 767px ............... where the bar stops applying
+   18px in the #support rule ...... the launcher's own resting offset on
+                                     checkout; leave it matching the theme
+
+
+ =============================== ROLLBACK =================================
+   Deactivate or delete the snippet. Nothing is written to the database, no
+   WooCommerce template is overridden, and the real button is never modified.
+
+===============================================================================
+                          PASTE FROM HERE
+=============================================================================== -->
+
+<style id="pt-cta-css">
+  #pt-cta-bar { display: none; }
+
+  @media (max-width: 767px) {
+    body.woocommerce-checkout.pt-cta-ready { padding-bottom: var(--pt-cta-h, 76px); }
+
+    #pt-cta-bar {
+      display: block;
+      position: fixed; left: 0; right: 0; bottom: 0;
+      z-index: 300;
+      background: #fff;
+      box-shadow: 0 -6px 20px rgba(33, 30, 36, .10);
+      padding-bottom: env(safe-area-inset-bottom);
+      transform: translateY(110%);
+      transition: transform .22s ease;
+      will-change: transform;
+    }
+    html.pt-cta-show #pt-cta-bar { transform: none; }
+
+    #pt-cta-btn {
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      width: 100%; height: 56px; margin: 0; padding: 0 16px;
+      border: 0; border-radius: 0; cursor: pointer;
+      background: #ff0; color: #211e24;
+      font: 700 16.8px/1 "F37 Jagger", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+    }
+    #pt-cta-btn[disabled] { opacity: .55; cursor: default; }
+    #pt-cta-btn svg { width: 20px; height: 20px; flex: none; }
+
+    /* Lift the support launcher above the bar while it is showing.
+       The Intercom fix re-measures #support, so its card follows. */
+    html.pt-cta-show #support {
+      bottom: calc(18px + var(--pt-cta-h, 76px)) !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #pt-cta-bar { transition: none; }
+  }
+</style>
+
+<script id="pt-cta-js">
+(function () {
+  'use strict';
+
+  var REAL = '#place_order, button[name="woocommerce_checkout_place_order"]';
+  var root = document.documentElement;
+  var bar, proxy, real = null, io = null;
+
+  function build() {
+    if (document.getElementById('pt-cta-bar')) return;
+    bar = document.createElement('div');
+    bar.id = 'pt-cta-bar';
+    bar.innerHTML = '<button type="button" id="pt-cta-btn"></button>';
+    document.body.appendChild(bar);
+    proxy = bar.querySelector('#pt-cta-btn');
+
+    proxy.addEventListener('click', function () {
+      if (real && !real.disabled) real.click();
+    });
+    document.body.classList.add('pt-cta-ready');
+  }
+
+  function isVisible(el) {
+    return !!(el && el.offsetParent !== null &&
+              getComputedStyle(el).visibility !== 'hidden');
+  }
+
+  function measure() {
+    if (!bar) return;
+    root.style.setProperty('--pt-cta-h',
+      Math.round(bar.getBoundingClientRect().height) + 'px');
+  }
+
+  function show(on) {
+    if (root.classList.contains('pt-cta-show') === on) return;
+    root.classList.toggle('pt-cta-show', on);
+    // let the Intercom snippet re-measure #support
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  function mirror() {
+    if (!real || !proxy) return;
+    if (proxy.innerHTML !== real.innerHTML) proxy.innerHTML = real.innerHTML;
+    proxy.disabled = real.disabled;
+  }
+
+  function attach() {
+    build();
+    var next = document.querySelector(REAL);
+    if (!next) { show(false); return; }
+
+    if (next !== real) {
+      real = next;
+      if (io) io.disconnect();
+      io = new IntersectionObserver(function (entries) {
+        show(!entries[0].isIntersecting && isVisible(real));
+      }, { rootMargin: '0px 0px -40px 0px' });
+      io.observe(real);
+
+      new MutationObserver(mirror).observe(real, {
+        childList: true, subtree: true,
+        attributes: true, attributeFilter: ['disabled', 'style', 'class']
+      });
+    }
+    mirror();
+    measure();
+  }
+
+  function init() {
+    if (!document.body.classList.contains('woocommerce-checkout')) return;
+    attach();
+
+    // WooCommerce rebuilds the payment block on every AJAX total update
+    if (window.jQuery) {
+      jQuery(document.body).on('updated_checkout payment_method_selected', attach);
+    }
+
+    window.addEventListener('resize', measure);
+    window.addEventListener('orientationchange', measure);
+
+    // Safeguard: if #support ever gains a transition duration, re-measure
+    // once it settles so --pt-ic-clear is not frozen mid-animation.
+    var sup = document.querySelector('#support');
+    if (sup) {
+      sup.addEventListener('transitionend', function (e) {
+        if (e.propertyName === 'bottom') window.dispatchEvent(new Event('resize'));
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
