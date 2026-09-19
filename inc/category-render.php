@@ -527,6 +527,16 @@ function pt_cat_get_data( $term ) {
 			if ( isset( $built['products'] ) && is_array( $built['products'] ) ) {
 				$built['products'] = pt_cat_filter_visible( $built['products'] );
 			}
+			// Always read the category description LIVE from the term, not the
+			// cached build — so editing it in wp-admin shows immediately (after an
+			// edge-cache purge) instead of waiting for the mu-plugin cache to
+			// rebuild, and it's never omitted if the build didn't include it.
+			if ( $term && isset( $term->term_id ) ) {
+				if ( ! isset( $built['category'] ) || ! is_array( $built['category'] ) ) {
+					$built['category'] = array();
+				}
+				$built['category']['description'] = term_description( $term->term_id, 'product_cat' );
+			}
 			return $built;
 		}
 	}
