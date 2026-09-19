@@ -477,7 +477,7 @@
 .woocommerce-checkout #payment .place-order::after,
 .woocommerce-checkout #payment .place-order > noscript{display:none}
 .woocommerce-checkout #payment .place-order{margin-top:0;padding:16px 0 0}
-.woocommerce-checkout #payment .woocommerce-terms-and-conditions-wrapper{margin-top:0}
+.woocommerce-checkout #payment .woocommerce-terms-and-conditions-wrapper{margin:0}
 
 /* Fast-delivery pill below the delivery-date field (all-fast carts) */
 .co-fastline{ display:flex; align-items:center; gap:10px; width:100%; box-sizing:border-box; margin:12px 0 4px; padding:13px 16px; background:#E7F5EC; border:1px solid #CDE9D6; border-radius:12px; font-family:var(--font); }
