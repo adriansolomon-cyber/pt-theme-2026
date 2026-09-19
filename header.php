@@ -18,8 +18,8 @@ $pt_cats = array(
 	'summerhouses'                => 'Summerhouses',
 	'garden-offices'              => 'Garden Offices',
 	'garden-workshops'            => 'Garden Workshops',
-	'insulated-garden-buildings'  => 'Insulated Garden Buildings',
 	'dual-room-buildings'         => 'Dual Room Buildings',
+	'insulated-garden-buildings'  => 'Insulated Garden Buildings',
 	'log-cabins'                  => 'Log Cabins',
 	'greenhouses'                 => 'Greenhouses',
 );
