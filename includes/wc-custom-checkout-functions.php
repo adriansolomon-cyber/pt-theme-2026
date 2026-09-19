@@ -419,6 +419,29 @@ add_action( 'woocommerce_before_calculate_totals', function() {
 
 }, 10 );
 
+/**
+ * Suppress WooCommerce's generic "Coupon code applied successfully." notice for
+ * our AUTO-VOUCHER codes only — show_coupon_status_message() already prints a
+ * branded notice for them, so the generic one is a duplicate (two green banners
+ * for the same discount). Returning an empty message makes WC_Coupon::
+ * add_coupon_message() skip the notice entirely (it early-returns on empty).
+ * Any other (customer-typed) coupon keeps its normal confirmation.
+ */
+add_filter( 'woocommerce_coupon_message', function( $msg, $msg_code, $coupon ) {
+    if ( (int) $msg_code !== WC_Coupon::WC_COUPON_SUCCESS ) {
+        return $msg;
+    }
+    if ( ! function_exists( 'auto_voucher_enabled' ) || ! auto_voucher_enabled() ) {
+        return $msg;
+    }
+    $code  = strtolower( (string) ( is_object( $coupon ) && method_exists( $coupon, 'get_code' ) ? $coupon->get_code() : '' ) );
+    $auto  = array_filter( array(
+        function_exists( 'av_get_default_voucher_code' ) ? strtolower( (string) av_get_default_voucher_code() ) : '',
+        function_exists( 'av_get_special_voucher_code' ) ? strtolower( (string) av_get_special_voucher_code() ) : '',
+    ) );
+    return in_array( $code, $auto, true ) ? '' : $msg;
+}, 10, 3 );
+
 add_action( 'woocommerce_before_cart', 'show_coupon_status_message' );
 add_action( 'woocommerce_before_checkout_form', 'show_coupon_status_message' );
 
