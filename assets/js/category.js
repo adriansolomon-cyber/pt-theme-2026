@@ -74,6 +74,7 @@
     // Filter facets, in drawer order (empty facets are skipped when built).
     var FACETS=[
       { key:'range',        attr:'Range',     title:'Product range', open:true },
+      { key:'layout',       attr:'Layout',    title:'Layout' },
       { key:'size',         attr:'Size',      title:'Size' },
       { key:'treatment',    attr:'Treatment', title:'Treatment' },
       { key:'windows',      attr:'Windows',   title:'Windows' },

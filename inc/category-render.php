@@ -21,6 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function pt_cat_facets() {
 	return array(
 		array( 'key' => 'range',        'attr' => 'Range',     'title' => 'Product range', 'open' => true ),
+		array( 'key' => 'layout',       'attr' => 'Layout',    'title' => 'Layout',        'open' => false ),
 		array( 'key' => 'size',         'attr' => 'Size',      'title' => 'Size',          'open' => false ),
 		array( 'key' => 'treatment',    'attr' => 'Treatment', 'title' => 'Treatment',     'open' => false ),
 		array( 'key' => 'windows',      'attr' => 'Windows',   'title' => 'Windows',       'open' => false ),
