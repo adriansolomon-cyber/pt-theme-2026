@@ -79,8 +79,10 @@
       { key:'treatment',    attr:'Treatment', title:'Treatment' },
       { key:'windows',      attr:'Windows',   title:'Windows' },
       { key:'roof',         attr:'Style',     title:'Roof style' },
-      { key:'usage',        attr:'Usage',     title:'Ideal for' },
-      { key:'availability', attr:null,        title:'Availability' }
+      { key:'usage',        attr:'Usage',      title:'Ideal for' },
+      { key:'door-style',   attr:'Door Style', title:'Door style' },
+      { key:'features',     attr:'Features',   title:'Features' },
+      { key:'availability', attr:null,         title:'Availability' }
     ];
     function facetLabel(key,v){ var s=String(v).replace(/&amp;/g,'&'); return key==='size'?s.replace(/\s*x\s*/i,' × '):s; }
     function facetValues(p,f){
@@ -201,7 +203,7 @@
     // like ?filter_style=apex&query_type_style=or) still pre-apply the filter.
     // Values already align (both are the attribute option's slug). Params with no
     // matching facet (usage, door-style, features, popular…) are simply ignored.
-    var LEGACY_FILTER_MAP={ style:'roof', 'product-range':'range', range:'range', treatment:'treatment', windows:'windows', size:'size', layout:'layout', usage:'usage' };
+    var LEGACY_FILTER_MAP={ style:'roof', 'product-range':'range', range:'range', treatment:'treatment', windows:'windows', size:'size', layout:'layout', usage:'usage', 'door-style':'door-style', features:'features' };
     // Value aliases for legacy ad URLs whose value differs from the current term
     // slug (per facet). e.g. an old ?filter_product-range=evolution-garden-room
     // targets the "Evolution" range (slug 'evolution').

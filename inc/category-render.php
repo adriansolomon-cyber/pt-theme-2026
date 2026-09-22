@@ -26,8 +26,10 @@ function pt_cat_facets() {
 		array( 'key' => 'treatment',    'attr' => 'Treatment', 'title' => 'Treatment',     'open' => false ),
 		array( 'key' => 'windows',      'attr' => 'Windows',   'title' => 'Windows',       'open' => false ),
 		array( 'key' => 'roof',         'attr' => 'Style',     'title' => 'Roof style',    'open' => false ),
-		array( 'key' => 'usage',        'attr' => 'Usage',     'title' => 'Ideal for',     'open' => false ),
-		array( 'key' => 'availability', 'attr' => null,        'title' => 'Availability',  'open' => false ),
+		array( 'key' => 'usage',        'attr' => 'Usage',      'title' => 'Ideal for',     'open' => false ),
+		array( 'key' => 'door-style',   'attr' => 'Door Style', 'title' => 'Door style',    'open' => false ),
+		array( 'key' => 'features',     'attr' => 'Features',   'title' => 'Features',      'open' => false ),
+		array( 'key' => 'availability', 'attr' => null,         'title' => 'Availability',  'open' => false ),
 	);
 }
 
