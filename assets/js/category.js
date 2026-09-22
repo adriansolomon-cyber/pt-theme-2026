@@ -201,6 +201,11 @@
     // Values already align (both are the attribute option's slug). Params with no
     // matching facet (usage, door-style, features, popular…) are simply ignored.
     var LEGACY_FILTER_MAP={ style:'roof', 'product-range':'range', range:'range', treatment:'treatment', windows:'windows', size:'size', layout:'layout' };
+    // Value aliases for legacy ad URLs whose value differs from the current term
+    // slug (per facet). e.g. an old ?filter_product-range=evolution-garden-room
+    // targets the "Evolution" range (slug 'evolution').
+    var LEGACY_VALUE_ALIAS={ range:{ 'evolution-garden-room':'evolution' } };
+    function aliasValue(fkey,v){ var a=LEGACY_VALUE_ALIAS[fkey]; return ( a && a[v] ) ? a[v] : v; }
 
     // Tick checkboxes from the URL querystring (opening their facet group). Reads
     // BOTH our own scheme (?roof=apex) and the legacy filter_* scheme. Returns
@@ -215,7 +220,7 @@
       params.forEach(function(value,key){
         var m=/^filter_(.+)$/.exec(key); if(!m) return;
         var fkey=LEGACY_FILTER_MAP[m[1].toLowerCase()];
-        if(fkey && value){ add(fkey,value); sawLegacy=true; }
+        if(fkey && value){ add(fkey, value.split(',').map(function(v){ return aliasValue(fkey,v); }).join(',')); sawLegacy=true; }
       });
       var any=false;
       Object.keys(wantedByFacet).forEach(function(fkey){
