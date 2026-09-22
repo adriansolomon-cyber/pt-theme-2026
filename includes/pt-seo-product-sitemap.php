@@ -190,6 +190,79 @@ add_filter(
 );
 
 /* =========================================================================
+ * A2. DEINDEX scaffolding product categories: the `zzp-*` tree (parents AND
+ * their child size terms) and `uncategorized`. These are thin, mostly-empty
+ * "No products found" pages currently index,follow. We noindex the page itself
+ * AND drop them from Yoast's category sitemap. Gated by pt_seo_enable_scaffold.
+ * ========================================================================= */
+
+/** True if a product_cat term is scaffolding: itself or an ancestor is `zzp*`,
+ *  or it is `uncategorized`. Accepts a term object or term ID. */
+function pt_seo_is_scaffold_term( $term ) {
+	if ( is_numeric( $term ) ) {
+		$term = get_term( (int) $term, 'product_cat' );
+	}
+	if ( ! $term || is_wp_error( $term ) || ! isset( $term->slug ) ) {
+		return false;
+	}
+	$slug = strtolower( (string) $term->slug );
+	if ( 'uncategorized' === $slug || 0 === strpos( $slug, 'zzp' ) ) {
+		return true;
+	}
+	foreach ( (array) get_ancestors( (int) $term->term_id, 'product_cat' ) as $aid ) {
+		$a = get_term( (int) $aid, 'product_cat' );
+		if ( $a && ! is_wp_error( $a ) && 0 === strpos( strtolower( (string) $a->slug ), 'zzp' ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// Noindex the scaffolding category page itself (keep follow).
+add_filter(
+	'wpseo_robots_array',
+	static function ( $robots ) {
+		if ( ! pt_seo_enabled( 'scaffold' ) || ! is_tax( 'product_cat' ) ) {
+			return $robots;
+		}
+		if ( pt_seo_is_scaffold_term( get_queried_object() ) ) {
+			$robots['index'] = 'noindex';
+		}
+		return $robots;
+	},
+	10,
+	1
+);
+
+// Drop scaffolding terms from Yoast's category sitemap.
+add_filter(
+	'wpseo_exclude_from_sitemap_by_term_ids',
+	static function ( $excluded ) {
+		if ( ! pt_seo_enabled( 'scaffold' ) ) {
+			return $excluded;
+		}
+		$excluded = (array) $excluded;
+		$terms    = get_terms(
+			array(
+				'taxonomy'   => 'product_cat',
+				'hide_empty' => false,
+				'fields'     => 'ids',
+			)
+		);
+		if ( is_array( $terms ) ) {
+			foreach ( $terms as $tid ) {
+				if ( pt_seo_is_scaffold_term( (int) $tid ) ) {
+					$excluded[] = (int) $tid;
+				}
+			}
+		}
+		return array_values( array_unique( array_map( 'intval', $excluded ) ) );
+	},
+	10,
+	1
+);
+
+/* =========================================================================
  * B. Per-size canonical (Fork 1): size URL → itself; bare parent → base size.
  * ========================================================================= */
 function pt_seo_composite_canonical( $canonical ) {
