@@ -196,7 +196,15 @@ function pt_seo_composite_canonical( $canonical ) {
 	if ( ! pt_seo_enabled( 'canonical' ) || ! is_singular( 'product' ) || ! function_exists( 'wc_get_product' ) ) {
 		return $canonical;
 	}
-	$product = wc_get_product( get_queried_object_id() );
+	$pid = get_queried_object_id();
+	// Respect an explicit per-product canonical set in Yoast (Advanced → Canonical
+	// URL). Editor intent wins over our automated per-size canonical, so the few
+	// products with a hand-set canonical keep exactly what's configured.
+	$manual = get_post_meta( $pid, '_yoast_wpseo_canonical', true );
+	if ( is_string( $manual ) && '' !== trim( $manual ) ) {
+		return $canonical;
+	}
+	$product = wc_get_product( $pid );
 	if ( ! $product || ! $product->is_type( 'composite' ) ) {
 		return $canonical;
 	}
