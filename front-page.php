@@ -52,7 +52,7 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
       <div class="pshero-saleinner">
         <div class="pshero-salekick">● Hobbyist range</div>
         <div class="pshero-bighead"><span>20%</span><span>Off</span></div>
-        <div class="pshero-salesub">the Hobbyist Apex &amp; Pent <span class="ps-hl">shed range</span></div>
+        <div class="pshero-salesub">the Hobbyist Apex &amp; Pent shed range</div>
         <div class="pshero-saledir">Direct from the factory</div>
         <div class="pshero-cards">
           <div class="pshero-card"><div class="ps-sz">8 × 6 H100 Apex</div><div class="ps-pr"><span class="ps-was">£1,005</span><span class="ps-now">£804</span></div></div>

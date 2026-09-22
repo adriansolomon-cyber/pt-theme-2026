@@ -414,7 +414,6 @@
 .pshero-bighead{ display:flex; align-items:baseline; gap:14px; }
 .pshero-bighead span{ font-family:var(--font); font-weight:800; font-size:clamp(3.6rem,12vw,7rem); line-height:.9; color:var(--charcoal); text-transform:uppercase; }
 .pshero-salesub{ font-family:var(--font); font-weight:700; font-size:clamp(1.1rem,3vw,1.55rem); color:var(--charcoal); }
-.pshero-salesub .ps-hl{ background:#E6007E; color:#fff; padding:0 .3em .06em; border-radius:.28em; box-shadow:0 3px 12px rgba(230,0,126,.35); white-space:nowrap; }
 .pshero-saledir{ font-family:var(--font); font-weight:600; font-size:clamp(.9rem,2vw,1.05rem); color:var(--charcoal); margin-bottom:16px; }
 .pshero-cards{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
 .pshero-card{ background:#fff; border-radius:12px; padding:14px 20px; min-width:150px; }
