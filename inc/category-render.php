@@ -29,6 +29,7 @@ function pt_cat_facets() {
 		array( 'key' => 'usage',        'attr' => 'Usage',      'title' => 'Ideal for',     'open' => false ),
 		array( 'key' => 'door-style',   'attr' => 'Door Style', 'title' => 'Door style',    'open' => false ),
 		array( 'key' => 'features',     'attr' => 'Features',   'title' => 'Features',      'open' => false ),
+		array( 'key' => 'popular',      'attr' => 'Popular',    'title' => 'Offers',        'open' => false ),
 		array( 'key' => 'availability', 'attr' => null,         'title' => 'Availability',  'open' => false ),
 	);
 }
