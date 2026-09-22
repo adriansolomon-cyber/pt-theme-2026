@@ -316,8 +316,37 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
       <!-- live summary -->
       <div class="cfg-summary">
         <div class="cfg-deliv-group">
-          <?php // FREE Pressure Treatment "worth" line — value is 20% of the live configured price, set by product.js on each size change. Hidden until a size is chosen. ?>
+          <?php
+          // FREE Pressure Treatment "worth" line — value is 20% of the live
+          // configured price, set by product.js on each size change; hidden until a
+          // size is chosen. Only shown on ranges that actually OFFER pressure
+          // treatment. Composite/insulated ranges don't: garden offices (18) and
+          // insulated buildings (1639) incl. sub-categories, plus specific non-PT
+          // products (e.g. Duralast #79383). All filterable.
+          $pt_offers_pt = true;
+          $pt_no_pt_ids = array_map( 'intval', (array) apply_filters( 'pt_no_pressure_treatment_products', array( 79383 ) ) );
+          if ( in_array( (int) $pt_pid, $pt_no_pt_ids, true ) ) {
+              $pt_offers_pt = false;
+          } elseif ( function_exists( 'has_term' ) ) {
+              $pt_no_pt_cats = array( 18, 1639 );
+              if ( function_exists( 'get_term_children' ) ) {
+                  foreach ( array( 18, 1639 ) as $pt_ptc ) {
+                      $pt_kids = get_term_children( $pt_ptc, 'product_cat' );
+                      if ( ! is_wp_error( $pt_kids ) && ! empty( $pt_kids ) ) {
+                          $pt_no_pt_cats = array_merge( $pt_no_pt_cats, array_map( 'intval', $pt_kids ) );
+                      }
+                  }
+              }
+              $pt_no_pt_cats = apply_filters( 'pt_no_pressure_treatment_cats', $pt_no_pt_cats );
+              if ( has_term( $pt_no_pt_cats, 'product_cat', $pt_pid ) ) {
+                  $pt_offers_pt = false;
+              }
+          }
+          $pt_offers_pt = (bool) apply_filters( 'pt_offers_pressure_treatment', $pt_offers_pt, $pt_pid );
+          if ( $pt_offers_pt ) :
+          ?>
           <div class="cfg-di cfg-treatline" id="cfgTreatLine" hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#2a8f57"/><path d="M7.4 12.5l3 3 6.2-6.6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> <span>FREE Pressure Treatment as standard <b>worth <span id="cfgTreatVal">£0</span></b></span></div>
+          <?php endif; ?>
           <div class="cfg-di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h11v9H3z"/><path d="M14 9h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.7"/><circle cx="17.5" cy="18" r="1.7"/></svg> Free delivery to most mainland UK postcodes*</div>
           <div class="cfg-di" id="cfgDelivLine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg> <span>Delivery available from <b id="delivFrom"><?php echo esc_html( '' !== $pt_deliv_from ? $pt_deliv_from : '—' ); ?></b> · <span class="soft">choose your delivery date at checkout</span></span></div>
           <?php // Shown in place of the line above when a fast-delivery size is selected (product.js). ?>
