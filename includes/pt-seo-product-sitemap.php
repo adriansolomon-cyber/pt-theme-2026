@@ -12,11 +12,15 @@
  *      indexed — this does (noindex,follow).
  *
  *   B. Per-size CANONICALS (the "Fork 1" model). Each composite renders the same
- *      page at many size URLs, e.g.
- *          /summerhouses/8-x-6/f/<slug>/   (this is what the ADS FEED uses)
- *      We make each size URL self-canonical (so it can be indexed on its own),
+ *      page at many size URLs; we canonicalise to the CRAWLABLE per-size form
+ *          /summerhouses/8-x-6/<slug>/
+ *      making each size URL self-canonical (so it can be indexed on its own),
  *      and point the bare parent permalink /summerhouses/<slug>/ at the cheapest
  *      ("from") size, so the parent doesn't compete with its own children.
+ *      NOTE: the older /summerhouses/8-x-6/f/<slug>/ form (still used by the ads
+ *      feed) is dropped here because robots.txt blocks /f/ — see pt_seo_size_url()
+ *      and the pt_seo_size_url_f_segment filter to restore it. Align the feed to
+ *      the non-/f/ form + add 301s /f/ → non-/f/ as follow-ups.
  *
  *   C. Per-size TITLE differentiation — prefixes the size onto the <title> on a
  *      size URL so the indexed pages read distinctly ("8 x 6 – Cannes…").
@@ -124,9 +128,15 @@ function pt_seo_composite_sizes( $product ) {
 }
 
 /**
- * Build the feed-style size URL for a product + size slug, by reusing the
- * product's OWN permalink category segment (so it matches WooCommerce and the
- * ads feed exactly): /summerhouses/<slug>/ → /summerhouses/<size>/f/<slug>/.
+ * Build the per-size URL for a product + size slug, reusing the product's OWN
+ * permalink category segment (so it matches WooCommerce):
+ *   /summerhouses/<slug>/ → /summerhouses/<size>/<slug>/
+ *
+ * The `/f/` segment was dropped from the CANONICAL + SITEMAP because robots.txt
+ * blocks /f/ (it's the layered-nav filter plugin's namespace) — canonicalising
+ * to a blocked URL de-indexes the catalogue. The crawlable /<cat>/<size>/<slug>/
+ * form already resolves 200. Return true from `pt_seo_size_url_f_segment` to put
+ * `/f/` back (e.g. if the whole model is reverted).
  */
 function pt_seo_size_url( $product, $size_slug ) {
 	// get_permalink() needs a post ID / WP_Post — a WC_Product object returns false.
@@ -143,7 +153,8 @@ function pt_seo_size_url( $product, $size_slug ) {
 	$prod_slug = array_pop( $segs );          // <slug>
 	$cat_path  = implode( '/', $segs );        // summerhouses (or nested a/b)
 	$prefix    = $cat_path ? '/' . $cat_path . '/' : '/';
-	return home_url( $prefix . $size_slug . '/f/' . $prod_slug . '/' );
+	$f_segment = apply_filters( 'pt_seo_size_url_f_segment', false, $product, $size_slug ) ? 'f/' : '';
+	return home_url( $prefix . $size_slug . '/' . $f_segment . $prod_slug . '/' );
 }
 
 /** The current request's size slug, if it names one (e.g. /…/12-x-8/f/…). */
@@ -486,7 +497,7 @@ add_action(
 			header( 'Content-Type: text/csv; charset=utf-8' );
 			header( 'Content-Disposition: attachment; filename="pt-f-canonical-products.csv"' );
 			$out = fopen( 'php://output', 'w' );
-			fputcsv( $out, array( 'ID', 'Name', 'Current URL', 'Emitted /f/ canonical', 'Sizes' ) );
+			fputcsv( $out, array( 'ID', 'Name', 'Current URL', 'Emitted canonical', 'Sizes' ) );
 			foreach ( $rows as $r ) {
 				fputcsv( $out, array( $r['id'], $r['name'], $r['url'], $r['canonical'], $r['sizes'] ) );
 			}
@@ -495,11 +506,11 @@ add_action(
 		}
 
 		header( 'Content-Type: text/html; charset=utf-8' );
-		echo '<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>/f/ canonical audit</title>';
+		echo '<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>Per-size canonical audit</title>';
 		echo '<style>body{font:14px/1.5 system-ui,sans-serif;margin:24px;color:#211e24}table{border-collapse:collapse;width:100%;margin-top:12px}th,td{border:1px solid #e2e2e2;padding:6px 10px;text-align:left;vertical-align:top}th{background:#f5f5f5}code{font-size:12px;word-break:break-all}.m{color:#666}a{color:#1f4e82}</style>';
-		echo '<h1>Products emitting a <code>/f/</code> canonical</h1>';
+		echo '<h1>Composite products with a per-size canonical</h1>';
 		echo '<p class="m"><strong>' . count( $rows ) . '</strong> composite products with clean N&nbsp;x&nbsp;N sizes. <a href="' . esc_url( add_query_arg( 'pt_f_audit', 'csv' ) ) . '">Download CSV</a></p>';
-		echo '<table><tr><th>#</th><th>ID</th><th>Product</th><th>Current URL</th><th>Emitted canonical (<code>/f/</code>)</th><th>Sizes</th></tr>';
+		echo '<table><tr><th>#</th><th>ID</th><th>Product</th><th>Current URL</th><th>Emitted canonical</th><th>Sizes</th></tr>';
 		$i = 0;
 		foreach ( $rows as $r ) {
 			$i++;
