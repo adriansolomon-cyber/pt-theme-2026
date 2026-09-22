@@ -195,18 +195,37 @@
       var qs=parts.join('&');
       try{ history.replaceState(null,'',location.pathname+(qs?('?'+qs):'')+location.hash); }catch(e){}
     }
-    // Tick checkboxes from the URL querystring (opening their facet group). Returns
+    // Old WooCommerce layered-nav param (filter_<attr>) → our facet key. Lets ad
+    // landing pages built on the PREVIOUS filter structure (e.g. Google Ads links
+    // like ?filter_style=apex&query_type_style=or) still pre-apply the filter.
+    // Values already align (both are the attribute option's slug). Params with no
+    // matching facet (usage, door-style, features, popular…) are simply ignored.
+    var LEGACY_FILTER_MAP={ style:'roof', 'product-range':'range', range:'range', treatment:'treatment', windows:'windows', size:'size', layout:'layout' };
+
+    // Tick checkboxes from the URL querystring (opening their facet group). Reads
+    // BOTH our own scheme (?roof=apex) and the legacy filter_* scheme. Returns
     // true if anything matched, so the caller can apply the restored filter.
     function applyUrlToFilters(){
       var params; try{ params=new URLSearchParams(location.search); }catch(e){ return false; }
+      var wantedByFacet={}, sawLegacy=false;
+      function add(fkey,raw){ if(!fkey||!raw) return; wantedByFacet[fkey]=(wantedByFacet[fkey]||[]).concat(raw.split(',').filter(Boolean)); }
+      // Our own scheme: one param per facet key.
+      FACETS.forEach(function(f){ add(f.key, params.get(f.key)); });
+      // Legacy scheme: filter_<attr> mapped to a facet key.
+      params.forEach(function(value,key){
+        var m=/^filter_(.+)$/.exec(key); if(!m) return;
+        var fkey=LEGACY_FILTER_MAP[m[1].toLowerCase()];
+        if(fkey && value){ add(fkey,value); sawLegacy=true; }
+      });
       var any=false;
-      FACETS.forEach(function(f){
-        var raw=params.get(f.key); if(!raw) return;
-        var wanted=raw.split(',').filter(Boolean);
-        [].slice.call(document.querySelectorAll('.opts[data-filter="'+f.key+'"] input')).forEach(function(b){
+      Object.keys(wantedByFacet).forEach(function(fkey){
+        var wanted=wantedByFacet[fkey];
+        [].slice.call(document.querySelectorAll('.opts[data-filter="'+fkey+'"] input')).forEach(function(b){
           if(wanted.indexOf(b.value)>-1){ b.checked=true; any=true; var d=b.closest&&b.closest('details.fgroup'); if(d) d.open=true; }
         });
       });
+      // Normalise a legacy URL to our clean scheme (drops filter_*/query_type_*).
+      if(sawLegacy && any) syncUrl();
       return any;
     }
     function refreshGrid(){
