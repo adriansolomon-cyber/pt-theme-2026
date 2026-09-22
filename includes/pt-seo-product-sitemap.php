@@ -430,3 +430,86 @@ add_action(
 		delete_transient( 'pt_products_sitemap_xml_v2' );
 	}
 );
+
+/* =========================================================================
+ * ADMIN AUDIT: list every product that emits a /f/ canonical.
+ * Read-only. Gated to manage_woocommerce. Reuses the exact helpers above so
+ * the "emitted canonical" column matches what the page actually renders.
+ *
+ *   /?pt_f_audit=1     → HTML table
+ *   /?pt_f_audit=csv   → CSV download
+ * ========================================================================= */
+add_action(
+	'template_redirect',
+	static function () {
+		if ( empty( $_GET['pt_f_audit'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+		if ( ! current_user_can( 'manage_woocommerce' ) || ! function_exists( 'wc_get_products' ) ) {
+			return;
+		}
+		$mode = sanitize_key( wp_unslash( $_GET['pt_f_audit'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$products = wc_get_products(
+			array(
+				'type'   => 'composite',
+				'status' => 'publish',
+				'limit'  => -1,
+				'return' => 'objects',
+			)
+		);
+
+		$rows = array();
+		foreach ( (array) $products as $product ) {
+			$sizes = pt_seo_composite_sizes( $product );
+			if ( empty( $sizes ) ) {
+				continue; // no clean sizes → no /f/ canonical.
+			}
+			$rows[] = array(
+				'id'        => (int) $product->get_id(),
+				'name'      => (string) $product->get_name(),
+				'url'       => (string) get_permalink( $product->get_id() ),
+				'canonical' => (string) pt_seo_size_url( $product, $sizes[0]['slug'] ),
+				'sizes'     => count( $sizes ),
+			);
+		}
+		usort(
+			$rows,
+			static function ( $a, $b ) {
+				return strcasecmp( $a['name'], $b['name'] );
+			}
+		);
+
+		nocache_headers();
+
+		if ( 'csv' === $mode ) {
+			header( 'Content-Type: text/csv; charset=utf-8' );
+			header( 'Content-Disposition: attachment; filename="pt-f-canonical-products.csv"' );
+			$out = fopen( 'php://output', 'w' );
+			fputcsv( $out, array( 'ID', 'Name', 'Current URL', 'Emitted /f/ canonical', 'Sizes' ) );
+			foreach ( $rows as $r ) {
+				fputcsv( $out, array( $r['id'], $r['name'], $r['url'], $r['canonical'], $r['sizes'] ) );
+			}
+			fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+			exit;
+		}
+
+		header( 'Content-Type: text/html; charset=utf-8' );
+		echo '<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>/f/ canonical audit</title>';
+		echo '<style>body{font:14px/1.5 system-ui,sans-serif;margin:24px;color:#211e24}table{border-collapse:collapse;width:100%;margin-top:12px}th,td{border:1px solid #e2e2e2;padding:6px 10px;text-align:left;vertical-align:top}th{background:#f5f5f5}code{font-size:12px;word-break:break-all}.m{color:#666}a{color:#1f4e82}</style>';
+		echo '<h1>Products emitting a <code>/f/</code> canonical</h1>';
+		echo '<p class="m"><strong>' . count( $rows ) . '</strong> composite products with clean N&nbsp;x&nbsp;N sizes. <a href="' . esc_url( add_query_arg( 'pt_f_audit', 'csv' ) ) . '">Download CSV</a></p>';
+		echo '<table><tr><th>#</th><th>ID</th><th>Product</th><th>Current URL</th><th>Emitted canonical (<code>/f/</code>)</th><th>Sizes</th></tr>';
+		$i = 0;
+		foreach ( $rows as $r ) {
+			$i++;
+			echo '<tr><td>' . (int) $i . '</td><td>' . (int) $r['id'] . '</td>'
+				. '<td>' . esc_html( $r['name'] ) . '</td>'
+				. '<td><a href="' . esc_url( $r['url'] ) . '" target="_blank" rel="noopener">' . esc_html( $r['url'] ) . '</a></td>'
+				. '<td><code>' . esc_html( $r['canonical'] ) . '</code></td>'
+				. '<td>' . (int) $r['sizes'] . '</td></tr>';
+		}
+		echo '</table>';
+		exit;
+	}
+);
