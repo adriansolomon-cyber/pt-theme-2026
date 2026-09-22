@@ -617,3 +617,53 @@ add_action(
 		exit;
 	}
 );
+
+/* =========================================================================
+ * ADMIN: dump all WooCommerce global product attributes + their terms, so we
+ * can map the legacy layered-nav filter_<attr> params (Google Ads URLs) onto
+ * the current facet keys and confirm the option slugs line up.
+ * Read-only, manage_woocommerce-gated:  /?pt_attr_dump=1
+ * ========================================================================= */
+add_action(
+	'template_redirect',
+	static function () {
+		if ( empty( $_GET['pt_attr_dump'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+		if ( ! current_user_can( 'manage_woocommerce' ) || ! function_exists( 'wc_get_attribute_taxonomies' ) ) {
+			return;
+		}
+		nocache_headers();
+		header( 'Content-Type: text/html; charset=utf-8' );
+		echo '<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>WooCommerce attributes</title>';
+		echo '<style>body{font:14px/1.5 system-ui,sans-serif;margin:24px;color:#211e24}table{border-collapse:collapse;margin:6px 0 22px}th,td{border:1px solid #e2e2e2;padding:5px 10px;text-align:left}th{background:#f5f5f5}code{font-size:12px}h2{margin:22px 0 4px}.m{color:#666}</style>';
+		echo '<h1>WooCommerce global product attributes</h1>';
+		echo '<p class="m">The legacy ad param is <code>filter_&lt;attribute name&gt;</code>; its values are the <strong>term slugs</strong> below.</p>';
+
+		$taxes = wc_get_attribute_taxonomies();
+		if ( empty( $taxes ) ) {
+			echo '<p>No global attributes found.</p>';
+			exit;
+		}
+		foreach ( $taxes as $t ) {
+			$tax = wc_attribute_taxonomy_name( $t->attribute_name ); // pa_<name>
+			echo '<h2>' . esc_html( $t->attribute_label ) . ' &nbsp;<code>filter_' . esc_html( $t->attribute_name ) . '</code> &nbsp;<span class="m">(' . esc_html( $tax ) . ')</span></h2>';
+			$terms = get_terms(
+				array(
+					'taxonomy'   => $tax,
+					'hide_empty' => false,
+				)
+			);
+			if ( is_wp_error( $terms ) || empty( $terms ) ) {
+				echo '<p class="m">— no terms —</p>';
+				continue;
+			}
+			echo '<table><tr><th>Term</th><th>Slug (value)</th><th>Products</th></tr>';
+			foreach ( $terms as $term ) {
+				echo '<tr><td>' . esc_html( $term->name ) . '</td><td><code>' . esc_html( $term->slug ) . '</code></td><td>' . (int) $term->count . '</td></tr>';
+			}
+			echo '</table>';
+		}
+		exit;
+	}
+);
