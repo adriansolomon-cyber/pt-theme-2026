@@ -482,13 +482,20 @@ add_action(
 		foreach ( (array) $products as $product ) {
 			$sizes = pt_seo_composite_sizes( $product );
 			if ( empty( $sizes ) ) {
-				continue; // no clean sizes → no /f/ canonical.
+				continue; // no clean sizes → no per-size canonical.
 			}
+			$pid    = (int) $product->get_id();
+			$manual = get_post_meta( $pid, '_yoast_wpseo_canonical', true );
+			$manual = is_string( $manual ) ? trim( $manual ) : '';
+			// What actually renders: a manual Yoast canonical wins; else our per-size URL.
+			$emitted = ( '' !== $manual ) ? $manual : (string) pt_seo_size_url( $product, $sizes[0]['slug'] );
 			$rows[] = array(
-				'id'        => (int) $product->get_id(),
+				'id'        => $pid,
 				'name'      => (string) $product->get_name(),
-				'url'       => (string) get_permalink( $product->get_id() ),
-				'canonical' => (string) pt_seo_size_url( $product, $sizes[0]['slug'] ),
+				'url'       => (string) get_permalink( $pid ),
+				'manual'    => $manual,
+				'canonical' => $emitted,
+				'has_f'     => ( false !== strpos( $emitted, '/f/' ) ),
 				'sizes'     => count( $sizes ),
 			);
 		}
@@ -501,13 +508,16 @@ add_action(
 
 		nocache_headers();
 
+		$manual_count = count( array_filter( $rows, static function ( $r ) { return '' !== $r['manual']; } ) );
+		$f_count      = count( array_filter( $rows, static function ( $r ) { return $r['has_f']; } ) );
+
 		if ( 'csv' === $mode ) {
 			header( 'Content-Type: text/csv; charset=utf-8' );
 			header( 'Content-Disposition: attachment; filename="pt-f-canonical-products.csv"' );
 			$out = fopen( 'php://output', 'w' );
-			fputcsv( $out, array( 'ID', 'Name', 'Current URL', 'Emitted canonical', 'Sizes' ) );
+			fputcsv( $out, array( 'ID', 'Name', 'Current URL', 'Manual Yoast canonical', 'Emitted canonical', 'Contains /f/', 'Sizes' ) );
 			foreach ( $rows as $r ) {
-				fputcsv( $out, array( $r['id'], $r['name'], $r['url'], $r['canonical'], $r['sizes'] ) );
+				fputcsv( $out, array( $r['id'], $r['name'], $r['url'], $r['manual'], $r['canonical'], $r['has_f'] ? 'YES' : '', $r['sizes'] ) );
 			}
 			fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 			exit;
@@ -515,16 +525,18 @@ add_action(
 
 		header( 'Content-Type: text/html; charset=utf-8' );
 		echo '<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>Per-size canonical audit</title>';
-		echo '<style>body{font:14px/1.5 system-ui,sans-serif;margin:24px;color:#211e24}table{border-collapse:collapse;width:100%;margin-top:12px}th,td{border:1px solid #e2e2e2;padding:6px 10px;text-align:left;vertical-align:top}th{background:#f5f5f5}code{font-size:12px;word-break:break-all}.m{color:#666}a{color:#1f4e82}</style>';
+		echo '<style>body{font:14px/1.5 system-ui,sans-serif;margin:24px;color:#211e24}table{border-collapse:collapse;width:100%;margin-top:12px}th,td{border:1px solid #e2e2e2;padding:6px 10px;text-align:left;vertical-align:top}th{background:#f5f5f5}code{font-size:12px;word-break:break-all}.m{color:#666}a{color:#1f4e82}.man{background:#fff8e1}.f{background:#fbecea;color:#a3402c;font-weight:700}</style>';
 		echo '<h1>Composite products with a per-size canonical</h1>';
-		echo '<p class="m"><strong>' . count( $rows ) . '</strong> composite products with clean N&nbsp;x&nbsp;N sizes. <a href="' . esc_url( add_query_arg( 'pt_f_audit', 'csv' ) ) . '">Download CSV</a></p>';
-		echo '<table><tr><th>#</th><th>ID</th><th>Product</th><th>Current URL</th><th>Emitted canonical</th><th>Sizes</th></tr>';
+		echo '<p class="m"><strong>' . count( $rows ) . '</strong> composite products with clean sizes · <strong>' . (int) $manual_count . '</strong> with a manual Yoast canonical (respected) · <strong>' . (int) $f_count . '</strong> whose emitted canonical still contains <code>/f/</code>. <a href="' . esc_url( add_query_arg( 'pt_f_audit', 'csv' ) ) . '">Download CSV</a></p>';
+		echo '<table><tr><th>#</th><th>ID</th><th>Product</th><th>Current URL</th><th>Manual Yoast canonical</th><th>Emitted canonical</th><th>Sizes</th></tr>';
 		$i = 0;
 		foreach ( $rows as $r ) {
 			$i++;
-			echo '<tr><td>' . (int) $i . '</td><td>' . (int) $r['id'] . '</td>'
+			$row_cls  = $r['has_f'] ? ' class="f"' : ( '' !== $r['manual'] ? ' class="man"' : '' );
+			echo '<tr' . $row_cls . '><td>' . (int) $i . '</td><td>' . (int) $r['id'] . '</td>'
 				. '<td>' . esc_html( $r['name'] ) . '</td>'
 				. '<td><a href="' . esc_url( $r['url'] ) . '" target="_blank" rel="noopener">' . esc_html( $r['url'] ) . '</a></td>'
+				. '<td>' . ( '' !== $r['manual'] ? '<code>' . esc_html( $r['manual'] ) . '</code>' : '<span class="m">—</span>' ) . '</td>'
 				. '<td><code>' . esc_html( $r['canonical'] ) . '</code></td>'
 				. '<td>' . (int) $r['sizes'] . '</td></tr>';
 		}
