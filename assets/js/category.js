@@ -191,12 +191,22 @@
     // filtered view can be bookmarked / shared / reopened in a new tab and restore
     // its selection. e.g. /summerhouses/?size=8-x-8,10-x-6&range=hobbyist
     function syncUrl(){
-      var parts=[];
+      // Rewrite ONLY the facet keys, preserving every other query param — most
+      // importantly the ad tracking template (utm_*, gclid, gbraid, wbraid, fbclid,
+      // hsa_*, mh_*, msclkid …). An ad can land on ?filter_style=pent&…&gclid=…;
+      // we translate the legacy filter_* into our facet scheme but must NOT strip
+      // the tracking params, or the click gets logged as "Direct". So start from the
+      // current params, drop our own facet keys + the legacy layered-nav keys, then
+      // re-add the active facets — leaving all marketing params intact.
+      var params; try{ params=new URLSearchParams(location.search); }catch(e){ params=new URLSearchParams(); }
+      FACETS.forEach(function(f){ params.delete(f.key); });
+      var legacy=[]; params.forEach(function(v,k){ if(/^(filter_|query_type_)/.test(k)) legacy.push(k); });
+      legacy.forEach(function(k){ params.delete(k); });
       FACETS.forEach(function(f){
         var vals=[].slice.call(document.querySelectorAll('.opts[data-filter="'+f.key+'"] input:checked')).map(function(b){ return b.value; });
-        if(vals.length) parts.push(encodeURIComponent(f.key)+'='+vals.map(encodeURIComponent).join(','));
+        if(vals.length) params.set(f.key, vals.join(','));
       });
-      var qs=parts.join('&');
+      var qs=params.toString().replace(/%2C/gi,',');  // keep multi-value facets readable (roof=pent,apex)
       try{ history.replaceState(null,'',location.pathname+(qs?('?'+qs):'')+location.hash); }catch(e){}
     }
     // Old WooCommerce layered-nav param (filter_<attr>) → our facet key. Lets ad
