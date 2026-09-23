@@ -200,3 +200,45 @@ function add_tracking_to_webhook_payload( $payload, $resource, $resource_id, $we
     return $payload;
 }
 add_filter( 'woocommerce_webhook_payload', 'add_tracking_to_webhook_payload', 10, 4 );
+
+/**
+ * 8. Fix the WooCommerce order-attribution cookie lifetime.
+ *
+ * Something in production (a Code Snippets / WPCode entry or a production
+ * mu-plugin — NOT this theme) localises `wc_order_attribution.params.lifetime`
+ * as 0.00001 months (~26 seconds). The sourcebuster attribution cookie therefore
+ * expires almost immediately, so by the time an order is placed the click source
+ * is gone and the order is recorded as "Direct" — under-crediting every paid
+ * channel.
+ *
+ * WooCommerce prints the localised `wc_order_attribution` object (the
+ * `wc-order-attribution-js-extra` block) BEFORE any `before` inline script on the
+ * same handle, and before sourcebuster initialises. So a `before` inline can
+ * safely correct params.lifetime in time for sbjs to read the right value.
+ *
+ * This only changes a number that WooCommerce's own tracking uses; it does not
+ * start any tracking of its own, so it inherits whatever consent gating already
+ * governs order attribution. Default 6 months = WooCommerce's own default.
+ * Filter: pt_order_attribution_lifetime_months (return 0 to disable this fix).
+ */
+function pt_fix_order_attribution_lifetime() {
+    if ( is_admin() ) {
+        return;
+    }
+    if ( ! wp_script_is( 'wc-order-attribution', 'registered' )
+        && ! wp_script_is( 'wc-order-attribution', 'enqueued' ) ) {
+        return;
+    }
+
+    $months = (float) apply_filters( 'pt_order_attribution_lifetime_months', 6 );
+    if ( $months <= 0 ) {
+        return;
+    }
+
+    $js = 'try{if(window.wc_order_attribution&&wc_order_attribution.params){'
+        . 'wc_order_attribution.params.lifetime=' . wp_json_encode( $months ) . ';'
+        . '}}catch(e){}';
+
+    wp_add_inline_script( 'wc-order-attribution', $js, 'before' );
+}
+add_action( 'wp_enqueue_scripts', 'pt_fix_order_attribution_lifetime', 99 );
