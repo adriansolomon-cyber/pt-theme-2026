@@ -66,6 +66,22 @@ function pt_date_from_business_days($days, $extra_excluded = []) {
     return $date;
 }
 
+/**
+ * Extra working days added to every FAST (48h) order.
+ *
+ * Temporary business lever: set to 1 to move the fast-delivery promise out by one
+ * working day (48h → 72h) WITHOUT changing any customer-facing "48 hours" wording —
+ * only the calculated dates shift. Set back to 0 (or filter it) to restore the
+ * original 48h dates. Applies to the product-page date and the checkout calendar.
+ *
+ * Filter: pt_fast_delivery_extra_days.
+ *
+ * @return int Extra working days (0 = original 48h behaviour).
+ */
+function pt_fast_delivery_extra_days() {
+    return max(0, (int) apply_filters('pt_fast_delivery_extra_days', 1));
+}
+
 /* ======================================================
  * 3. PRODUCT PAGE: DELIVERY DATE DISPLAY
  * ====================================================== */
@@ -74,6 +90,7 @@ function pt_delivery_date_calculator($product_id = null) {
     // Fast delivery: blackout dates do not apply — only holidays + weekends
     if ($product_id && get_field('include_fast_delivery', $product_id)) {
         $fast_days = (int) get_field('fast_delivery_days', $product_id) ?: 3;
+        $fast_days += pt_fast_delivery_extra_days(); // 48h → 72h lever (dates only, wording unchanged)
         return pt_date_from_business_days($fast_days);
     }
 
@@ -287,6 +304,13 @@ function pt_get_min_pickup_date() {
         // 3️⃣ Global cutoff fallback.
         $days      = (int) (get_field('global_delivery_days', 'option') ?: 1);
         $from_size = false;
+    }
+
+    // 48h → 72h lever: push a fast order out by the configured extra working days
+    // (dates only — the "48 hours" wording is left unchanged). Applied to the base
+    // fast lead time so the surcharge-zone extra below still builds on top of it.
+    if ($from_size) {
+        $days += pt_fast_delivery_extra_days();
     }
 
     // Surcharge zones (e.g. Highlands & Islands) only extend a FAST (48h) order.
