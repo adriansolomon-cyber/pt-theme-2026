@@ -60,11 +60,13 @@ function tracking_display_in_admin_order_meta( $order ) {
         'gclid'        => 'Google Click ID (GCLID)',
         'gbraid'       => 'Google GBRAID',
         'wbraid'       => 'Google WBRAID',
-        'fbclid'       => 'Facebook Click ID (FBCLID)',
-        'utm_source'   => 'UTM Source',
-        'utm_medium'   => 'UTM Medium',
-        'utm_campaign' => 'UTM Campaign',
-        'utm_term'     => 'UTM Term',
+        'fbclid'         => 'Facebook Click ID (FBCLID)',
+        'gad_source'     => 'Google Ads Source (gad_source)',
+        'gad_campaignid' => 'Google Ads Campaign ID',
+        'utm_source'     => 'UTM Source',
+        'utm_medium'     => 'UTM Medium',
+        'utm_campaign'   => 'UTM Campaign (campaign name)',
+        'utm_term'       => 'UTM Term',
     );
 
     foreach ( $display_params as $key => $label ) {
@@ -88,11 +90,13 @@ function tracking_add_to_admin_email( $order, $sent_to_admin, $plain_text, $emai
         'gclid'        => 'Google Click ID (GCLID)',
         'gbraid'       => 'Google GBRAID',
         'wbraid'       => 'Google WBRAID',
-        'fbclid'       => 'Facebook Click ID (FBCLID)',
-        'utm_source'   => 'UTM Source',
-        'utm_medium'   => 'UTM Medium',
-        'utm_campaign' => 'UTM Campaign',
-        'utm_term'     => 'UTM Term',
+        'fbclid'         => 'Facebook Click ID (FBCLID)',
+        'gad_source'     => 'Google Ads Source (gad_source)',
+        'gad_campaignid' => 'Google Ads Campaign ID',
+        'utm_source'     => 'UTM Source',
+        'utm_medium'     => 'UTM Medium',
+        'utm_campaign'   => 'UTM Campaign (campaign name)',
+        'utm_term'       => 'UTM Term',
     );
 
     // Collect the non-empty rows first so we only render the wrapper when there
@@ -248,9 +252,15 @@ add_filter( 'wc_order_attribution_cookie_lifetime_months', 'pt_order_attribution
  * list with pt_click_id_keys.
  */
 function pt_click_id_keys() {
-    // Only the click IDs the existing logic already tracks — no MediaHawk (mh_*),
-    // hsa_*, gad_*, msclkid or ttclid.
-    return apply_filters( 'pt_click_id_keys', array( 'gclid', 'gbraid', 'wbraid', 'fbclid' ) );
+    // Google + Facebook ad params only. gclid/gbraid/wbraid/fbclid are backfilled
+    // onto the existing keys (server-side stays authoritative); gad_source and
+    // gad_campaignid have no server-side source, so the cookie is their only source
+    // and they always fill. Excludes MediaHawk call tracking (mh_*) and the
+    // redundant hsa_* template duplicates (campaign ID is carried by gad_campaignid).
+    return apply_filters( 'pt_click_id_keys', array(
+        'gclid', 'gbraid', 'wbraid', 'fbclid', // click IDs — fill existing keys when empty
+        'gad_source', 'gad_campaignid',        // Google Ads source + campaign ID
+    ) );
 }
 
 // Client-side capture into a first-party cookie (runs even on cached pages).
