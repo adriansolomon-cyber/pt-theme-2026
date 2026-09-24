@@ -229,33 +229,28 @@ function pt_order_attribution_cookie_lifetime( $months ) {
 add_filter( 'wc_order_attribution_cookie_lifetime_months', 'pt_order_attribution_cookie_lifetime' );
 
 /**
- * 9. Ad click IDs (gclid, gbraid, hsa_*, mh_* …) → saved on the order.
+ * 9. Reliability improvement for the existing click-ID capture (sections 1–2).
  *
- * WooCommerce order attribution (and the session capture in section 1 above) keep
- * the SOURCE and utm_* only — never the click IDs themselves. WooCommerce reads
- * gclid merely to guess "google / cpc" when UTMs are missing; it stores nothing.
- * And any param that lives only on a cached landing page, or that a redirect
- * strips before /checkout/, never reaches PHP at all.
+ * The server-side capture reads gclid/gbraid/wbraid/fbclid from $_GET into the WC
+ * session, but that never runs when the landing page is served from the edge cache
+ * (PHP is skipped), or when a redirect strips the params before any page runs —
+ * which is why some orders still land with empty click IDs.
  *
- * So capture the IDs CLIENT-SIDE from the landing URL into a first-party cookie —
- * JS runs even on a fully edge-cached page — then read that cookie when the order
- * is created. The cookie persists across add-to-cart and checkout, so the click
- * that started the visit survives even though the URL no longer carries it.
+ * Fix: mirror the SAME four params into a first-party cookie CLIENT-SIDE (JS runs
+ * even on a fully cached page), then, at order create, fill the existing
+ * gclid/gbraid/wbraid/fbclid meta from that cookie ONLY when the initial
+ * server-side source left them empty. No new keys, no new admin box — this simply
+ * backfills the existing fields so they're populated more often.
  *
  * Consent: gated on the same `allowTracking` signal WooCommerce order attribution
- * uses (which reflects the WP Consent API / consent banner). Values are saved as
- * PUBLIC `pt_<key>` meta so they appear in the WooCommerce REST API `meta_data`
- * (n8n etc. can read them) — an underscore-only key would be hidden — plus a
- * private `_pt_<key>` mirror. Uses the first value of each param, which de-dupes
- * a doubled tracking template (?gclid=x&gclid=x). Filter the key list with
- * pt_click_id_keys.
+ * uses (reflects the WP Consent API / banner). First value of each param only,
+ * which de-dupes a doubled tracking template (?gclid=x&gclid=x). Filter the key
+ * list with pt_click_id_keys.
  */
 function pt_click_id_keys() {
-    return apply_filters( 'pt_click_id_keys', array(
-        'gclid', 'gbraid', 'wbraid', 'gad_source', 'gad_campaignid', 'fbclid', 'msclkid', 'ttclid',
-        'mh_campaignid', 'mh_adgroupid', 'mh_keyword', 'mh_matchtype', 'mh_network',
-        'hsa_acc', 'hsa_cam', 'hsa_grp', 'hsa_ad', 'hsa_src', 'hsa_tgt', 'hsa_kw', 'hsa_mt', 'hsa_net', 'hsa_ver',
-    ) );
+    // Only the click IDs the existing logic already tracks — no MediaHawk (mh_*),
+    // hsa_*, gad_*, msclkid or ttclid.
+    return apply_filters( 'pt_click_id_keys', array( 'gclid', 'gbraid', 'wbraid', 'fbclid' ) );
 }
 
 // Client-side capture into a first-party cookie (runs even on cached pages).
@@ -276,8 +271,6 @@ function pt_click_ids_capture_script() {
   try { p = new URLSearchParams(location.search); } catch (e) { return; }
   KEYS.forEach(function (k) { var v = p.get(k); if (v) { d[k] = String(v).slice(0, 255); hit = true; } }); // get() = first value → de-dupes
   if (!hit) return;                       // no new click on this page → keep the existing cookie
-  d.landing = location.pathname;
-  d.ts = new Date().toISOString();
   try {
     document.cookie = 'pt_click=' + encodeURIComponent(JSON.stringify(d)) +
       '; path=/; max-age=' + (60 * 60 * 24 * 90) + '; SameSite=Lax; Secure';
@@ -288,7 +281,8 @@ function pt_click_ids_capture_script() {
 }
 add_action( 'wp_footer', 'pt_click_ids_capture_script', 99 );
 
-// Save the captured click IDs onto the order (public + private meta).
+// At order create, backfill the existing click-ID meta from the cookie — but only
+// when the server-side capture (sections 1–2) left the field empty.
 function pt_save_click_ids_to_order( $order ) {
     if ( empty( $_COOKIE['pt_click'] ) ) {
         return;
@@ -298,35 +292,23 @@ function pt_save_click_ids_to_order( $order ) {
         return;
     }
     $allowed = array_flip( pt_click_id_keys() );
+
     foreach ( $data as $k => $v ) {
         if ( ! is_string( $k ) || ! isset( $allowed[ $k ] ) || ! is_scalar( $v ) ) {
+            continue;
+        }
+        // Initial/server source stays authoritative — only fill a genuine gap.
+        $existing = $order->get_meta( $k );
+        if ( '' !== $existing && null !== $existing ) {
             continue;
         }
         $val = sanitize_text_field( (string) $v );
         if ( '' === $val ) {
             continue;
         }
-        $order->update_meta_data( 'pt_' . $k, $val );   // public → visible in REST meta_data
-        $order->update_meta_data( '_pt_' . $k, $val );  // private mirror
-    }
-    if ( ! empty( $data['landing'] ) && is_string( $data['landing'] ) ) {
-        $order->update_meta_data( '_pt_landing', sanitize_text_field( $data['landing'] ) );
+        $order->update_meta_data( $k, $val );        // public key (matches section 2)
+        $order->update_meta_data( '_' . $k, $val );  // private mirror (used by the admin display, section 4)
     }
 }
 add_action( 'woocommerce_checkout_create_order', 'pt_save_click_ids_to_order', 20, 1 );                       // classic checkout
 add_action( 'woocommerce_store_api_checkout_update_order_from_request', 'pt_save_click_ids_to_order', 20, 1 ); // block checkout
-
-// Admin order screen: show the captured click IDs under the billing address.
-function pt_display_click_ids_admin( $order ) {
-    $rows = '';
-    foreach ( pt_click_id_keys() as $k ) {
-        $v = $order->get_meta( 'pt_' . $k );
-        if ( '' !== $v && null !== $v ) {
-            $rows .= '<p style="margin:0 0 4px;"><strong>' . esc_html( $k ) . ':</strong> ' . esc_html( $v ) . '</p>';
-        }
-    }
-    if ( '' !== $rows ) {
-        echo '<div style="margin-top:8px;"><p style="margin:0 0 6px;"><strong>Ad click IDs</strong></p>' . $rows . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped per row above
-    }
-}
-add_action( 'woocommerce_admin_order_data_after_billing_address', 'pt_display_click_ids_admin', 20, 1 );
