@@ -841,6 +841,24 @@
     function setSelLabel(id,txt){ var e=$(id); if(e) e.textContent=txt; }
 
     function total(){ var t=0; for(var cid in sel){ if(WALLUP && wallCid && cid===wallCid) continue; var m=meta[sel[cid]]; if(m) t+=m.price; } return t; }
+    // Discounted total the way CHECKOUT charges it: the coupon rounds EACH composite
+    // component's discounted price to whole £ (.60 rule) PER LINE and sums them (see
+    // pt_round_coupon_discount_amount). Rounding the grand total once instead drifts by
+    // ~£1 ("sum of rounded parts ≠ rounded sum"), which made the config read £1 under
+    // the checkout total. Mirror the per-component rounding here so they match.
+    function discTotal(){
+      if(!(DISC>0)) return total();
+      var t=0;
+      for(var cid in sel){ if(WALLUP && wallCid && cid===wallCid) continue; var m=meta[sel[cid]]; if(m) t+=round60(disc(m.price)); }
+      return t;
+    }
+    // Total-price display: raw whole-£ "was" struck through + the per-component
+    // discounted "now" (matches checkout). Plain total when no campaign is live.
+    function fmtDiscTotal(){
+      var raw=total();
+      if(!(DISC>0) || !(raw>0)) return fmt(raw);
+      return '<span class="was">'+fmt(raw)+'</span><span class="now">'+fmt(discTotal())+'</span>';
+    }
     function siteOrigin(){ if(product && product.permalink){ try{ return new URL(product.permalink).origin; }catch(e){} } return baseUrl(); }
     function cartUrl(){
       if(!product||sizeId==null) return '';
@@ -851,8 +869,8 @@
     function recalc(){
       var t=total();
       var payBtn=document.querySelector('.cfg-summary .ptoggle .on'); var pay=payBtn?payBtn.dataset.pay:'cash';
-      if(elPrice) elPrice.innerHTML = pay==='finance' ? fmtm(disc(t)/120)+' <small>/mo over 120 months*</small>' : fmtDisc(t);
-      var bb=document.querySelector('.buybar .p'); if(bb) bb.innerHTML=fmtDisc(t)+' <small>FREE DELIVERY*</small>';
+      if(elPrice) elPrice.innerHTML = pay==='finance' ? fmtm(discTotal()/120)+' <small>/mo over 120 months*</small>' : fmtDiscTotal();
+      var bb=document.querySelector('.buybar .p'); if(bb) bb.innerHTML=fmtDiscTotal()+' <small>FREE DELIVERY*</small>';
       if(elAdd) elAdd.disabled=(sizeId==null);
       if(elDeliv && sizeId!=null) elDeliv.textContent='Ready to add · '+(scenarios[sizeId]?scenarios[sizeId].name:'');
       updateTreatLine();
@@ -937,7 +955,7 @@
           content_type:'product',
           content_ids: cid?[cid]:[],
           content_name:(product&&product.name)||'',
-          value: round60(disc(total())),
+          value: discTotal(),
           currency:'GBP'
         },{eventID:'fb_cust_'+cid+'_'+Date.now()});
       }catch(e){}
