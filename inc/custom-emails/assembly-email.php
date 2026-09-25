@@ -1,5 +1,4 @@
 <?php
-	error_reporting(E_ALL);
 	global $wpdb;
 
 	$isMyDen 				= false;
@@ -36,7 +35,11 @@
         break;
     }
 
-	$product_id = 0;
+	$product_id       = 0;
+	$product_size     = '';
+	$evo_pdfLink      = '';
+	$evo_upvc_pdfLink = '';
+	$pdfLink          = '';
 
     foreach ($meta_items as $indxitem => $item) {
 
@@ -51,14 +54,14 @@
 
 			$pdf = get_field('evolution_pdf_instruction', $product_id);
 			//$evo_pdfLink = $pdf[0]['pdf'];
-			$evo_pdfLink = $pdf[0]['flipbook'];
+			$evo_pdfLink = ( is_array( $pdf ) && isset( $pdf[0]['flipbook'] ) ) ? $pdf[0]['flipbook'] : '';
 
 	    }
 
 		if( strpos( strtolower( $item->order_item_name ), 'upvc' ) !== false ) {
 			$upvc_pdf = get_field('evolution_upvc_pdf_instruction', $product_id);
 			//$evo_upvc_pdfLink = $upvc_pdf[0]['pdf'];
-			$evo_upvc_pdfLink = $upvc_pdf[0]['flipbook'];
+			$evo_upvc_pdfLink = ( is_array( $upvc_pdf ) && isset( $upvc_pdf[0]['flipbook'] ) ) ? $upvc_pdf[0]['flipbook'] : '';
 
 			break;
 		}
@@ -68,13 +71,14 @@
 
     $pdfs = get_field('pdf_instruction_gables', $productid);
 
-
-    foreach($pdfs as $instruction) {
-		$idx = $isAlpine ? 0 : 2;
-	    if($size[$idx] == $instruction['size_gable']) {
-	       //$pdfLink = $instruction['pdf'];
-		   $pdfLink = $instruction['flipbook'];
-	        break;
+	if ( is_array( $pdfs ) ) {
+	    foreach($pdfs as $instruction) {
+			$idx = $isAlpine ? 0 : 2;
+		    if( isset( $size[$idx], $instruction['size_gable'] ) && $size[$idx] == $instruction['size_gable'] ) {
+		       //$pdfLink = $instruction['pdf'];
+			   $pdfLink = $instruction['flipbook'];
+		        break;
+		    }
 	    }
 	}
  
