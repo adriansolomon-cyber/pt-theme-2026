@@ -10,7 +10,8 @@
  * note time, else the order creation date), one click per order.
  *
  * Admin-only (manage_woocommerce). One-time cleanup — safe to remove after use.
- * WooCommerce → Paid-date fix.  Override the day with ?pt_pdf_day=YYYY-MM-DD.
+ * Rendered on the "PT — Test scripts" page with ?paid_date_fix=1 (the AJAX fix
+ * handler here is always registered). Override the day with &pt_pdf_day=YYYY-MM-DD.
  *
  * @package pt-theme-2026
  */
@@ -88,20 +89,11 @@ function pt_pdf_real_paid_date( $order ) {
 	return $order->get_date_created() ?: null;
 }
 
-/** Register the admin page under WooCommerce. */
-add_action( 'admin_menu', function () {
-	add_submenu_page(
-		'woocommerce',
-		'Paid-date fix',
-		'Paid-date fix',
-		'manage_woocommerce',
-		'pt-paid-date-fix',
-		'pt_pdf_render_page'
-	);
-} );
-
-/** Render the review table. */
-function pt_pdf_render_page() {
+/**
+ * Render the review table + per-order fix buttons. Called from the
+ * "PT — Test scripts" page (templates/page-test.php) when ?paid_date_fix=1 is set.
+ */
+function pt_pdf_render_table() {
 	if ( ! current_user_can( 'manage_woocommerce' ) ) {
 		return;
 	}
@@ -110,8 +102,8 @@ function pt_pdf_render_page() {
 	$nonce   = wp_create_nonce( 'pt_pdf' );
 	$tz_note = wc_timezone_string();
 	?>
-	<div class="wrap">
-		<h1>Paid-date fix</h1>
+	<div class="pt-pdf" style="font-family:system-ui,Arial,sans-serif;">
+		<h1 style="margin:0 0 8px;font-size:24px;">Paid-date fix</h1>
 		<p style="max-width:820px;">
 			Orders whose <strong>payment date</strong> is <code><?php echo esc_html( $day ); ?></code>
 			but that were <strong>created earlier</strong> — i.e. old orders whose <code>date_paid</code>
@@ -169,6 +161,7 @@ function pt_pdf_render_page() {
 	<script>
 	(function(){
 		var nonce = <?php echo wp_json_encode( $nonce ); ?>;
+		var ajaxUrl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
 		document.querySelectorAll('.pt-pdf-fix').forEach(function(btn){
 			btn.addEventListener('click', function(){
 				var id = btn.getAttribute('data-order');
@@ -181,7 +174,7 @@ function pt_pdf_render_page() {
 				body.set('action', 'pt_pdf_fix');
 				body.set('nonce', nonce);
 				body.set('order_id', id);
-				fetch(ajaxurl, { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: body.toString() })
+				fetch(ajaxUrl, { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: body.toString() })
 					.then(function(r){ return r.json(); })
 					.then(function(res){
 						if (res && res.success) {

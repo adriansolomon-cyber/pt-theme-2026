@@ -427,6 +427,17 @@ get_header();
 ?>
 <main class="pt-test" style="max-width:min(1760px,96vw);margin:40px auto 80px;padding:0 24px;font-family:system-ui,Arial,sans-serif;overflow-x:auto;">
 	<?php
+	// --- Paid-date fix: ?paid_date_fix=1 (optionally &pt_pdf_day=YYYY-MM-DD) ---
+	// Lists orders whose date_paid was back-stamped to a bulk-edit day and lets an
+	// admin restore each one's real payment date. Self-contained; returns after.
+	if ( isset( $_GET['paid_date_fix'] ) && function_exists( 'pt_pdf_render_table' ) ) {
+		pt_pdf_render_table();
+		echo '</main>';
+		get_footer();
+		return;
+	}
+	?>
+	<?php
 	/*
 	 * Dormant for now. Uncomment this block to render the active-voucher count.
 	 *
