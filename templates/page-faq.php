@@ -82,7 +82,14 @@ get_header();
 				}
 			}
 			$pt_faq_code = strtoupper( $pt_faq_code );
-			if ( $pt_faq_code && $pt_faq_pct > 0 ) : ?>Yes — enjoy <strong><?php echo (int) $pt_faq_pct; ?>% off</strong> with code <strong><?php echo esc_html( $pt_faq_code ); ?></strong>. For the ranges it applies to and our latest offers, give us a call on <a href="tel:01777553392">01777 553392</a> — we&rsquo;re always happy to help.<?php else : ?>For our latest offers and any current discounts, give us a call on <a href="tel:01777553392">01777 553392</a> — we&rsquo;re always happy to help.<?php endif; ?></div></details>
+			// Offer scope text — editable via an ACF option field 'coupon_scope' (add it to
+			// the campaign options group). Falls back to the current campaign's range, so
+			// update this default (or the ACF field) whenever the campaign changes.
+			$pt_faq_scope = function_exists( 'get_field' ) ? trim( (string) get_field( 'coupon_scope', 'option' ) ) : '';
+			if ( '' === $pt_faq_scope ) {
+				$pt_faq_scope = 'the Hobbyist Apex & Pent shed range';
+			}
+			if ( $pt_faq_code && $pt_faq_pct > 0 ) : ?>Yes — enjoy <strong><?php echo (int) $pt_faq_pct; ?>% off <?php echo esc_html( $pt_faq_scope ); ?></strong> with code <strong><?php echo esc_html( $pt_faq_code ); ?></strong>. For our latest offers, give us a call on <a href="tel:01777553392">01777 553392</a> — we&rsquo;re always happy to help.<?php else : ?>For our latest offers and any current discounts, give us a call on <a href="tel:01777553392">01777 553392</a> — we&rsquo;re always happy to help.<?php endif; ?></div></details>
 	</div></section>
 
 	<!-- payment -->
