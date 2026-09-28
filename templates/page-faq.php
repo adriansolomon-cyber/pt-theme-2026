@@ -66,7 +66,23 @@ get_header();
 		</div>
 		<details class="faq-item"><summary>Are there any delivery surcharges?</summary><div class="ans">The prices on our website include delivery to most UK mainland postcode districts. A few areas carry an additional charge — if this applies to your postcode we'll let you know. If you order online and a surcharge applies, your order may be placed on hold while we contact you. You can then choose to continue by paying the surcharge, or cancel if you'd prefer. Check your area on our <a href="<?php echo esc_url( home_url( '/delivery/' ) ); ?>">Delivery page</a>.</div></details>
 		<details class="faq-item"><summary>How long does delivery take?</summary><div class="ans">Our products are always available to order — if we don't have the parts in stock, we make them specifically for your building. Most buildings are ready in around 10 working days. Some upgrades, such as UPVC doors and windows, are made to order and can add to the lead time. You'll choose your preferred delivery date at checkout.</div></details>
-		<details class="faq-item"><summary>Are there any discounts available?</summary><div class="ans"><?php if ( function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() ) : ?>Yes — enjoy <strong>10% off Grandmaster products</strong> with code <strong>GM10</strong>. For our full range of products and current offers, give us a call on <a href="tel:01777553392">01777 553392</a>.<?php else : ?>For our latest offers and any current discounts, give us a call on <a href="tel:01777553392">01777 553392</a> — we&rsquo;re always happy to help.<?php endif; ?></div></details>
+		<details class="faq-item"><summary>Are there any discounts available?</summary><div class="ans"><?php
+			// Pull the CURRENT campaign code + % live (same source as the product pages) so
+			// this never goes stale. Tries the default code, then the range/special code.
+			// av_get_*_voucher_code() return '' when no campaign is running. Scope is kept
+			// soft ("the ranges it applies to") because a campaign can target the whole order
+			// or a specific range (e.g. Hobbyist) — call handles the specifics.
+			$pt_faq_code = function_exists( 'av_get_default_voucher_code' ) ? (string) av_get_default_voucher_code() : '';
+			$pt_faq_pct  = ( $pt_faq_code && function_exists( 'pt_campaign_pct' ) ) ? (int) round( (float) pt_campaign_pct( 'coupon_percentage' ) ) : 0;
+			if ( ( '' === $pt_faq_code || $pt_faq_pct <= 0 ) && function_exists( 'av_get_special_voucher_code' ) ) {
+				$pt_faq_sp = (string) av_get_special_voucher_code();
+				if ( '' !== $pt_faq_sp ) {
+					$pt_faq_code = $pt_faq_sp;
+					$pt_faq_pct  = function_exists( 'pt_campaign_pct' ) ? (int) round( (float) pt_campaign_pct( 'special_coupon_percentage' ) ) : 0;
+				}
+			}
+			$pt_faq_code = strtoupper( $pt_faq_code );
+			if ( $pt_faq_code && $pt_faq_pct > 0 ) : ?>Yes — enjoy <strong><?php echo (int) $pt_faq_pct; ?>% off</strong> with code <strong><?php echo esc_html( $pt_faq_code ); ?></strong>. For the ranges it applies to and our latest offers, give us a call on <a href="tel:01777553392">01777 553392</a> — we&rsquo;re always happy to help.<?php else : ?>For our latest offers and any current discounts, give us a call on <a href="tel:01777553392">01777 553392</a> — we&rsquo;re always happy to help.<?php endif; ?></div></details>
 	</div></section>
 
 	<!-- payment -->
