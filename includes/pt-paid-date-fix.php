@@ -56,6 +56,10 @@ function pt_pdf_get_affected_orders( $limit = 1000 ) {
 		if ( $created->getTimestamp() >= $start ) {
 			continue;
 		}
+		// Skip £0 orders — they add no revenue and are usually not real sales.
+		if ( (float) $o->get_total() <= 0 ) {
+			continue;
+		}
 		$out[] = $o;
 	}
 	return $out;
@@ -109,7 +113,7 @@ function pt_pdf_render_table() {
 			but that were <strong>created earlier</strong> — i.e. old orders whose <code>date_paid</code>
 			got backfilled to that day by a bulk status change. Setting the payment date back to the
 			real date removes them from that day's Analytics (which reports on <em>Date paid</em>).
-			Timezone: <code><?php echo esc_html( $tz_note ); ?></code>.
+			Timezone: <code><?php echo esc_html( $tz_note ); ?></code>. £0 orders are excluded.
 			<br><strong>Back up the database before making changes.</strong>
 		</p>
 		<p><strong><?php echo count( $orders ); ?></strong> order(s) affected on <?php echo esc_html( $day ); ?>.</p>
