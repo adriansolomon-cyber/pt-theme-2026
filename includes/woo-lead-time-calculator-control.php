@@ -3,18 +3,46 @@
  * 1. DATE LISTS
  * ====================================================== */
 
-// Dates skipped when counting business days for lead time (e.g. factory closures)
+// Dates skipped when counting business days for lead time (e.g. factory closures).
+// Applies to ALL orders (fast + standard) and greys these out in the datepicker for
+// fast/size-driven orders. Update the Christmas/New Year block annually.
 function pt_get_lead_time_excluded_dates() {
     return [
         '2026-05-18',
         '2026-05-20',
+        // Christmas / New Year shutdown 2026 — closed 21 Dec 2026 to 1 Jan 2027.
+        '2026-12-21',
+        '2026-12-22',
+        '2026-12-23',
+        '2026-12-24',
+        '2026-12-25',
+        '2026-12-26',
+        '2026-12-27',
+        '2026-12-28',
+        '2026-12-29',
+        '2026-12-30',
+        '2026-12-31',
+        '2027-01-01',
     ];
 }
 
-// Dates blocked in the datepicker — customers cannot select these for delivery
+// Dates blocked in the datepicker — customers cannot select these for delivery.
+// Greyed out for STANDARD orders (fast/size-driven orders use the excluded list above).
 function pt_get_blackout_dates() {
     return [
-      
+        // Christmas / New Year shutdown 2026 — closed 21 Dec 2026 to 1 Jan 2027.
+        '2026-12-21',
+        '2026-12-22',
+        '2026-12-23',
+        '2026-12-24',
+        '2026-12-25',
+        '2026-12-26',
+        '2026-12-27',
+        '2026-12-28',
+        '2026-12-29',
+        '2026-12-30',
+        '2026-12-31',
+        '2027-01-01',
     ];
 }
 
