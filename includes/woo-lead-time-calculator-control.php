@@ -10,7 +10,7 @@ function pt_get_lead_time_excluded_dates() {
     return [
         '2026-05-18',
         '2026-05-20',
-        // Christmas / New Year shutdown 2026 — closed 21 Dec 2026 to 1 Jan 2027.
+        // Christmas / New Year shutdown 2026 — closed 21 Dec 2026 to 4 Jan 2027.
         '2026-12-21',
         '2026-12-22',
         '2026-12-23',
@@ -23,6 +23,9 @@ function pt_get_lead_time_excluded_dates() {
         '2026-12-30',
         '2026-12-31',
         '2027-01-01',
+        '2027-01-02',
+        '2027-01-03',
+        '2027-01-04',
     ];
 }
 
@@ -30,7 +33,7 @@ function pt_get_lead_time_excluded_dates() {
 // Greyed out for STANDARD orders (fast/size-driven orders use the excluded list above).
 function pt_get_blackout_dates() {
     return [
-        // Christmas / New Year shutdown 2026 — closed 21 Dec 2026 to 1 Jan 2027.
+        // Christmas / New Year shutdown 2026 — closed 21 Dec 2026 to 4 Jan 2027.
         '2026-12-21',
         '2026-12-22',
         '2026-12-23',
@@ -43,6 +46,9 @@ function pt_get_blackout_dates() {
         '2026-12-30',
         '2026-12-31',
         '2027-01-01',
+        '2027-01-02',
+        '2027-01-03',
+        '2027-01-04',
     ];
 }
 
