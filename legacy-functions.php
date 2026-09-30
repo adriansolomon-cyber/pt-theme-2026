@@ -3905,6 +3905,7 @@ font-weight: normal !important; text-align: center; margin:
 
             // Get order items
             $pdf_link = '';
+            $url      = array();
 
             $kits = get_field('kits', $item_meta['_product_id'][0]);
 
@@ -3914,7 +3915,7 @@ font-weight: normal !important; text-align: center; margin:
                     $url[$item->get_product_id()][] = $kit['kit'];
                 }
 
-                foreach ($url as $prodid => $kit_pdf) {
+                foreach ((array) $url as $prodid => $kit_pdf) {
 
                     $product = wc_get_product($prodid);
                     $cntIndex = 0;
@@ -3942,6 +3943,7 @@ font-weight: normal !important; text-align: center; margin:
 
             // Get order items
             $items = $order->get_items();
+            $url   = array();
 
             foreach ($items as $item) {
 
@@ -3957,7 +3959,7 @@ font-weight: normal !important; text-align: center; margin:
 <br class="clear" />
 <h3>Kit Downloable</h3>
 <?php
-            foreach ($url as $prodid => $kit_pdf) {
+            foreach ((array) $url as $prodid => $kit_pdf) {
 
                 $product = wc_get_product($prodid);
                 echo $product->get_title() . "<br/>";
