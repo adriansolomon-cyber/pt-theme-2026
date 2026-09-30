@@ -103,7 +103,7 @@
       size:"Sizes are the external footprint in feet (e.g. 8 × 6). Allow a little clearance around the building for delivery, assembly and future maintenance.",
       door:"Choose your door colour and which side it sits — Left or Right as you look at the building from the garden.",
       window:"Pick your window material and position. Side-opening windows aid airflow; 'both ends' adds light and ventilation front and back. Positions are as you look at the building from the garden.",
-      floor:"Comes with an insulated tongue-and-groove floor as standard. Upgrade for a more solid feel and heavier loads.",
+      floor:"Your building is supplied with our 11mm tongue and groove floor as standard, ideal for light use and everyday storage. Upgrade to our 19mm floor for storing heavier items and for more frequent use.",
       laminate:"An optional laminate finish laid over the floor for a ready-to-use interior — choose a tone, or leave it bare to finish your own way.",
       paint:"Thorndown paint, supplied in tins — buildings aren't pre-painted on delivery. Swatch colours shown are indicative approximations.",
       assembly:"Prefer not to self-build? Add our assembly service and our team installs the building for you on delivery. Leave as None to build it yourself using the included instructions.",
