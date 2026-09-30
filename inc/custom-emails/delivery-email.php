@@ -51,7 +51,7 @@
 
 			$pdf = get_field('evolution_pdf_instruction', $product_id);
 			//$evo_pdfLink = $pdf[0]['pdf'];
-			$evo_pdfLink = $pdf[0]['flipbook'];
+			$evo_pdfLink = ( is_array( $pdf ) && isset( $pdf[0]['flipbook'] ) ) ? $pdf[0]['flipbook'] : '';
 	    }
 
 		if( strpos( strtolower( $item->order_item_name ), 'upvc' ) !== false ) {
