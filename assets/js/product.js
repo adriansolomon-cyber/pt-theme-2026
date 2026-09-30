@@ -107,6 +107,7 @@
       laminate:"An optional laminate finish laid over the floor for a ready-to-use interior — choose a tone, or leave it bare to finish your own way.",
       paint:"Thorndown paint, supplied in tins — buildings aren't pre-painted on delivery. Swatch colours shown are indicative approximations.",
       assembly:"Prefer not to self-build? Add our assembly service and our team installs the building for you on delivery. Leave as None to build it yourself using the included instructions.",
+      base:"A strong, easy to assemble timber base that supports your building and keeps it up off the ground. Supplied in individual lengths with all fixings and full instructions included. Please note: solid, level ground is required underneath.",
       // Wall free-upgrade campaign copy (shown only when WALLUP is active).
       wall_free:"Our thickest cladding: heavier, more rigid boards that feel rock-solid and shrug off the British weather. Usually costs extra — yours included at no charge while this offer runs."
     };
@@ -122,6 +123,7 @@
       if(/laminat/.test(t)) return STEP_NOTE.laminate;
       if(/floor/.test(t)) return STEP_NOTE.floor;
       if(/assembl/.test(t)) return STEP_NOTE.assembly;
+      if(/base/.test(t)) return STEP_NOTE.base;
       if(/size/.test(t)) return STEP_NOTE.size;
       return '';
     }
