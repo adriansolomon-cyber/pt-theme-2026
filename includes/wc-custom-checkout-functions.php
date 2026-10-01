@@ -228,6 +228,20 @@ function av_get_special_voucher_code() {
 }
 
 /**
+ * The campaign code to DISPLAY on banners/announcements: the default voucher,
+ * else the special (range) voucher — same resolution the FAQ uses, since a
+ * campaign may run through either field (e.g. the Hobbyist deal uses the special
+ * code). Returns UPPERCASE for display, or '' when no campaign code is set.
+ */
+function av_get_display_voucher_code() {
+    $code = av_get_default_voucher_code();
+    if ( '' === $code ) {
+        $code = av_get_special_voucher_code();
+    }
+    return strtoupper( $code );
+}
+
+/**
  * Detect REAL parent products in cart.
  *
  * Parent = NOT composite child AND NOT in categories 89 or 169.
