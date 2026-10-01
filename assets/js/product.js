@@ -803,6 +803,12 @@
           var o16=opts.filter(function(o){ return /16\s*mm/i.test(o.name||''); })[0];
           if(o16) def=o16.id;
         }
+        // Free shelf campaign: default the shelf step to the free option (customer
+        // can still switch to None or another shelf).
+        if(SHELFUP){
+          var ofree=opts.filter(isFreeShelf)[0];
+          if(ofree) def=ofree.id;
+        }
         sel[c.id]=def;
       }
       return opts;
