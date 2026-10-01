@@ -1511,7 +1511,7 @@ function my_custom_checkout_field_update_order_meta($order_id)
     if (is_user_logged_in() && empty($_POST['order_email_template']) && $current_user->ID !== 112 && (strpos($order->get_order_number(), 'PT') !== false || strpos($order->get_order_number(), 'RDM'))) {
         $order->add_order_note(sprintf(__('<a href="' . add_query_arg('user_id', $current_user->ID, self_admin_url('user-edit.php')) . '" target="_blank">%s</a> updated the order.', 'woocommerce'), ucwords($current_user->display_name)), false, true);
 
-        $to         = "szegedi.szilard@projecttimber.co.uk";
+        $to         = "adrian.solomon@projecttimber.co.uk";
         $subject    = ucwords($current_user->display_name) . " updated the order for " . $order->get_order_number();
         $body       = "Username: " . $current_user->user_login . "<br/>Shop Order Link: " . admin_url("post.php?post=" . absint($order_id)) . "&action=edit" . (!empty($_POST['orderMetaChanges']) ? "<br/>Fields Changed: " . $_POST['orderMetaChanges'] : "") . "<br/>IP Address: " . get_client_ip();
         $headers    = array('Content-Type: text/html; charset=UTF-8');
@@ -3309,7 +3309,7 @@ font-weight: normal !important; text-align: center; margin:
 
             $body = ob_get_clean();
 
-            $to      = 'william.walton@projecttimber.co.uk, nigel.walton@projecttimber.co.uk, andrew.knowles@projecttimber.co.uk, sam.todd@projecttimber.co.uk, szegedi.szilard@projecttimber.co.uk, laurence.sembrano@projecttimber.co.uk, adrian.solomon@projecttimber.co.uk';
+            $to      = 'william.walton@projecttimber.co.uk, nigel.walton@projecttimber.co.uk, andrew.knowles@projecttimber.co.uk, sam.todd@projecttimber.co.uk, laurence.sembrano@projecttimber.co.uk, adrian.solomon@projecttimber.co.uk';
             //$to      = 'carlos.tandal@projecttimber.co.uk';
             $subject = "Daily sales report";
             $headers = array('Content-Type: text/html; charset=UTF-8');

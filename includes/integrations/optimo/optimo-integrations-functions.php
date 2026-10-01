@@ -266,7 +266,7 @@ function optimo_curl_post_json( $url, array $payload ) {
 
         function optimo_send_error_email( int $order_id, string $message, string $subject_suffix = 'Error' ): void {
             wp_mail(
-                'szegedi.szilard@projecttimber.co.uk, adrian.solomon@projecttimber.co.uk',
+                'adrian.solomon@projecttimber.co.uk',
                 "Error in OptimoRoute projecttimber — {$subject_suffix}",
                 "Error: {$message}<br/> Edit Order: " . admin_url( "post.php?post={$order_id}&action=edit" ),
                 [
