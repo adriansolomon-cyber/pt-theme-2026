@@ -59,8 +59,8 @@ $pt_sale_banner = ( $pt_term
 $pt_clad_banner = false;
 if ( $pt_term && function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() ) {
 	// Categories that show the Grandmaster cladding banner: the grandmaster range (by
-	// slug) plus garden-workshops (term id 15), each including descendants. Filterable.
-	$pt_clad_ids   = array_map( 'intval', (array) apply_filters( 'pt_cladding_banner_term_ids', array( 15 ) ) );
+	// slug) plus garden-workshops (term id 19), each including descendants. Filterable.
+	$pt_clad_ids   = array_map( 'intval', (array) apply_filters( 'pt_cladding_banner_term_ids', array( 19 ) ) );
 	$pt_clad_slugs = (array) apply_filters( 'pt_cladding_banner_slugs', array( 'grandmaster' ) );
 	// Build the current term + its ancestors (id => slug) and test each.
 	$pt_chain = array( (int) $pt_term->term_id => (string) $pt_term->slug );
