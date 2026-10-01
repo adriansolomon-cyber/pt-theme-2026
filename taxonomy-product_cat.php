@@ -186,7 +186,7 @@ get_header();
         if ( $pt_promo_card && 0 === $pt_i ) {
             ?>
             <a class="promo-card" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>" aria-label="20% off the Hobbyist range">
-              <img src="<?php echo esc_url( 'https://www.projecttimber.com/wp-content/uploads/2026/09/SH16-·-Category-card-800×800-—-sh16-category-cardv3.png' ); ?>" alt="20% off the Hobbyist range">
+              <img src="<?php echo esc_url( 'https://www.projecttimber.com/wp-content/uploads/2026/10/banner-promo-HOBBY20.webp' ); ?>" alt="20% off the Hobbyist range">
             </a>
             <?php
         }
@@ -194,7 +194,7 @@ get_header();
     if ( $pt_promo_card && 0 === $pt_count ) {
         ?>
         <a class="promo-card" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>" aria-label="20% off the Hobbyist range">
-          <img src="<?php echo esc_url( 'https://www.projecttimber.com/wp-content/uploads/2026/09/SH16-·-Category-card-800×800-—-sh16-category-cardv3.png' ); ?>" alt="20% off the Hobbyist range">
+          <img src="<?php echo esc_url( 'https://www.projecttimber.com/wp-content/uploads/2026/10/banner-promo-HOBBY20.webp' ); ?>" alt="20% off the Hobbyist range">
         </a>
         <?php
     }
