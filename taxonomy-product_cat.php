@@ -155,7 +155,7 @@ get_header();
     <div class="pt-catsale-kick">● Factory outlet deal</div>
     <div class="pt-catsale-head"><span>20%</span><span>Off</span></div>
     <div class="pt-catsale-sub">the Hobbyist Apex &amp; Pent range — while stocks last</div>
-    <a class="pt-catsale-chip" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>">Shop the deal — code <b><?php echo esc_html( av_get_display_voucher_code() ); ?></b> <span class="a">→</span></a>
+    <a class="pt-catsale-chip" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>">Shop the deal — code <b><?php echo function_exists( 'av_get_display_voucher_code' ) ? esc_html( av_get_display_voucher_code() ) : ''; ?></b> <span class="a">→</span></a>
     <div class="pt-catsale-trust">FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*</div>
   </aside>
   <?php endif; ?>
