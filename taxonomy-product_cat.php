@@ -57,16 +57,23 @@ $pt_sale_banner = ( $pt_term
 // Grandmaster 16mm cladding free-upgrade banner (mockup 3C-B) — on the Grandmaster
 // category or any descendant while the wall campaign is active.
 $pt_clad_banner = false;
-if ( $pt_term && ! empty( $pt_term->slug ) && function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() ) {
-	if ( 'grandmaster' === $pt_term->slug ) {
-		$pt_clad_banner = true;
-	} else {
-		foreach ( get_ancestors( (int) $pt_term->term_id, 'product_cat' ) as $pt_aid ) {
-			$pt_a = get_term( $pt_aid, 'product_cat' );
-			if ( $pt_a && ! is_wp_error( $pt_a ) && 'grandmaster' === $pt_a->slug ) {
-				$pt_clad_banner = true;
-				break;
-			}
+if ( $pt_term && function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() ) {
+	// Categories that show the Grandmaster cladding banner: the grandmaster range (by
+	// slug) plus garden-workshops (term id 15), each including descendants. Filterable.
+	$pt_clad_ids   = array_map( 'intval', (array) apply_filters( 'pt_cladding_banner_term_ids', array( 15 ) ) );
+	$pt_clad_slugs = (array) apply_filters( 'pt_cladding_banner_slugs', array( 'grandmaster' ) );
+	// Build the current term + its ancestors (id => slug) and test each.
+	$pt_chain = array( (int) $pt_term->term_id => (string) $pt_term->slug );
+	foreach ( get_ancestors( (int) $pt_term->term_id, 'product_cat' ) as $pt_aid ) {
+		$pt_a = get_term( $pt_aid, 'product_cat' );
+		if ( $pt_a && ! is_wp_error( $pt_a ) ) {
+			$pt_chain[ (int) $pt_a->term_id ] = (string) $pt_a->slug;
+		}
+	}
+	foreach ( $pt_chain as $pt_tid => $pt_tslug ) {
+		if ( in_array( $pt_tid, $pt_clad_ids, true ) || in_array( $pt_tslug, $pt_clad_slugs, true ) ) {
+			$pt_clad_banner = true;
+			break;
 		}
 	}
 }
