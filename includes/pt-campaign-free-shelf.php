@@ -103,6 +103,30 @@ function pt_shelf_product_is_insulated( $product_id ) {
 }
 
 /**
+ * Should the weekend "free shelf" promo badge show for this product/context?
+ * Active campaign + not an Insulated product. Pass 0 to use the queried product.
+ *
+ * @param int $product_id Product ID (0 = current queried object).
+ * @return bool
+ */
+function pt_shelf_badge_eligible( $product_id = 0 ) {
+	if ( ! pt_shelf_campaign_active() ) {
+		return false;
+	}
+	$product_id = $product_id ? (int) $product_id : (int) get_queried_object_id();
+	return ! pt_shelf_product_is_insulated( $product_id );
+}
+
+/**
+ * The green "Weekend Only Deal — FREE 3ft Shelf Stack" promo badge (mockup 3B/4B).
+ *
+ * @return string
+ */
+function pt_shelf_weekend_badge_html() {
+	return '<span class="pt-wkbadge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-2.2A3 3 0 0 0 12 4.4 3 3 0 0 0 6.2 7H4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h7V7h2v5h7a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM9 7a1 1 0 1 1 1-1v1H9zm6 0h-1V6a1 1 0 1 1 1 1zM4 13v7a1 1 0 0 0 1 1h6v-8H4zm9 8h6a1 1 0 0 0 1-1v-7h-7v8z"/></svg>Weekend Only Deal — FREE 3ft Shelf Stack</span>';
+}
+
+/**
  * Apply the free-shelf discount as a VAT-correct negative fee.
  *
  * @param WC_Cart $cart Cart being calculated.

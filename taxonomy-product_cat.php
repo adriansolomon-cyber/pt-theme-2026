@@ -157,6 +157,9 @@ get_header();
     <div class="pt-catsale-sub">the Hobbyist Apex &amp; Pent range — while stocks last</div>
     <a class="pt-catsale-chip" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>">Shop the deal — code <b><?php echo function_exists( 'av_get_display_voucher_code' ) ? esc_html( av_get_display_voucher_code() ) : ''; ?></b> <span class="a">→</span></a>
     <div class="pt-catsale-trust">FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*</div>
+    <?php if ( function_exists( 'pt_shelf_campaign_active' ) && pt_shelf_campaign_active() ) : ?>
+    <div style="margin-top:14px;"><?php echo pt_shelf_weekend_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?></div>
+    <?php endif; ?>
   </aside>
   <?php endif; ?>
 

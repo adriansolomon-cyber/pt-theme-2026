@@ -298,6 +298,9 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
         <div class="pt-prodsale-code"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> CODE <?php echo esc_html( $pt_disc_code ); ?></div>
         <?php endif; ?>
         <div class="pt-prodsale-note">Applied automatically at checkout — no code needed.</div>
+        <?php if ( function_exists( 'pt_shelf_badge_eligible' ) && pt_shelf_badge_eligible( $pt_pid ) ) : ?>
+        <?php echo pt_shelf_weekend_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
+        <?php endif; ?>
       </div>
       <?php endif; ?>
       <?php // Range toggle (Option 1) — redirect to the matched step-up target ?>
