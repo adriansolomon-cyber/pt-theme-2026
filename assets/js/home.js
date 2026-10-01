@@ -154,7 +154,7 @@
   })();
 
 
-  /* ===== SEPT20 rotating hero carousel ===== */
+  /* ===== Campaign rotating hero carousel ===== */
   (function(){
     var hero=document.querySelector('.pshero'); if(!hero) return;
     var slides=[].slice.call(hero.querySelectorAll('.pshero-slide'));

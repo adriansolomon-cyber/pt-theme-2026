@@ -48,7 +48,7 @@ $pt_promo_card = ( $pt_term
 		|| ( ! empty( $pt_term->slug ) && in_array( $pt_term->slug, array( 'hobbyist', 'garden-sheds', 'summerhouses' ), true ) )
 	)
 	&& function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() );
-// SEPT20 wide sale banner (mockup section 3) — top of the Garden Sheds and
+// Campaign wide sale banner (mockup section 3) — top of the Garden Sheds and
 // Hobbyist category pages only, gated on the same live campaign.
 $pt_sale_banner = ( $pt_term
 	&& ! empty( $pt_term->slug ) && in_array( $pt_term->slug, array( 'hobbyist', 'garden-sheds' ), true )
@@ -155,7 +155,7 @@ get_header();
     <div class="pt-catsale-kick">● Factory outlet deal</div>
     <div class="pt-catsale-head"><span>20%</span><span>Off</span></div>
     <div class="pt-catsale-sub">the Hobbyist Apex &amp; Pent range — while stocks last</div>
-    <a class="pt-catsale-chip" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>">Shop the deal — code <b>SEPT20</b> <span class="a">→</span></a>
+    <a class="pt-catsale-chip" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>">Shop the deal — code <b><?php echo esc_html( strtoupper( av_get_default_voucher_code() ) ); ?></b> <span class="a">→</span></a>
     <div class="pt-catsale-trust">FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*</div>
   </aside>
   <?php endif; ?>

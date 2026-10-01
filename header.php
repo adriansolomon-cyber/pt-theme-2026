@@ -281,7 +281,7 @@ _mhct.push(['mhCampaignID', 'VA-13595']);
 
 <?php
 /*
- * SEPT20 sale — rotating announcement strip (site-wide). Campaign-gated: only
+ * Campaign sale — rotating announcement strip (site-wide). Campaign-gated: only
  * shown while auto_voucher_enabled() is true. Cross-fades through the messages;
  * all messages share one CSS grid cell (base.css) so the strip is a constant
  * height (the tallest message) and doesn't jump as lines of different heights
@@ -291,7 +291,7 @@ if ( function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() ) : ?>
 <div class="pt-annstrip" id="ptAnnStrip" role="region" aria-label="Store announcements">
   <div class="pt-annstrip-track">
     <span class="pt-annmsg is-on"><span class="pt-anndot" aria-hidden="true"></span><b>FACTORY DIRECT</b> — best price guaranteed, straight from the maker.</span>
-    <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>20% OFF</b> the Hobbyist range — code <b>SEPT20</b> applied automatically.</span>
+    <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>20% OFF</b> the Hobbyist range — code <b><?php echo esc_html( strtoupper( av_get_default_voucher_code() ) ); ?></b> applied automatically.</span>
     <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>GRANDMASTER</b> — 16mm cladding upgrade &amp; double glazing as standard.</span>
     <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>FREE DELIVERY</b> on selected postcodes* — on our own vehicles, direct to you.</span>
     <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>25-YEAR ANTI-ROT GUARANTEE*</b> — on every pressure-treated building we make.</span>

@@ -199,7 +199,7 @@ get_header();
 <?php if ( $pt_show( 'show_ranges', false ) ) { get_template_part( 'template-parts/product-ranges' ); } ?>
 
 <?php
-// SEPT20 sale box — shown at the top of the config column, only when this
+// Campaign sale box — shown at the top of the config column, only when this
 // product is actually discounted (pt_product_discount_pct() is 0 when the
 // campaign is off or the product isn't in the discounted category).
 $pt_disc_pct  = ( $pt_product && function_exists( 'pt_product_discount_pct' ) ) ? (float) pt_product_discount_pct( $pt_pid ) : 0.0;
