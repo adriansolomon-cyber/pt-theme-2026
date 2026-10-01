@@ -5809,3 +5809,14 @@ add_action('template_redirect', function () {
     }
 
 });
+
+/**
+ * Keep unpaid orders as "pending payment" — never auto-cancel them.
+ *
+ * WooCommerce's hold-stock feature cancels any order left pending longer than the
+ * "Hold stock (minutes)" setting (the woocommerce_cancel_unpaid_orders scheduled
+ * action). We send payment links and chase payment, so those orders must survive.
+ * Returning false from this per-order filter stops WooCommerce cancelling them; the
+ * order-pay restore above now only ever matters for orders cancelled before this.
+ */
+add_filter('woocommerce_cancel_unpaid_order', '__return_false');
