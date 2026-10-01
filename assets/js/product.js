@@ -822,7 +822,7 @@
         var colour=isColourComp(c);
         var cards=opts.map(function(o){ return cardHTML(c.id,o,o.id===sel[c.id],colour); }).join('');
         var badge=(WALLUP && c.key==='wall') ? '<span class="freeup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Cladding upgrade</span>'
-          : ( (SHELFUP && opts.some(isFreeShelf)) ? '<span class="freeup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free shelf</span>' : '' );
+          : ( (SHELFUP && opts.some(isFreeShelf)) ? '<span class="freeup freeup-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free shelf option available</span>' : '' );
         html+=rowHTML(idx,c.title,'sel-'+c.key,c.id,'',cards,stepNote(c),badge);
       });
       elRows.insertAdjacentHTML('beforeend',html);
