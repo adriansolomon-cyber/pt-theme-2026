@@ -53,6 +53,23 @@ $pt_promo_card = ( $pt_term
 $pt_sale_banner = ( $pt_term
 	&& ! empty( $pt_term->slug ) && in_array( $pt_term->slug, array( 'hobbyist', 'garden-sheds' ), true )
 	&& function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() );
+
+// Grandmaster 16mm cladding free-upgrade banner (mockup 3C-B) — on the Grandmaster
+// category or any descendant while the wall campaign is active.
+$pt_clad_banner = false;
+if ( $pt_term && ! empty( $pt_term->slug ) && function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() ) {
+	if ( 'grandmaster' === $pt_term->slug ) {
+		$pt_clad_banner = true;
+	} else {
+		foreach ( get_ancestors( (int) $pt_term->term_id, 'product_cat' ) as $pt_aid ) {
+			$pt_a = get_term( $pt_aid, 'product_cat' );
+			if ( $pt_a && ! is_wp_error( $pt_a ) && 'grandmaster' === $pt_a->slug ) {
+				$pt_clad_banner = true;
+				break;
+			}
+		}
+	}
+}
 $pt_banner_src = $pt_banner_src_m = $pt_banner_link = $pt_banner_alt = '';
 if ( $pt_banner_on ) {
 	$pt_banner_src   = (string) get_field( 'cat_banner_image', $pt_term );
@@ -156,6 +173,19 @@ get_header();
     <div class="pt-catsale-head"><span>20%</span><span>Off</span></div>
     <div class="pt-catsale-sub">the Hobbyist Apex &amp; Pent range — while stocks last</div>
     <a class="pt-catsale-chip" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>">Shop the deal — code <b><?php echo function_exists( 'av_get_display_voucher_code' ) ? esc_html( av_get_display_voucher_code() ) : ''; ?></b> <span class="a">→</span></a>
+    <div class="pt-catsale-trust">FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*</div>
+    <?php if ( function_exists( 'pt_shelf_campaign_active' ) && pt_shelf_campaign_active() ) : ?>
+    <div style="margin-top:14px;"><?php echo pt_shelf_weekend_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?></div>
+    <?php endif; ?>
+  </aside>
+  <?php endif; ?>
+
+  <?php if ( $pt_clad_banner ) : ?>
+  <aside class="pt-catsale" aria-label="Cladding upgrade offer">
+    <div class="pt-catsale-kick">● Factory outlet deal</div>
+    <div class="pt-catsale-head"><span>FREE</span><span>Upgrade</span></div>
+    <div class="pt-catsale-sub">16mm cladding on Grandmasters — while stocks last</div>
+    <a class="pt-catsale-chip" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>">Shop the deal <span class="a">→</span></a>
     <div class="pt-catsale-trust">FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*</div>
     <?php if ( function_exists( 'pt_shelf_campaign_active' ) && pt_shelf_campaign_active() ) : ?>
     <div style="margin-top:14px;"><?php echo pt_shelf_weekend_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?></div>

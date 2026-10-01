@@ -303,6 +303,16 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
         <?php endif; ?>
       </div>
       <?php endif; ?>
+      <?php // Grandmaster 16mm cladding free-upgrade banner (mockup 4C) — grandmaster products while the wall campaign runs. ?>
+      <?php if ( function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() && function_exists( 'pt_is_grandmaster_product' ) && pt_is_grandmaster_product( $pt_pid ) ) : ?>
+      <div class="pt-prodsale-box">
+        <div class="pt-prodsale-head">FREE 16mm Cladding Upgrade</div>
+        <div class="pt-prodsale-note">Applied automatically at checkout — no code needed.</div>
+        <?php if ( function_exists( 'pt_shelf_badge_eligible' ) && pt_shelf_badge_eligible( $pt_pid ) ) : ?>
+        <?php echo pt_shelf_weekend_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
+        <?php endif; ?>
+      </div>
+      <?php endif; ?>
       <?php // Range toggle (Option 1) — redirect to the matched step-up target ?>
       <?php if ( $pt_su && $pt_show( 'show_range_toggle', false ) ) : ?>
       <div class="rangesw">
