@@ -102,6 +102,11 @@ require_once get_stylesheet_directory() . '/includes/pt-paid-date-fix.php';
 // until PT_WALL_UPGRADE_LIVE / the pt_wall_upgrade_live option is set.
 require_once get_stylesheet_directory() . '/includes/pt-campaign-wall-upgrade.php';
 
+// Free shelf upgrade campaign (weekend) — "3ft Shelf Stack (4 Shelves)" free on all
+// products except Insulated, Sat–Sun by date + admin preview. Configurator side via
+// window.PT_SHELF_UPGRADE (product.js SHELFUP); checkout side in the module.
+require_once get_stylesheet_directory() . '/includes/pt-campaign-free-shelf.php';
+
 /**
  * Theme supports.
  */
@@ -275,6 +280,14 @@ add_action(
 				$pt_wall_upgrade = ( function_exists( 'pt_is_grandmaster_product' ) && pt_is_grandmaster_product( get_queried_object_id() ) )
 					&& ( $pt_wall_live || current_user_can( 'manage_woocommerce' ) );
 
+				// Free shelf upgrade campaign: the "3ft Shelf Stack (4 Shelves)" option is
+				// £0 on all products EXCEPT Insulated. Active in the weekend window, or
+				// always for admins (preview). Opt-in — product.js only zeroes the option
+				// if the customer selects it.
+				$pt_shelf_upgrade = function_exists( 'pt_shelf_campaign_active' )
+					&& pt_shelf_campaign_active()
+					&& ! ( function_exists( 'pt_shelf_product_is_insulated' ) && pt_shelf_product_is_insulated( get_queried_object_id() ) );
+
 				// Admin/editor edit-button base URL (wp-admin/post.php). Only exposed to
 				// users who can edit this product; product.js appends ?post=<size>&action=edit.
 				$pt_admin_edit = current_user_can( 'edit_post', get_queried_object_id() )
@@ -293,7 +306,8 @@ add_action(
 					. 'window.PT_PRICE_VER=' . wp_json_encode( (int) get_option( 'timber_pcfg_gen', 1 ) ) . ';'
 					. 'window.PT_ADMIN_EDIT=' . wp_json_encode( $pt_admin_edit ) . ';'
 					. 'window.PT_SPEC_IMAGES=' . wp_json_encode( (object) $pt_spec_imgs ) . ';'
-					. 'window.PT_WALL_UPGRADE=' . wp_json_encode( (bool) $pt_wall_upgrade ) . ';',
+					. 'window.PT_WALL_UPGRADE=' . wp_json_encode( (bool) $pt_wall_upgrade ) . ';'
+					. 'window.PT_SHELF_UPGRADE=' . wp_json_encode( (bool) $pt_shelf_upgrade ) . ';',
 					'before'
 				);
 			}

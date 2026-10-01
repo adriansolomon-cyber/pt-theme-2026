@@ -134,6 +134,13 @@
     // no-op, so non-campaign products/pages behave exactly as before.
     var WALLUP=(typeof window!=='undefined' && window.PT_WALL_UPGRADE)||false;
 
+    // Free shelf upgrade campaign (weekend). PT_SHELF_UPGRADE is set server-side ONLY
+    // when the campaign is active AND the product isn't Insulated. The "3ft Shelf Stack
+    // (4 Shelves)" option is an OPT-IN add-on shown FREE; isFreeShelf() matches it by
+    // name (the same target the checkout negative-fee uses). No-op when SHELFUP is false.
+    var SHELFUP=(typeof window!=='undefined' && window.PT_SHELF_UPGRADE)||false;
+    function isFreeShelf(o){ if(!SHELFUP||!o) return false; var n=String(o.name||''); return /3\s*ft/i.test(n) && /shelf/i.test(n) && /4\s*shel/i.test(n); }
+
     // --- runtime state ---
     var product=null, components=[], sizeCid=null, wallCid=null, scenarios={}, meta={}, sel={}, sizeId=null, curPid=null, pendingSize=null;
     // rawScenarios: the individual composite scenarios (each a map cid -> [allowed option ids]),
@@ -624,6 +631,11 @@
         // original price struck through next to a £0.00; the £0 standard shows plain.
         price=(opt.price>0) ? ('<span class="was">'+fmt(opt.price)+'</span><span class="free">'+fmt(0)+'</span>') : fmt(0);
       }
+      else if(isFreeShelf(opt)){
+        // Free shelf upgrade: the 3ft Shelf Stack shows its real price struck through
+        // next to £0.00; it counts as £0 in the total (see total()/discTotal()).
+        price=(opt.price>0) ? ('<span class="was">'+fmt(opt.price)+'</span><span class="free">'+fmt(0)+'</span>') : fmt(0);
+      }
       else { price=fmtDisc(opt.price); }
       var sizeAttrs=(group===sizeCid) ? ' data-val="'+esc(label)+'"'+(isBestSize(opt.name)?' data-best="1"':'') : '';
       return '<div class="opt-card'+(selected?' sel':'')+'" data-group="'+esc(group)+'" data-opt="'+opt.id+'"'+sizeAttrs+'>'+img+badge4w+
@@ -809,7 +821,8 @@
         if(sel[c.id]!=null) active[c.id]=sel[c.id];   // lock this choice for downstream filtering
         var colour=isColourComp(c);
         var cards=opts.map(function(o){ return cardHTML(c.id,o,o.id===sel[c.id],colour); }).join('');
-        var badge=(WALLUP && c.key==='wall') ? '<span class="freeup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Cladding upgrade</span>' : '';
+        var badge=(WALLUP && c.key==='wall') ? '<span class="freeup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Cladding upgrade</span>'
+          : ( (SHELFUP && opts.some(isFreeShelf)) ? '<span class="freeup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free shelf</span>' : '' );
         html+=rowHTML(idx,c.title,'sel-'+c.key,c.id,'',cards,stepNote(c),badge);
       });
       elRows.insertAdjacentHTML('beforeend',html);
@@ -842,7 +855,7 @@
     }
     function setSelLabel(id,txt){ var e=$(id); if(e) e.textContent=txt; }
 
-    function total(){ var t=0; for(var cid in sel){ if(WALLUP && wallCid && cid===wallCid) continue; var m=meta[sel[cid]]; if(m) t+=m.price; } return t; }
+    function total(){ var t=0; for(var cid in sel){ if(WALLUP && wallCid && cid===wallCid) continue; var m=meta[sel[cid]]; if(m){ if(isFreeShelf(m)) continue; t+=m.price; } } return t; }
     // Discounted total the way CHECKOUT charges it: the coupon rounds EACH composite
     // component's discounted price to whole £ (.60 rule) PER LINE and sums them (see
     // pt_round_coupon_discount_amount). Rounding the grand total once instead drifts by
@@ -851,7 +864,7 @@
     function discTotal(){
       if(!(DISC>0)) return total();
       var t=0;
-      for(var cid in sel){ if(WALLUP && wallCid && cid===wallCid) continue; var m=meta[sel[cid]]; if(m) t+=round60(disc(m.price)); }
+      for(var cid in sel){ if(WALLUP && wallCid && cid===wallCid) continue; var m=meta[sel[cid]]; if(m){ if(isFreeShelf(m)) continue; t+=round60(disc(m.price)); } }
       return t;
     }
     // Total-price display: raw whole-£ "was" struck through + the per-component
