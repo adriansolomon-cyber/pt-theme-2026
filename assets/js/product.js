@@ -610,6 +610,8 @@
       var edit=(group===sizeCid)?sizeEditBtn(opt.id):'';
       // Fast-delivery pill (top-left) on SIZE cards whose size has fast delivery ticked.
       var fastPill=(group===sizeCid && isFastSize(opt.id))?'<span class="opt-fast"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>48h delivery</span>':'';
+      // Free shelf campaign: a green "FREE" pill on the 3ft Shelf Stack option card.
+      var shelfPill=isFreeShelf(opt)?'<span class="opt-free">FREE</span>':'';
       var img;
       if(group===sizeCid){
         // SIZE cards: hold a loading skeleton until this size's OWN image is fetched
@@ -619,7 +621,7 @@
         var imEl=opt.img?'<img class="opt-im" src="'+esc(opt.img)+'" alt="'+esc(label)+'">':'';
         img='<div class="im loading">'+imEl+'<span class="im-skel skel-box" aria-hidden="true"></span>'+tins+edit+fastPill+'</div>';
       } else {
-        img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+edit+'</div>':'<div class="im ph">'+tins+edit+'</div>';
+        img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+edit+shelfPill+'</div>':'<div class="im ph">'+tins+edit+shelfPill+'</div>';
       }
       var badge4w=(colour&&isNone)?'<span class="badge4w">⚠ Paint within 4 weeks!*</span>':'';
       // every price shows the discounted value when a campaign is live; £0 / "Included"
