@@ -118,22 +118,50 @@ function optimo_curl_post_json( $url, array $payload ) {
         }
 
         // Build the product name(s) for Optimo, with each composite's SIZE appended
-        // ("Grandmaster Pent 12 x 10"). Composite order items list the container
-        // followed by its component children, so group by container and pick up the
-        // size child (named "W x D") to append to that container's name.
+        // ("Grandmaster Pent - 12 x 10"). A composite order lists the building
+        // (container) followed by its component children; one child is the size, e.g.
+        // "12 x 10". We attach a size to the current building when the line is either a
+        // composite/bundle child with a size in its name, OR a size line that resolves
+        // to the SAME parent product as the container — because some orders don't carry
+        // the _composite_parent flag on the size line, which otherwise makes the size
+        // read as a duplicate building and get dropped (no size shown). The regex also
+        // tolerates unit suffixes (16ft x 8ft) and decimals.
         $optimo_lines = [];
         $optimo_cur   = null;
+        $size_re      = '/(\d+(?:\.\d+)?)\s*(?:ft|m|cm|\')?\s*(?:x|×|by)\s*(\d+(?:\.\d+)?)/iu';
         foreach ( $order->get_items() as $item ) {
-            $product  = $item->get_product();
-            $is_child = $item->get_meta( '_composite_parent' ) || $item->get_meta( '_bundled_by' );
-            if ( ! $is_child ) {
-                if ( $optimo_cur ) $optimo_lines[] = $optimo_cur;
-                $parent_id  = $product ? $product->get_parent_id() : 0;
-                $parent     = $parent_id ? wc_get_product( $parent_id ) : $product;
-                $optimo_cur = [ 'name' => ( $parent ? $parent->get_name() : '' ) ?: 'Unknown Product', 'size' => '' ];
-            } elseif ( $optimo_cur && $product && preg_match( '/\b(\d+)\s*[x×]\s*(\d+)\b/i', (string) $product->get_name(), $m ) ) {
+            $product   = $item->get_product();
+            $iname     = $product ? (string) $product->get_name() : (string) $item->get_name();
+            $parent_id = $product ? (int) $product->get_parent_id() : 0;
+            $is_child  = $item->get_meta( '_composite_parent' ) || $item->get_meta( '_bundled_by' );
+            $has_size  = preg_match( $size_re, $iname, $m );
+            // A line whose NAME is nothing but a size ("16 x 8", "16ft x 8ft") is a
+            // size regardless of flags/parent — covers size options stored as their own
+            // simple product (parent_id 0).
+            $pure_size = $has_size && preg_match( '/^\s*\d+(?:\.\d+)?\s*(?:ft|m|cm|\')?\s*(?:x|×|by)\s*\d+(?:\.\d+)?\s*(?:ft|m|cm|\')?\s*$/iu', trim( $iname ) );
+
+            // Is this line the SIZE of the current building?
+            $is_size_line = $optimo_cur && $has_size && (
+                $is_child
+                || ( $parent_id && ! empty( $optimo_cur['parent_id'] ) && $parent_id === (int) $optimo_cur['parent_id'] )
+                || $pure_size
+            );
+            if ( $is_size_line ) {
                 $optimo_cur['size'] = $m[1] . ' x ' . $m[2];
+                continue;
             }
+            if ( $is_child ) {
+                continue; // a non-size child (wall, floor, roof…)
+            }
+
+            // Otherwise this is a building (container) — start a new line.
+            if ( $optimo_cur ) $optimo_lines[] = $optimo_cur;
+            $parent     = $parent_id ? wc_get_product( $parent_id ) : $product;
+            $optimo_cur = [
+                'name'      => ( $parent ? $parent->get_name() : '' ) ?: 'Unknown Product',
+                'size'      => '',
+                'parent_id' => $parent_id ?: ( $product ? (int) $product->get_id() : 0 ),
+            ];
         }
         if ( $optimo_cur ) $optimo_lines[] = $optimo_cur;
 
