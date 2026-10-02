@@ -107,6 +107,10 @@ require_once get_stylesheet_directory() . '/includes/pt-campaign-wall-upgrade.ph
 // window.PT_SHELF_UPGRADE (product.js SHELFUP); checkout side in the module.
 require_once get_stylesheet_directory() . '/includes/pt-campaign-free-shelf.php';
 
+// Keep unpaid Revolut orders as "pending payment" — the gateway auto-cancels them
+// on payment cancel/expiry; we chase payment via links, so revert those cancels.
+require_once get_stylesheet_directory() . '/includes/pt-revolut-keep-pending.php';
+
 /**
  * Theme supports.
  */
