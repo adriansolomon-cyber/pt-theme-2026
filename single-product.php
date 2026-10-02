@@ -50,7 +50,7 @@ if ( function_exists( 'has_term' ) ) {
 	}
 	$pt_is_insulated = has_term( $pt_ins_terms, 'product_cat', $pt_pid );
 }
-$pt_line    = pt_product_line_singular( $pt_pid );            // singular category (e.g. "Summerhouse")
+$pt_line    = function_exists( 'pt_product_line_singular' ) ? pt_product_line_singular( $pt_pid ) : ''; // singular category (e.g. "Summerhouse"); guarded so a mid-deploy load race can't fatal the product page
 if ( '' === $pt_line ) {
 	$pt_line = $pt_name;
 }
