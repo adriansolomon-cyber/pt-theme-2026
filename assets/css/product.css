@@ -720,8 +720,12 @@
 .pt-wkcountdown b{ font-weight:800; font-variant-numeric:tabular-nums; }
 .pt-wkcountdown[hidden]{ display:none; } /* keep the hidden attribute working despite the display rule above */
 /* Standalone weekend promo box — when no other sale box is shown. */
-.pt-wkbox{ background:var(--accent); border-radius:12px; padding:16px 18px; margin-bottom:16px; }
+.pt-wkbox{ background:var(--accent); border-radius:12px; padding:18px 20px; margin-bottom:16px; }
 .pt-wkbox .pt-wkbadge{ margin-top:0; }
+.pt-wkbox-head{ font-family:var(--font); font-weight:800; font-size:clamp(1.1rem,2.8vw,1.35rem); line-height:1.2; color:#211E24; margin:12px 0 6px; }
+.pt-wkbox-note{ font-family:var(--font); font-size:.9rem; font-weight:400; color:#211E24; line-height:1.5; }
+.pt-wkbox-note b{ font-weight:800; }
+.pt-wkbox-trust{ font-family:var(--font); font-size:.66rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#211E24; margin-top:14px; opacity:.82; }
 
 /* Configurator summary — "Code X applied" line (discounted products only) */
 .cfg-coupon{ font-family:var(--font); font-weight:700; font-size:.85rem; line-height:1.35; color:var(--ink); margin:2px 0 12px; }
