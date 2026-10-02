@@ -111,6 +111,10 @@ require_once get_stylesheet_directory() . '/includes/pt-campaign-free-shelf.php'
 // on payment cancel/expiry; we chase payment via links, so revert those cancels.
 require_once get_stylesheet_directory() . '/includes/pt-revolut-keep-pending.php';
 
+// Mediahawk eCommerce conversion (dm1) — fires once per paid order on the thank-you
+// page. Order value computed ex-VAT/ex-shipping but not yet passed (awaiting syntax).
+require_once get_stylesheet_directory() . '/includes/pt-mediahawk-ecommerce.php';
+
 /**
  * Theme supports.
  */
