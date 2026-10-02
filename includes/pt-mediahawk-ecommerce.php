@@ -47,6 +47,21 @@ function pt_mediahawk_dm1_on_thankyou( $order_id ) {
 	if ( ! $order->is_paid() ) {
 		return;
 	}
+	// Never fire for staff (admin / shop manager). Stops opening an order's
+	// order-received URL in wp-admin, or an admin browsing, from logging a conversion.
+	if ( current_user_can( 'manage_woocommerce' ) ) {
+		return;
+	}
+	// Only a JUST-completed purchase, never an OLD order being revisited (e.g. a
+	// customer reopening a months-old order-received link from an email — and, right
+	// after deploy, any old paid order whose thank-you page has never been viewed,
+	// since none are marked sent yet). Anchor on payment time (fallback: creation);
+	// skip if older than the window (default 2 hours, filterable).
+	$window = (int) apply_filters( 'pt_mh_dm1_recent_seconds', 2 * HOUR_IN_SECONDS );
+	$when   = $order->get_date_paid() ? $order->get_date_paid() : $order->get_date_created();
+	if ( ! $when || ( time() - $when->getTimestamp() ) > $window ) {
+		return;
+	}
 	// Once per order — guard refreshes and revisits.
 	if ( $order->get_meta( '_mh_dm1_sent' ) ) {
 		return;
