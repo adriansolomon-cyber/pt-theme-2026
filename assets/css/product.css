@@ -715,9 +715,10 @@
 .pt-wkbadge{ display:inline-flex; align-items:center; gap:7px; margin-top:12px; font-family:var(--font); font-size:.8rem; font-weight:800; line-height:1.2; letter-spacing:.02em; padding:8px 16px 8px 12px; border-radius:999px; background:#00FE6C; color:#211E24; box-shadow:0 1px 4px rgba(0,0,0,.25); }
 .pt-wkbadge svg{ width:15px; height:15px; flex:0 0 auto; fill:currentColor; }
 /* Weekend offer live countdown — under the badge, in the yellow box. */
-.pt-wkcountdown{ display:inline-flex; align-items:center; gap:6px; margin-top:10px; font-family:var(--font); font-size:.82rem; font-weight:700; color:#211E24; }
+.pt-wkcountdown{ display:flex; align-items:center; gap:6px; margin-top:10px; font-family:var(--font); font-size:.82rem; font-weight:700; color:#211E24; }
 .pt-wkcountdown svg{ width:14px; height:14px; flex:0 0 auto; fill:currentColor; }
 .pt-wkcountdown b{ font-weight:800; font-variant-numeric:tabular-nums; }
+.pt-wkcountdown[hidden]{ display:none; } /* keep the hidden attribute working despite the display rule above */
 
 /* Configurator summary — "Code X applied" line (discounted products only) */
 .cfg-coupon{ font-family:var(--font); font-weight:700; font-size:.85rem; line-height:1.35; color:var(--ink); margin:2px 0 12px; }
