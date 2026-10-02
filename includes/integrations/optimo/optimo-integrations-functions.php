@@ -92,6 +92,27 @@ function optimo_curl_post_json( $url, array $payload ) {
         return false;
     }
 
+    /**
+     * If the order has a Palletways consignment, make sure it isn't left in Optimo:
+     * pull it out ONCE (it may have been pushed before the consignment existed), flag
+     * it so the delete/API call isn't repeated on every later update, and tell the
+     * caller to stop (the order must not be routed through OptimoRoute).
+     *
+     * @param WC_Order $order Order.
+     * @return bool True when it's a Palletways delivery (the caller should return).
+     */
+    function optimo_remove_if_palletways( WC_Order $order ): bool {
+        if ( ! optimo_order_has_palletways_consignment( $order ) ) {
+            return false;
+        }
+        if ( ! $order->get_meta( '_optimo_removed_palletways' ) ) {
+            optimo_delete_order( $order );
+            $order->update_meta_data( '_optimo_removed_palletways', current_time( 'mysql' ) );
+            $order->save_meta_data();
+        }
+        return true;
+    }
+
     function optimo_create_or_update_order( WC_Order $order, string $delivery_date, string $apikey = OPTIMO_API_KEY ): array {
         $orderNo = $order->get_order_number();
         $order_id = $order->get_id();
@@ -100,8 +121,8 @@ function optimo_curl_post_json( $url, array $payload ) {
         // delivery. If it already has a Palletways consignment, skip the Optimo push
         // entirely — both triggers (status change + admin save) land here, so this
         // stops an admin save of a Palletways order from re-sending it to OptimoRoute.
-        if ( optimo_order_has_palletways_consignment( $order ) ) {
-            return [ 'success' => false, 'action' => 'skipped', 'message' => 'Palletways consignment present — not sent to OptimoRoute.' ];
+        if ( optimo_remove_if_palletways( $order ) ) {
+            return [ 'success' => false, 'action' => 'skipped', 'message' => 'Palletways consignment present — removed from / not sent to OptimoRoute.' ];
         }
 
         // Guard: block if delivered or unknown
@@ -374,6 +395,11 @@ function optimo_curl_post_json( $url, array $payload ) {
         function sendAllOrdersToOptimo( $order_id, $old_status, $new_status ) {
             $order = wc_get_order( $order_id );
             if ( !$order ) return;
+
+            // Palletways order → never in Optimo. On ANY status change (incl. the move
+            // to "Planned" when the consignment is created, which returns early below),
+            // pull it out of Optimo once if it was pushed earlier, then stop.
+            if ( optimo_remove_if_palletways( $order ) ) return;
 
             $formatted_status = strtolower( ( string ) $new_status );
 
