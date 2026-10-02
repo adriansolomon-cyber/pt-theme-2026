@@ -308,7 +308,7 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Talk sizes, options and delivery through with the team</li>
       </ul>
       <button class="btn-primary ss-open" type="button">Book a showsite visit <span class="a">→</span></button>
-      <p class="ss-note">Nottinghamshire showsite · open Mon–Sat</p>
+      <p class="ss-note">Nottinghamshire showsite · open Mon–Fri</p>
     </div>
   </div>
 </div></section>

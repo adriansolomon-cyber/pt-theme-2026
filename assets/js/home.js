@@ -77,7 +77,7 @@
       for(var d=1;d<=dim;d++){
         var cell=document.createElement('button'); cell.type='button'; cell.className='cal-cell'; cell.textContent=d;
         var date=new Date(view.getFullYear(),view.getMonth(),d);
-        if(date<today || date.getDay()===0){ cell.disabled=true; }
+        if(date<today || date.getDay()===0 || date.getDay()===6){ cell.disabled=true; } // block past days, Sun (0) and Sat (6)
         else { (function(date,cell){ cell.addEventListener('click',function(){ selectDate(date,cell); }); })(date,cell); }
         if(selDate && date.getTime()===selDate.getTime()) cell.classList.add('sel');
         grid.appendChild(cell);
