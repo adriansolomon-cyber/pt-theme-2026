@@ -164,10 +164,8 @@ function pt_shelf_countdown_html() {
 function pt_shelf_weekend_box_html() {
 	return '<div class="pt-wkbox">'
 		. pt_shelf_weekend_badge_html()
-		. '<div class="pt-wkbox-head">A free 3ft Shelf Stack with your building</div>'
-		. '<div class="pt-wkbox-note">Add our <b>3ft Shelf Stack (4 shelves)</b> to any building and it&rsquo;s included <b>free</b> this weekend &mdash; worth having for tools, pots and tins. Applied automatically at checkout, no code needed.</div>'
+		. '<div class="pt-wkbox-note">Added to any building <b>free</b> &mdash; automatically at checkout, no code needed.</div>'
 		. pt_shelf_countdown_html()
-		. '<div class="pt-wkbox-trust">FREE PRESSURE TREATMENT &middot; 25 YEAR ANTI-ROT GUARANTEE &middot; FREE DELIVERY ON SELECTED POSTCODES*</div>'
 		. '</div>';
 }
 
