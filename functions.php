@@ -225,6 +225,13 @@ add_action(
 			wp_enqueue_script( 'pt-intercom', $uri . '/assets/js/intercom.js', array(), $ver( 'assets/js/intercom.js' ), true );
 		}
 
+		// Mediahawk Call-To-Action tracking: fires mhct.trigger('dm3') on WhatsApp
+		// clicks and mhct.trigger('dm5') when the Intercom/Fin chat opens. Footer +
+		// site-wide, so it runs after the inline Mediahawk loader in header.php.
+		if ( file_exists( $dir . '/assets/js/mediahawk-cta.js' ) ) {
+			wp_enqueue_script( 'pt-mediahawk-cta', $uri . '/assets/js/mediahawk-cta.js', array(), $ver( 'assets/js/mediahawk-cta.js' ), true );
+		}
+
 		// --- Homepage only ----------------------------------------------------
 		if ( is_front_page() ) {
 			if ( file_exists( $dir . '/assets/css/home.css' ) ) {
