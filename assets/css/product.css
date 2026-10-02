@@ -722,8 +722,16 @@
 /* Fast-delivery pill on a size card (top-left corner of the image) */
 .opt-card .opt-fast{ position:absolute; top:6px; left:6px; z-index:3; display:inline-flex; align-items:center; gap:3px; background:var(--accent); color:var(--ink); font-size:.6rem; font-weight:800; letter-spacing:.02em; line-height:1; padding:4px 8px 4px 6px; border-radius:999px; box-shadow:0 1px 4px rgba(0,0,0,.25); pointer-events:none; }
 .opt-card .opt-fast svg{ width:11px; height:11px; flex:0 0 auto; color:var(--ink); }
-/* Free shelf campaign: "FREE" pill on the free option card (light green). */
-.opt-card .opt-free{ position:absolute; top:6px; right:6px; z-index:3; display:inline-flex; align-items:center; background:#DCEDC8; color:#2E5D2E; font-size:.6rem; font-weight:800; letter-spacing:.04em; line-height:1; padding:4px 8px; border-radius:999px; box-shadow:0 1px 4px rgba(0,0,0,.2); pointer-events:none; }
+/* Option badge system (design: pt-option-badges-implementation) — badges stack
+   top-left inside the card image; metrics copied from .opt-fast so they match. */
+.opt-card .opt-badges{ position:absolute; top:6px; left:6px; z-index:3; display:flex; flex-direction:column; align-items:flex-start; gap:4px; max-width:calc(100% - 12px); pointer-events:none; }
+.opt-card .opt-badge{ display:flex; align-items:center; gap:3px; font-family:inherit; font-size:9.6px; font-weight:800; line-height:9.6px; letter-spacing:.02em; white-space:nowrap; padding:4px 8px 4px 6px; border-radius:999px; background:#FFFF00; color:#211E24; box-shadow:0 1px 4px rgba(0,0,0,.25); }
+.opt-card .opt-badge svg{ width:11px; height:11px; flex:none; fill:currentColor; }
+.opt-card .opt-badge--fast{ background:#FFFF00; color:#211E24; }
+.opt-card .opt-badge--value{ background:#2A8F57; color:#fff; }
+.opt-card .opt-badge--upgrade{ background:#3B333D; color:#fff; }
+.opt-card .opt-badge--promo-limited{ background:#00FE6C; color:#211E24; }
+.opt-card .opt-badge--promo-weekend{ background:#00FE6C; color:#211E24; }
 
 /* Fast-delivery line — replaces the "Delivery available from …" line for fast sizes */
 .cfg-summary .cfg-di[hidden]{ display:none; } /* .cfg-di sets display:flex, which would beat [hidden] */
