@@ -165,6 +165,29 @@ function optimo_curl_post_json( $url, array $payload ) {
         }
         if ( $optimo_cur ) $optimo_lines[] = $optimo_cur;
 
+        // Fallback for a blank size: pull it from the PIP "Extras/Options" field
+        // (_pip_extras_or_option), which reads "{name} ||| {size}, {components}" per
+        // building and is populated when an admin saves the order. Only fills a size
+        // the line items couldn't resolve — never overrides — and only helps on an
+        // update push, since the field is empty at checkout (first create push uses
+        // the line items). Sizes are matched to the buildings in order.
+        $needs_size = false;
+        foreach ( $optimo_lines as $l ) {
+            if ( '' === $l['size'] ) { $needs_size = true; break; }
+        }
+        if ( $needs_size ) {
+            $pip = (string) $order->get_meta( '_pip_extras_or_option' );
+            if ( '' !== $pip && preg_match_all( '/\|\|\|\s*(\d+(?:\.\d+)?\s*(?:ft|m|cm|\')?\s*(?:x|×|by)\s*\d+(?:\.\d+)?)/iu', $pip, $mm ) ) {
+                $i = 0;
+                foreach ( $optimo_lines as $k => $l ) {
+                    if ( '' === $l['size'] && isset( $mm[1][ $i ] ) && preg_match( $size_re, $mm[1][ $i ], $sm ) ) {
+                        $optimo_lines[ $k ]['size'] = $sm[1] . ' x ' . $sm[2];
+                    }
+                    $i++;
+                }
+            }
+        }
+
         $parent_product_names = implode( ', ', array_unique( array_filter( array_map( function ( $l ) {
             return '' !== $l['size'] ? ( $l['name'] . ' - ' . $l['size'] ) : $l['name'];
         }, $optimo_lines ) ) ) );
