@@ -127,6 +127,70 @@ function pt_shelf_weekend_badge_html() {
 }
 
 /**
+ * The weekend campaign END as a Unix timestamp (for the JS countdown).
+ *
+ * @return int
+ */
+function pt_shelf_end_timestamp() {
+	try {
+		$end = new DateTime( PT_SHELF_UPGRADE_END, new DateTimeZone( 'Europe/London' ) );
+		return $end->getTimestamp();
+	} catch ( \Exception $e ) {
+		return 0;
+	}
+}
+
+/**
+ * Live "offer ends in …" countdown markup. Starts hidden; the wp_footer ticker
+ * reveals and fills it (and hides it again once the deadline passes).
+ *
+ * @return string
+ */
+function pt_shelf_countdown_html() {
+	$ts = pt_shelf_end_timestamp();
+	if ( ! $ts ) {
+		return '';
+	}
+	return '<div class="pt-wkcountdown" data-ends="' . (int) $ts . '" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.6 3.3 1.9-.9 1.5L11 13V7h2z"/></svg> Offer ends in <b class="pt-wkcd-t">—</b></div>';
+}
+
+/**
+ * One-second ticker that fills every .pt-wkcountdown on the page. Only emitted
+ * while the campaign is active, so it is a no-op otherwise.
+ */
+add_action(
+	'wp_footer',
+	static function () {
+		if ( ! pt_shelf_campaign_active() ) {
+			return;
+		}
+		?>
+<script>
+(function(){
+  function fmt(ms){
+    if(ms<0)ms=0;
+    var s=Math.floor(ms/1000),d=Math.floor(s/86400);s-=d*86400;
+    var h=Math.floor(s/3600);s-=h*3600;var m=Math.floor(s/60);s-=m*60;
+    return (d>0?d+'d ':'')+h+'h '+m+'m '+s+'s';
+  }
+  function tick(){
+    var now=Date.now();
+    document.querySelectorAll('.pt-wkcountdown[data-ends]').forEach(function(el){
+      var ends=parseInt(el.getAttribute('data-ends'),10)*1000;
+      if(isNaN(ends)||ends-now<=0){ el.hidden=true; return; }
+      var t=el.querySelector('.pt-wkcd-t'); if(t) t.textContent=fmt(ends-now);
+      el.hidden=false;
+    });
+  }
+  tick(); setInterval(tick,1000);
+})();
+</script>
+		<?php
+	},
+	50
+);
+
+/**
  * Apply the free-shelf discount as a VAT-correct negative fee.
  *
  * @param WC_Cart $cart Cart being calculated.

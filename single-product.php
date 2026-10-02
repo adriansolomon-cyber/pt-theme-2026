@@ -300,6 +300,7 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
         <div class="pt-prodsale-note">Applied automatically at checkout — no code needed.</div>
         <?php if ( function_exists( 'pt_shelf_badge_eligible' ) && pt_shelf_badge_eligible( $pt_pid ) ) : ?>
         <?php echo pt_shelf_weekend_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
+        <?php echo function_exists( 'pt_shelf_countdown_html' ) ? pt_shelf_countdown_html() : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
         <?php endif; ?>
       </div>
       <?php endif; ?>
@@ -310,6 +311,7 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
         <div class="pt-prodsale-note">Applied automatically at checkout — no code needed.</div>
         <?php if ( function_exists( 'pt_shelf_badge_eligible' ) && pt_shelf_badge_eligible( $pt_pid ) ) : ?>
         <?php echo pt_shelf_weekend_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
+        <?php echo function_exists( 'pt_shelf_countdown_html' ) ? pt_shelf_countdown_html() : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
         <?php endif; ?>
       </div>
       <?php endif; ?>
