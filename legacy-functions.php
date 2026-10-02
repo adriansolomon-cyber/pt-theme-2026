@@ -2956,17 +2956,22 @@ function tech_specs_tabs_content()
 
 
         // email reports
+        // 6PM snapshot report.
         if (!wp_next_scheduled('send_profit_report18')) {
             $time = strtotime('18:00:00');
             wp_schedule_event($time, 'daily', 'send_profit_report18');
         }
         add_action('send_profit_report18', 'send_profit_report_action');
 
-        // Duplicate removed: this ran the SAME send_profit_report_action at 00:00, when
-        // the new day has no sales yet — so it emailed a zero "Daily Sales Report". The
-        // 18:00 run above is the real one. Clear the stale cron so it stops immediately
-        // (idempotent — no-op once it's gone).
-        wp_clear_scheduled_hook('send_profit_report12');
+        // End-of-day report at 23:55 — runs before midnight so "today" reflects the FULL
+        // day (the old 00:00 'send_profit_report12' run reported zeros). Same sender; it
+        // labels itself 6PM / End of Day from which cron fired (current_action()).
+        wp_clear_scheduled_hook('send_profit_report12'); // retire the old midnight cron
+        if (!wp_next_scheduled('send_profit_report_eod')) {
+            $time = strtotime('23:55:00');
+            wp_schedule_event($time, 'daily', 'send_profit_report_eod');
+        }
+        add_action('send_profit_report_eod', 'send_profit_report_action');
 
         function query($type, $user_id = 0)
         {
@@ -3123,6 +3128,10 @@ function tech_specs_tabs_content()
 
             ob_start();
 
+            // Label this run by WHICH cron fired (robust vs. exact fire time):
+            // the 18:00 hook → "6PM", the 23:55 end-of-day hook → "End of Day".
+            $pt_label = ( current_action() === 'send_profit_report18' ) ? '6PM' : 'End of Day';
+
             $totalSales = [];
             $types           = ['Website', 'Phone', 'eBay [Consumer]', 'eBay [Phone]', 'Amazon'];
             $date_ranges = ['today', 'yesterday', 'month'];
@@ -3135,8 +3144,8 @@ function tech_specs_tabs_content()
     0 0 10px !important;">
     <p style="margin: 10px 0; padding:
         0; font-family: jr, Open Sans, sans-serif !important; font-weight:
-        normal !important; text-align: left; color: #3b333d;">Daily Sales Reporttt 
-    </p>		
+        normal !important; text-align: left; color: #3b333d;">Daily Sales Report &mdash; ' . esc_html( $pt_label ) . '
+    </p>
 </div>';
 
             echo '<table style="width: 100%;"> <tbody>';
@@ -3311,7 +3320,7 @@ font-weight: normal !important; text-align: center; margin:
 
             $to      = 'william.walton@projecttimber.co.uk, nigel.walton@projecttimber.co.uk, andrew.knowles@projecttimber.co.uk, sam.todd@projecttimber.co.uk, laurence.sembrano@projecttimber.co.uk, adrian.solomon@projecttimber.co.uk';
             //$to      = 'carlos.tandal@projecttimber.co.uk';
-            $subject = "Daily sales report";
+            $subject = "Daily sales report - " . $pt_label;
             $headers = array('Content-Type: text/html; charset=UTF-8');
             $headers[] = 'From: Project Timber <sales@projecttimber.com>';
             $headers[] = 'Reply-To: <sales@projecttimber.com>';
