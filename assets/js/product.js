@@ -831,7 +831,7 @@
         var colour=isColourComp(c);
         var cards=opts.map(function(o){ return cardHTML(c.id,o,o.id===sel[c.id],colour); }).join('');
         var badge=(WALLUP && c.key==='wall') ? '<span class="freeup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Cladding upgrade</span>'
-          : ( (SHELFUP && opts.some(isFreeShelf)) ? '<span class="freeup freeup-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free shelf option available</span>' : '' );
+          : ( (SHELFUP && opts.some(isFreeShelf)) ? '<span class="freeup freeup-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-2.3a3 3 0 00-5.7-2 3 3 0 00-5.7 2H4a1 1 0 00-1 1v3.5h8V8h2v3.5h8V8a1 1 0 00-1-1zM9 7a1 1 0 110-2c.7 0 1.2.8 1.4 2H9zm6 0h-1.4c.2-1.2.7-2 1.4-2a1 1 0 110 2zM4 13h7v9H5a1 1 0 01-1-1v-8zm9 0h7v8a1 1 0 01-1 1h-6v-9z"/></svg>Free shelf option available</span>' : '' );
         html+=rowHTML(idx,c.title,'sel-'+c.key,c.id,'',cards,stepNote(c),badge);
       });
       elRows.insertAdjacentHTML('beforeend',html);

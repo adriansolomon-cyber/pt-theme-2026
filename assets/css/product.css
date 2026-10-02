@@ -172,7 +172,8 @@
   .cfg-head .freeup{ display:inline-flex; align-items:center; gap:4px; font-size:.56rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em; color:var(--ink); background:#E6D9C7; border-radius:999px; padding:3px 9px; white-space:nowrap; }
   .cfg-head .freeup svg{ width:11px; height:11px; }
   /* Free shelf campaign badge — light green (cladding badge keeps the tan above). */
-  .cfg-head .freeup.freeup-green{ background:#DCEDC8; color:#2E5D2E; }
+  .cfg-head .freeup.freeup-green{ background:#00FE6C; color:#211E24; }
+  .cfg-head .freeup.freeup-green svg{ fill:currentColor; }
   .opt-card .selbtn{ margin:9px 10px 10px; border:1.5px solid rgba(33,30,36,.4); border-radius:8px; padding:8px; text-align:center; font-size:.76rem; font-weight:700; color:var(--charcoal); }
   .opt-card.sel .selbtn{ background:var(--charcoal); border-color:var(--charcoal); color:#fff; }
   .badge4w{ display:inline-flex; align-items:center; gap:5px; margin:9px 10px 2px; align-self:flex-start;
