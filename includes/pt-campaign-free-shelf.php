@@ -155,6 +155,17 @@ function pt_shelf_countdown_html() {
 }
 
 /**
+ * Standalone weekend promo box (badge + countdown) — for category/product pages
+ * where the shelf offer applies but NO other promo banner (Hobbyist 20% / cladding)
+ * is showing, so the offer still gets a surface of its own.
+ *
+ * @return string
+ */
+function pt_shelf_weekend_box_html() {
+	return '<div class="pt-wkbox">' . pt_shelf_weekend_badge_html() . pt_shelf_countdown_html() . '</div>';
+}
+
+/**
  * One-second ticker that fills every .pt-wkcountdown on the page. Only emitted
  * while the campaign is active, so it is a no-op otherwise.
  */

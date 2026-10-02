@@ -315,6 +315,15 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
         <?php endif; ?>
       </div>
       <?php endif; ?>
+      <?php
+      // Standalone weekend promo box — only when NEITHER the Hobbyist sale box nor the
+      // cladding box is shown, so the weekend offer still gets its own surface.
+      $pt_other_box = ( $pt_disc_pct > 0 )
+          || ( function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() && function_exists( 'pt_is_grandmaster_product' ) && pt_is_grandmaster_product( $pt_pid ) );
+      if ( ! $pt_other_box && function_exists( 'pt_shelf_badge_eligible' ) && pt_shelf_badge_eligible( $pt_pid ) && function_exists( 'pt_shelf_weekend_box_html' ) ) {
+          echo pt_shelf_weekend_box_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup.
+      }
+      ?>
       <?php // Range toggle (Option 1) — redirect to the matched step-up target ?>
       <?php if ( $pt_su && $pt_show( 'show_range_toggle', false ) ) : ?>
       <div class="rangesw">

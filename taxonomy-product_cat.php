@@ -77,6 +77,22 @@ if ( $pt_term && function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaig
 		}
 	}
 }
+
+// Is this the Insulated category (term 1639 or a descendant)? Keeps the weekend
+// shelf offer off insulated category pages.
+$pt_cat_insulated = false;
+if ( $pt_term ) {
+	if ( 1639 === (int) $pt_term->term_id ) {
+		$pt_cat_insulated = true;
+	} else {
+		foreach ( get_ancestors( (int) $pt_term->term_id, 'product_cat' ) as $pt_iaid ) {
+			if ( 1639 === (int) $pt_iaid ) {
+				$pt_cat_insulated = true;
+				break;
+			}
+		}
+	}
+}
 $pt_banner_src = $pt_banner_src_m = $pt_banner_link = $pt_banner_alt = '';
 if ( $pt_banner_on ) {
 	$pt_banner_src   = (string) get_field( 'cat_banner_image', $pt_term );
@@ -199,6 +215,16 @@ get_header();
     <?php endif; ?>
   </aside>
   <?php endif; ?>
+
+  <?php
+  // Standalone weekend promo box — categories with the shelf offer but no Hobbyist
+  // or cladding banner (and not the Insulated range).
+  if ( function_exists( 'pt_shelf_campaign_active' ) && pt_shelf_campaign_active()
+      && ! $pt_sale_banner && ! $pt_clad_banner && ! $pt_cat_insulated
+      && function_exists( 'pt_shelf_weekend_box_html' ) ) {
+      echo pt_shelf_weekend_box_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup.
+  }
+  ?>
 
   <!-- toolbar -->
   <div class="cat-toolbar">

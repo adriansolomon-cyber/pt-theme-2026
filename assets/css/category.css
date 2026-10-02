@@ -259,9 +259,16 @@
 .pt-catsale-chip{ display:inline-flex; align-items:center; gap:8px; background:var(--charcoal); color:#fff; font-family:var(--font); font-weight:700; font-size:.9rem; border-radius:999px; padding:11px 22px; text-decoration:none; margin-bottom:14px; transition:transform .2s ease; }
 .pt-catsale-chip:hover{ transform:translateY(-1px); }
 .pt-catsale-chip b{ color:var(--accent); font-weight:800; }
-/* Weekend free-shelf promo badge (mockup 3B) — green pill under the chip. */
-.pt-catsale .pt-wkbadge{ display:inline-flex; align-items:center; gap:7px; margin-top:4px; font-family:var(--font); font-size:.8rem; font-weight:800; line-height:1.2; letter-spacing:.02em; padding:8px 16px 8px 12px; border-radius:999px; background:#00FE6C; color:#211E24; box-shadow:0 1px 4px rgba(0,0,0,.25); }
-.pt-catsale .pt-wkbadge svg{ width:15px; height:15px; flex:0 0 auto; fill:currentColor; }
+/* Weekend free-shelf promo badge (mockup 3B) — green pill. Used inside the sale
+   banner (.pt-catsale) and the standalone weekend box (.pt-wkbox). */
+.pt-wkbadge{ display:inline-flex; align-items:center; gap:7px; font-family:var(--font); font-size:.8rem; font-weight:800; line-height:1.2; letter-spacing:.02em; padding:8px 16px 8px 12px; border-radius:999px; background:#00FE6C; color:#211E24; box-shadow:0 1px 4px rgba(0,0,0,.25); }
+.pt-wkbadge svg{ width:15px; height:15px; flex:0 0 auto; fill:currentColor; }
+.pt-wkcountdown{ display:flex; align-items:center; justify-content:center; gap:6px; margin-top:10px; font-family:var(--font); font-size:.82rem; font-weight:700; color:#211E24; }
+.pt-wkcountdown svg{ width:14px; height:14px; flex:0 0 auto; fill:currentColor; }
+.pt-wkcountdown b{ font-weight:800; font-variant-numeric:tabular-nums; }
+.pt-wkcountdown[hidden]{ display:none; }
+/* Standalone weekend promo box — on categories with no Hobbyist/cladding banner. */
+.pt-wkbox{ background:var(--accent); border-radius:14px; text-align:center; padding:20px 24px; margin:6px 0 22px; }
 .pt-catsale-chip .a{ margin-left:2px; }
 .pt-catsale-trust{ font-family:var(--font); font-size:.64rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--charcoal); }
 @media(max-width:560px){ .pt-catsale{ padding:18px 16px; } .pt-catsale-trust{ font-size:.58rem; } }

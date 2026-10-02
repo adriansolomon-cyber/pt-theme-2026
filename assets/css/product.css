@@ -719,6 +719,9 @@
 .pt-wkcountdown svg{ width:14px; height:14px; flex:0 0 auto; fill:currentColor; }
 .pt-wkcountdown b{ font-weight:800; font-variant-numeric:tabular-nums; }
 .pt-wkcountdown[hidden]{ display:none; } /* keep the hidden attribute working despite the display rule above */
+/* Standalone weekend promo box — when no other sale box is shown. */
+.pt-wkbox{ background:var(--accent); border-radius:12px; padding:16px 18px; margin-bottom:16px; }
+.pt-wkbox .pt-wkbadge{ margin-top:0; }
 
 /* Configurator summary — "Code X applied" line (discounted products only) */
 .cfg-coupon{ font-family:var(--font); font-weight:700; font-size:.85rem; line-height:1.35; color:var(--ink); margin:2px 0 12px; }
