@@ -2962,11 +2962,11 @@ function tech_specs_tabs_content()
         }
         add_action('send_profit_report18', 'send_profit_report_action');
 
-        if (!wp_next_scheduled('send_profit_report12')) {
-            $time = strtotime('00:00:00');
-            wp_schedule_event($time, 'daily', 'send_profit_report12');
-        }
-        add_action('send_profit_report12', 'send_profit_report_action');
+        // Duplicate removed: this ran the SAME send_profit_report_action at 00:00, when
+        // the new day has no sales yet — so it emailed a zero "Daily Sales Report". The
+        // 18:00 run above is the real one. Clear the stale cron so it stops immediately
+        // (idempotent — no-op once it's gone).
+        wp_clear_scheduled_hook('send_profit_report12');
 
         function query($type, $user_id = 0)
         {
