@@ -75,7 +75,10 @@ function pt_mediahawk_dm1_on_thankyou( $order_id ) {
 	// Mark sent BEFORE output so a refresh can't re-fire (double-counting is worse
 	// than a rare lost event from a tab closed mid-render).
 	$order->update_meta_data( '_mh_dm1_sent', current_time( 'mysql' ) );
-	$order->save();
+	// Persist ONLY the meta — not a full $order->save(), which fires
+	// woocommerce_update_order and could make order-sync integrations (HubSpot,
+	// Zapier, Optimo, Xero) needlessly re-process the order on every thank-you view.
+	$order->save_meta_data();
 	?>
 	<script>
 	(function () {
