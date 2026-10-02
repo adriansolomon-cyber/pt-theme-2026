@@ -73,9 +73,36 @@ function optimo_curl_post_json( $url, array $payload ) {
     * }
     */
 
+    /**
+     * Whether an order already has a Palletways consignment — i.e. it ships by pallet
+     * freight and must NOT be routed through OptimoRoute (own-vehicle delivery).
+     * con_no / response_id are set when the consignment is created; tracking_id can be
+     * empty or the literal 'Array' until the depot assigns it, so that's "no value".
+     *
+     * @param WC_Order $order Order.
+     * @return bool
+     */
+    function optimo_order_has_palletways_consignment( WC_Order $order ): bool {
+        foreach ( [ '_palletways_response_id', '_palletways_con_no', '_palletways_tracking_id' ] as $key ) {
+            $v = $order->get_meta( $key );
+            if ( ! empty( $v ) && 'Array' !== $v ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function optimo_create_or_update_order( WC_Order $order, string $delivery_date, string $apikey = OPTIMO_API_KEY ): array {
         $orderNo = $order->get_order_number();
         $order_id = $order->get_id();
+
+        // Palletways guard: a pallet-freight order is NOT an Optimo (own-vehicle)
+        // delivery. If it already has a Palletways consignment, skip the Optimo push
+        // entirely — both triggers (status change + admin save) land here, so this
+        // stops an admin save of a Palletways order from re-sending it to OptimoRoute.
+        if ( optimo_order_has_palletways_consignment( $order ) ) {
+            return [ 'success' => false, 'action' => 'skipped', 'message' => 'Palletways consignment present — not sent to OptimoRoute.' ];
+        }
 
         // Guard: block if delivered or unknown
         $state = optimo_get_completion_state( $orderNo, $apikey );
