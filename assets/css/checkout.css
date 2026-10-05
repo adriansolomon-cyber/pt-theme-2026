@@ -395,8 +395,6 @@
 .woocommerce-checkout #payment ul.payment_methods > li.wc_payment_method > label img{ margin:0 !important; }
 /* Card fields / Revolut Pay button stay full width on their own row under the label. */
 .woocommerce-checkout #payment ul.payment_methods > li.wc_payment_method > .payment_box{ flex:0 0 100%; }
-/* Pay Later text aligned to the strip's left edge. */
-.woocommerce-checkout #payment ul.payment_methods .ppcp-messages{ padding-left:0 !important; }
 /* WooCommerce core styles div.payment_box with a lavender (#dfdcde) background + a
    ::before pointer tail at specificity (1,2,1) — it out-specified our #payment
    .payment_box (1,1,0), so the card fields sat in a big spaced lavender block.
