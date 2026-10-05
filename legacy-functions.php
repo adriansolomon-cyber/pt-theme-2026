@@ -5093,41 +5093,74 @@ add_action('template_redirect', function () {
 });
 
 /**
- * Force ACF field "order_ref_original" required when order status = rdmopen
+ * RDM mandatory-field validation (admin order save).
+ *
+ * The RDM fields become mandatory once an order is an ACTIVE RDM — i.e. RDM Open, or
+ * being resolved/closed (any 'resolved*' status or 'rdmcaseclosed'):
+ *
+ *   Always (open or closing):
+ *     1. order_ref_original          — original order number (required, non-empty)
+ *     2. RDM-Category                — exactly ONE category ticked
+ *     3. rdm_department_accountable  — a department chosen (not the blank placeholder)
+ *     4. rdm_refund_amount           — a value entered (0.00 IS allowed)
+ *   Closing only (resolved* / rdmcaseclosed):
+ *     5. rdm_resolution              — a resolution chosen
+ *
+ * Status is read from the posted order_status, falling back to the saved order. Field
+ * KEYS are from the "RDM Information" ACF group (group_60b0c90fd0286) — update here if
+ * the group is ever recreated. Open statuses are filterable via pt_rdm_open_statuses.
  */
 add_action('acf/validate_save_post', function () {
-    // Get posted status (new order will have "wc-rdmopen" here)
-    $posted_status = $_POST['order_status'] ?? '';
-    $status = str_replace('wc-', '', sanitize_text_field($posted_status));
-
-    // Fallback: if updating, also check the order object
-    if (empty($status) && !empty($_POST['post_ID'])) {
+    $posted_status = isset($_POST['order_status']) ? sanitize_text_field(wp_unslash($_POST['order_status'])) : '';
+    $status        = str_replace('wc-', '', $posted_status);
+    if ($status === '' && !empty($_POST['post_ID'])) {
         $order = wc_get_order((int) $_POST['post_ID']);
         if ($order) {
             $status = $order->get_status();
         }
     }
 
-    // Only enforce if status is rdmopen
-    if ($status !== 'rdmopen') {
-        return;
+    $open_statuses = (array) apply_filters('pt_rdm_open_statuses', array('rdmopen'));
+    $is_open       = in_array($status, $open_statuses, true);
+    $is_closing    = ($status === 'rdmcaseclosed') || (strpos($status, 'resolved') === 0);
+    if (!$is_open && !$is_closing) {
+        return; // not an active RDM save
     }
 
-    // Get field definition
-    $field = acf_get_field('order_ref_original');
-    if (!$field || empty($field['key'])) {
-        return;
+    $acf    = (isset($_POST['acf']) && is_array($_POST['acf'])) ? $_POST['acf'] : array();
+    $K_REF  = 'field_60c7493fdc565'; // order_ref_original
+    $K_CAT  = 'field_60b0c917fac1c'; // RDM-Category (checkbox)
+    $K_DEPT = 'field_6ac35466e7f10'; // rdm_department_accountable
+    $K_REFUND = 'field_6ac3544be7f0e'; // rdm_refund_amount (number)
+    $K_RES    = 'field_6ac3546ae7f11'; // rdm_resolution
+
+    // 1. Original order number — required.
+    if ('' === trim((string) ($acf[$K_REF] ?? ''))) {
+        acf_add_validation_error("acf[{$K_REF}]", __('The original order number is required for an RDM.', 'pt'));
     }
 
-    // Posted field value
-    $posted_value = $_POST['acf'][$field['key']] ?? '';
+    // 2. RDM Category — exactly one ticked.
+    $cats = array_filter((array) ($acf[$K_CAT] ?? array()), function ($x) {
+        return '' !== trim((string) $x);
+    });
+    if (count($cats) !== 1) {
+        acf_add_validation_error("acf[{$K_CAT}]", __('Choose exactly one RDM Category.', 'pt'));
+    }
 
-    // If empty → attach field-level error
-    if (empty(trim((string)$posted_value))) {
-        acf_add_validation_error(
-            "acf[{$field['key']}]",
-            __('The "Order Ref Original" field is required when order status is RDM Open.', 'your-textdomain')
-        );
+    // 3. Department Accountable — a real choice (not the blank placeholder).
+    if ('' === trim((string) ($acf[$K_DEPT] ?? ''))) {
+        acf_add_validation_error("acf[{$K_DEPT}]", __('Choose the Department Accountable.', 'pt'));
+    }
+
+    // 4. Refund £ — a value must be entered (0 is allowed).
+    $refund = $acf[$K_REFUND] ?? '';
+    if ('' === trim((string) $refund) || !is_numeric($refund)) {
+        acf_add_validation_error("acf[{$K_REFUND}]", __('Enter the Refund £ amount (enter 0 if none).', 'pt'));
+    }
+
+    // 5. Resolution — required when closing.
+    if ($is_closing && '' === trim((string) ($acf[$K_RES] ?? ''))) {
+        acf_add_validation_error("acf[{$K_RES}]", __('Choose a Resolution for the customer before closing the RDM.', 'pt'));
     }
 });
 
