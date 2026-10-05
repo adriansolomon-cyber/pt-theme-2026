@@ -55,6 +55,11 @@ function pt_shelf_window_open() {
  * @return bool
  */
 function pt_shelf_campaign_active() {
+	// OFF for everyone (incl. admin preview) between weekend deals. The date window
+	// below has passed; this hard switch also kills the admin preview. To run the
+	// NEXT weekend deal: update PT_SHELF_UPGRADE_START/END above and delete this line.
+	return false;
+
 	return pt_shelf_window_open() || current_user_can( 'manage_woocommerce' );
 }
 
