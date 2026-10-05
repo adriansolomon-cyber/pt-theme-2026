@@ -55,23 +55,24 @@ function get_composite_product_size_image_id( WC_Order_Item_Product $item ): int
         return 0;
     }
 
-    // Prefer variation image
-    if ( ! empty( $size_config['variation_id'] ) ) {
-        $variation = wc_get_product( (int) $size_config['variation_id'] );
-        if ( $variation && $variation->get_image_id() ) {
-            return (int) $variation->get_image_id();
+    $size_product_id = ! empty( $size_config['product_id'] ) ? (int) $size_config['product_id'] : 0;
+    if ( ! $size_product_id ) {
+        return 0;
+    }
+
+    // Use the FIRST image from the size product's product gallery — the same
+    // "Products feed gallery" image the configurator shows for the chosen size.
+    // Deliberately NOT the size's FEATURED image (often a "Special Price" promo
+    // banner): when the size has no feed gallery we fall back to the PARENT image.
+    $size_product = wc_get_product( $size_product_id );
+    if ( $size_product ) {
+        $gallery = $size_product->get_gallery_image_ids();
+        if ( ! empty( $gallery ) ) {
+            return (int) $gallery[0];
         }
     }
 
-    // Fallback to size product image
-    if ( ! empty( $size_config['product_id'] ) ) {
-        $size_product = wc_get_product( (int) $size_config['product_id'] );
-        if ( $size_product && $size_product->get_image_id() ) {
-            return (int) $size_product->get_image_id();
-        }
-    }
-
-    // Size found but no image -> use parent
+    // No feed gallery on this size -> use the parent (fallback handled by caller).
     return 0;
 }
 }
@@ -106,9 +107,10 @@ $text_align = is_rtl() ? 'right' : 'left';
      */
     if ( $component_title === '' && ! has_term( [ 'parts', 'bundles' ], 'product_cat', $product->get_id() ) ) :
 
-       $size_image_id = get_composite_product_size_image_id( $item );
-        //    $image_id = $size_image_id ?: ( $product ? $product->get_image_id() : 0 );
-        $image_id = $product ? $product->get_image_id() : 0;
+        // Use the per-size image (same as the configurator); fall back to the
+        // parent product image when the chosen size has no image of its own.
+        $size_image_id = get_composite_product_size_image_id( $item );
+        $image_id      = $size_image_id ?: ( $product ? $product->get_image_id() : 0 );
 
 
         ?>
