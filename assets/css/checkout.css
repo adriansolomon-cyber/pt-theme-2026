@@ -358,6 +358,43 @@
 	border-top-left-radius:0;
 	border-top-right-radius:0;
 }
+
+/* ---- Align radios + labels across all payment methods ----
+   Revolut's <li> is flex with align-items:normal (radio sticks to the top);
+   PayPal's is display:list-item with an inline label (text 3px further right).
+   Force every method <li> to a centred flex row so radios vertically centre on
+   their label and every method name starts at the same left edge.
+   Gotcha: making the <li> flex turns WooCommerce's clearfix li::before/::after
+   into flex items which, with the column-gap, shove the radio right — hide them. */
+.woocommerce-checkout #payment ul.payment_methods > li.wc_payment_method{
+	display:flex !important;
+	flex-wrap:wrap;
+	align-items:center;
+	column-gap:10px;
+}
+.woocommerce-checkout #payment ul.payment_methods > li.wc_payment_method::before,
+.woocommerce-checkout #payment ul.payment_methods > li.wc_payment_method::after{ display:none !important; }
+.woocommerce-checkout #payment ul.payment_methods > li.wc_payment_method > input.input-radio{
+	margin:0 !important;
+	flex:0 0 auto;
+}
+.woocommerce-checkout #payment ul.payment_methods > li.wc_payment_method > label{
+	display:flex !important;
+	align-items:center;
+	gap:8px;
+	flex:1 1 0;
+	min-width:0;
+	min-height:29px;
+	margin:0 !important;
+	padding:0 !important;
+	line-height:1.2;
+}
+.woocommerce-checkout #payment ul.payment_methods > li.wc_payment_method > label img{ margin:0 !important; }
+/* Card fields / Revolut Pay button stay full width on their own row under the label. */
+.woocommerce-checkout #payment ul.payment_methods > li.wc_payment_method > .payment_box{ flex:0 0 100%; }
+/* Pay Later text in line with the method names:
+   1px border + 16px card padding + 18px radio + 10px gap = 45px. */
+.woocommerce-checkout #payment ul.payment_methods .ppcp-messages{ padding-left:45px !important; }
 /* WooCommerce core styles div.payment_box with a lavender (#dfdcde) background + a
    ::before pointer tail at specificity (1,2,1) — it out-specified our #payment
    .payment_box (1,1,0), so the card fields sat in a big spaced lavender block.
