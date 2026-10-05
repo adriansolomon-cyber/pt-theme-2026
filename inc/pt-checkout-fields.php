@@ -270,7 +270,9 @@ function pt_email_show_custom_checkout_fields( $order, $sent_to_admin, $plain_te
 		}
 		return;
 	}
-	echo '<div style="margin-bottom:20px">';
+	// Inset by 24px so Phone 2 / Delivery Instructions line up with the order-details
+	// and address cards (and the Google Ads block), which carry padding: 0 24px.
+	echo '<div style="padding: 0 24px; margin-bottom:20px;">';
 	if ( '' !== $phone2 ) {
 		echo '<p><strong>' . esc_html__( 'Phone 2', 'woocommerce' ) . ':</strong> ' . esc_html( $phone2 ) . '</p>';
 	}
