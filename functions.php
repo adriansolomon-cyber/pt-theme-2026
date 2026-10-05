@@ -288,12 +288,11 @@ add_action(
 				$pt_spec_imgs = function_exists( 'pt_spec_size_images' ) ? pt_spec_size_images( get_queried_object_id() ) : array();
 
 				// Wall free-upgrade campaign (Grandmaster): 16mm wall is default + free.
-				// On for admins ALWAYS (live preview), and for everyone once the switch is
-				// on (constant PT_WALL_UPGRADE_LIVE or option pt_wall_upgrade_live). Prices
-				// are never edited — the configurator shows/charges the wall at £0.
-				$pt_wall_live    = defined( 'PT_WALL_UPGRADE_LIVE' ) ? (bool) PT_WALL_UPGRADE_LIVE : (bool) get_option( 'pt_wall_upgrade_live', false );
+				// Single source of truth is pt_wall_campaign_active() (same gate as the
+				// banners / cart fee), so disabling the offer there disables it here too.
+				// Prices are never edited — the configurator shows/charges the wall at £0.
 				$pt_wall_upgrade = ( function_exists( 'pt_is_grandmaster_product' ) && pt_is_grandmaster_product( get_queried_object_id() ) )
-					&& ( $pt_wall_live || current_user_can( 'manage_woocommerce' ) );
+					&& ( function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() );
 
 				// Free shelf upgrade campaign: the "3ft Shelf Stack (4 Shelves)" option is
 				// £0 on all products EXCEPT Insulated. Active in the weekend window, or

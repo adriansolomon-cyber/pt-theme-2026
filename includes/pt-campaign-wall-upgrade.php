@@ -35,6 +35,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return bool
  */
 function pt_wall_campaign_active() {
+	// OFF for everyone (incl. admin preview) — cladding free-upgrade offer ended.
+	// This single gate controls the configurator £0/badge, the cart fee, the
+	// category/product banners and the standalone box. To re-run: delete this line
+	// (and set PT_WALL_UPGRADE_LIVE / the pt_wall_upgrade_live option as needed).
+	return false;
+
 	$live = defined( 'PT_WALL_UPGRADE_LIVE' )
 		? (bool) PT_WALL_UPGRADE_LIVE
 		: ( function_exists( 'get_option' ) ? (bool) get_option( 'pt_wall_upgrade_live', false ) : false );
