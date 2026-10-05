@@ -10,6 +10,8 @@ function pt_get_lead_time_excluded_dates() {
     return [
         '2026-05-18',
         '2026-05-20',
+        // Factory closure — blocked for 48h fast delivery.
+        '2026-10-09',
         // Christmas / New Year shutdown 2026 — closed 21 Dec 2026 to 4 Jan 2027.
         '2026-12-21',
         '2026-12-22',
