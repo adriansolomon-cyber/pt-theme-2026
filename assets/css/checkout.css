@@ -322,7 +322,7 @@
 .co-summary .sum-tot .ln.discount b{ color:var(--ok); }
 .co-summary .sum-tot .ln.discount .woocommerce-remove-coupon{ margin-left:8px; font-size:.72rem; font-weight:400; color:var(--txt-soft); text-decoration:underline; text-underline-offset:2px; }
 
-#payment_col .co-payment-title{ font-size:1.15rem; margin:0; }
+#payment_col .co-payment-title{ font-size:1.15rem; margin:0 0 16px; }
 #payment.woocommerce-checkout-payment{ background:transparent; border-radius:0; }
 #payment ul.payment_methods{ list-style:none; margin:0; padding:0; border:0; display:flex; flex-direction:column; gap:10px; }
 #payment ul.payment_methods li{ border:1px solid rgba(33,30,36,.16); border-radius:12px; padding:14px 16px; }
@@ -334,6 +334,30 @@
    inset the method cards. Scope with .co-form (1,3,1) to win — cards sit flush
    to the column edges, no side padding, no divider. */
 .woocommerce-checkout .co-form #payment ul.payment_methods{ padding:0; border-bottom:0; }
+/* ---- PayPal Pay Later message as a header strip on the PayPal card ----
+   checkout-cart.js moves the plugin's .ppcp-messages node ("Pay in 3…") from above
+   #payment into ul.payment_methods, directly before the PayPal option, so the two
+   read as one card. The ul is a flex column with gap:10px, so the PayPal <li> gets
+   margin-top:-10px to sit flush on the strip. Specificity matches WC core's
+   `.woocommerce-checkout #payment ul.payment_methods li{ margin:0 }`, hence the
+   !important on the negative margins. */
+.woocommerce-checkout #payment ul.payment_methods .ppcp-messages{
+	margin:0 !important;
+	padding:10px 16px;
+	line-height:1.4;
+	background:var(--mist);
+	border:1px solid rgba(33,30,36,.16);
+	border-bottom:0;
+	border-radius:12px 12px 0 0;
+	list-style:none;
+}
+.woocommerce-checkout #payment ul.payment_methods .ppcp-messages > span{ display:block; }
+.woocommerce-checkout #payment ul.payment_methods .ppcp-messages + li.payment_method_ppcp-gateway{
+	margin-top:-10px !important;
+	border-top-color:rgba(33,30,36,.08);
+	border-top-left-radius:0;
+	border-top-right-radius:0;
+}
 /* WooCommerce core styles div.payment_box with a lavender (#dfdcde) background + a
    ::before pointer tail at specificity (1,2,1) — it out-specified our #payment
    .payment_box (1,1,0), so the card fields sat in a big spaced lavender block.

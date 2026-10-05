@@ -71,3 +71,37 @@
     if (place) { place.setAttribute('disabled', 'disabled'); place.classList.add('is-disabled'); }
   }
 })();
+
+/* PayPal Pay Later message → header strip on the PayPal card.
+ *
+ * The PayPal Payments plugin prints its "Pay in 3…" message (.ppcp-messages, random
+ * id) above the WHOLE payment section. Move it INTO ul.payment_methods, directly
+ * before the PayPal option, so (with checkout.css) the message + PayPal card read as
+ * one. WooCommerce rebuilds #payment wholesale on every update_checkout (address /
+ * shipping change) — which would destroy the moved node — so park it back out to
+ * #payment_col before the refresh and re-place it after (updated_checkout). The node
+ * carries a PayPal iframe; moving it keeps rendering (verified live). */
+jQuery(function ($) {
+  if (!document.body.classList.contains('woocommerce-checkout')) return;
+
+  var $msg = null;
+  function msg() {
+    // Cache the node once: after the first move it is no longer a direct child of
+    // #payment_col, so re-querying would miss it. Re-query only while still empty
+    // (the plugin may print the container slightly late).
+    if (!$msg || !$msg.length) $msg = $('#payment_col > .ppcp-messages');
+    return $msg;
+  }
+  function placeMsg() {
+    var $m = msg(), $li = $('li.payment_method_ppcp-gateway');
+    if ($m.length && $li.length) $m.insertBefore($li);
+  }
+
+  // Before Woo replaces #payment, pull the node out so it survives the re-render.
+  $(document.body).on('update_checkout', function () {
+    var $m = msg();
+    if ($m.length) $m.insertBefore('#payment');
+  });
+  $(document.body).on('updated_checkout', placeMsg);
+  placeMsg();
+});
