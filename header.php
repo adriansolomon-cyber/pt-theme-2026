@@ -292,7 +292,6 @@ if ( function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() ) : ?>
   <div class="pt-annstrip-track">
     <span class="pt-annmsg is-on"><span class="pt-anndot" aria-hidden="true"></span><b>FACTORY DIRECT</b> — best price guaranteed, straight from the maker.</span>
     <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>20% OFF</b> the Hobbyist range — code <b><?php echo function_exists( 'av_get_display_voucher_code' ) ? esc_html( av_get_display_voucher_code() ) : ''; ?></b> applied automatically.</span>
-    <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>GRANDMASTER</b> — 16mm cladding upgrade &amp; double glazing as standard.</span>
     <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>FREE DELIVERY</b> on selected postcodes* — on our own vehicles, direct to you.</span>
     <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>25-YEAR ANTI-ROT GUARANTEE*</b> — on every pressure-treated building we make.</span>
   </div>
