@@ -5164,6 +5164,122 @@ add_action('acf/validate_save_post', function () {
     }
 });
 
+/**
+ * Find a WooCommerce order by the number typed into order_ref_original. Uses the
+ * Sequential Order Numbers Pro lookup (matches the FORMATTED number, incl. prefix),
+ * then falls back to the stored number meta, then a bare order id.
+ *
+ * @param string $number Order number as entered.
+ * @return WC_Order|false
+ */
+if ( ! function_exists('pt_rdm_find_order_by_number') ) {
+    function pt_rdm_find_order_by_number($number) {
+        $number = trim((string) $number);
+        if ('' === $number) {
+            return false;
+        }
+        if (function_exists('wc_seq_order_number_pro')) {
+            $id = (int) wc_seq_order_number_pro()->find_order_by_order_number($number);
+            if ($id) {
+                $o = wc_get_order($id);
+                if ($o) { return $o; }
+            }
+        }
+        foreach (array('_order_number_formatted', '_order_number') as $mk) {
+            $ids = wc_get_orders(array('limit' => 1, 'return' => 'ids', 'meta_key' => $mk, 'meta_value' => $number));
+            if (!empty($ids)) {
+                $o = wc_get_order($ids[0]);
+                if ($o) { return $o; }
+            }
+        }
+        $digits = preg_replace('/\D+/', '', $number);
+        if ($digits) {
+            $o = wc_get_order((int) $digits);
+            if ($o) { return $o; }
+        }
+        return false;
+    }
+}
+
+/**
+ * Pull the building's full name + size ("N x N") from an order's items — the building
+ * is the first non-child (container) line, parent-resolved; size is the first item
+ * name that reads like a size (tolerates ×, units, decimals, "by").
+ *
+ * @param WC_Order $order Order.
+ * @return array [ string $name, string $size ]
+ */
+if ( ! function_exists('pt_rdm_product_and_size_from_order') ) {
+    function pt_rdm_product_and_size_from_order($order) {
+        $name = ''; $size = '';
+        if (! $order instanceof WC_Order) {
+            return array($name, $size);
+        }
+        foreach ($order->get_items() as $item) {
+            $product = is_callable(array($item, 'get_product')) ? $item->get_product() : null;
+            $iname   = $product ? (string) $product->get_name() : (string) $item->get_name();
+            if ('' === $size && preg_match('/(\d+(?:\.\d+)?)\s*(?:ft|m|cm|\')?\s*(?:x|×|by)\s*(\d+(?:\.\d+)?)/iu', $iname, $m)) {
+                $size = $m[1] . ' x ' . $m[2];
+            }
+            $is_child = $item->get_meta('_composite_parent') || $item->get_meta('_bundled_by');
+            if ('' === $name && ! $is_child) {
+                $pid    = $product ? (int) $product->get_parent_id() : 0;
+                $parent = $pid ? wc_get_product($pid) : $product;
+                $name   = $parent ? (string) $parent->get_name() : $iname;
+            }
+        }
+        return array($name, $size);
+    }
+}
+
+/**
+ * Auto-fill the RDM "Product Name" and "Size of the Product" from the ORIGINAL order
+ * (order_ref_original) when an RDM order is saved. Fills ONLY empty fields — never
+ * overwrites a manual entry. Runs after ACF saves (priority 20) so the reference is
+ * stored; both target fields are plain text, so the real product title is written in.
+ */
+add_action('acf/save_post', function ($post_id) {
+    static $busy = false;
+    if ($busy) {
+        return;
+    }
+    $order = wc_get_order($post_id);
+    if (! $order) {
+        return; // not an order
+    }
+
+    $K_REF  = 'field_60c7493fdc565'; // order_ref_original
+    $K_NAME = 'field_6447ade4d13eb'; // Product-Name (text)
+    $K_SIZE = 'field_6447ad6cd13e9'; // Size of the Product (text)
+
+    $ref = trim((string) get_field($K_REF, $post_id));
+    if ('' === $ref) {
+        return; // no original order referenced
+    }
+
+    $cur_name = trim((string) get_field($K_NAME, $post_id));
+    $cur_size = trim((string) get_field($K_SIZE, $post_id));
+    if ('' !== $cur_name && '' !== $cur_size) {
+        return; // both already filled — leave them
+    }
+
+    $orig = pt_rdm_find_order_by_number($ref);
+    if (! $orig) {
+        return; // original order not found — leave for manual entry
+    }
+
+    list($name, $size) = pt_rdm_product_and_size_from_order($orig);
+
+    $busy = true;
+    if ('' === $cur_name && '' !== $name) {
+        update_field($K_NAME, $name, $post_id);
+    }
+    if ('' === $cur_size && '' !== $size) {
+        update_field($K_SIZE, $size, $post_id);
+    }
+    $busy = false;
+}, 20);
+
 
 function av_product_matches_special_category( $product_id ) {
 
