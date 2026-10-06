@@ -85,7 +85,7 @@
   .cfg-gallery{ position:relative; }
   /* Double Glazing badge — plain image, top-right over the gallery (clear of the
      vertically-centred nav buttons). No sticker/shadow treatment. */
-  .cfg-gallery .cfg-dgbadge{ position:absolute; top:12px; right:12px; z-index:3; pointer-events:none; line-height:0; }
+  .cfg-gallery .cfg-dgbadge{ position:absolute; top:12px; left:12px; z-index:3; pointer-events:none; line-height:0; }
   .cfg-gallery .cfg-dgbadge img{ width:88px; height:auto; display:block; background:transparent; border-radius:0; }
   .cfg-navbtn{ position:absolute; top:50%; transform:translateY(-50%); width:42px; height:42px; border-radius:50%; border:none; background:rgba(255,255,255,.86); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); box-shadow:var(--e1); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--ink); font-size:1.3rem; line-height:1; z-index:2; }
   .cfg-navbtn.prev{ left:12px; } .cfg-navbtn.next{ right:12px; }
