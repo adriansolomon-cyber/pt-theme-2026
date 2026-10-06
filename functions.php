@@ -36,6 +36,8 @@ add_filter(
 require_once get_stylesheet_directory() . '/inc/category-render.php';
 // Single-product dynamic helpers (from price, category-line name).
 require_once get_stylesheet_directory() . '/inc/product-render.php';
+// "Double Glazing" feature badge (card + product-page gallery), fixed ID list.
+require_once get_stylesheet_directory() . '/includes/pt-double-glazing-badge.php';
 // Admin-bar "Refresh all prices" — global price-cache flush (loads after the cache
 // helpers above so it can call their bump functions).
 require_once get_stylesheet_directory() . '/includes/price-refresh-admin.php';

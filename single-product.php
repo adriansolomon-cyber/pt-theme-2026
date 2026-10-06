@@ -221,6 +221,10 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
     <div class="cfg-preview">
       <div class="cfg-gallery" id="cfgGallery">
         <img id="cfgImg" src="<?php echo esc_url( $pt_cfg_img ); ?>" alt="<?php echo esc_attr( $pt_name ); ?> preview">
+        <?php
+        // Double Glazing feature badge (fixed ID list) — top-right over the gallery.
+        echo function_exists( 'pt_double_glazing_badge_html' ) ? pt_double_glazing_badge_html( $pt_pid, 'cfg-dgbadge' ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in helper
+        ?>
         <div class="cfg-disc" id="cfgDisc">
           <button class="cfg-disc-btn" type="button" aria-label="Image disclaimer" aria-expanded="false">i</button>
           <div class="cfg-disc-panel" role="tooltip"><b>Disclaimer:</b> Painted buildings are shown for illustration only. All buildings are delivered in their standard or pressure-treated colour, which may vary from those shown. Please keep adequate distance between your building and the boundary to allow access for the annual treatment required to comply with the anti-rot guarantee*.</div>
