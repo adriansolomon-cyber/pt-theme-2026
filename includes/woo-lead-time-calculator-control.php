@@ -147,14 +147,18 @@ function pt_fast_delivery_earliest_date() {
 }
 
 /**
- * Clamp a computed FAST-delivery date up to the earliest-fast floor, if any.
+ * Pin a FAST-delivery date to the configured earliest-fast date while that date is
+ * active — both raising an earlier computed date AND pulling back a slightly-later
+ * one, so the promised earliest reads exactly that date (e.g. Tue 13 Oct). Once the
+ * date passes, pt_fast_delivery_earliest_date() returns null and the real computed
+ * date is used again. Only ever call this for genuine fast (48h) orders.
  *
  * @param DateTime $date Computed delivery date.
  * @return DateTime
  */
 function pt_apply_fast_delivery_floor(DateTime $date) {
     $floor = pt_fast_delivery_earliest_date();
-    return ($floor && $date < $floor) ? clone $floor : $date;
+    return $floor ? clone $floor : $date;
 }
 
 /* ======================================================
@@ -381,10 +385,6 @@ function pt_get_min_pickup_date() {
         $from_size = false;
     }
 
-    // Whether this is a genuine fast (48h) order — captured before the surcharge
-    // zone below may flip $from_size off, so the earliest-fast floor still applies.
-    $was_fast = $from_size;
-
     // 48h → 72h lever: push a fast order out by the configured extra working days
     // (dates only — the "48 hours" wording is left unchanged). Applied to the base
     // fast lead time so the surcharge-zone extra below still builds on top of it.
@@ -408,8 +408,10 @@ function pt_get_min_pickup_date() {
     $blackout = $from_size ? [] : pt_get_blackout_dates();
 
     $date = pt_date_from_business_days($days, $blackout);
-    // Earliest-fast floor: hold a 48h order to the floor date (e.g. Tue 13 Oct).
-    if ($was_fast) {
+    // Pin a genuine fast (48h) order's earliest to the configured date (e.g. Tue 13
+    // Oct). Scoped to $from_size AFTER the surcharge flip, so Highlands & Islands
+    // (which can't do 48h) keep their pushed-out date.
+    if ($from_size) {
         $date = pt_apply_fast_delivery_floor($date);
     }
 
