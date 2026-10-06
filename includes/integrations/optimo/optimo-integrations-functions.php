@@ -113,6 +113,68 @@ function optimo_curl_post_json( $url, array $payload ) {
         return true;
     }
 
+    /**
+     * The chosen SIZE of a composite building, read straight from its Size COMPONENT
+     * — the structured selection behind the "16 x 8" line — NOT by scanning line-item
+     * names (part/kit names also contain sizes). Mirrors how the order email resolves
+     * the per-size image (get_composite_product_size_image_id).
+     *
+     * @param WC_Order_Item_Product $item Composite container line item.
+     * @return string e.g. "16 x 8", or '' when not resolvable from the component.
+     */
+    function optimo_size_from_composite_item( $item ): string {
+        if ( ! is_a( $item, 'WC_Order_Item_Product' ) ) {
+            return '';
+        }
+        $parent_product = $item->get_product();
+        if ( ! $parent_product || ! $parent_product->is_type( 'composite' ) ) {
+            return '';
+        }
+        $composite_data = $item->get_meta( '_composite_data', true );
+        if ( ! is_array( $composite_data ) || ! $composite_data ) {
+            return '';
+        }
+        // Map component id => lowercased title, to find the "Size" component.
+        $title_map  = [];
+        $components = is_callable( [ $parent_product, 'get_components' ] ) ? $parent_product->get_components() : [];
+        if ( is_array( $components ) ) {
+            foreach ( $components as $cid => $comp ) {
+                if ( is_object( $comp ) && is_callable( [ $comp, 'get_title' ] ) ) {
+                    $title_map[ (string) $cid ] = strtolower( trim( (string) $comp->get_title() ) );
+                }
+            }
+        }
+        $size_config = null;
+        foreach ( $composite_data as $cid => $cfg ) {
+            $title = $title_map[ (string) $cid ] ?? '';
+            if ( 'size' === $title || false !== strpos( $title, 'size' ) ) {
+                $size_config = $cfg;
+                break;
+            }
+        }
+        if ( ! is_array( $size_config ) ) {
+            return '';
+        }
+        $pid = ! empty( $size_config['variation_id'] ) ? (int) $size_config['variation_id']
+             : ( ! empty( $size_config['product_id'] ) ? (int) $size_config['product_id'] : 0 );
+        if ( ! $pid ) {
+            return '';
+        }
+        $size_product = wc_get_product( $pid );
+        if ( ! $size_product ) {
+            return '';
+        }
+        // The size product's NAME ("16 x 8") is the clean source; the SKU
+        // ("16ft-x-8ft-…") is the backup. Parse a single N x N from either.
+        $size_re = '/(\d+(?:\.\d+)?)\s*(?:ft|m|cm|\')?\s*(?:x|×|by)\s*(\d+(?:\.\d+)?)/iu';
+        foreach ( [ $size_product->get_name(), $size_product->get_sku() ] as $cand ) {
+            if ( '' !== (string) $cand && preg_match( $size_re, (string) $cand, $m ) ) {
+                return $m[1] . ' x ' . $m[2];
+            }
+        }
+        return '';
+    }
+
     function optimo_create_or_update_order( WC_Order $order, string $delivery_date, string $apikey = OPTIMO_API_KEY ): array {
         $orderNo = $order->get_order_number();
         $order_id = $order->get_id();
@@ -139,14 +201,14 @@ function optimo_curl_post_json( $url, array $payload ) {
         }
 
         // Build the product name(s) for Optimo, with each composite's SIZE appended
-        // ("Grandmaster Pent - 12 x 10"). A composite order lists the building
-        // (container) followed by its component children; one child is the size, e.g.
-        // "12 x 10". We attach a size to the current building when the line is either a
-        // composite/bundle child with a size in its name, OR a size line that resolves
-        // to the SAME parent product as the container — because some orders don't carry
-        // the _composite_parent flag on the size line, which otherwise makes the size
-        // read as a duplicate building and get dropped (no size shown). The regex also
-        // tolerates unit suffixes (16ft x 8ft) and decimals.
+        // ("Grandmaster Pent - 12 x 10"). PRIMARY source is the composite's Size
+        // COMPONENT (optimo_size_from_composite_item) — the structured selection behind
+        // the "16 x 8" line, immune to part/kit names. Only if that can't resolve (e.g.
+        // a non-composite order, or missing _composite_data) do we FALL BACK to scanning
+        // the line-item names: a pure-size line ("16 x 8") or a size line resolving to
+        // the container's parent. The name scan rejects multi-size kit descriptors and
+        // never overrides a component-locked size. The regex tolerates unit suffixes
+        // (16ft x 8ft) and decimals.
         $optimo_lines = [];
         $optimo_cur   = null;
         $size_re      = '/(\d+(?:\.\d+)?)\s*(?:ft|m|cm|\')?\s*(?:x|×|by)\s*(\d+(?:\.\d+)?)/iu';
@@ -202,6 +264,13 @@ function optimo_curl_post_json( $url, array $payload ) {
                 'size_locked' => false,
                 'parent_id'   => $parent_id ?: ( $product ? (int) $product->get_id() : 0 ),
             ];
+            // PRIMARY: read the size from THIS composite's Size component and lock it,
+            // so the name-scan below (and PIP) only ever act as fallbacks.
+            $comp_size = optimo_size_from_composite_item( $item );
+            if ( '' !== $comp_size ) {
+                $optimo_cur['size']        = $comp_size;
+                $optimo_cur['size_locked'] = true;
+            }
         }
         if ( $optimo_cur ) $optimo_lines[] = $optimo_cur;
 

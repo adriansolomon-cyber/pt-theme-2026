@@ -103,6 +103,15 @@ add_action( 'init', function () {
 			'parent_id'   => $parent_id ?: ( $product ? (int) $product->get_id() : 0 ),
 		);
 		echo '    -> NEW building "' . $optimo_cur['name'] . '" (parent_id ' . $optimo_cur['parent_id'] . ")\n";
+		// PRIMARY: size straight from the composite's Size component.
+		$comp_size = function_exists( 'optimo_size_from_composite_item' ) ? optimo_size_from_composite_item( $item ) : '';
+		if ( '' !== $comp_size ) {
+			$optimo_cur['size']        = $comp_size;
+			$optimo_cur['size_locked'] = true;
+			echo '    -> SIZE ' . $comp_size . " from Size COMPONENT (primary), LOCKED\n";
+		} else {
+			echo "    -> Size component did not resolve — will rely on name-scan / PIP fallback\n";
+		}
 	}
 	if ( $optimo_cur ) {
 		$optimo_lines[] = $optimo_cur;
