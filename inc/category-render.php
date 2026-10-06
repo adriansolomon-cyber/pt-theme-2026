@@ -216,6 +216,10 @@ function pt_cat_card_html( $p ) {
 	if ( ! empty( $p['is_new'] ) ) {
 		$h .= '<span class="newbadge">New</span>';
 	}
+	// Double Glazing badge (fixed ID list) — top-left image on the card.
+	if ( function_exists( 'pt_double_glazing_badge_html' ) ) {
+		$h .= pt_double_glazing_badge_html( $pid, 'dgbadge' );
+	}
 	$h .= '</div>';
 	$h .= '<div class="pbody"><h3>' . esc_html( $name ) . '</h3><div class="pprice">' . $price_html . '</div>';
 	if ( $sizes ) {
