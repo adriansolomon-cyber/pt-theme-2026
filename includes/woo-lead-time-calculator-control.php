@@ -119,6 +119,44 @@ function pt_fast_delivery_extra_days() {
     return max(0, (int) apply_filters('pt_fast_delivery_extra_days', 1));
 }
 
+/**
+ * Earliest date a FAST (48h) order may be promised. Temporary business floor — no
+ * 48h delivery is offered before this date, regardless of the business-day count.
+ * Self-expires once the date is in the past. Set '' (or filter) to disable.
+ *
+ * Filter: pt_fast_delivery_earliest_date (Y-m-d).
+ *
+ * @return DateTime|null Europe/London midnight, or null when no floor applies.
+ */
+function pt_fast_delivery_earliest_date() {
+    $ymd = (string) apply_filters('pt_fast_delivery_earliest_date', '2026-10-13');
+    if ('' === $ymd) {
+        return null;
+    }
+    try {
+        $tz    = new DateTimeZone('Europe/London');
+        $floor = new DateTime($ymd, $tz);
+        $floor->setTime(0, 0, 0);
+        $today = new DateTime('now', $tz);
+        $today->setTime(0, 0, 0);
+    } catch (\Exception $e) {
+        return null;
+    }
+    // Irrelevant once past — don't hold orders back forever.
+    return ($floor > $today) ? $floor : null;
+}
+
+/**
+ * Clamp a computed FAST-delivery date up to the earliest-fast floor, if any.
+ *
+ * @param DateTime $date Computed delivery date.
+ * @return DateTime
+ */
+function pt_apply_fast_delivery_floor(DateTime $date) {
+    $floor = pt_fast_delivery_earliest_date();
+    return ($floor && $date < $floor) ? clone $floor : $date;
+}
+
 /* ======================================================
  * 3. PRODUCT PAGE: DELIVERY DATE DISPLAY
  * ====================================================== */
@@ -128,7 +166,7 @@ function pt_delivery_date_calculator($product_id = null) {
     if ($product_id && get_field('include_fast_delivery', $product_id)) {
         $fast_days = (int) get_field('fast_delivery_days', $product_id) ?: 3;
         $fast_days += pt_fast_delivery_extra_days(); // 48h → 72h lever (dates only, wording unchanged)
-        return pt_date_from_business_days($fast_days);
+        return pt_apply_fast_delivery_floor(pt_date_from_business_days($fast_days));
     }
 
     if ($product_id && trim(get_field('delivery_time', $product_id)) !== '') {
@@ -343,6 +381,10 @@ function pt_get_min_pickup_date() {
         $from_size = false;
     }
 
+    // Whether this is a genuine fast (48h) order — captured before the surcharge
+    // zone below may flip $from_size off, so the earliest-fast floor still applies.
+    $was_fast = $from_size;
+
     // 48h → 72h lever: push a fast order out by the configured extra working days
     // (dates only — the "48 hours" wording is left unchanged). Applied to the base
     // fast lead time so the surcharge-zone extra below still builds on top of it.
@@ -365,8 +407,14 @@ function pt_get_min_pickup_date() {
     // Fast keeps blackout dates out of the count; everything else respects them.
     $blackout = $from_size ? [] : pt_get_blackout_dates();
 
+    $date = pt_date_from_business_days($days, $blackout);
+    // Earliest-fast floor: hold a 48h order to the floor date (e.g. Tue 13 Oct).
+    if ($was_fast) {
+        $date = pt_apply_fast_delivery_floor($date);
+    }
+
     return [
-        'date'       => pt_date_from_business_days($days, $blackout),
+        'date'       => $date,
         'from_size'  => $from_size,
         'extra_days' => $extra_applied,
     ];
