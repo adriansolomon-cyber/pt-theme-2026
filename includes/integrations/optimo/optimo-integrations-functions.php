@@ -160,15 +160,33 @@ function optimo_curl_post_json( $url, array $payload ) {
             // size regardless of flags/parent — covers size options stored as their own
             // simple product (parent_id 0).
             $pure_size = $has_size && preg_match( '/^\s*\d+(?:\.\d+)?\s*(?:ft|m|cm|\')?\s*(?:x|×|by)\s*\d+(?:\.\d+)?\s*(?:ft|m|cm|\')?\s*$/iu', trim( $iname ) );
+            // A name carrying MULTIPLE distinct "N x N" tokens is a kit/parts descriptor
+            // ("Building Fixing Kit - 12x10-10x10-12x8-10x8 …"), NOT the chosen size —
+            // it must never set or override the building size (this is what produced the
+            // wrong Optimo size: a part line clobbered the real size option).
+            $multi_size = false;
+            if ( preg_match_all( $size_re, $iname, $all_m, PREG_SET_ORDER ) ) {
+                $toks = [];
+                foreach ( $all_m as $one ) { $toks[ $one[1] . 'x' . $one[2] ] = true; }
+                $multi_size = count( $toks ) > 1;
+            }
 
             // Is this line the SIZE of the current building?
-            $is_size_line = $optimo_cur && $has_size && (
+            $is_size_line = $optimo_cur && $has_size && ! $multi_size && (
                 $is_child
                 || ( $parent_id && ! empty( $optimo_cur['parent_id'] ) && $parent_id === (int) $optimo_cur['parent_id'] )
                 || $pure_size
             );
             if ( $is_size_line ) {
-                $optimo_cur['size'] = $m[1] . ' x ' . $m[2];
+                // A pure-size line ("12 x 8") is authoritative and LOCKS the size; an
+                // embedded single-size line only fills when nothing has locked it yet,
+                // so a later single-size part line can't clobber the real size.
+                if ( $pure_size ) {
+                    $optimo_cur['size']        = $m[1] . ' x ' . $m[2];
+                    $optimo_cur['size_locked'] = true;
+                } elseif ( empty( $optimo_cur['size_locked'] ) ) {
+                    $optimo_cur['size'] = $m[1] . ' x ' . $m[2];
+                }
                 continue;
             }
             if ( $is_child ) {
@@ -179,9 +197,10 @@ function optimo_curl_post_json( $url, array $payload ) {
             if ( $optimo_cur ) $optimo_lines[] = $optimo_cur;
             $parent     = $parent_id ? wc_get_product( $parent_id ) : $product;
             $optimo_cur = [
-                'name'      => ( $parent ? $parent->get_name() : '' ) ?: 'Unknown Product',
-                'size'      => '',
-                'parent_id' => $parent_id ?: ( $product ? (int) $product->get_id() : 0 ),
+                'name'        => ( $parent ? $parent->get_name() : '' ) ?: 'Unknown Product',
+                'size'        => '',
+                'size_locked' => false,
+                'parent_id'   => $parent_id ?: ( $product ? (int) $product->get_id() : 0 ),
             ];
         }
         if ( $optimo_cur ) $optimo_lines[] = $optimo_cur;

@@ -50,28 +50,45 @@ add_action( 'init', function () {
 		$is_child  = $item->get_meta( '_composite_parent' ) || $item->get_meta( '_bundled_by' );
 		$has_size  = preg_match( $size_re, $iname, $m );
 		$pure_size = $has_size && preg_match( '/^\s*\d+(?:\.\d+)?\s*(?:ft|m|cm|\')?\s*(?:x|×|by)\s*\d+(?:\.\d+)?\s*(?:ft|m|cm|\')?\s*$/iu', trim( $iname ) );
+		$multi_size = false;
+		if ( preg_match_all( $size_re, $iname, $all_m, PREG_SET_ORDER ) ) {
+			$toks = array();
+			foreach ( $all_m as $one ) {
+				$toks[ $one[1] . 'x' . $one[2] ] = true;
+			}
+			$multi_size = count( $toks ) > 1;
+		}
 
 		printf(
-			"- %-46s parent=%-7d child=%s size=%-7s pure=%s\n",
+			"- %-46s parent=%-7d child=%s size=%-7s pure=%s multi=%s\n",
 			'"' . $iname . '"',
 			$parent_id,
 			$is_child ? 'Y' : 'n',
 			$has_size ? ( $m[1] . 'x' . $m[2] ) : '-',
-			$pure_size ? 'Y' : 'n'
+			$pure_size ? 'Y' : 'n',
+			$multi_size ? 'Y' : 'n'
 		);
 
-		$is_size_line = $optimo_cur && $has_size && (
+		$is_size_line = $optimo_cur && $has_size && ! $multi_size && (
 			$is_child
 			|| ( $parent_id && ! empty( $optimo_cur['parent_id'] ) && $parent_id === (int) $optimo_cur['parent_id'] )
 			|| $pure_size
 		);
 		if ( $is_size_line ) {
-			$optimo_cur['size'] = $m[1] . ' x ' . $m[2];
-			echo '    -> SIZE attached to building "' . $optimo_cur['name'] . "\"\n";
+			if ( $pure_size ) {
+				$optimo_cur['size']        = $m[1] . ' x ' . $m[2];
+				$optimo_cur['size_locked'] = true;
+				echo '    -> SIZE ' . $optimo_cur['size'] . ' LOCKED on "' . $optimo_cur['name'] . "\" (pure size)\n";
+			} elseif ( empty( $optimo_cur['size_locked'] ) ) {
+				$optimo_cur['size'] = $m[1] . ' x ' . $m[2];
+				echo '    -> SIZE ' . $optimo_cur['size'] . ' set on "' . $optimo_cur['name'] . "\" (embedded, unlocked)\n";
+			} else {
+				echo "    -> size candidate ignored (building size already locked)\n";
+			}
 			continue;
 		}
 		if ( $is_child ) {
-			echo "    -> non-size child, skipped\n";
+			echo '    -> non-size child, skipped' . ( $multi_size ? ' (multi-size kit name)' : '' ) . "\n";
 			continue;
 		}
 
@@ -80,9 +97,10 @@ add_action( 'init', function () {
 		}
 		$parent     = $parent_id ? wc_get_product( $parent_id ) : $product;
 		$optimo_cur = array(
-			'name'      => ( $parent ? $parent->get_name() : '' ) ?: 'Unknown Product',
-			'size'      => '',
-			'parent_id' => $parent_id ?: ( $product ? (int) $product->get_id() : 0 ),
+			'name'        => ( $parent ? $parent->get_name() : '' ) ?: 'Unknown Product',
+			'size'        => '',
+			'size_locked' => false,
+			'parent_id'   => $parent_id ?: ( $product ? (int) $product->get_id() : 0 ),
 		);
 		echo '    -> NEW building "' . $optimo_cur['name'] . '" (parent_id ' . $optimo_cur['parent_id'] . ")\n";
 	}
