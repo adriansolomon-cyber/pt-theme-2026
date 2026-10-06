@@ -57,6 +57,7 @@ require_once get_stylesheet_directory() . '/includes/woo-google-ads-tracking.php
 require_once get_stylesheet_directory() . '/includes/woocommerce-my-account.php';
 require_once get_stylesheet_directory() . '/includes/save-share-cart-integration.php'; // Save & Share Cart: surface the button at checkout (custom drawer bypasses cart/mini-cart hooks)
 require_once get_stylesheet_directory() . '/includes/integrations/optimo/optimo-integrations-functions.php';
+require_once get_stylesheet_directory() . '/includes/integrations/optimo/optimo-size-debug.php'; // admin ?pt_optimo_size_debug=<order> read-only diagnostic
 require_once get_stylesheet_directory() . '/includes/woo-lead-time-calculator-control.php';
 
 // Phase 3 — remaining back-office, migrated verbatim. Root-level file so its
