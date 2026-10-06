@@ -286,7 +286,8 @@
     var galDots=$('cfgDots'), galWrap=$('cfgGallery');
     var galleryBase=[];   // parent product gallery images (fetched via proxy, best-effort)
     var gal=[], gi=0;
-    function show(i){ if(!gal.length)return; gi=(i+gal.length)%gal.length; if(elImg) elImg.src=gal[gi]; if(galDots){ var d=galDots.children; for(var k=0;k<d.length;k++){ d[k].className='cfg-dot'+(k===gi?' on':''); } } }
+    var galBadge=galWrap?galWrap.querySelector('.cfg-dgbadge'):null; // Double Glazing badge — first slide only
+    function show(i){ if(!gal.length)return; gi=(i+gal.length)%gal.length; if(elImg) elImg.src=gal[gi]; if(galDots){ var d=galDots.children; for(var k=0;k<d.length;k++){ d[k].className='cfg-dot'+(k===gi?' on':''); } } if(galBadge){ galBadge.hidden=(gi!==0); } }
     function setGallery(imgs){
       gal=(imgs||[]).filter(Boolean); gi=0;
       if(!gal.length){ if(galPrev)galPrev.style.display='none'; if(galNext)galNext.style.display='none'; if(galDots)galDots.style.display='none'; return; }
