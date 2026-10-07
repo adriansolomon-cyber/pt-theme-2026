@@ -533,22 +533,30 @@ function show_coupon_status_message() {
     // permanently (no 10s auto-dismiss countdown), unlike every other notice.
     $persist = '<span class="pt-voucher-notice"></span>';
 
-    // One branded notice per auto-applied managed code (so two ranges in one cart
-    // each get their own line), then a single generic line for any customer coupon.
-    $shown_managed = false;
+    // One combined branded notice naming every auto-applied managed code (so a mixed
+    // cart reads "HOBBY20 and GM20" in a single banner, not two stacked boxes).
+    $managed_applied = array();
     foreach ( $applied as $code ) {
         if ( in_array( strtolower( $code ), $managed, true ) ) {
-            wc_print_notice(
-                $persist . sprintf(
-                    __('Great news! We automatically applied the "%s" discount to your order.', 'textdomain'),
-                    strtoupper( $code )
-                ),
-                'success'
-            );
-            $shown_managed = true;
+            $managed_applied[] = strtoupper( $code );
         }
     }
-    if ( $shown_managed ) return;
+    if ( ! empty( $managed_applied ) ) {
+        $managed_applied = array_values( array_unique( $managed_applied ) );
+        $many = count( $managed_applied ) > 1;
+        $last = array_pop( $managed_applied );
+        $list = $many ? implode( ', ', $managed_applied ) . ' and ' . $last : $last;
+        wc_print_notice(
+            $persist . sprintf(
+                $many
+                    ? __('Great news! We automatically applied the "%s" discounts to your order.', 'textdomain')
+                    : __('Great news! We automatically applied the "%s" discount to your order.', 'textdomain'),
+                $list
+            ),
+            'success'
+        );
+        return;
+    }
 
     // A custom (user-entered) coupon is active.
     foreach ( $applied as $code ) {
