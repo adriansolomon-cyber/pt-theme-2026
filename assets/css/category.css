@@ -61,6 +61,10 @@
   .cat-banner .cat-banner-pic,.cat-banner img{ display:block; width:100%; height:auto; }
   a.cat-banner{ transition:opacity .15s; }
   @media(hover:hover){ a.cat-banner:hover{ opacity:.94; } }
+  /* GM20 promo image banner — full-width clickable image under the category intro. */
+  .pt-promo-banner{ display:block; margin:4px 0 20px; border-radius:var(--r-sm,14px); overflow:hidden; transition:opacity .15s; }
+  .pt-promo-banner img{ display:block; width:100%; height:auto; }
+  @media(hover:hover){ .pt-promo-banner:hover{ opacity:.94; } }
   .cat-intro{ padding:12px 0 4px; }
   /* Title: clamp to max 3 lines. min-height reserves 1 line so it doesn't collapse before it fills. */
   .cat-intro h1{ font-size:clamp(2rem,5vw,3rem); min-height:1.05em; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; line-clamp:3; overflow:hidden; }

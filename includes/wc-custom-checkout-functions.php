@@ -198,6 +198,20 @@ function pt_auto_promo_codes() {
     return array_values( array_unique( $codes ) );
 }
 
+/** Whether a promo code is a live managed promo (campaign on + configured). */
+function pt_promo_is_live( $code ) {
+    return in_array( strtolower( (string) $code ), pt_auto_promo_codes(), true );
+}
+
+/** The display % for a promo code (0 when not a live promo). */
+function pt_promo_pct_by_code( $code ) {
+    $code = strtolower( (string) $code );
+    foreach ( pt_campaign_promos() as $p ) {
+        if ( $p['code'] === $code ) return (float) $p['pct'];
+    }
+    return 0.0;
+}
+
 /** Whether a product (or an ancestor category) is in the given category-id list. */
 function pt_product_in_cats( $product_id, $cat_ids ) {
     if ( empty( $cat_ids ) ) return false;

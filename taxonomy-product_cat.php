@@ -77,6 +77,19 @@ if ( $pt_term && function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaig
 		}
 	}
 }
+// GM20 promo image banner — shown on category 2346 / 19 (and any descendant) while
+// GM20 is a live managed promo (campaign on + the code configured). IDs and image
+// are filterable.
+$pt_gm_banner_ids = array_map( 'intval', (array) apply_filters( 'pt_gm_banner_term_ids', array( 2346, 19 ) ) );
+$pt_gm_banner_img = (string) apply_filters( 'pt_gm_banner_img', 'https://www.projecttimber.com/wp-content/uploads/2026/10/gm-20-promo.webp' );
+$pt_gm_banner = false;
+if ( $pt_term && isset( $pt_term->term_id )
+	&& function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled()
+	&& function_exists( 'pt_auto_promo_codes' ) && in_array( 'gm20', pt_auto_promo_codes(), true ) ) {
+	$pt_gm_chain  = array_merge( array( (int) $pt_term->term_id ), get_ancestors( (int) $pt_term->term_id, 'product_cat' ) );
+	$pt_gm_banner = (bool) array_intersect( $pt_gm_banner_ids, $pt_gm_chain );
+}
+
 $pt_banner_src = $pt_banner_src_m = $pt_banner_link = $pt_banner_alt = '';
 if ( $pt_banner_on ) {
 	$pt_banner_src   = (string) get_field( 'cat_banner_image', $pt_term );
@@ -173,6 +186,12 @@ get_header();
       <p></p>
     <?php endif; ?>
   </div>
+
+  <?php if ( $pt_gm_banner && '' !== $pt_gm_banner_img ) : ?>
+  <a class="pt-promo-banner" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>" aria-label="20% off the Grandmaster range">
+    <img src="<?php echo esc_url( $pt_gm_banner_img ); ?>" alt="20% off the Grandmaster range" loading="eager">
+  </a>
+  <?php endif; ?>
 
   <?php if ( $pt_sale_banner ) : ?>
   <aside class="pt-catsale" aria-label="Sale offer">

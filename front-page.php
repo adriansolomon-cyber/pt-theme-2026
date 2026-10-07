@@ -102,11 +102,12 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
       <div class="glass"><h3>Summerhouses</h3><p class="d">Slow down, enjoy the garden.</p><div class="rfoot"><span class="rprice">From £903</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
     <a class="range-card" href="<?php echo esc_url( home_url( '/garden-workshops/' ) ); ?>">
-      <?php if ( function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() ) : ?><span class="range-badge">16mm cladding upgrade</span><?php endif; ?>
+      <?php if ( function_exists( 'pt_promo_is_live' ) && pt_promo_is_live( 'gm20' ) ) : ?><span class="range-badge"><?php echo (int) round( pt_promo_pct_by_code( 'gm20' ) ); ?>% OFF</span><?php endif; ?>
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/grandmaster_workshop_1x.webp" alt="Project Timber garden workshop" loading="lazy">
       <div class="glass"><h3>Garden Workshops</h3><p class="d">Space for every project.</p><div class="rfoot"><span class="rprice">From £935</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
     <a class="range-card" href="<?php echo esc_url( home_url( '/garden-sheds/' ) ); ?>">
+      <?php if ( function_exists( 'pt_promo_is_live' ) && pt_promo_is_live( 'hobby20' ) ) : ?><span class="range-badge"><?php echo (int) round( pt_promo_pct_by_code( 'hobby20' ) ); ?>% OFF</span><?php endif; ?>
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/shed_1x.webp" alt="Project Timber garden shed" loading="lazy">
       <div class="glass"><h3>Garden Sheds</h3><p class="d">Tough, secure storage.</p><div class="rfoot"><span class="rprice">From £741</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
