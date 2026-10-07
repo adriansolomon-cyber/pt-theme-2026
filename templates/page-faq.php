@@ -72,13 +72,13 @@ get_header();
 			// av_get_*_voucher_code() return '' when no campaign is running. Scope is kept
 			// soft ("the ranges it applies to") because a campaign can target the whole order
 			// or a specific range (e.g. Hobbyist) — call handles the specifics.
-			$pt_faq_code = function_exists( 'av_get_default_voucher_code' ) ? (string) av_get_default_voucher_code() : '';
-			$pt_faq_pct  = ( $pt_faq_code && function_exists( 'pt_campaign_pct' ) ) ? (int) round( (float) pt_campaign_pct( 'coupon_percentage' ) ) : 0;
-			if ( ( '' === $pt_faq_code || $pt_faq_pct <= 0 ) && function_exists( 'av_get_special_voucher_code' ) ) {
-				$pt_faq_sp = (string) av_get_special_voucher_code();
-				if ( '' !== $pt_faq_sp ) {
-					$pt_faq_code = $pt_faq_sp;
-					$pt_faq_pct  = function_exists( 'pt_campaign_pct' ) ? (int) round( (float) pt_campaign_pct( 'special_coupon_percentage' ) ) : 0;
+			$pt_faq_code = '';
+			$pt_faq_pct  = 0;
+			if ( function_exists( 'pt_campaign_promos' ) ) {
+				$pt_faq_promos = pt_campaign_promos();
+				if ( ! empty( $pt_faq_promos ) ) {
+					$pt_faq_code = (string) $pt_faq_promos[0]['code'];   // first active promo
+					$pt_faq_pct  = (int) round( (float) $pt_faq_promos[0]['pct'] );
 				}
 			}
 			$pt_faq_code = strtoupper( $pt_faq_code );

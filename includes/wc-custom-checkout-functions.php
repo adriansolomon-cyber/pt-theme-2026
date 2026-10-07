@@ -116,6 +116,133 @@ function pt_product_in_special_category( $product_id ) {
     return (bool) array_intersect( $special, array_unique( $all ) );
 }
 
+/* ======================================================================
+ * MULTI-PROMO ENGINE — several targeted codes at once (HOBBY20 + GM20 + …).
+ *
+ * The three "special" ACF fields are COMMA-separated lists, matched by position:
+ *   special_coupon_code             = "HOBBY20, GM20"
+ *   special_coupon_percentage       = "20, 20"
+ *   special_offer_category_includes = "4359, <Grandmaster cat id>"
+ * → promo 0 = HOBBY20 / 20% / cat 4359, promo 1 = GM20 / 20% / <GM cat>.
+ * The optional broad `coupon_code` default (no category) is the lowest-priority
+ * promo. Each coupon's OWN WooCommerce restriction still limits what it discounts.
+ * With a single code (no commas) this resolves exactly like the old one-code model.
+ * ====================================================================== */
+
+/** Split an ACF field into trimmed tokens by comma or newline (index preserved). */
+function pt_campaign_split_list( $raw ) {
+    if ( ! is_scalar( $raw ) ) return array();
+    $parts = preg_split( '/[,\n]+/', (string) $raw );
+    return is_array( $parts ) ? array_map( 'trim', $parts ) : array();
+}
+
+/** Resolve one category token ("4359", a slug, or space/pipe-separated several) to term IDs. */
+function pt_campaign_token_cat_ids( $token ) {
+    $ids = array();
+    foreach ( preg_split( '/[\s|]+/', (string) $token ) as $t ) {
+        $t = trim( $t );
+        if ( '' === $t ) continue;
+        if ( ctype_digit( $t ) ) { $ids[] = (int) $t; continue; }
+        $term = get_term_by( 'slug', sanitize_title( $t ), 'product_cat' );
+        if ( ! $term ) $term = get_term_by( 'name', $t, 'product_cat' );
+        if ( $term && ! is_wp_error( $term ) ) $ids[] = (int) $term->term_id;
+    }
+    return array_values( array_unique( array_filter( $ids ) ) );
+}
+
+/**
+ * The active promos, in priority order (targeted specials first, broad default last).
+ * Each: [ 'code' => lowercase, 'pct' => float, 'cat_ids' => int[] (empty = all) ].
+ * Empty when the campaign master switch (auto_voucher_enabled) is off.
+ */
+function pt_campaign_promos() {
+    static $cache = null;
+    if ( null !== $cache ) return $cache;
+    if ( ! auto_voucher_enabled() || ! function_exists( 'get_field' ) ) { $cache = array(); return $cache; }
+
+    $promos = array();
+
+    // Targeted specials — aligned comma lists.
+    $codes = pt_campaign_split_list( get_field( 'special_coupon_code', 'option' ) );
+    $pcts  = pt_campaign_split_list( get_field( 'special_coupon_percentage', 'option' ) );
+    $cats  = pt_campaign_split_list( get_field( 'special_offer_category_includes', 'option' ) );
+    foreach ( $codes as $i => $code ) {
+        if ( '' === $code ) continue;
+        $promos[] = array(
+            'code'    => strtolower( $code ),
+            'pct'     => isset( $pcts[ $i ] ) ? (float) preg_replace( '/[^0-9.]/', '', $pcts[ $i ] ) : 0.0,
+            'cat_ids' => isset( $cats[ $i ] ) ? pt_campaign_token_cat_ids( $cats[ $i ] ) : array(),
+        );
+    }
+
+    // Broad default (optional) — applies to any product; lowest priority.
+    $def = av_get_default_voucher_code(); // '' when unset
+    if ( '' !== $def ) {
+        $promos[] = array(
+            'code'    => $def,
+            'pct'     => pt_campaign_pct( 'coupon_percentage' ),
+            'cat_ids' => array(),
+        );
+    }
+
+    $cache = (array) apply_filters( 'pt_campaign_promos', $promos );
+    return $cache;
+}
+
+/** Active managed coupon codes (lowercase) — for the auto-apply + override checks. */
+function pt_auto_promo_codes() {
+    $codes = array();
+    foreach ( pt_campaign_promos() as $p ) {
+        if ( ! empty( $p['code'] ) ) $codes[] = $p['code'];
+    }
+    return array_values( array_unique( $codes ) );
+}
+
+/** Whether a product (or an ancestor category) is in the given category-id list. */
+function pt_product_in_cats( $product_id, $cat_ids ) {
+    if ( empty( $cat_ids ) ) return false;
+    $cats = wc_get_product_term_ids( (int) $product_id, 'product_cat' );
+    $cats = is_array( $cats ) ? $cats : array();
+    $all  = $cats;
+    foreach ( $cats as $cid ) {
+        foreach ( get_ancestors( (int) $cid, 'product_cat' ) as $anc ) $all[] = (int) $anc;
+    }
+    return (bool) array_intersect( $cat_ids, array_unique( $all ) );
+}
+
+/** The promo that applies to a PRODUCT (targeted first, broad default last), or null. */
+function pt_product_promo( $product_id ) {
+    $product_id = (int) $product_id;
+    if ( ! $product_id ) return null;
+    foreach ( pt_campaign_promos() as $p ) {
+        if ( empty( $p['cat_ids'] ) ) return $p;                      // broad default
+        if ( pt_product_in_cats( $product_id, $p['cat_ids'] ) ) return $p;
+    }
+    return null;
+}
+
+/** The promo that applies to a TERM / category (targeted first, broad default last), or null. */
+function pt_term_promo( $term_id ) {
+    $term_id = (int) $term_id;
+    if ( ! $term_id ) return null;
+    $chain = array_merge( array( $term_id ), get_ancestors( $term_id, 'product_cat' ) );
+    foreach ( pt_campaign_promos() as $p ) {
+        if ( empty( $p['cat_ids'] ) ) return $p;                      // broad default
+        if ( array_intersect( $p['cat_ids'], $chain ) ) return $p;
+    }
+    return null;
+}
+
+/** Does the cart hold a product the promo targets? (broad promo → any non-empty cart) */
+function pt_cart_qualifies_for_promo( $promo ) {
+    if ( ! WC()->cart || WC()->cart->is_empty() ) return false;
+    if ( empty( $promo['cat_ids'] ) ) return true;                    // broad
+    foreach ( av_get_parent_cart_products() as $p ) {
+        if ( pt_product_in_cats( $p['product_id'], $promo['cat_ids'] ) ) return true;
+    }
+    return false;
+}
+
 /**
  * The display discount % for a product (0 = none). Special % if the product is in a
  * special category and a special code is set; otherwise the default % if a default
@@ -124,25 +251,15 @@ function pt_product_in_special_category( $product_id ) {
  */
 function pt_product_discount_pct( $product_id ) {
     if ( ! auto_voucher_enabled() ) return 0.0;
-
-    if ( av_get_special_voucher_code() && pt_product_in_special_category( $product_id ) ) {
-        return pt_campaign_pct( 'special_coupon_percentage' );
-    }
-    $default_code = function_exists( 'get_field' ) ? get_field( 'coupon_code', 'option' ) : '';
-    if ( is_string( $default_code ) && '' !== trim( $default_code ) ) {
-        return pt_campaign_pct( 'coupon_percentage' );
-    }
-    return 0.0;
+    $p = pt_product_promo( $product_id );
+    return $p ? (float) $p['pct'] : 0.0;
 }
 
 /** The coupon code for a product's on-card discount badge ('' = none). */
 function pt_product_discount_code( $product_id ) {
     if ( ! auto_voucher_enabled() ) return '';
-    if ( av_get_special_voucher_code() && pt_product_in_special_category( $product_id ) ) {
-        return strtoupper( av_get_special_voucher_code() );
-    }
-    $default_code = function_exists( 'get_field' ) ? get_field( 'coupon_code', 'option' ) : '';
-    return ( is_string( $default_code ) && '' !== trim( $default_code ) ) ? strtoupper( trim( $default_code ) ) : '';
+    $p = pt_product_promo( $product_id );
+    return $p ? strtoupper( $p['code'] ) : '';
 }
 
 /** True when a product-category term (or an ancestor) is a special-offer category. */
@@ -160,25 +277,15 @@ function pt_term_is_special( $term_id ) {
  */
 function pt_term_discount_pct( $term_id ) {
     if ( ! auto_voucher_enabled() ) return 0.0;
-
-    if ( pt_term_is_special( $term_id ) && av_get_special_voucher_code() ) {
-        return pt_campaign_pct( 'special_coupon_percentage' );
-    }
-    $default_code = function_exists( 'get_field' ) ? get_field( 'coupon_code', 'option' ) : '';
-    if ( is_string( $default_code ) && '' !== trim( $default_code ) ) {
-        return pt_campaign_pct( 'coupon_percentage' );
-    }
-    return 0.0;
+    $p = pt_term_promo( $term_id );
+    return $p ? (float) $p['pct'] : 0.0;
 }
 
 /** The coupon code shown on the on-card discount badge for a category page ('' = none). */
 function pt_term_discount_code( $term_id ) {
     if ( ! auto_voucher_enabled() ) return '';
-    if ( pt_term_is_special( $term_id ) && av_get_special_voucher_code() ) {
-        return strtoupper( av_get_special_voucher_code() );
-    }
-    $default_code = function_exists( 'get_field' ) ? get_field( 'coupon_code', 'option' ) : '';
-    return ( is_string( $default_code ) && '' !== trim( $default_code ) ) ? strtoupper( trim( $default_code ) ) : '';
+    $p = pt_term_promo( $term_id );
+    return $p ? strtoupper( $p['code'] ) : '';
 }
 
 /**
@@ -234,11 +341,11 @@ function av_get_special_voucher_code() {
  * code). Returns UPPERCASE for display, or '' when no campaign code is set.
  */
 function av_get_display_voucher_code() {
-    $code = av_get_default_voucher_code();
-    if ( '' === $code ) {
-        $code = av_get_special_voucher_code();
-    }
-    return strtoupper( $code );
+    // The FIRST managed promo code (targeted specials first, then the broad default) —
+    // used by generic/site-wide campaign copy. Range-specific surfaces use the per
+    // product/term helpers instead.
+    $promos = pt_campaign_promos();
+    return ! empty( $promos ) ? strtoupper( $promos[0]['code'] ) : '';
 }
 
 /**
@@ -339,96 +446,41 @@ add_action( 'woocommerce_applied_coupon', function( $applied_coupon_code ) {
 } );
 
 /**
- * Validate XMAS30 when user enters it manually.
- */
-add_filter( 'woocommerce_coupon_is_valid', function( $valid, $coupon ) {
-
-    if ( ! auto_voucher_enabled() || ! WC()->cart ) return $valid;
-
-    $code         = strtolower( $coupon->get_code() );
-    $special_code = strtolower( av_get_special_voucher_code() );
-
-    // If not xmas30 → allow
-    if ( $code !== $special_code ) return $valid;
-
-    // If qualifies → allow
-    if ( av_cart_qualifies_for_special() ) return true;
-
-    // NOT qualified
-    $default_code = av_get_default_voucher_code();
-
-    wc_add_notice(
-        sprintf(
-            __( 'Coupon %s is not valid for your cart. Default discount %s has been applied instead.', 'textdomain' ),
-            strtoupper( $special_code ),
-            strtoupper( $default_code )
-        ),
-        'error'
-    );
-
-    // Apply fallback
-    if ( $default_code && ! WC()->cart->has_discount( $default_code ) ) {
-        WC()->cart->apply_coupon( $default_code );
-    }
-
-    return false;
-}, 10, 2 );
-
-/**
- * MAIN AUTO-APPLY LOGIC (admin only)
+ * MAIN AUTO-APPLY LOGIC.
  *
- * 1. If custom coupon exists → do nothing.
- * 2. If cart qualifies → apply XMAS30, remove default.
- * 3. Else → apply default.
+ * Each managed promo is applied INDEPENDENTLY when the cart holds a product it targets
+ * (its ACF category), and removed when it no longer does. WooCommerce then scopes each
+ * coupon to its own items — so a Hobbyist item gets HOBBY20, a Grandmaster item gets
+ * GM20, and a cart with both gets BOTH, each discounting only its own products. A coupon
+ * the customer typed themselves (outside the managed list) wins — we don't touch it.
+ *
+ * With a single configured code this behaves exactly like the previous one-code model.
  */
 add_action( 'woocommerce_before_calculate_totals', function() {
 
-    if ( ! auto_voucher_enabled() || ! WC()->cart ) return;
-    if ( WC()->cart->is_empty() ) return;
+    if ( ! auto_voucher_enabled() || ! WC()->cart || WC()->cart->is_empty() ) return;
 
-    $default_code = av_get_default_voucher_code();
-    $special_code = av_get_special_voucher_code();
+    $promos = pt_campaign_promos();
+    if ( empty( $promos ) ) return;
 
-    $applied       = WC()->cart->get_applied_coupons();
-    $applied_lower = array_map( 'strtolower', $applied );
+    $managed = pt_auto_promo_codes();
+    $applied = array_map( 'strtolower', WC()->cart->get_applied_coupons() );
 
-    $default_lower = strtolower( $default_code );
-    $special_lower = strtolower( $special_code );
-
-    /**
-     * 1. CUSTOM COUPON? → let user override.
-     */
-    foreach ( $applied_lower as $code ) {
-        if ( $code !== $default_lower && $code !== $special_lower ) {
-            return; // user coupon wins
-        }
+    // Customer's OWN coupon present (not one of ours) → leave everything alone.
+    foreach ( $applied as $code ) {
+        if ( ! in_array( $code, $managed, true ) ) return;
     }
 
-    /**
-     * 2. If qualifies → apply XMAS30 exclusively.
-     */
-    if ( av_cart_qualifies_for_special() ) {
-
-        if ( ! in_array( $special_lower, $applied_lower, true ) ) {
-            WC()->cart->apply_coupon( $special_code );
+    // Apply each promo the cart qualifies for; remove the ones it no longer does.
+    foreach ( $promos as $p ) {
+        $code      = $p['code'];
+        $qualifies = pt_cart_qualifies_for_promo( $p );
+        $is_on     = in_array( $code, $applied, true );
+        if ( $qualifies && ! $is_on ) {
+            WC()->cart->apply_coupon( $code );
+        } elseif ( ! $qualifies && $is_on ) {
+            WC()->cart->remove_coupon( $code );
         }
-
-        if ( in_array( $default_lower, $applied_lower, true ) ) {
-            WC()->cart->remove_coupon( $default_code );
-        }
-
-        return;
-    }
-
-    /**
-     * 3. Not qualified → ensure xmas30 removed, apply default.
-     */
-    if ( in_array( $special_lower, $applied_lower, true ) ) {
-        WC()->cart->remove_coupon( $special_code );
-    }
-
-    if ( $default_code && ! WC()->cart->has_discount( $default_code ) ) {
-        WC()->cart->apply_coupon( $default_code );
     }
 
 }, 10 );
@@ -449,10 +501,7 @@ add_filter( 'woocommerce_coupon_message', function( $msg, $msg_code, $coupon ) {
         return $msg;
     }
     $code  = strtolower( (string) ( is_object( $coupon ) && method_exists( $coupon, 'get_code' ) ? $coupon->get_code() : '' ) );
-    $auto  = array_filter( array(
-        function_exists( 'av_get_default_voucher_code' ) ? strtolower( (string) av_get_default_voucher_code() ) : '',
-        function_exists( 'av_get_special_voucher_code' ) ? strtolower( (string) av_get_special_voucher_code() ) : '',
-    ) );
+    $auto  = function_exists( 'pt_auto_promo_codes' ) ? pt_auto_promo_codes() : array();
     return in_array( $code, $auto, true ) ? '' : $msg;
 }, 10, 3 );
 
@@ -468,54 +517,39 @@ function show_coupon_status_message() {
     $applied = WC()->cart->get_applied_coupons();
     if ( empty( $applied ) ) return;
 
-    $default_code = av_get_default_voucher_code();
-    $special_code = av_get_special_voucher_code();
-
-    $default_lower = strtolower( $default_code );
-    $special_lower = strtolower( $special_code );
+    $managed = pt_auto_promo_codes(); // lowercase
 
     // Hidden marker: tells assets/js/wc-notices.js to keep this notice visible
     // permanently (no 10s auto-dismiss countdown), unlike every other notice.
     $persist = '<span class="pt-voucher-notice"></span>';
 
-    // Case 1: Default voucher applied
-    if ( $default_code && WC()->cart->has_discount( $default_code ) ) {
-        wc_print_notice(
-            $persist . sprintf(
-                __('Great news! We automatically applied the "%s" discount to your order.', 'textdomain'),
-                strtoupper( $default_code )
-            ),
-            'success'
-        );
-        return;
-    }
-
-    // Case 2: Special voucher (XMAS30) applied
-    if ( $special_code && WC()->cart->has_discount( $special_code ) ) {
-        wc_print_notice(
-            $persist . sprintf(
-                __('Your exclusive "%s" discount has been applied!', 'textdomain'),
-                strtoupper( $special_code )
-            ),
-            'success'
-        );
-        return;
-    }
-
-    // Case 3: A custom coupon (user-entered) is active
+    // One branded notice per auto-applied managed code (so two ranges in one cart
+    // each get their own line), then a single generic line for any customer coupon.
+    $shown_managed = false;
     foreach ( $applied as $code ) {
-        $lower = strtolower( $code );
-
-        if ( $lower !== $default_lower && $lower !== $special_lower ) {
+        if ( in_array( strtolower( $code ), $managed, true ) ) {
             wc_print_notice(
                 $persist . sprintf(
-                    __('Coupon "%s" is active on your order.', 'textdomain'),
+                    __('Great news! We automatically applied the "%s" discount to your order.', 'textdomain'),
                     strtoupper( $code )
                 ),
                 'success'
             );
-            return;
+            $shown_managed = true;
         }
+    }
+    if ( $shown_managed ) return;
+
+    // A custom (user-entered) coupon is active.
+    foreach ( $applied as $code ) {
+        wc_print_notice(
+            $persist . sprintf(
+                __('Coupon "%s" is active on your order.', 'textdomain'),
+                strtoupper( $code )
+            ),
+            'success'
+        );
+        return;
     }
 }
 
