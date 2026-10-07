@@ -90,6 +90,20 @@ if ( $pt_term && isset( $pt_term->term_id )
 	$pt_gm_banner = (bool) array_intersect( $pt_gm_banner_ids, $pt_gm_chain );
 }
 
+// The in-grid promo card for THIS category — the HOBBY20 card on the Hobbyist pages,
+// the GM20 card on the Grandmaster pages (cats 2346/19). Mutually exclusive by
+// category; category.js placePromo() drops whichever one into the 2nd grid slot.
+$pt_promo_card_html = '';
+$pt_promo_card_data = $pt_promo_card
+	? array( 'href' => home_url( '/hobbyist/' ),   'img' => 'https://www.projecttimber.com/wp-content/uploads/2026/10/banner-promo-HOBBY20.webp', 'alt' => '20% off the Hobbyist range' )
+	: ( $pt_gm_banner
+		? array( 'href' => home_url( '/grandmaster/' ), 'img' => $pt_gm_banner_img, 'alt' => '20% off the Grandmaster range' )
+		: null );
+if ( $pt_promo_card_data ) {
+	$pt_promo_card_html = '<a class="promo-card" href="' . esc_url( $pt_promo_card_data['href'] ) . '" aria-label="' . esc_attr( $pt_promo_card_data['alt'] ) . '">'
+		. '<img src="' . esc_url( $pt_promo_card_data['img'] ) . '" alt="' . esc_attr( $pt_promo_card_data['alt'] ) . '"></a>';
+}
+
 $pt_banner_src = $pt_banner_src_m = $pt_banner_link = $pt_banner_alt = '';
 if ( $pt_banner_on ) {
 	$pt_banner_src   = (string) get_field( 'cat_banner_image', $pt_term );
@@ -187,12 +201,6 @@ get_header();
     <?php endif; ?>
   </div>
 
-  <?php if ( $pt_gm_banner && '' !== $pt_gm_banner_img ) : ?>
-  <a class="pt-promo-banner" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>" aria-label="20% off the Grandmaster range">
-    <img src="<?php echo esc_url( $pt_gm_banner_img ); ?>" alt="20% off the Grandmaster range" loading="eager">
-  </a>
-  <?php endif; ?>
-
   <?php if ( $pt_sale_banner ) : ?>
   <aside class="pt-catsale" aria-label="Sale offer">
     <div class="pt-catsale-kick">● Factory outlet deal</div>
@@ -241,20 +249,12 @@ get_header();
         // Hobbyist 20% promo card as the 2nd grid item (category.js placePromo()
         // repositions it). Omitting it — campaign off or a non-target category —
         // removes it everywhere.
-        if ( $pt_promo_card && 0 === $pt_i ) {
-            ?>
-            <a class="promo-card" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>" aria-label="20% off the Hobbyist range">
-              <img src="<?php echo esc_url( 'https://www.projecttimber.com/wp-content/uploads/2026/10/banner-promo-HOBBY20.webp' ); ?>" alt="20% off the Hobbyist range">
-            </a>
-            <?php
+        if ( '' !== $pt_promo_card_html && 0 === $pt_i ) {
+            echo $pt_promo_card_html; // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_url/esc_attr above
         }
     }
-    if ( $pt_promo_card && 0 === $pt_count ) {
-        ?>
-        <a class="promo-card" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>" aria-label="20% off the Hobbyist range">
-          <img src="<?php echo esc_url( 'https://www.projecttimber.com/wp-content/uploads/2026/10/banner-promo-HOBBY20.webp' ); ?>" alt="20% off the Hobbyist range">
-        </a>
-        <?php
+    if ( '' !== $pt_promo_card_html && 0 === $pt_count ) {
+        echo $pt_promo_card_html; // phpcs:ignore WordPress.Security.EscapeOutput -- built with esc_url/esc_attr above
     }
     ?>
     <p class="noresults" id="noresults"<?php echo $pt_count ? ' hidden' : ''; ?>><?php echo $pt_count ? 'No products match those filters. <a href="#" id="clearFilters" style="color:var(--charcoal);font-weight:700">Clear filters</a>' : 'No products found in this category.'; ?></p>
