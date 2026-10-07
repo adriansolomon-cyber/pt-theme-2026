@@ -252,6 +252,8 @@
 /* Double Glazing badge — plain image, top-left on the card. The generic
    `.ph.duo img` rule stretches imgs to fill, so pin this one to its own size. */
 .prod .ph.duo .dgbadge{ position:absolute; top:10px; left:10px; z-index:3; pointer-events:none; line-height:0; }
+/* With a discount badge in the top-left, move the glazing badge to the top-right. */
+.prod .ph.duo .dgbadge--right{ left:auto; right:10px; }
 .prod .ph.duo .dgbadge img{ position:static; inset:auto; width:72px; height:auto; display:block; }
 
 /* ===== SEPT20 wide sale banner (top of Garden Sheds / Hobbyist category) ===== */

@@ -216,9 +216,11 @@ function pt_cat_card_html( $p ) {
 	if ( ! empty( $p['is_new'] ) ) {
 		$h .= '<span class="newbadge">New</span>';
 	}
-	// Double Glazing badge (fixed ID list) — top-left image on the card.
+	// Double Glazing badge (fixed ID list) — top-left; shifts to the top-right only when
+	// a discount badge is present (which sits top-left), so the two never overlap.
 	if ( function_exists( 'pt_double_glazing_badge_html' ) ) {
-		$h .= pt_double_glazing_badge_html( $pid, 'dgbadge' );
+		$dg_class = ( '' !== $badge ) ? 'dgbadge dgbadge--right' : 'dgbadge';
+		$h .= pt_double_glazing_badge_html( $pid, $dg_class );
 	}
 	$h .= '</div>';
 	$h .= '<div class="pbody"><h3>' . esc_html( $name ) . '</h3><div class="pprice">' . $price_html . '</div>';
