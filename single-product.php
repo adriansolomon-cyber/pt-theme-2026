@@ -54,7 +54,7 @@ $pt_line    = function_exists( 'pt_product_line_singular' ) ? pt_product_line_si
 if ( '' === $pt_line ) {
 	$pt_line = $pt_name;
 }
-$pt_from = $pt_product ? pt_product_from_price_display( $pt_product ) : '';
+$pt_from = ( $pt_product && function_exists( 'pt_product_from_price_display' ) ) ? pt_product_from_price_display( $pt_product ) : ''; // guarded so a mid-deploy load race can't fatal the product page
 if ( '' === $pt_from ) {
 	$pt_from = 'From £—';
 }
