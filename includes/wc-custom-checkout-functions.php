@@ -458,6 +458,13 @@ add_action( 'woocommerce_applied_coupon', function( $applied_coupon_code ) {
  */
 add_action( 'woocommerce_before_calculate_totals', function() {
 
+    // Re-entrancy guard: apply_coupon()/remove_coupon() below call calculate_totals(),
+    // which re-fires THIS hook. Without this, a mixed cart (two qualifying coupons) —
+    // especially with an "individual use" coupon that removes the other — recurses
+    // forever and the cart hangs on "loading".
+    static $running = false;
+    if ( $running ) return;
+
     if ( ! auto_voucher_enabled() || ! WC()->cart || WC()->cart->is_empty() ) return;
 
     $promos = pt_campaign_promos();
@@ -472,16 +479,19 @@ add_action( 'woocommerce_before_calculate_totals', function() {
     }
 
     // Apply each promo the cart qualifies for; remove the ones it no longer does.
+    // Held under the guard so the apply/remove recalcs don't re-enter this handler.
+    $running = true;
     foreach ( $promos as $p ) {
         $code      = $p['code'];
         $qualifies = pt_cart_qualifies_for_promo( $p );
-        $is_on     = in_array( $code, $applied, true );
+        $is_on     = WC()->cart->has_discount( $code ); // fresh each iteration
         if ( $qualifies && ! $is_on ) {
             WC()->cart->apply_coupon( $code );
         } elseif ( ! $qualifies && $is_on ) {
             WC()->cart->remove_coupon( $code );
         }
     }
+    $running = false;
 
 }, 10 );
 
