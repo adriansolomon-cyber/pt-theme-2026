@@ -436,12 +436,23 @@ add_action( 'woocommerce_applied_coupon', function( $applied_coupon_code ) {
 
     if ( ! auto_voucher_enabled() || ! WC()->cart ) return;
 
-    $applied_coupon_code_lower = strtolower( $applied_coupon_code );
+    $applied_lower = strtolower( $applied_coupon_code );
+    $managed       = function_exists( 'pt_auto_promo_codes' ) ? pt_auto_promo_codes() : array();
+    $applied_is_managed = in_array( $applied_lower, $managed, true );
 
+    // Keep the coupon just applied. Our MANAGED promos (HOBBY20, GM20, …) are allowed
+    // to STACK with each other, so when a managed code is applied we only strip
+    // non-managed (customer) coupons. When a CUSTOMER types their own code it stays
+    // exclusive — every other coupon is removed, as before.
     foreach ( WC()->cart->get_applied_coupons() as $code ) {
-        if ( strtolower( $code ) !== $applied_coupon_code_lower ) {
-            WC()->cart->remove_coupon( $code );
+        $code_lower = strtolower( $code );
+        if ( $code_lower === $applied_lower ) {
+            continue; // the one just applied
         }
+        if ( $applied_is_managed && in_array( $code_lower, $managed, true ) ) {
+            continue; // let managed promos coexist
+        }
+        WC()->cart->remove_coupon( $code );
     }
 } );
 
