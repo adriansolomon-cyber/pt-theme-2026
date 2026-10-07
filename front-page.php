@@ -263,7 +263,7 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
   <div class="rb-grid">
     <a class="rb-card rb-feat" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>">
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/Grandmaster.webp" alt="Grandmaster range" loading="lazy">
-      <div class="rb-in"><?php if ( function_exists( 'pt_wall_campaign_active' ) && pt_wall_campaign_active() ) : ?><span class="tag y">16mm cladding upgrade</span><?php endif; ?><h3>Grandmaster</h3><p>Our heavy-duty pressure-treated range — workshops, summerhouses and cabins built to last.</p><div class="rfoot"><span class="rprice">From £1,198</span><span class="shop">Shop Grandmaster <span class="a">→</span></span></div></div>
+      <div class="rb-in"><?php if ( function_exists( 'pt_promo_is_live' ) && pt_promo_is_live( 'gm20' ) ) : ?><span class="tag y"><?php echo (int) round( pt_promo_pct_by_code( 'gm20' ) ); ?>% off</span><?php endif; ?><h3>Grandmaster</h3><p>Our heavy-duty pressure-treated range — workshops, summerhouses and cabins built to last.</p><div class="rfoot"><span class="rprice">From £1,198</span><span class="shop">Shop Grandmaster <span class="a">→</span></span></div></div>
     </a>
     <a class="rb-card" href="<?php echo esc_url( home_url( '/hobbyist/' ) ); ?>">
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/hobbyistrange.webp" alt="Hobbyist range" loading="lazy">
