@@ -1505,7 +1505,9 @@ function my_custom_checkout_field_update_order_meta($order_id)
     );
 
     foreach ($meta_keys_checkboxes as $meta_key) {
-        update_post_meta($order_id, $meta_key, sanitize_text_field($_POST[$meta_key]));
+        // Unchecked checkboxes aren't posted — coalesce to '' so an absent key clears
+        // the meta without logging an "Undefined array key" warning (line 1508 flood).
+        update_post_meta($order_id, $meta_key, sanitize_text_field($_POST[$meta_key] ?? ''));
     }
 
     if (is_user_logged_in() && empty($_POST['order_email_template']) && $current_user->ID !== 112 && (strpos($order->get_order_number(), 'PT') !== false || strpos($order->get_order_number(), 'RDM'))) {
