@@ -344,7 +344,11 @@ if ( $pt_show_promo && $pt_cd_end_ts && $pt_cd_end_ts > time() ) :
 	// (wp_kses_post) instead of escaping it. Falls back to the original copy.
 	$pt_cd_msg_raw = (string) get_field( 'countdown_secondary_text', 'option' );
 	if ( '' === trim( $pt_cd_msg_raw ) ) {
-		$pt_cd_msg_raw = '10% off the Grandmaster range with code <b class="gm">GM10</b>';
+		// Dynamic fallback — uses the live campaign code (e.g. GET20), site-wide copy.
+		$pt_cd_code    = function_exists( 'av_get_display_voucher_code' ) ? av_get_display_voucher_code() : '';
+		$pt_cd_msg_raw = ( '' !== $pt_cd_code )
+			? '20% off your whole order with code <b class="gm">' . esc_html( $pt_cd_code ) . '</b>'
+			: '20% off your whole order';
 	}
 	$pt_cd_msg = wp_kses_post( $pt_cd_msg_raw );
 
