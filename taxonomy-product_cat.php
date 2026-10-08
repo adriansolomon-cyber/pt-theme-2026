@@ -47,12 +47,13 @@ $pt_promo_card = ( $pt_term
 		( isset( $pt_term->term_id ) && 4359 === (int) $pt_term->term_id )                                   // Hobbyist (by ID)
 		|| ( ! empty( $pt_term->slug ) && in_array( $pt_term->slug, array( 'hobbyist', 'garden-sheds', 'summerhouses' ), true ) )
 	)
-	&& function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() );
+	&& function_exists( 'pt_promo_is_live' ) && pt_promo_is_live( 'hobby20' ) );
 // Campaign wide sale banner (mockup section 3) — top of the Garden Sheds and
-// Hobbyist category pages only, gated on the same live campaign.
+// Hobbyist category pages only, gated on HOBBY20 being the live code (hides under a
+// site-wide code like GET20).
 $pt_sale_banner = ( $pt_term
 	&& ! empty( $pt_term->slug ) && in_array( $pt_term->slug, array( 'hobbyist', 'garden-sheds' ), true )
-	&& function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() );
+	&& function_exists( 'pt_promo_is_live' ) && pt_promo_is_live( 'hobby20' ) );
 
 // Grandmaster 16mm cladding free-upgrade banner (mockup 3C-B) — on the Grandmaster
 // category or any descendant while the wall campaign is active.
