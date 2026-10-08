@@ -88,26 +88,30 @@
   .cfg-gallery .cfg-dgbadge{ position:absolute; top:12px; left:12px; z-index:3; pointer-events:none; line-height:0; }
   .cfg-gallery .cfg-dgbadge img{ width:88px; height:auto; display:block; background:transparent; border-radius:0; }
 
-  /* ---- Product promo banner (ACF "Promo banners" tab) ---- */
-  /* Override the global section{padding:64px 0}; the configurator below carries its
+  /* ---- Product promo banner (ACF "Promo banners" tab) — matches the mockup ----
+     Override the global section{padding:64px 0}; the configurator below carries its
      own 64px top padding, so a top margin alone balances the banner's spacing. */
   .pt-pbanner{ padding:0; margin:48px 0 0; }
-  .pt-pbanner-card{ position:relative; border-radius:18px; overflow:hidden; min-height:300px; display:flex; align-items:flex-end; isolation:isolate; }
+  .pt-pbanner-card{ position:relative; border-radius:26px; overflow:hidden; height:320px; background:var(--ink,#211E24); }
   .pt-pbanner-bg, .pt-pbanner-bg img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
-  .pt-pbanner-card::after{ content:""; position:absolute; inset:0; z-index:1; background:linear-gradient(90deg, rgba(20,16,22,.78) 0%, rgba(20,16,22,.5) 42%, rgba(20,16,22,.08) 72%, rgba(20,16,22,.28) 100%); }
-  .pt-pbanner-in{ position:relative; z-index:2; padding:28px 32px; color:#fff; max-width:640px; }
-  .pt-pbanner-badge{ display:inline-flex; align-items:center; gap:8px; background:var(--accent,#FFFF00); color:var(--ink,#211E24); border-radius:999px; padding:6px 14px; font-weight:800; font-size:.8rem; letter-spacing:.02em; margin-bottom:16px; }
-  .pt-pbanner-badge span{ font-weight:700; letter-spacing:.04em; }
-  .pt-pbanner-h{ font-family:var(--font); font-size:clamp(1.5rem,3.4vw,2rem); font-weight:800; line-height:1.08; margin:0 0 8px; color:#fff; text-wrap:balance; }
-  .pt-pbanner-sub{ font-size:1rem; font-weight:300; line-height:1.45; margin:0 0 18px; color:rgba(255,255,255,.9); }
-  .pt-pbanner-feats{ list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:9px 22px; }
-  .pt-pbanner-feats li{ display:inline-flex; align-items:center; gap:7px; font-size:.82rem; font-weight:700; color:#fff; }
-  .pt-pbanner-feats svg{ width:15px; height:15px; color:var(--accent,#FFFF00); flex:0 0 auto; }
+  /* Text block — bottom-anchored over a rising dark gradient. padding-bottom clears
+     the feature row pinned at the very bottom. */
+  .pt-pbanner-text{ position:absolute; left:0; right:0; bottom:0; z-index:2; display:flex; align-items:flex-end; padding:60px clamp(20px,4vw,32px) 66px; background:linear-gradient(0deg, rgba(33,30,36,.9) 0%, rgba(33,30,36,.6) 55%, transparent 100%); }
+  .pt-pbanner-col{ min-width:0; flex:1 1 360px; max-width:760px; }
+  .pt-pbanner-badge{ display:inline-flex; align-items:center; gap:8px; background:var(--accent,#FFFF00); color:var(--ink,#211E24); border-radius:999px; padding:6px 14px; margin-bottom:12px; font-weight:800; font-size:14px; }
+  .pt-pbanner-badge b{ font-weight:800; font-size:15px; }
+  .pt-pbanner-badge span{ font-weight:700; font-size:12px; letter-spacing:.5px; }
+  .pt-pbanner-h{ font-family:var(--font); margin:0; font-weight:700; font-size:26px; line-height:1.2; color:#fff; text-wrap:balance; }
+  .pt-pbanner-sub{ font-family:var(--font); margin:4px 0 0; font-weight:300; font-size:15px; line-height:1.4; color:#F7F4EF; }
+  /* Feature row — centred, pinned to the very bottom of the card. */
+  .pt-pbanner-feats{ position:absolute; left:0; right:0; bottom:0; z-index:3; list-style:none; margin:0; min-height:46px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:6px 24px; padding:10px 20px 12px; }
+  .pt-pbanner-feats li{ display:flex; align-items:center; gap:7px; font-family:var(--font); font-size:13px; font-weight:600; color:#fff; white-space:nowrap; }
+  .pt-pbanner-feats svg{ width:14px; height:14px; flex:none; color:var(--accent,#FFFF00); }
   @media(max-width:640px){
-    .pt-pbanner-card{ min-height:420px; }
-    .pt-pbanner-in{ padding:22px 20px; max-width:none; }
-    .pt-pbanner-h{ font-size:1.45rem; }
-    .pt-pbanner-feats{ flex-direction:column; gap:8px; }
+    .pt-pbanner-card{ height:auto; min-height:470px; }
+    .pt-pbanner-text{ padding:48px 18px 72px; }
+    .pt-pbanner-h{ font-size:21px; }
+    .pt-pbanner-feats{ justify-content:flex-start; gap:7px 16px; }
   }
   .cfg-navbtn{ position:absolute; top:50%; transform:translateY(-50%); width:42px; height:42px; border-radius:50%; border:none; background:rgba(255,255,255,.86); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); box-shadow:var(--e1); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--ink); font-size:1.3rem; line-height:1; z-index:2; }
   .cfg-navbtn.prev{ left:12px; } .cfg-navbtn.next{ right:12px; }

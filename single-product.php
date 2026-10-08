@@ -224,20 +224,22 @@ if ( $pt_pb_on && '' !== $pt_pb_img ) :
       <?php if ( '' !== $pt_pb_img_m ) : ?><source media="(max-width:640px)" srcset="<?php echo esc_url( $pt_pb_img_m ); ?>"><?php endif; ?>
       <img src="<?php echo esc_url( $pt_pb_img ); ?>" alt="" loading="lazy">
     </picture>
-    <div class="pt-pbanner-in">
-      <?php if ( '' !== $pt_pb_badge ) : ?><span class="pt-pbanner-badge"><?php echo $pt_pb_badge; // phpcs:ignore WordPress.Security.EscapeOutput -- built safe above ?></span><?php endif; ?>
-      <?php if ( '' !== $pt_pb_head ) : ?><h2 class="pt-pbanner-h"><?php echo wp_kses_post( $pt_pb_head ); ?></h2><?php endif; ?>
-      <?php if ( '' !== $pt_pb_sub ) : ?><p class="pt-pbanner-sub"><?php echo wp_kses_post( $pt_pb_sub ); ?></p><?php endif; ?>
-      <?php if ( $pt_pb_feats && is_array( $pt_pb_feats ) ) : ?>
-      <ul class="pt-pbanner-feats">
-        <?php foreach ( $pt_pb_feats as $pt_pb_f ) :
-          $pt_pb_ft = is_array( $pt_pb_f ) ? trim( (string) ( $pt_pb_f['feature'] ?? '' ) ) : '';
-          if ( '' === $pt_pb_ft ) { continue; } ?>
-        <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><?php echo esc_html( $pt_pb_ft ); ?></li>
-        <?php endforeach; ?>
-      </ul>
-      <?php endif; ?>
+    <div class="pt-pbanner-text">
+      <div class="pt-pbanner-col">
+        <?php if ( '' !== $pt_pb_badge ) : ?><span class="pt-pbanner-badge"><?php echo $pt_pb_badge; // phpcs:ignore WordPress.Security.EscapeOutput -- built safe above ?></span><?php endif; ?>
+        <?php if ( '' !== $pt_pb_head ) : ?><h2 class="pt-pbanner-h"><?php echo wp_kses_post( $pt_pb_head ); ?></h2><?php endif; ?>
+        <?php if ( '' !== $pt_pb_sub ) : ?><p class="pt-pbanner-sub"><?php echo wp_kses_post( $pt_pb_sub ); ?></p><?php endif; ?>
+      </div>
     </div>
+    <?php if ( $pt_pb_feats && is_array( $pt_pb_feats ) ) : ?>
+    <ul class="pt-pbanner-feats">
+      <?php foreach ( $pt_pb_feats as $pt_pb_f ) :
+        $pt_pb_ft = is_array( $pt_pb_f ) ? trim( (string) ( $pt_pb_f['feature'] ?? '' ) ) : '';
+        if ( '' === $pt_pb_ft ) { continue; } ?>
+      <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><?php echo esc_html( $pt_pb_ft ); ?></li>
+      <?php endforeach; ?>
+    </ul>
+    <?php endif; ?>
   </div>
 </div></section>
 <?php endif; ?>
