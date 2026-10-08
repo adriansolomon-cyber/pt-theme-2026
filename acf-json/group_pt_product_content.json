@@ -2530,6 +2530,174 @@
             "max": 0,
             "collapsed": "",
             "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tab_promo_banners",
+            "label": "Promo banners",
+            "name": "",
+            "type": "tab",
+            "instructions": "A promotional banner for this product page (sale / feature hero). The fields below fill the banner content; the discount badge is pulled from the live campaign unless overridden.",
+            "placement": "top",
+            "endpoint": 0,
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "selected": 0
+        },
+        {
+            "key": "field_pt_promo_banner_enable",
+            "label": "Enable promo banner",
+            "name": "promo_banner_enable",
+            "type": "true_false",
+            "instructions": "Show the promo banner on this product page.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Show the promo banner",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "On",
+            "ui_off_text": "Off"
+        },
+        {
+            "key": "field_pt_promo_banner_image",
+            "label": "Background image",
+            "name": "promo_banner_image",
+            "type": "image",
+            "instructions": "The banner's background photo.",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_promo_banner_badge",
+            "label": "Badge text (optional)",
+            "name": "promo_banner_badge",
+            "type": "text",
+            "instructions": "Leave empty to use the live campaign badge automatically (e.g. “20% OFF · CODE GM20”). Enter a value to override it.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_promo_banner_heading",
+            "label": "Heading",
+            "name": "promo_banner_heading",
+            "type": "textarea",
+            "instructions": "Main banner headline. Line breaks are preserved.",
+            "rows": 2,
+            "new_lines": "br",
+            "placeholder": "Your favourite room, whatever the season.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_pt_promo_banner_sub",
+            "label": "Subheading",
+            "name": "promo_banner_sub",
+            "type": "textarea",
+            "instructions": "Supporting line under the heading.",
+            "rows": 2,
+            "new_lines": "br",
+            "placeholder": "Double glazed and built tough — made for every month of the year.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_pt_promo_banner_features",
+            "label": "Feature list",
+            "name": "promo_banner_features",
+            "type": "repeater",
+            "instructions": "The ticked feature list along the bottom (e.g. 16mm Cladding Upgrade, Double Glazing as standard, 2m Eaves Height, 25-year Anti-rot Guarantee*).",
+            "layout": "table",
+            "button_label": "Add feature",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_promo_banner_feature",
+                    "label": "Feature",
+                    "name": "feature",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_promo_banner_features"
+                }
+            ],
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
         }
     ],
     "location": [
@@ -2551,5 +2719,5 @@
     "description": "Editable marketing content for the single-product (PDP) template. The configurator, price, sizes and spec values remain API-driven; these fields fill the surrounding copy, images and sections.",
     "show_in_rest": 0,
     "display_title": "",
-    "modified": 1789663431
+    "modified": 1791473155
 }
