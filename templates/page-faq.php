@@ -87,7 +87,7 @@ get_header();
 			// update this default (or the ACF field) whenever the campaign changes.
 			$pt_faq_scope = function_exists( 'get_field' ) ? trim( (string) get_field( 'coupon_scope', 'option' ) ) : '';
 			if ( '' === $pt_faq_scope ) {
-				$pt_faq_scope = 'the Hobbyist Apex & Pent shed range';
+				$pt_faq_scope = ( isset( $pt_faq_promos[0] ) && empty( $pt_faq_promos[0]['cat_ids'] ) ) ? 'your whole order' : 'selected ranges';
 			}
 			if ( $pt_faq_code && $pt_faq_pct > 0 ) : ?>Yes — enjoy <strong><?php echo (int) $pt_faq_pct; ?>% off <?php echo esc_html( $pt_faq_scope ); ?></strong> with code <strong><?php echo esc_html( $pt_faq_code ); ?></strong>. For our latest offers, give us a call on <a href="tel:01777553392">01777 553392</a> — we&rsquo;re always happy to help.<?php else : ?>For our latest offers and any current discounts, give us a call on <a href="tel:01777553392">01777 553392</a> — we&rsquo;re always happy to help.<?php endif; ?></div></details>
 	</div></section>
