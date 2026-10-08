@@ -87,6 +87,26 @@
      vertically-centred nav buttons). No sticker/shadow treatment. */
   .cfg-gallery .cfg-dgbadge{ position:absolute; top:12px; left:12px; z-index:3; pointer-events:none; line-height:0; }
   .cfg-gallery .cfg-dgbadge img{ width:88px; height:auto; display:block; background:transparent; border-radius:0; }
+
+  /* ---- Product promo banner (ACF "Promo banners" tab) ---- */
+  .pt-pbanner{ margin:22px 0 4px; }
+  .pt-pbanner-card{ position:relative; border-radius:18px; overflow:hidden; min-height:300px; display:flex; align-items:flex-end; isolation:isolate; }
+  .pt-pbanner-bg, .pt-pbanner-bg img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .pt-pbanner-card::after{ content:""; position:absolute; inset:0; z-index:1; background:linear-gradient(90deg, rgba(20,16,22,.78) 0%, rgba(20,16,22,.5) 42%, rgba(20,16,22,.08) 72%, rgba(20,16,22,.28) 100%); }
+  .pt-pbanner-in{ position:relative; z-index:2; padding:28px 32px; color:#fff; max-width:640px; }
+  .pt-pbanner-badge{ display:inline-flex; align-items:center; gap:8px; background:var(--accent,#FFFF00); color:var(--ink,#211E24); border-radius:999px; padding:6px 14px; font-weight:800; font-size:.8rem; letter-spacing:.02em; margin-bottom:16px; }
+  .pt-pbanner-badge span{ font-weight:700; letter-spacing:.04em; }
+  .pt-pbanner-h{ font-family:var(--font); font-size:clamp(1.5rem,3.4vw,2rem); font-weight:800; line-height:1.08; margin:0 0 8px; color:#fff; text-wrap:balance; }
+  .pt-pbanner-sub{ font-size:1rem; font-weight:300; line-height:1.45; margin:0 0 18px; color:rgba(255,255,255,.9); }
+  .pt-pbanner-feats{ list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:9px 22px; }
+  .pt-pbanner-feats li{ display:inline-flex; align-items:center; gap:7px; font-size:.82rem; font-weight:700; color:#fff; }
+  .pt-pbanner-feats svg{ width:15px; height:15px; color:var(--accent,#FFFF00); flex:0 0 auto; }
+  @media(max-width:640px){
+    .pt-pbanner-card{ min-height:420px; }
+    .pt-pbanner-in{ padding:22px 20px; max-width:none; }
+    .pt-pbanner-h{ font-size:1.45rem; }
+    .pt-pbanner-feats{ flex-direction:column; gap:8px; }
+  }
   .cfg-navbtn{ position:absolute; top:50%; transform:translateY(-50%); width:42px; height:42px; border-radius:50%; border:none; background:rgba(255,255,255,.86); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); box-shadow:var(--e1); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--ink); font-size:1.3rem; line-height:1; z-index:2; }
   .cfg-navbtn.prev{ left:12px; } .cfg-navbtn.next{ right:12px; }
   .cfg-navbtn:active{ transform:translateY(-50%) scale(.93); }

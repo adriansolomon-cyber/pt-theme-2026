@@ -195,6 +195,53 @@ get_header();
   </div>
 </div></header>
 
+<?php
+// ===================== PROMO BANNER (ACF "Promo banners" tab) =====================
+// Sits right after the hero price pill, before the configurator. Shows only when
+// enabled + a background image is set. Badge auto-fills from the live campaign
+// (e.g. "20% OFF · CODE GET20") unless a manual badge override is entered.
+$pt_pb_on  = (bool) get_field( 'promo_banner_enable', $pt_pid );
+$pt_pb_img = (string) get_field( 'promo_banner_image', $pt_pid );
+if ( $pt_pb_on && '' !== $pt_pb_img ) :
+	$pt_pb_img_m = (string) get_field( 'promo_banner_image_mobile', $pt_pid );
+	$pt_pb_head  = (string) get_field( 'promo_banner_heading', $pt_pid );
+	$pt_pb_sub   = (string) get_field( 'promo_banner_sub', $pt_pid );
+	$pt_pb_badge = trim( (string) get_field( 'promo_banner_badge', $pt_pid ) );
+	if ( '' === $pt_pb_badge ) {
+		$pt_pb_pct  = function_exists( 'pt_product_discount_pct' ) ? (int) round( (float) pt_product_discount_pct( $pt_pid ) ) : 0;
+		$pt_pb_code = ( $pt_pb_pct > 0 && function_exists( 'pt_product_discount_code' ) ) ? (string) pt_product_discount_code( $pt_pid ) : '';
+		$pt_pb_badge = ( $pt_pb_pct > 0 && '' !== $pt_pb_code )
+			? '<b>' . (int) $pt_pb_pct . '% OFF</b> <span>CODE ' . esc_html( $pt_pb_code ) . '</span>'
+			: '';
+	} else {
+		$pt_pb_badge = esc_html( $pt_pb_badge );
+	}
+	$pt_pb_feats = get_field( 'promo_banner_features', $pt_pid );
+	?>
+<section class="pt-pbanner" aria-label="Offer"><div class="wrap">
+  <div class="pt-pbanner-card">
+    <picture class="pt-pbanner-bg">
+      <?php if ( '' !== $pt_pb_img_m ) : ?><source media="(max-width:640px)" srcset="<?php echo esc_url( $pt_pb_img_m ); ?>"><?php endif; ?>
+      <img src="<?php echo esc_url( $pt_pb_img ); ?>" alt="" loading="lazy">
+    </picture>
+    <div class="pt-pbanner-in">
+      <?php if ( '' !== $pt_pb_badge ) : ?><span class="pt-pbanner-badge"><?php echo $pt_pb_badge; // phpcs:ignore WordPress.Security.EscapeOutput -- built safe above ?></span><?php endif; ?>
+      <?php if ( '' !== $pt_pb_head ) : ?><h2 class="pt-pbanner-h"><?php echo wp_kses_post( $pt_pb_head ); ?></h2><?php endif; ?>
+      <?php if ( '' !== $pt_pb_sub ) : ?><p class="pt-pbanner-sub"><?php echo wp_kses_post( $pt_pb_sub ); ?></p><?php endif; ?>
+      <?php if ( $pt_pb_feats && is_array( $pt_pb_feats ) ) : ?>
+      <ul class="pt-pbanner-feats">
+        <?php foreach ( $pt_pb_feats as $pt_pb_f ) :
+          $pt_pb_ft = is_array( $pt_pb_f ) ? trim( (string) ( $pt_pb_f['feature'] ?? '' ) ) : '';
+          if ( '' === $pt_pb_ft ) { continue; } ?>
+        <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><?php echo esc_html( $pt_pb_ft ); ?></li>
+        <?php endforeach; ?>
+      </ul>
+      <?php endif; ?>
+    </div>
+  </div>
+</div></section>
+<?php endif; ?>
+
 <!-- ===================== EXPLORE PREMIUM RANGES (below the price pill) ===================== -->
 <?php if ( $pt_show( 'show_ranges', false ) ) { get_template_part( 'template-parts/product-ranges' ); } ?>
 
