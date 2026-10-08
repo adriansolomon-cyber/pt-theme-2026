@@ -56,6 +56,35 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
       </div>
     </div>
 
+    <?php
+    // GET20 — Grandmaster site-wide 20% off yellow slide (mockup 2D). Shown when a
+    // default voucher is live; "now" prices are the from-price minus the live %.
+    if ( $pt_get_on && $pt_get_pct > 0 ) :
+      $pt_gm_slide_cards = array(
+        array( 'size' => 'Diplomat G1000 Summerhouse', 'from' => 2269 ),
+        array( 'size' => '“Heavy Duty” D1000 Workshop', 'from' => 1979 ),
+        array( 'size' => 'Fusion D1000 Pent Dual Room', 'from' => 3299 ),
+      );
+    ?>
+    <!-- Slide — Grandmaster GET20 (mockup 2D) -->
+    <div class="pshero-slide pshero-sale" aria-roledescription="slide">
+      <div class="pshero-saleinner">
+        <div class="pshero-salekick">● Grandmaster range</div>
+        <div class="pshero-bighead"><span><?php echo (int) $pt_get_pct; ?>%</span><span>Off</span></div>
+        <div class="pshero-salesub">All Grandmaster range buildings</div>
+        <div class="pshero-saledir">Direct from the factory</div>
+        <div class="pshero-cards">
+          <?php foreach ( $pt_gm_slide_cards as $pt_c ) :
+            $pt_now = (int) round( (int) $pt_c['from'] * ( 1 - $pt_get_pct / 100 ) ); ?>
+          <div class="pshero-card"><div class="ps-sz"><?php echo esc_html( $pt_c['size'] ); ?></div><div class="ps-pr"><span class="ps-lead">From</span><span class="ps-was">£<?php echo number_format( (int) $pt_c['from'] ); ?></span><span class="ps-now">£<?php echo number_format( $pt_now ); ?></span></div></div>
+          <?php endforeach; ?>
+        </div>
+        <a class="pshero-darkcta" href="<?php echo $pt_grandm; ?>">Shop Grandmaster <span class="a">→</span></a>
+        <div class="pshero-saletrust"><?php echo esc_html( $pt_trustline ); ?></div>
+      </div>
+    </div>
+    <?php endif; ?>
+
     <?php if ( $pt_sale_on ) : ?>
     <!-- Slide 2 — Hobbyist 20% off (campaign-gated) -->
     <div class="pshero-slide pshero-sale" aria-roledescription="slide">

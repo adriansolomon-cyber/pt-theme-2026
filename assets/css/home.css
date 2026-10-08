@@ -421,6 +421,7 @@
 .pshero-cards{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
 .pshero-card{ background:#fff; border-radius:12px; padding:14px 20px; min-width:150px; }
 .pshero-card .ps-sz{ font-family:var(--font); font-size:.86rem; font-weight:600; color:var(--charcoal); margin-bottom:7px; }
+.pshero-card .ps-lead{ font-size:.8rem; font-weight:600; color:var(--charcoal); margin-right:5px; }
 .pshero-card .ps-was{ font-size:.85rem; color:#9a9a9d; text-decoration:line-through; }
 .pshero-card .ps-now{ font-family:var(--font); font-weight:800; font-size:1.25rem; color:#C0392B; margin-left:7px; }
 .pshero-darkcta{ background:var(--charcoal); color:#fff; font-family:var(--font); font-weight:700; font-size:1rem; border-radius:999px; padding:13px 30px; text-decoration:none; margin-bottom:12px; transition:transform .2s var(--ease,ease); }
