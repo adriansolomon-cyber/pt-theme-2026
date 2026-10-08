@@ -202,6 +202,23 @@ get_header();
     <?php endif; ?>
   </div>
 
+  <?php
+  // GET20 site-wide sale banner — shown on EVERY category page whenever a site-wide
+  // DEFAULT voucher code is live (e.g. GET20 in the default slot). Category name,
+  // code and % are all dynamic.
+  $pt_get_code = function_exists( 'av_get_default_voucher_code' ) ? strtoupper( (string) av_get_default_voucher_code() ) : '';
+  if ( '' !== $pt_get_code && function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() ) :
+    $pt_get_pct = function_exists( 'pt_campaign_pct' ) ? (int) round( (float) pt_campaign_pct( 'coupon_percentage' ) ) : 0;
+  ?>
+  <aside class="pt-getsale" aria-label="Sale offer">
+    <div class="pt-getsale-kick">● Factory outlet deal</div>
+    <div class="pt-getsale-head"><?php echo (int) $pt_get_pct; ?>% OFF</div>
+    <div class="pt-getsale-sub">all <?php echo esc_html( $pt_name ); ?> — while stocks last</div>
+    <span class="pt-getsale-chip">Shop the deal — code <b><?php echo esc_html( $pt_get_code ); ?></b> <span class="a">→</span></span>
+    <div class="pt-getsale-trust">FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*</div>
+  </aside>
+  <?php endif; ?>
+
   <?php if ( $pt_sale_banner ) : ?>
   <aside class="pt-catsale" aria-label="Sale offer">
     <div class="pt-catsale-kick">● Factory outlet deal</div>
