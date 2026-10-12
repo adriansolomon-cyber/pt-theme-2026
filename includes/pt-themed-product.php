@@ -85,11 +85,6 @@ function pt_themed_data( $product_id, $key ) {
 		'checklist'          => (array) ( $g( 'checklist' ) ?: array() ), // rows: feature
 		'why_heading'        => (string) $g( 'why_heading' ),
 		'why_text'           => (string) $g( 'why_text' ),
-		'popup_title'        => (string) $g( 'popup_title' ),
-		'popup_image'        => (string) $g( 'popup_image' ),
-		'popup_bullets'      => (array) ( $g( 'popup_bullets' ) ?: array() ), // rows: bullet
-		'popup_cta_label'    => (string) $g( 'popup_cta_label' ),
-		'popup_cta_link'     => (string) $g( 'popup_cta_link' ),
 	);
 }
 
