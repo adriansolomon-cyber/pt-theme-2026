@@ -129,7 +129,7 @@ function pt_fast_delivery_extra_days() {
  * @return DateTime|null Europe/London midnight, or null when no floor applies.
  */
 function pt_fast_delivery_earliest_date() {
-    $ymd = (string) apply_filters('pt_fast_delivery_earliest_date', '2026-10-13');
+    $ymd = (string) apply_filters('pt_fast_delivery_earliest_date', '2026-10-19');
     if ('' === $ymd) {
         return null;
     }
