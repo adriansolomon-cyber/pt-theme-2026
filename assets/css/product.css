@@ -113,6 +113,22 @@
     .pt-pbanner-h{ font-size:21px; }
     .pt-pbanner-feats{ justify-content:flex-start; gap:7px 16px; }
   }
+
+  /* ---- Themed product page: switcher tabs + themed banner ---- */
+  .pt-themeswitch{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
+  .pt-themeswitch-intro{ font-size:.8rem; font-weight:600; color:var(--txt-soft,#6E6A74); margin-right:4px; }
+  .pt-themetab{ display:inline-flex; align-items:center; font-family:var(--font); font-weight:700; font-size:.92rem; color:var(--ink,#211E24); background:#fff; border:1px solid rgba(33,30,36,.16); border-radius:999px; padding:9px 18px; text-decoration:none; transition:background .15s var(--ease,ease), color .15s, border-color .15s; }
+  @media(hover:hover){ .pt-themetab:hover{ border-color:rgba(33,30,36,.42); } }
+  .pt-themetab.on{ background:var(--ink,#211E24); color:#fff; border-color:var(--ink,#211E24); }
+  /* Themed lifestyle banner (above the configurator). Override global section padding. */
+  .pt-themebanner{ padding:0; margin:28px 0 0; }
+  .pt-themebanner-card{ position:relative; border-radius:26px; overflow:hidden; height:280px; background:var(--ink,#211E24); }
+  .pt-themebanner-bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .pt-themebanner-in{ position:absolute; left:0; right:0; bottom:0; z-index:2; padding:28px 32px; color:#fff; background:linear-gradient(0deg, rgba(33,30,36,.82) 0%, rgba(33,30,36,.4) 60%, transparent 100%); }
+  .pt-themebanner-h{ font-family:var(--font); margin:0; font-weight:800; font-size:clamp(1.4rem,3vw,2rem); line-height:1.1; color:#fff; text-wrap:balance; }
+  .pt-themebanner-sub{ margin:6px 0 0; font-weight:300; font-size:1rem; line-height:1.4; color:rgba(255,255,255,.9); }
+  @media(max-width:640px){ .pt-themebanner-card{ height:220px; } .pt-themebanner-in{ padding:20px; } }
+
   .cfg-navbtn{ position:absolute; top:50%; transform:translateY(-50%); width:42px; height:42px; border-radius:50%; border:none; background:rgba(255,255,255,.86); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); box-shadow:var(--e1); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--ink); font-size:1.3rem; line-height:1; z-index:2; }
   .cfg-navbtn.prev{ left:12px; } .cfg-navbtn.next{ right:12px; }
   .cfg-navbtn:active{ transform:translateY(-50%) scale(.93); }

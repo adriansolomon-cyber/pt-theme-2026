@@ -255,6 +255,23 @@ $pt_disc_pct  = ( $pt_product && function_exists( 'pt_product_discount_pct' ) ) 
 $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code' ) ) ? pt_product_discount_code( $pt_pid ) : '';
 ?>
 
+<?php
+// Themed product page — resolve the active ?theme= (null = default/standard view).
+// The switcher renders above the gallery (below); the themed banner renders here.
+$pt_theme_active = function_exists( 'pt_themed_active' ) ? pt_themed_active( $pt_pid ) : null;
+$pt_theme_data   = ( $pt_theme_active && function_exists( 'pt_themed_data' ) ) ? pt_themed_data( $pt_pid, $pt_theme_active['key'] ) : null;
+if ( $pt_theme_data && '' !== $pt_theme_data['banner_image'] ) : ?>
+<section class="pt-themebanner" aria-label="<?php echo esc_attr( $pt_theme_active['name'] ); ?> banner"><div class="wrap">
+  <div class="pt-themebanner-card">
+    <img class="pt-themebanner-bg" src="<?php echo esc_url( $pt_theme_data['banner_image'] ); ?>" alt="" loading="lazy">
+    <div class="pt-themebanner-in">
+      <?php if ( '' !== $pt_theme_data['banner_title'] ) : ?><h2 class="pt-themebanner-h"><?php echo esc_html( $pt_theme_data['banner_title'] ); ?></h2><?php endif; ?>
+      <?php if ( '' !== $pt_theme_data['banner_subtitle'] ) : ?><p class="pt-themebanner-sub"><?php echo esc_html( $pt_theme_data['banner_subtitle'] ); ?></p><?php endif; ?>
+    </div>
+  </div>
+</div></section>
+<?php endif; ?>
+
 <!-- ===================== INLINE CONFIGURATOR (non-popup) ===================== -->
 <section class="configurator" id="configure"><div class="wrap">
   <?php
@@ -268,6 +285,23 @@ $pt_disc_code = ( $pt_disc_pct > 0 && function_exists( 'pt_product_discount_code
   <div class="cfg-grid">
 
     <div class="cfg-preview">
+      <?php
+      // Theme switcher — tab row above the gallery (parent product, themed layout on).
+      // First tab = default (building name / standard view); the rest load ?theme=.
+      $pt_theme_list = function_exists( 'pt_themed_list' ) ? pt_themed_list( $pt_pid ) : array();
+      if ( $pt_theme_list ) :
+        $pt_theme_slug = $pt_theme_active ? $pt_theme_active['slug'] : '';
+        $pt_theme_perma = get_permalink( $pt_pid );
+        $pt_theme_intro = (string) get_field( 'tp_switcher_intro', $pt_pid );
+      ?>
+      <div class="pt-themeswitch">
+        <?php if ( '' !== $pt_theme_intro ) : ?><span class="pt-themeswitch-intro"><?php echo esc_html( $pt_theme_intro ); ?></span><?php endif; ?>
+        <a class="pt-themetab<?php echo '' === $pt_theme_slug ? ' on' : ''; ?>" href="<?php echo esc_url( pt_themed_url( $pt_theme_perma ) ); ?>"><?php echo esc_html( '' !== $pt_line ? $pt_line : 'Standard' ); ?></a>
+        <?php foreach ( $pt_theme_list as $pt_t ) : ?>
+        <a class="pt-themetab<?php echo $pt_t['slug'] === $pt_theme_slug ? ' on' : ''; ?>" href="<?php echo esc_url( pt_themed_url( $pt_theme_perma, $pt_t['slug'] ) ); ?>"><?php echo esc_html( $pt_t['name'] ); ?></a>
+        <?php endforeach; ?>
+      </div>
+      <?php endif; ?>
       <div class="cfg-gallery" id="cfgGallery">
         <img id="cfgImg" src="<?php echo esc_url( $pt_cfg_img ); ?>" alt="<?php echo esc_attr( $pt_name ); ?> preview">
         <?php

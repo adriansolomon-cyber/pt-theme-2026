@@ -38,6 +38,8 @@ require_once get_stylesheet_directory() . '/inc/category-render.php';
 require_once get_stylesheet_directory() . '/inc/product-render.php';
 // "Double Glazing" feature badge (card + product-page gallery), fixed ID list.
 require_once get_stylesheet_directory() . '/includes/pt-double-glazing-badge.php';
+// Themed product page — use-case "themes" (?theme= switcher), separate ACF group.
+require_once get_stylesheet_directory() . '/includes/pt-themed-product.php';
 // Admin-bar "Refresh all prices" — global price-cache flush (loads after the cache
 // helpers above so it can call their bump functions).
 require_once get_stylesheet_directory() . '/includes/price-refresh-admin.php';
