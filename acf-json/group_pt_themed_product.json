@@ -1,0 +1,2335 @@
+{
+    "key": "group_pt_themed_product",
+    "title": "Themed Product Page",
+    "fields": [
+        {
+            "key": "field_pt_tp_tab_settings",
+            "label": "Themed layout — settings",
+            "name": "",
+            "type": "tab",
+            "instructions": "Turn the use-case theme switcher on for this product. Each theme below is a tab; a theme shows in the switcher when it's enabled.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_pt_tp_enable",
+            "label": "Enable themed layout",
+            "name": "tp_enable",
+            "type": "true_false",
+            "instructions": "Show the theme switcher (above the gallery) on this product's page. Off = normal product page.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Themed layout on",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "On",
+            "ui_off_text": "Off"
+        },
+        {
+            "key": "field_pt_tp_popup_autoshow",
+            "label": "Auto-show theme popup",
+            "name": "tp_popup_autoshow",
+            "type": "true_false",
+            "instructions": "When a theme is active, auto-open its popup once per visitor.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Auto-show popup",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "On",
+            "ui_off_text": "Off"
+        },
+        {
+            "key": "field_pt_tp_switcher_intro",
+            "label": "Switcher intro (optional)",
+            "name": "tp_switcher_intro",
+            "type": "text",
+            "instructions": "Small label shown before the theme tabs, e.g. “See it as…”.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_tab",
+            "label": "Cycle Hub",
+            "name": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_pt_tp_cyclehub_enable",
+            "label": "Show this theme",
+            "name": "tp_cyclehub_enable",
+            "type": "true_false",
+            "instructions": "Include this theme in the switcher.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Theme shown",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "On",
+            "ui_off_text": "Off"
+        },
+        {
+            "key": "field_pt_tp_cyclehub_name",
+            "label": "Theme name",
+            "name": "tp_cyclehub_name",
+            "type": "text",
+            "instructions": "Label on the switcher tab.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "Cycle Hub",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_slug",
+            "label": "Theme slug (optional)",
+            "name": "tp_cyclehub_slug",
+            "type": "text",
+            "instructions": "URL value for ?theme= (leave empty to derive from the name).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "cyclehub",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_banner_image",
+            "label": "Banner image",
+            "name": "tp_cyclehub_banner_image",
+            "type": "image",
+            "instructions": "Themed hero banner background.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_banner_title",
+            "label": "Banner title",
+            "name": "tp_cyclehub_banner_title",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_banner_subtitle",
+            "label": "Banner subtitle",
+            "name": "tp_cyclehub_banner_subtitle",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_headline_line1",
+            "label": "Headline line 1",
+            "name": "tp_cyclehub_headline_line1",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_headline_highlight",
+            "label": "Headline highlight word",
+            "name": "tp_cyclehub_headline_highlight",
+            "type": "text",
+            "instructions": "The highlighted word (yellow underline).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_gallery",
+            "label": "Gallery shots",
+            "name": "tp_cyclehub_gallery",
+            "type": "repeater",
+            "instructions": "Staged photos for this theme (shown in the product gallery).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "block",
+            "button_label": "Add shot",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_cyclehub_shot_label",
+                    "label": "Label",
+                    "name": "shot_label",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_cyclehub_gallery"
+                },
+                {
+                    "key": "field_pt_tp_cyclehub_shot_image",
+                    "label": "Image",
+                    "name": "shot_image",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "return_format": "url",
+                    "preview_size": "medium",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_tp_cyclehub_gallery"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_cyclehub_features",
+            "label": "Image features",
+            "name": "tp_cyclehub_features",
+            "type": "repeater",
+            "instructions": "Feature cards specific to this theme.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "block",
+            "button_label": "Add feature",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_cyclehub_feat_image",
+                    "label": "Image",
+                    "name": "feat_image",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "return_format": "url",
+                    "preview_size": "medium",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_tp_cyclehub_features"
+                },
+                {
+                    "key": "field_pt_tp_cyclehub_feat_title",
+                    "label": "Title",
+                    "name": "feat_title",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_cyclehub_features"
+                },
+                {
+                    "key": "field_pt_tp_cyclehub_feat_body",
+                    "label": "Body",
+                    "name": "feat_body",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "rows": 3,
+                    "new_lines": "br",
+                    "placeholder": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "parent_repeater": "field_pt_tp_cyclehub_features"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_cyclehub_checklist",
+            "label": "Checklist",
+            "name": "tp_cyclehub_checklist",
+            "type": "repeater",
+            "instructions": "Ticked feature list for this theme.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "table",
+            "button_label": "Add item",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_cyclehub_check_item",
+                    "label": "Feature",
+                    "name": "feature",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_cyclehub_checklist"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_cyclehub_why_heading",
+            "label": "Why heading",
+            "name": "tp_cyclehub_why_heading",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_why_text",
+            "label": "Why text",
+            "name": "tp_cyclehub_why_text",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "rows": 4,
+            "new_lines": "br",
+            "placeholder": "",
+            "default_value": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_popup_title",
+            "label": "Popup title",
+            "name": "tp_cyclehub_popup_title",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_popup_image",
+            "label": "Popup image",
+            "name": "tp_cyclehub_popup_image",
+            "type": "image",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_popup_bullets",
+            "label": "Popup bullet points",
+            "name": "tp_cyclehub_popup_bullets",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "table",
+            "button_label": "Add bullet",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_cyclehub_popup_bullet",
+                    "label": "Bullet",
+                    "name": "bullet",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_cyclehub_popup_bullets"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_cyclehub_popup_cta_label",
+            "label": "Popup CTA label",
+            "name": "tp_cyclehub_popup_cta_label",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_cyclehub_popup_cta_link",
+            "label": "Popup CTA link",
+            "name": "tp_cyclehub_popup_cta_link",
+            "type": "url",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_tab",
+            "label": "Mancave",
+            "name": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_pt_tp_mancave_enable",
+            "label": "Show this theme",
+            "name": "tp_mancave_enable",
+            "type": "true_false",
+            "instructions": "Include this theme in the switcher.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Theme shown",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "On",
+            "ui_off_text": "Off"
+        },
+        {
+            "key": "field_pt_tp_mancave_name",
+            "label": "Theme name",
+            "name": "tp_mancave_name",
+            "type": "text",
+            "instructions": "Label on the switcher tab.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "Mancave",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_slug",
+            "label": "Theme slug (optional)",
+            "name": "tp_mancave_slug",
+            "type": "text",
+            "instructions": "URL value for ?theme= (leave empty to derive from the name).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "mancave",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_banner_image",
+            "label": "Banner image",
+            "name": "tp_mancave_banner_image",
+            "type": "image",
+            "instructions": "Themed hero banner background.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_banner_title",
+            "label": "Banner title",
+            "name": "tp_mancave_banner_title",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_banner_subtitle",
+            "label": "Banner subtitle",
+            "name": "tp_mancave_banner_subtitle",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_headline_line1",
+            "label": "Headline line 1",
+            "name": "tp_mancave_headline_line1",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_headline_highlight",
+            "label": "Headline highlight word",
+            "name": "tp_mancave_headline_highlight",
+            "type": "text",
+            "instructions": "The highlighted word (yellow underline).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_gallery",
+            "label": "Gallery shots",
+            "name": "tp_mancave_gallery",
+            "type": "repeater",
+            "instructions": "Staged photos for this theme (shown in the product gallery).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "block",
+            "button_label": "Add shot",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_mancave_shot_label",
+                    "label": "Label",
+                    "name": "shot_label",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_mancave_gallery"
+                },
+                {
+                    "key": "field_pt_tp_mancave_shot_image",
+                    "label": "Image",
+                    "name": "shot_image",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "return_format": "url",
+                    "preview_size": "medium",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_tp_mancave_gallery"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_mancave_features",
+            "label": "Image features",
+            "name": "tp_mancave_features",
+            "type": "repeater",
+            "instructions": "Feature cards specific to this theme.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "block",
+            "button_label": "Add feature",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_mancave_feat_image",
+                    "label": "Image",
+                    "name": "feat_image",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "return_format": "url",
+                    "preview_size": "medium",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_tp_mancave_features"
+                },
+                {
+                    "key": "field_pt_tp_mancave_feat_title",
+                    "label": "Title",
+                    "name": "feat_title",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_mancave_features"
+                },
+                {
+                    "key": "field_pt_tp_mancave_feat_body",
+                    "label": "Body",
+                    "name": "feat_body",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "rows": 3,
+                    "new_lines": "br",
+                    "placeholder": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "parent_repeater": "field_pt_tp_mancave_features"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_mancave_checklist",
+            "label": "Checklist",
+            "name": "tp_mancave_checklist",
+            "type": "repeater",
+            "instructions": "Ticked feature list for this theme.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "table",
+            "button_label": "Add item",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_mancave_check_item",
+                    "label": "Feature",
+                    "name": "feature",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_mancave_checklist"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_mancave_why_heading",
+            "label": "Why heading",
+            "name": "tp_mancave_why_heading",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_why_text",
+            "label": "Why text",
+            "name": "tp_mancave_why_text",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "rows": 4,
+            "new_lines": "br",
+            "placeholder": "",
+            "default_value": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_popup_title",
+            "label": "Popup title",
+            "name": "tp_mancave_popup_title",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_popup_image",
+            "label": "Popup image",
+            "name": "tp_mancave_popup_image",
+            "type": "image",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_popup_bullets",
+            "label": "Popup bullet points",
+            "name": "tp_mancave_popup_bullets",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "table",
+            "button_label": "Add bullet",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_mancave_popup_bullet",
+                    "label": "Bullet",
+                    "name": "bullet",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_mancave_popup_bullets"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_mancave_popup_cta_label",
+            "label": "Popup CTA label",
+            "name": "tp_mancave_popup_cta_label",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_mancave_popup_cta_link",
+            "label": "Popup CTA link",
+            "name": "tp_mancave_popup_cta_link",
+            "type": "url",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_tab",
+            "label": "Home Gym",
+            "name": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_pt_tp_homegym_enable",
+            "label": "Show this theme",
+            "name": "tp_homegym_enable",
+            "type": "true_false",
+            "instructions": "Include this theme in the switcher.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Theme shown",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "On",
+            "ui_off_text": "Off"
+        },
+        {
+            "key": "field_pt_tp_homegym_name",
+            "label": "Theme name",
+            "name": "tp_homegym_name",
+            "type": "text",
+            "instructions": "Label on the switcher tab.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "Home Gym",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_slug",
+            "label": "Theme slug (optional)",
+            "name": "tp_homegym_slug",
+            "type": "text",
+            "instructions": "URL value for ?theme= (leave empty to derive from the name).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "homegym",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_banner_image",
+            "label": "Banner image",
+            "name": "tp_homegym_banner_image",
+            "type": "image",
+            "instructions": "Themed hero banner background.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_banner_title",
+            "label": "Banner title",
+            "name": "tp_homegym_banner_title",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_banner_subtitle",
+            "label": "Banner subtitle",
+            "name": "tp_homegym_banner_subtitle",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_headline_line1",
+            "label": "Headline line 1",
+            "name": "tp_homegym_headline_line1",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_headline_highlight",
+            "label": "Headline highlight word",
+            "name": "tp_homegym_headline_highlight",
+            "type": "text",
+            "instructions": "The highlighted word (yellow underline).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_gallery",
+            "label": "Gallery shots",
+            "name": "tp_homegym_gallery",
+            "type": "repeater",
+            "instructions": "Staged photos for this theme (shown in the product gallery).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "block",
+            "button_label": "Add shot",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_homegym_shot_label",
+                    "label": "Label",
+                    "name": "shot_label",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_homegym_gallery"
+                },
+                {
+                    "key": "field_pt_tp_homegym_shot_image",
+                    "label": "Image",
+                    "name": "shot_image",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "return_format": "url",
+                    "preview_size": "medium",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_tp_homegym_gallery"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_homegym_features",
+            "label": "Image features",
+            "name": "tp_homegym_features",
+            "type": "repeater",
+            "instructions": "Feature cards specific to this theme.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "block",
+            "button_label": "Add feature",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_homegym_feat_image",
+                    "label": "Image",
+                    "name": "feat_image",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "return_format": "url",
+                    "preview_size": "medium",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_tp_homegym_features"
+                },
+                {
+                    "key": "field_pt_tp_homegym_feat_title",
+                    "label": "Title",
+                    "name": "feat_title",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_homegym_features"
+                },
+                {
+                    "key": "field_pt_tp_homegym_feat_body",
+                    "label": "Body",
+                    "name": "feat_body",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "rows": 3,
+                    "new_lines": "br",
+                    "placeholder": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "parent_repeater": "field_pt_tp_homegym_features"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_homegym_checklist",
+            "label": "Checklist",
+            "name": "tp_homegym_checklist",
+            "type": "repeater",
+            "instructions": "Ticked feature list for this theme.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "table",
+            "button_label": "Add item",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_homegym_check_item",
+                    "label": "Feature",
+                    "name": "feature",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_homegym_checklist"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_homegym_why_heading",
+            "label": "Why heading",
+            "name": "tp_homegym_why_heading",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_why_text",
+            "label": "Why text",
+            "name": "tp_homegym_why_text",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "rows": 4,
+            "new_lines": "br",
+            "placeholder": "",
+            "default_value": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_popup_title",
+            "label": "Popup title",
+            "name": "tp_homegym_popup_title",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_popup_image",
+            "label": "Popup image",
+            "name": "tp_homegym_popup_image",
+            "type": "image",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_popup_bullets",
+            "label": "Popup bullet points",
+            "name": "tp_homegym_popup_bullets",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "table",
+            "button_label": "Add bullet",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_homegym_popup_bullet",
+                    "label": "Bullet",
+                    "name": "bullet",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_homegym_popup_bullets"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_homegym_popup_cta_label",
+            "label": "Popup CTA label",
+            "name": "tp_homegym_popup_cta_label",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_homegym_popup_cta_link",
+            "label": "Popup CTA link",
+            "name": "tp_homegym_popup_cta_link",
+            "type": "url",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_tab",
+            "label": "Secure Storage",
+            "name": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_pt_tp_securestorage_enable",
+            "label": "Show this theme",
+            "name": "tp_securestorage_enable",
+            "type": "true_false",
+            "instructions": "Include this theme in the switcher.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "message": "Theme shown",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "On",
+            "ui_off_text": "Off"
+        },
+        {
+            "key": "field_pt_tp_securestorage_name",
+            "label": "Theme name",
+            "name": "tp_securestorage_name",
+            "type": "text",
+            "instructions": "Label on the switcher tab.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "Secure Storage",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_slug",
+            "label": "Theme slug (optional)",
+            "name": "tp_securestorage_slug",
+            "type": "text",
+            "instructions": "URL value for ?theme= (leave empty to derive from the name).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "securestorage",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_banner_image",
+            "label": "Banner image",
+            "name": "tp_securestorage_banner_image",
+            "type": "image",
+            "instructions": "Themed hero banner background.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_banner_title",
+            "label": "Banner title",
+            "name": "tp_securestorage_banner_title",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_banner_subtitle",
+            "label": "Banner subtitle",
+            "name": "tp_securestorage_banner_subtitle",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_headline_line1",
+            "label": "Headline line 1",
+            "name": "tp_securestorage_headline_line1",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_headline_highlight",
+            "label": "Headline highlight word",
+            "name": "tp_securestorage_headline_highlight",
+            "type": "text",
+            "instructions": "The highlighted word (yellow underline).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_gallery",
+            "label": "Gallery shots",
+            "name": "tp_securestorage_gallery",
+            "type": "repeater",
+            "instructions": "Staged photos for this theme (shown in the product gallery).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "block",
+            "button_label": "Add shot",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_securestorage_shot_label",
+                    "label": "Label",
+                    "name": "shot_label",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_securestorage_gallery"
+                },
+                {
+                    "key": "field_pt_tp_securestorage_shot_image",
+                    "label": "Image",
+                    "name": "shot_image",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "return_format": "url",
+                    "preview_size": "medium",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_tp_securestorage_gallery"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_securestorage_features",
+            "label": "Image features",
+            "name": "tp_securestorage_features",
+            "type": "repeater",
+            "instructions": "Feature cards specific to this theme.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "block",
+            "button_label": "Add feature",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_securestorage_feat_image",
+                    "label": "Image",
+                    "name": "feat_image",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "return_format": "url",
+                    "preview_size": "medium",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "parent_repeater": "field_pt_tp_securestorage_features"
+                },
+                {
+                    "key": "field_pt_tp_securestorage_feat_title",
+                    "label": "Title",
+                    "name": "feat_title",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_securestorage_features"
+                },
+                {
+                    "key": "field_pt_tp_securestorage_feat_body",
+                    "label": "Body",
+                    "name": "feat_body",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "rows": 3,
+                    "new_lines": "br",
+                    "placeholder": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "parent_repeater": "field_pt_tp_securestorage_features"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_securestorage_checklist",
+            "label": "Checklist",
+            "name": "tp_securestorage_checklist",
+            "type": "repeater",
+            "instructions": "Ticked feature list for this theme.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "table",
+            "button_label": "Add item",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_securestorage_check_item",
+                    "label": "Feature",
+                    "name": "feature",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_securestorage_checklist"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_securestorage_why_heading",
+            "label": "Why heading",
+            "name": "tp_securestorage_why_heading",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_why_text",
+            "label": "Why text",
+            "name": "tp_securestorage_why_text",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "rows": 4,
+            "new_lines": "br",
+            "placeholder": "",
+            "default_value": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_popup_title",
+            "label": "Popup title",
+            "name": "tp_securestorage_popup_title",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_popup_image",
+            "label": "Popup image",
+            "name": "tp_securestorage_popup_image",
+            "type": "image",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_popup_bullets",
+            "label": "Popup bullet points",
+            "name": "tp_securestorage_popup_bullets",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "layout": "table",
+            "button_label": "Add bullet",
+            "min": 0,
+            "sub_fields": [
+                {
+                    "key": "field_pt_tp_securestorage_popup_bullet",
+                    "label": "Bullet",
+                    "name": "bullet",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "aria-label": "",
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_pt_tp_securestorage_popup_bullets"
+                }
+            ],
+            "pagination": 0,
+            "max": 0,
+            "collapsed": "",
+            "rows_per_page": 20
+        },
+        {
+            "key": "field_pt_tp_securestorage_popup_cta_label",
+            "label": "Popup CTA label",
+            "name": "tp_securestorage_popup_cta_label",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_pt_tp_securestorage_popup_cta_link",
+            "label": "Popup CTA link",
+            "name": "tp_securestorage_popup_cta_link",
+            "type": "url",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "aria-label": "",
+            "default_value": "",
+            "placeholder": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "product"
+            }
+        ]
+    ],
+    "menu_order": 1,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Use-case 'themes' for the product page (Workshop default + Cycle Hub / Mancave / Home Gym / Secure Storage). Rendered via ?theme= on the parent product when 'Enable themed layout' is on.",
+    "show_in_rest": 0,
+    "modified": 1791818429
+}
