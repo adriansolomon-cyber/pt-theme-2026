@@ -52,9 +52,9 @@ Top level:
 - **Auto-show popup** (true_false) — master toggle for the popup auto-open.
 - **Switcher intro** (text, optional) — e.g. "See it set up as…".
 
-Then **one tab per theme** (fixed set, initial: `Bike Store`, `Home Office`,
-`Garden Studio`, `+1 spare` — nameable; adding a new theme type later is a field-group
-edit). Each tab holds:
+Then **one tab per use-case theme** (initial set from the design: `Cycle Hub`,
+`Mancave`, `Home Gym`, `Secure Storage` — nameable; the default "Workshop" view needs no
+tab; adding a new theme type later is a field-group edit). Each tab holds:
 - **Theme name** (text) + **Theme slug** (text; used in `?theme=`) — or derive the slug
   from the name.
 - **Banner:** image · title · subtitle.
@@ -68,12 +68,29 @@ edit). Each tab holds:
 A theme renders in the switcher only when its tab has at least a banner/gallery — so a
 product can offer a subset (e.g. just Bike Store + Home Office).
 
+## Switcher placement (per the provided design — confirmed by screenshot)
+The theme switcher is a **row of tab/pill buttons directly above the product gallery**,
+inside the configurator's left column, under the "Build your …" heading. The **first
+tab is the default** (the building's normal name, e.g. "Workshop", shown active); the
+rest are the use-case themes. Clicking a theme tab loads `?theme=<slug>`, which restages
+the gallery (its shots), the banner and the features for that theme and marks the tab
+active. The default tab returns to the standard gallery (`?theme=` cleared).
+
+**Shown only on the PARENT product page, and only when the themed layout is enabled**
+for that product — never on size/child products or on non-enabled products.
+
+**Example theme set (from the provided design):** `Workshop` (default) · `Cycle Hub` ·
+`Mancave` · `Home Gym` · `Secure Storage`. The default needs no ACF tab (it's the normal
+product view); each use-case theme is one ACF tab.
+
 ## Rendering
-- New `template-parts/product-themed.php`.
+- New `template-parts/product-themed.php` (the themed banner / gallery / features /
+  popup) plus the switcher tab-row injected above the gallery.
 - In `single-product.php`: if the Enable toggle is on, resolve the active theme from
   `get_query_var`/`$_GET['theme']` (sanitised against the configured slugs), then
-  include the part. The switcher is always shown (when enabled); the themed banner /
-  gallery / features / popup render only when a valid theme is active.
+  render the switcher tabs above the gallery and the themed sections. The switcher is
+  always shown (when enabled); the themed banner / staged gallery / features / popup
+  render only when a valid theme is active.
 - Active-theme content comes from that theme's ACF tab. Guard every field; an empty
   sub-section just doesn't render.
 - The product **gallery** for a theme = its `shots` (falls back to the standard gallery
@@ -120,10 +137,15 @@ Per-product toggle off hides everything instantly. The template part and ACF gro
 additive; reverting the `single-product.php` include + removing the part restores the
 original page. ACF group can be deactivated without data loss.
 
+## Resolved
+- **Switcher placement:** tab row above the product gallery (configurator left column),
+  parent product only, when themed layout enabled. First tab = default view.
+- **Theme set (initial):** Workshop (default) + Cycle Hub, Mancave, Home Gym, Secure
+  Storage. Nameable per field group.
+
 ## Open decisions
-1. **Theme set** — confirm the names/slugs (initial: Bike Store, Home Office, Garden
-   Studio, +1 spare).
-2. **Range** — which products get the Enable toggle (and whether to limit the ACF tab to
+1. **Range** — which products get the Enable toggle (and whether to limit the ACF tab to
    a category).
-3. **Canonical policy** — canonical-to-base (recommended) vs index-each-theme.
-4. **Switcher placement** — above the hero, or above the configurator?
+2. **Canonical policy** — canonical-to-base (recommended) vs index-each-theme.
+3. **Theme slugs** — derive from the theme name (e.g. "Cycle Hub" → `cycle-hub`) vs an
+   explicit slug field (recommended: derive, with an optional override).
