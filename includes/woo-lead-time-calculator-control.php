@@ -131,7 +131,7 @@ function pt_fast_delivery_extra_days() {
  * @return DateTime|null Earliest valid delivery date, or null when the floor is off.
  */
 function pt_fast_delivery_earliest_date() {
-    $days = (int) apply_filters('pt_fast_delivery_earliest_days', 7);
+    $days = (int) apply_filters('pt_fast_delivery_earliest_days', 6);
     if ($days < 1) {
         return null;
     }
