@@ -120,45 +120,35 @@ function pt_fast_delivery_extra_days() {
 }
 
 /**
- * Earliest date a FAST (48h) order may be promised. Temporary business floor — no
- * 48h delivery is offered before this date, regardless of the business-day count.
- * Self-expires once the date is in the past. Set '' (or filter) to disable.
+ * Earliest date a FAST (48h) order may be promised — a ROLLING floor, computed as a
+ * number of WORKING days from today (skipping weekends + holiday closures), so it
+ * advances each day and never shows a stale fixed date. Default 7 working days, which
+ * lands on Mon 20 Oct 2026 when viewed on Mon 12 Oct, then rolls forward. Set the
+ * day-count to 0 (or filter) to disable and restore normal 48h dates.
  *
- * Filter: pt_fast_delivery_earliest_date (Y-m-d).
+ * Filter: pt_fast_delivery_earliest_days (int working days; 0 = off).
  *
- * @return DateTime|null Europe/London midnight, or null when no floor applies.
+ * @return DateTime|null Earliest valid delivery date, or null when the floor is off.
  */
 function pt_fast_delivery_earliest_date() {
-    $ymd = (string) apply_filters('pt_fast_delivery_earliest_date', '2026-10-19');
-    if ('' === $ymd) {
+    $days = (int) apply_filters('pt_fast_delivery_earliest_days', 7);
+    if ($days < 1) {
         return null;
     }
-    try {
-        $tz    = new DateTimeZone('Europe/London');
-        $floor = new DateTime($ymd, $tz);
-        $floor->setTime(0, 0, 0);
-        $today = new DateTime('now', $tz);
-        $today->setTime(0, 0, 0);
-    } catch (\Exception $e) {
-        return null;
-    }
-    // Irrelevant once past — don't hold orders back forever.
-    return ($floor > $today) ? $floor : null;
+    return pt_date_from_business_days($days);
 }
 
 /**
- * Pin a FAST-delivery date to the configured earliest-fast date while that date is
- * active — both raising an earlier computed date AND pulling back a slightly-later
- * one, so the promised earliest reads exactly that date (e.g. Tue 13 Oct). Once the
- * date passes, pt_fast_delivery_earliest_date() returns null and the real computed
- * date is used again. Only ever call this for genuine fast (48h) orders.
+ * Apply the rolling earliest-fast floor to a computed FAST-delivery date — raises an
+ * earlier date up to the floor, never pulls a later one in. Only ever call this for
+ * genuine fast (48h) orders.
  *
  * @param DateTime $date Computed delivery date.
  * @return DateTime
  */
 function pt_apply_fast_delivery_floor(DateTime $date) {
     $floor = pt_fast_delivery_earliest_date();
-    return $floor ? clone $floor : $date;
+    return ($floor && $date < $floor) ? clone $floor : $date;
 }
 
 /* ======================================================
