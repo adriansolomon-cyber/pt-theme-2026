@@ -44,18 +44,18 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
   <div class="pshero-slides">
 
     <?php
-    // GET20 site-wide 20% off yellow slide (mockup 2D-F) — FIRST slide when a default
-    // voucher is live. "now" prices are the from-price minus the live %.
+    // GET20 site-wide 20% off yellow slide (mockup 2D-F, Garden Office variant) — FIRST
+    // slide when a default voucher is live. "now" prices are the from-price minus the live %.
     if ( $pt_get_on && $pt_get_pct > 0 ) :
       $pt_img_base = get_stylesheet_directory_uri() . '/assets/images/';
       $pt_get_code = function_exists( 'av_get_display_voucher_code' ) ? av_get_display_voucher_code() : '';
       $pt_get_slide_cards = array(
-        array( 'size' => 'Hobbyist Pent Shed', 'from' => 883 ),
-        array( 'size' => '“Heavy Duty” D1000 Workshop', 'from' => 1979 ),
-        array( 'size' => 'Fusion D1000 Pent Dual Room', 'from' => 3299 ),
+        array( 'size' => 'MyDen Garden Office 8×6', 'from' => 4679 ),
+        array( 'size' => 'MyDen Garden Office 12×8', 'from' => 7199 ),
+        array( 'size' => 'Evolution Garden Room 16×10', 'from' => 9359 ),
       );
     ?>
-    <!-- Slide — GET20 site-wide (mockup 2D-F) -->
+    <!-- Slide — GET20 site-wide (mockup 2D-F, Garden Office) -->
     <div class="pshero-slide pshero-sale is-on" aria-roledescription="slide" aria-label="<?php echo (int) $pt_get_pct; ?>% off all building ranges">
       <div class="getb">
         <!-- Left: offer + prices + CTA -->
@@ -82,7 +82,7 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
         <!-- Right: building + lifestyle photos -->
         <div class="getb-right">
           <div class="getb-stage">
-            <img class="getb-building" src="<?php echo esc_url( $pt_img_base . 'get20-banner-building.webp' ); ?>" alt="Project Timber garden building" width="1200" height="716">
+            <img class="getb-building" src="<?php echo esc_url( $pt_img_base . 'get20-office-building.webp' ); ?>" alt="Project Timber garden office" width="1200" height="684">
             <div class="getb-burst">
               <div class="getb-burst-in">
                 <span class="getb-burst-save">Save</span>
@@ -92,8 +92,8 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
             </div>
           </div>
           <div class="getb-thumbs" data-slab>
-            <div class="getb-thumb"><img src="<?php echo esc_url( $pt_img_base . 'get20-banner-workshop.webp' ); ?>" alt="Garden workshop interior" loading="lazy"></div>
-            <div class="getb-thumb"><img src="<?php echo esc_url( $pt_img_base . 'get20-banner-mancave.webp' ); ?>" alt="Garden mancave interior" loading="lazy"></div>
+            <div class="getb-thumb"><img src="<?php echo esc_url( $pt_img_base . 'get20-office-int1.webp' ); ?>" alt="Garden office interior" loading="lazy" width="1200" height="675"></div>
+            <div class="getb-thumb"><img src="<?php echo esc_url( $pt_img_base . 'get20-office-int2.webp' ); ?>" alt="Garden room lounge interior" loading="lazy" width="1067" height="600"></div>
           </div>
         </div>
       </div>
