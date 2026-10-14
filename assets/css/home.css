@@ -430,6 +430,54 @@
 .pshero-darkcta b{ color:var(--accent); font-weight:700; }
 .pshero-saletrust{ font-family:var(--font); font-size:.66rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--charcoal); }
 
+/* GET20 site-wide sale slide (mockup 2D-F) — offer + prices left, building + lifestyle photos right */
+.getb{ position:relative; height:100%; display:grid; grid-template-columns:1fr; align-items:center; align-content:center; gap:20px 32px; max-width:var(--maxw); margin:0 auto; padding:clamp(18px,3vw,34px) clamp(18px,3.4vw,44px); box-sizing:border-box; }
+.getb *{ box-sizing:border-box; }
+.getb::before{ content:""; position:absolute; inset:0; background:repeating-conic-gradient(from 0deg at 72% 42%,rgba(255,255,255,.5) 0deg 7deg,transparent 7deg 18deg); -webkit-mask-image:radial-gradient(circle at 72% 42%,#000 20%,transparent 70%); mask-image:radial-gradient(circle at 72% 42%,#000 20%,transparent 70%); pointer-events:none; }
+@media(min-width:760px){ .getb{ grid-template-columns:minmax(0,.85fr) minmax(0,1.2fr); } }
+/* Left — offer card */
+.getb-left{ position:relative; min-width:0; display:flex; flex-direction:column; align-items:stretch; width:100%; max-width:490px; }
+.getb-kick{ align-self:flex-start; background:var(--accent); font-family:var(--font); font-weight:800; font-size:.82rem; letter-spacing:.12em; color:var(--charcoal); text-transform:uppercase; padding:6px 16px; border:2px solid var(--charcoal); margin-bottom:-2px; position:relative; z-index:1; }
+.getb-panel{ background:var(--charcoal); width:100%; padding:10px clamp(16px,2vw,24px) clamp(16px,2.2vw,22px); }
+.getb-big{ display:flex; align-items:flex-end; gap:8px; line-height:.8; }
+.getb-num{ font-family:var(--font); font-weight:800; font-size:clamp(4.2rem,12vw,7rem); line-height:.78; letter-spacing:-.06em; color:#fff; text-shadow:6px 6px 0 var(--ink); }
+.getb-pc{ display:inline-flex; flex-direction:column; align-items:flex-start; padding-bottom:.1em; }
+.getb-pct{ font-family:var(--font); font-weight:800; font-size:clamp(2rem,5.5vw,3.1rem); line-height:.8; color:#fff; text-shadow:4px 4px 0 var(--ink); }
+.getb-off{ font-family:var(--font); font-weight:800; font-size:clamp(1.3rem,3.6vw,2rem); line-height:.85; letter-spacing:-.02em; color:#fff; text-shadow:4px 4px 0 var(--ink); text-transform:uppercase; }
+.getb-ranges{ text-align:center; background:var(--accent); color:var(--charcoal); font-family:var(--font); font-weight:800; font-size:clamp(1rem,2.4vw,1.5rem); white-space:nowrap; line-height:1.1; text-transform:uppercase; padding:6px 14px; margin-top:14px; }
+.getb-prices{ background:#fff; width:100%; padding:10px 18px; box-shadow:0 6px 16px rgba(0,0,0,.15); display:flex; flex-direction:column; gap:3px; margin-bottom:12px; }
+.getb-prow{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+.getb-pname{ flex:1 1 auto; min-width:0; font-family:var(--font); font-size:clamp(.78rem,1.1vw,.9rem); font-weight:600; color:var(--charcoal); }
+.getb-pamt{ white-space:nowrap; }
+.getb-was{ font-family:var(--font); font-size:1.05rem; font-weight:400; color:#8a8a8e; text-decoration:line-through; }
+.getb-now{ font-family:var(--font); font-weight:800; font-size:1.35rem; color:#C0392B; margin-left:5px; }
+.getb-cta{ display:flex; justify-content:center; align-items:center; gap:10px; background:var(--charcoal); color:#fff; font-family:var(--font); font-weight:800; font-size:clamp(.95rem,1.6vw,1.2rem); text-transform:uppercase; letter-spacing:.03em; padding:12px 24px; text-decoration:none; white-space:nowrap; box-shadow:5px 5px 0 #C0392B; transition:transform .2s var(--ease,ease); }
+.getb-cta:hover{ transform:translate(-1px,-1px); color:#fff; }
+.getb-cta svg{ width:16px; height:16px; flex:none; fill:var(--accent); }
+.getb-cta b{ color:var(--accent); font-weight:800; }
+/* Right — building + photos */
+.getb-right{ min-width:0; display:flex; flex-direction:column; gap:14px; }
+.getb-stage{ position:relative; padding-top:clamp(18px,3vw,36px); }
+.getb-building{ display:block; width:100%; height:auto; max-height:300px; object-fit:contain; object-position:center bottom; filter:drop-shadow(0 14px 14px rgba(59,51,61,.28)); }
+.getb-burst{ --starburst:polygon(100% 50%,90.2% 58%,96.2% 69.1%,84.1% 72.8%,85.4% 85.4%,72.8% 84.1%,69.1% 96.2%,58% 90.2%,50% 100%,42% 90.2%,30.9% 96.2%,27.2% 84.1%,14.6% 85.4%,15.9% 72.8%,3.8% 69.1%,9.8% 58%,0% 50%,9.8% 42%,3.8% 30.9%,15.9% 27.2%,14.6% 14.6%,27.2% 15.9%,30.9% 3.8%,42% 9.8%,50% 0%,58% 9.8%,69.1% 3.8%,72.8% 15.9%,85.4% 14.6%,84.1% 27.2%,96.2% 30.9%,90.2% 42%); position:absolute; top:-2px; right:-2px; width:clamp(104px,12vw,158px); aspect-ratio:1; transform:rotate(12deg); filter:drop-shadow(0 8px 12px rgba(0,0,0,.3)); }
+.getb-burst::before{ content:""; position:absolute; inset:0; background:#fff; clip-path:var(--starburst); }
+.getb-burst-in{ position:absolute; inset:7px; background:#C0392B; clip-path:var(--starburst); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.getb-burst-save{ font-family:var(--font); font-weight:800; font-size:clamp(10px,1vw,13px); letter-spacing:.12em; color:var(--accent); text-transform:uppercase; }
+.getb-burst-pct{ font-family:var(--font); font-weight:800; font-size:clamp(34px,3.8vw,48px); line-height:.9; color:#fff; text-shadow:2px 2px 0 var(--ink); }
+.getb-burst-off{ background:var(--accent); color:var(--ink); font-family:var(--font); font-weight:800; font-size:12px; padding:2px 8px; margin-top:4px; text-transform:uppercase; transform:rotate(-4deg); }
+.getb-thumbs{ display:flex; justify-content:center; gap:16px; padding:6px 8px; }
+.getb-thumb{ background:#fff; padding:6px; box-shadow:0 8px 20px rgba(0,0,0,.25); flex:0 1 40%; min-width:0; }
+.getb-thumb:first-child{ transform:rotate(-2deg); }
+.getb-thumb:last-child{ transform:rotate(2deg); }
+.getb-thumb img{ display:block; width:100%; aspect-ratio:16/9; max-height:140px; object-fit:cover; }
+@media(max-width:759px){
+  .getb{ align-content:flex-start; padding:22px 18px; gap:16px; max-height:100%; overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .getb-left{ max-width:none; }
+  .getb-thumbs{ display:none; }
+  .getb-building{ max-height:230px; }
+  .getb-cta{ white-space:normal; text-align:center; }
+}
+
 /* Dots */
 .pshero-dots{ position:absolute; left:0; right:0; bottom:20px; display:flex; justify-content:center; gap:8px; z-index:5; }
 .pshero-dots button{ width:22px; height:6px; border-radius:3px; border:none; padding:0; cursor:pointer; background:rgba(255,255,255,.5); transition:background .2s ease, width .2s ease; }

@@ -44,30 +44,58 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
   <div class="pshero-slides">
 
     <?php
-    // GET20 site-wide 20% off yellow slide (mockup 2D) — FIRST slide when a default
+    // GET20 site-wide 20% off yellow slide (mockup 2D-F) — FIRST slide when a default
     // voucher is live. "now" prices are the from-price minus the live %.
     if ( $pt_get_on && $pt_get_pct > 0 ) :
+      $pt_img_base = get_stylesheet_directory_uri() . '/assets/images/';
+      $pt_get_code = function_exists( 'av_get_display_voucher_code' ) ? av_get_display_voucher_code() : '';
       $pt_get_slide_cards = array(
         array( 'size' => 'Hobbyist Pent Shed', 'from' => 883 ),
         array( 'size' => '“Heavy Duty” D1000 Workshop', 'from' => 1979 ),
         array( 'size' => 'Fusion D1000 Pent Dual Room', 'from' => 3299 ),
       );
     ?>
-    <!-- Slide — GET20 site-wide (mockup 2D) -->
-    <div class="pshero-slide pshero-sale is-on" aria-roledescription="slide">
-      <div class="pshero-saleinner">
-        <div class="pshero-salekick">● Factory outlet deal</div>
-        <div class="pshero-bighead"><span><?php echo (int) $pt_get_pct; ?>%</span><span>Off</span></div>
-        <div class="pshero-salesub">All building ranges</div>
-        <div class="pshero-saledir">Direct from the factory</div>
-        <div class="pshero-cards">
-          <?php foreach ( $pt_get_slide_cards as $pt_c ) :
-            $pt_now = (int) round( (int) $pt_c['from'] * ( 1 - $pt_get_pct / 100 ) ); ?>
-          <div class="pshero-card"><div class="ps-sz"><?php echo esc_html( $pt_c['size'] ); ?></div><div class="ps-pr"><span class="ps-lead">From</span><span class="ps-was">£<?php echo number_format( (int) $pt_c['from'] ); ?></span><span class="ps-now">£<?php echo number_format( $pt_now ); ?></span></div></div>
-          <?php endforeach; ?>
+    <!-- Slide — GET20 site-wide (mockup 2D-F) -->
+    <div class="pshero-slide pshero-sale is-on" aria-roledescription="slide" aria-label="<?php echo (int) $pt_get_pct; ?>% off all building ranges">
+      <div class="getb">
+        <!-- Left: offer + prices + CTA -->
+        <div class="getb-left">
+          <div class="getb-kick">Factory outlet deal</div>
+          <div class="getb-panel">
+            <div class="getb-big">
+              <span class="getb-num"><?php echo (int) $pt_get_pct; ?></span>
+              <span class="getb-pc"><span class="getb-pct">%</span><span class="getb-off">Off</span></span>
+            </div>
+            <div class="getb-ranges">All Building Ranges</div>
+          </div>
+          <div class="getb-prices">
+            <?php foreach ( $pt_get_slide_cards as $pt_c ) :
+              $pt_now = (int) round( (int) $pt_c['from'] * ( 1 - $pt_get_pct / 100 ) ); ?>
+            <div class="getb-prow"><span class="getb-pname"><?php echo esc_html( $pt_c['size'] ); ?></span><span class="getb-pamt"><span class="getb-was">£<?php echo number_format( (int) $pt_c['from'] ); ?></span><span class="getb-now">£<?php echo number_format( $pt_now ); ?></span></span></div>
+            <?php endforeach; ?>
+          </div>
+          <a class="getb-cta" href="#ranges">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM5.2 4l.9 2H21l-3.6 7.2a2 2 0 0 1-1.8 1.1H8.1l-1 1.7H19v2H5l2.2-3.9L3.6 4H1V2h3.6z"/></svg>
+            Shop now — code <b><?php echo esc_html( $pt_get_code ); ?></b>
+          </a>
         </div>
-        <a class="pshero-darkcta" href="#ranges">Shop the range — use code <b><?php echo function_exists( 'av_get_display_voucher_code' ) ? esc_html( av_get_display_voucher_code() ) : ''; ?></b> <span class="a">→</span></a>
-        <div class="pshero-saletrust"><?php echo esc_html( $pt_trustline ); ?></div>
+        <!-- Right: building + lifestyle photos -->
+        <div class="getb-right">
+          <div class="getb-stage">
+            <img class="getb-building" src="<?php echo esc_url( $pt_img_base . 'get20-banner-building.webp' ); ?>" alt="Project Timber garden building" width="1200" height="716">
+            <div class="getb-burst">
+              <div class="getb-burst-in">
+                <span class="getb-burst-save">Save</span>
+                <span class="getb-burst-pct"><?php echo (int) $pt_get_pct; ?>%</span>
+                <span class="getb-burst-off">Off all</span>
+              </div>
+            </div>
+          </div>
+          <div class="getb-thumbs" data-slab>
+            <div class="getb-thumb"><img src="<?php echo esc_url( $pt_img_base . 'get20-banner-workshop.webp' ); ?>" alt="Garden workshop interior" loading="lazy"></div>
+            <div class="getb-thumb"><img src="<?php echo esc_url( $pt_img_base . 'get20-banner-mancave.webp' ); ?>" alt="Garden mancave interior" loading="lazy"></div>
+          </div>
+        </div>
       </div>
     </div>
     <?php endif; ?>
