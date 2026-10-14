@@ -44,20 +44,45 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
   <div class="pshero-slides">
 
     <?php
-    // GET20 site-wide 20% off yellow slide (mockup 2D-F, Garden Office variant) — FIRST
-    // slide when a default voucher is live. "now" prices are the from-price minus the live %.
+    // GET20 site-wide 20% off yellow slides (mockup 2D-F) — FIRST slides when a default
+    // voucher is live. Two variants rotate: the mixed-range "rays" slide and the Garden
+    // Office "stripes" slide. "now" prices are the from-price minus the live %.
     if ( $pt_get_on && $pt_get_pct > 0 ) :
       $pt_img_base = get_stylesheet_directory_uri() . '/assets/images/';
       $pt_get_code = function_exists( 'av_get_display_voucher_code' ) ? av_get_display_voucher_code() : '';
-      $pt_get_slide_cards = array(
-        array( 'size' => 'MyDen Garden Office 8×6', 'from' => 4679 ),
-        array( 'size' => 'MyDen Garden Office 12×8', 'from' => 7199 ),
-        array( 'size' => 'Evolution Garden Room 16×10', 'from' => 9359 ),
+      $pt_get_slides = array(
+        array(
+          'variant'  => 'getb--rays',
+          'building' => array( 'src' => 'get20-banner-building.webp', 'alt' => 'Project Timber garden building', 'w' => 1200, 'h' => 525 ),
+          'thumbs'   => array(
+            array( 'src' => 'get20-banner-workshop.webp', 'alt' => 'Garden workshop interior', 'w' => 1600, 'h' => 600 ),
+            array( 'src' => 'get20-banner-mancave.webp', 'alt' => 'Garden mancave interior', 'w' => 1600, 'h' => 600 ),
+          ),
+          'cards'    => array(
+            array( 'size' => 'Hobbyist Pent Shed', 'from' => 883 ),
+            array( 'size' => '“Heavy Duty” D1000 Workshop', 'from' => 1979 ),
+            array( 'size' => 'Fusion D1000 Pent Dual Room', 'from' => 3299 ),
+          ),
+        ),
+        array(
+          'variant'  => 'getb--stripes',
+          'building' => array( 'src' => 'get20-office-building.webp', 'alt' => 'Project Timber garden office', 'w' => 1200, 'h' => 684 ),
+          'thumbs'   => array(
+            array( 'src' => 'get20-office-int1.webp', 'alt' => 'Garden office interior', 'w' => 1200, 'h' => 675 ),
+            array( 'src' => 'get20-office-int2.webp', 'alt' => 'Garden room lounge interior', 'w' => 1067, 'h' => 600 ),
+          ),
+          'cards'    => array(
+            array( 'size' => 'MyDen Garden Office 8×6', 'from' => 4679 ),
+            array( 'size' => 'MyDen Garden Office 12×8', 'from' => 7199 ),
+            array( 'size' => 'Evolution Garden Room 16×10', 'from' => 9359 ),
+          ),
+        ),
       );
+      foreach ( $pt_get_slides as $pt_si => $pt_slide ) :
     ?>
-    <!-- Slide — GET20 site-wide (mockup 2D-F, Garden Office) -->
-    <div class="pshero-slide pshero-sale is-on" aria-roledescription="slide" aria-label="<?php echo (int) $pt_get_pct; ?>% off all building ranges">
-      <div class="getb">
+    <!-- Slide — GET20 site-wide (mockup 2D-F, <?php echo esc_html( $pt_slide['variant'] ); ?>) -->
+    <div class="pshero-slide pshero-sale<?php echo 0 === $pt_si ? ' is-on' : ''; ?>" aria-roledescription="slide" aria-label="<?php echo (int) $pt_get_pct; ?>% off all building ranges">
+      <div class="getb <?php echo esc_attr( $pt_slide['variant'] ); ?>">
         <!-- Left: offer + prices + CTA -->
         <div class="getb-left">
           <div class="getb-kick">Factory outlet deal</div>
@@ -69,7 +94,7 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
             <div class="getb-ranges">All Building Ranges</div>
           </div>
           <div class="getb-prices">
-            <?php foreach ( $pt_get_slide_cards as $pt_c ) :
+            <?php foreach ( $pt_slide['cards'] as $pt_c ) :
               $pt_now = (int) round( (int) $pt_c['from'] * ( 1 - $pt_get_pct / 100 ) ); ?>
             <div class="getb-prow"><span class="getb-pname"><?php echo esc_html( $pt_c['size'] ); ?></span><span class="getb-pamt"><span class="getb-was">£<?php echo number_format( (int) $pt_c['from'] ); ?></span><span class="getb-now">£<?php echo number_format( $pt_now ); ?></span></span></div>
             <?php endforeach; ?>
@@ -82,7 +107,7 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
         <!-- Right: building + lifestyle photos -->
         <div class="getb-right">
           <div class="getb-stage">
-            <img class="getb-building" src="<?php echo esc_url( $pt_img_base . 'get20-office-building.webp' ); ?>" alt="Project Timber garden office" width="1200" height="684">
+            <img class="getb-building" src="<?php echo esc_url( $pt_img_base . $pt_slide['building']['src'] ); ?>" alt="<?php echo esc_attr( $pt_slide['building']['alt'] ); ?>" width="<?php echo (int) $pt_slide['building']['w']; ?>" height="<?php echo (int) $pt_slide['building']['h']; ?>"<?php echo 0 === $pt_si ? '' : ' loading="lazy"'; ?>>
             <div class="getb-burst">
               <div class="getb-burst-in">
                 <span class="getb-burst-save">Save</span>
@@ -92,13 +117,14 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
             </div>
           </div>
           <div class="getb-thumbs" data-slab>
-            <div class="getb-thumb"><img src="<?php echo esc_url( $pt_img_base . 'get20-office-int1.webp' ); ?>" alt="Garden office interior" loading="lazy" width="1200" height="675"></div>
-            <div class="getb-thumb"><img src="<?php echo esc_url( $pt_img_base . 'get20-office-int2.webp' ); ?>" alt="Garden room lounge interior" loading="lazy" width="1067" height="600"></div>
+            <?php foreach ( $pt_slide['thumbs'] as $pt_t ) : ?>
+            <div class="getb-thumb"><img src="<?php echo esc_url( $pt_img_base . $pt_t['src'] ); ?>" alt="<?php echo esc_attr( $pt_t['alt'] ); ?>" loading="lazy" width="<?php echo (int) $pt_t['w']; ?>" height="<?php echo (int) $pt_t['h']; ?>"></div>
+            <?php endforeach; ?>
           </div>
         </div>
       </div>
     </div>
-    <?php endif; ?>
+    <?php endforeach; endif; ?>
 
     <!-- Slide 1 — factory direct -->
     <div class="pshero-slide pshero-img<?php echo $pt_get_on && $pt_get_pct > 0 ? '' : ' is-on'; ?>" aria-roledescription="slide">

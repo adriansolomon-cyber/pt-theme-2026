@@ -430,24 +430,36 @@
 .pshero-darkcta b{ color:var(--accent); font-weight:700; }
 .pshero-saletrust{ font-family:var(--font); font-size:.66rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--charcoal); }
 
-/* GET20 site-wide sale slide (mockup 2D-F) — offer + prices left, building + lifestyle photos right */
+/* GET20 site-wide sale slide (mockup 2D-F) — offer + prices left, building + lifestyle photos right.
+   Two variants rotate in the hero: .getb--rays (sunburst, mixed ranges) and
+   .getb--stripes (diagonal stripes, Garden Office). */
 .getb{ position:relative; height:100%; display:grid; grid-template-columns:1fr; align-items:center; align-content:center; gap:20px 32px; max-width:var(--maxw); margin:0 auto; padding:clamp(18px,3vw,34px) clamp(18px,3.4vw,44px); box-sizing:border-box; }
 .getb *{ box-sizing:border-box; }
-.getb::before{ content:""; position:absolute; inset:0; background:repeating-linear-gradient(-55deg,rgba(255,255,255,.45) 0 14px,transparent 14px 42px); -webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.25) 35%,#000 75%); mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.25) 35%,#000 75%); pointer-events:none; }
+.getb::before{ content:""; position:absolute; inset:0; pointer-events:none; }
+.getb--rays::before{ background:repeating-conic-gradient(from 0deg at 72% 42%,rgba(255,255,255,.5) 0deg 7deg,transparent 7deg 18deg); -webkit-mask-image:radial-gradient(circle at 72% 42%,#000 20%,transparent 70%); mask-image:radial-gradient(circle at 72% 42%,#000 20%,transparent 70%); }
+.getb--stripes::before{ background:repeating-linear-gradient(-55deg,rgba(255,255,255,.45) 0 14px,transparent 14px 42px); -webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.25) 35%,#000 75%); mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.25) 35%,#000 75%); }
 @media(min-width:760px){ .getb{ grid-template-columns:minmax(0,.85fr) minmax(0,1.2fr); } }
 /* Left — offer card */
 .getb-left{ position:relative; min-width:0; display:flex; flex-direction:column; align-items:stretch; width:100%; max-width:490px; }
 .getb-kick{ align-self:flex-start; background:var(--accent); font-family:var(--font); font-weight:800; font-size:.82rem; letter-spacing:.12em; color:var(--charcoal); text-transform:uppercase; padding:6px 16px; border:2px solid var(--charcoal); margin-bottom:-2px; position:relative; z-index:1; }
-.getb-panel{ background:var(--charcoal); width:100%; padding:clamp(16px,2.2vw,24px) clamp(16px,2vw,24px); }
-.getb-big{ display:flex; align-items:flex-end; justify-content:center; gap:8px; line-height:.8; }
-.getb-num{ font-family:var(--font); font-weight:800; font-size:clamp(3.8rem,11vw,6.2rem); line-height:.78; letter-spacing:-.06em; color:#fff; text-shadow:4px 4px 0 var(--ink); }
+.getb-panel{ background:var(--charcoal); width:100%; }
+.getb--rays .getb-panel{ padding:10px clamp(16px,2vw,24px) clamp(16px,2.2vw,22px); }
+.getb--stripes .getb-panel{ padding:clamp(16px,2.2vw,24px) clamp(16px,2vw,24px); }
+.getb-big{ display:flex; align-items:flex-end; gap:8px; line-height:.8; }
+.getb--rays .getb-big{ justify-content:flex-start; }
+.getb--stripes .getb-big{ justify-content:center; }
+.getb-num{ font-family:var(--font); font-weight:800; line-height:.78; letter-spacing:-.06em; color:#fff; }
+.getb--rays .getb-num{ font-size:clamp(4.2rem,12vw,7rem); text-shadow:6px 6px 0 var(--ink); }
+.getb--stripes .getb-num{ font-size:clamp(3.8rem,11vw,6.2rem); text-shadow:4px 4px 0 var(--ink); }
 .getb-pc{ display:inline-flex; flex-direction:column; align-items:flex-start; padding-bottom:.1em; }
 .getb-pct{ font-family:var(--font); font-weight:800; font-size:clamp(2rem,5.5vw,3.1rem); line-height:.8; color:#fff; text-shadow:4px 4px 0 var(--ink); }
 .getb-off{ font-family:var(--font); font-weight:800; font-size:clamp(1.3rem,3.6vw,2rem); line-height:.85; letter-spacing:-.02em; color:#fff; text-shadow:4px 4px 0 var(--ink); text-transform:uppercase; }
 .getb-ranges{ text-align:center; background:var(--accent); color:var(--charcoal); font-family:var(--font); font-weight:800; font-size:clamp(1rem,2.4vw,1.5rem); white-space:nowrap; line-height:1.1; text-transform:uppercase; padding:6px 14px; margin-top:14px; }
 .getb-prices{ background:#fff; width:100%; padding:8px 18px; box-shadow:0 6px 16px rgba(0,0,0,.15); display:flex; flex-direction:column; margin-bottom:10px; }
-.getb-prow{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:7px 0; }
-.getb-prow + .getb-prow{ border-top:1px solid #ececed; }
+.getb--rays .getb-prices{ padding:10px 18px; gap:3px; margin-bottom:12px; }
+.getb-prow{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+.getb--stripes .getb-prow{ padding:7px 0; }
+.getb--stripes .getb-prow + .getb-prow{ border-top:1px solid #ececed; }
 .getb-pname{ flex:1 1 auto; min-width:0; font-family:var(--font); font-size:clamp(13px,1.2vw,16px); font-weight:600; color:var(--charcoal); }
 .getb-pamt{ display:flex; align-items:baseline; gap:6px; white-space:nowrap; }
 .getb-was{ font-family:var(--font); font-size:clamp(13px,1.2vw,16px); font-weight:400; color:#8a8a8e; text-decoration:line-through; }
