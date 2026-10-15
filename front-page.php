@@ -51,21 +51,28 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
       $pt_img_base = get_stylesheet_directory_uri() . '/assets/images/';
       $pt_get_code = function_exists( 'av_get_display_voucher_code' ) ? av_get_display_voucher_code() : '';
       $pt_get_slides = array(
+        // Slide 1 — Hobbyist "Standard" vs Grandmaster "Heavy Duty" comparison table.
         array(
-          'variant'  => 'getb--rays',
+          'type'     => 'table',
           'building' => array( 'src' => 'get20-banner-building.webp', 'alt' => 'Project Timber garden building', 'w' => 1200, 'h' => 525 ),
           'thumbs'   => array(
             array( 'src' => 'get20-banner-workshop.webp', 'alt' => 'Garden workshop interior', 'w' => 1600, 'h' => 600 ),
             array( 'src' => 'get20-banner-mancave.webp', 'alt' => 'Garden mancave interior', 'w' => 1600, 'h' => 600 ),
           ),
-          'cards'    => array(
-            array( 'size' => 'Hobbyist Pent Shed', 'from' => 883 ),
-            array( 'size' => '“Heavy Duty” D1000 Workshop', 'from' => 1979 ),
-            array( 'size' => 'Fusion D1000 Pent Dual Room', 'from' => 3299 ),
+          'cols'     => array(
+            array( 'Hobbyist', '“Standard”' ),
+            array( 'Grandmaster', '“Heavy Duty”' ),
+          ),
+          // Each row: category + a cell per column (size + "was" price; "now" is was − live %).
+          'rows'     => array(
+            array( 'cat' => 'Pent Sheds',         'cells' => array( array( 'sz' => '8×6',  'was' => 883 ),  array( 'sz' => '8×6',  'was' => 1499 ) ) ),
+            array( 'cat' => 'Apex Sheds',         'cells' => array( array( 'sz' => '10×8', 'was' => 1249 ), array( 'sz' => '10×8', 'was' => 2259 ) ) ),
+            array( 'cat' => 'Reverse Apex Sheds', 'cells' => array( array( 'sz' => '16×8', 'was' => 1749 ), array( 'sz' => '16×8', 'was' => 2999 ) ) ),
           ),
         ),
+        // Slide 2 — Garden Office price list.
         array(
-          'variant'  => 'getb--stripes',
+          'type'     => 'list',
           'building' => array( 'src' => 'get20-office-building.webp', 'alt' => 'Project Timber garden office', 'w' => 1200, 'h' => 684 ),
           'thumbs'   => array(
             array( 'src' => 'get20-office-int1.webp', 'alt' => 'Garden office interior', 'w' => 1200, 'h' => 675 ),
@@ -80,9 +87,9 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
       );
       foreach ( $pt_get_slides as $pt_si => $pt_slide ) :
     ?>
-    <!-- Slide — GET20 site-wide (mockup 2D-F, <?php echo esc_html( $pt_slide['variant'] ); ?>) -->
+    <!-- Slide — GET20 site-wide (mockup 2D-F, <?php echo esc_html( $pt_slide['type'] ); ?>) -->
     <div class="pshero-slide pshero-sale<?php echo 0 === $pt_si ? ' is-on' : ''; ?>" aria-roledescription="slide" aria-label="<?php echo (int) $pt_get_pct; ?>% off all building ranges">
-      <div class="getb <?php echo esc_attr( $pt_slide['variant'] ); ?>">
+      <div class="getb">
         <!-- Left: offer + prices + CTA -->
         <div class="getb-left">
           <div class="getb-kick">Factory outlet deal</div>
@@ -93,12 +100,28 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
             </div>
             <div class="getb-ranges">All Building Ranges</div>
           </div>
+          <?php if ( 'table' === $pt_slide['type'] ) : ?>
+          <div class="getb-ptable">
+            <span class="pt-sp"></span>
+            <?php foreach ( $pt_slide['cols'] as $pt_col ) : ?>
+            <span class="pt-th"><?php echo esc_html( $pt_col[0] ); ?><br><?php echo esc_html( $pt_col[1] ); ?></span>
+            <?php endforeach; ?>
+            <?php foreach ( $pt_slide['rows'] as $pt_row ) : ?>
+            <span class="pt-cat"><?php echo esc_html( $pt_row['cat'] ); ?></span>
+            <?php foreach ( $pt_row['cells'] as $pt_cell ) :
+              $pt_now = (int) round( (int) $pt_cell['was'] * ( 1 - $pt_get_pct / 100 ) ); ?>
+            <span class="pt-cell"><span class="pt-sz"><?php echo esc_html( $pt_cell['sz'] ); ?></span><span class="pt-amt"><span class="pt-was">£<?php echo number_format( (int) $pt_cell['was'] ); ?></span><span class="pt-now">£<?php echo number_format( $pt_now ); ?></span></span></span>
+            <?php endforeach; ?>
+            <?php endforeach; ?>
+          </div>
+          <?php else : ?>
           <div class="getb-prices">
             <?php foreach ( $pt_slide['cards'] as $pt_c ) :
               $pt_now = (int) round( (int) $pt_c['from'] * ( 1 - $pt_get_pct / 100 ) ); ?>
             <div class="getb-prow"><span class="getb-pname"><?php echo esc_html( $pt_c['size'] ); ?></span><span class="getb-pamt"><span class="getb-was">£<?php echo number_format( (int) $pt_c['from'] ); ?></span><span class="getb-now">£<?php echo number_format( $pt_now ); ?></span></span></div>
             <?php endforeach; ?>
           </div>
+          <?php endif; ?>
           <a class="getb-cta" href="#ranges">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM5.2 4l.9 2H21l-3.6 7.2a2 2 0 0 1-1.8 1.1H8.1l-1 1.7H19v2H5l2.2-3.9L3.6 4H1V2h3.6z"/></svg>
             Shop now — code <b><?php echo esc_html( $pt_get_code ); ?></b>
