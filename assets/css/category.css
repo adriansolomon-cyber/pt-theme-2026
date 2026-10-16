@@ -107,6 +107,9 @@
   .prod .ph.duo img{ position:absolute; inset:0; width:100%; height:100%; display:block; transition:opacity .45s var(--ease); }
   .prod .ph.duo .pimg{ object-fit:cover; padding:0; opacity:1; }
   .prod .ph.duo .pscene{ object-fit:cover; opacity:0; }
+  /* Grandmaster range: garden/scene image shown always, not only on hover. */
+  .prod .ph.duo.scene .pimg{ opacity:0; }
+  .prod .ph.duo.scene .pscene{ opacity:1; }
   .prod .ph.duo.cover{ background:var(--mist); } .prod .ph.duo.cover .pimg{ object-fit:cover; padding:0; }
   @media(hover:hover){ .prod:hover .ph.duo .pimg{ opacity:0; } .prod:hover .ph.duo .pscene{ opacity:1; } }
   /* no hover (touch): show the lifestyle scene image by default */

@@ -204,7 +204,10 @@ function pt_cat_card_html( $p ) {
 	$order = isset( $p['_order'] ) ? (int) $p['_order'] : 0;
 	$h  = '<a class="prod" href="' . esc_url( $href ) . '" data-price="' . esc_attr( $price ) . '" data-sales="' . esc_attr( $sales ) . '" data-order="' . esc_attr( $order ) . '"'
 		. ' data-item-id="' . esc_attr( $pid ) . '" data-item-name="' . esc_attr( $name ) . '" data-track-price="' . esc_attr( $track_price ) . '"' . $facets . '>';
-	$h .= '<div class="ph duo">';
+	// Grandmaster range: show the garden/scene image (product_image_2) at all times,
+	// not just on hover — only when a distinct scene image actually exists.
+	$scene_always = ( $pid && $img1 !== $img0 && function_exists( 'pt_is_grandmaster_product' ) && pt_is_grandmaster_product( $pid ) ) ? ' scene' : '';
+	$h .= '<div class="ph duo' . $scene_always . '">';
 	if ( $img0 ) {
 		$h .= '<img class="pimg" src="' . esc_url( $img0 ) . '" alt="' . esc_attr( $name ) . '">';
 	}
