@@ -331,7 +331,7 @@ if ( $pt_theme_data && '' !== $pt_theme_data['banner_image'] ) : ?>
       // bare box. Public — shown to everyone where enabled.
       if ( $pt_show( 'show_highlights', false ) && $pt_has_rows( 'main_features' ) ) :
         ?>
-        <div class="pt-mainfeat">
+        <div class="pt-mainfeat<?php echo ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) ? ' pt-mainfeat--pt' : ''; ?>">
           <?php while ( have_rows( 'main_features', $pt_pid ) ) : the_row(); ?>
             <div class="mf-col"><h4><?php echo wp_kses_post( get_sub_field( 'heading' ) ); ?></h4><p><?php echo wp_kses_post( get_sub_field( 'subheading' ) ); ?></p></div>
           <?php endwhile; ?>

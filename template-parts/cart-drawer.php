@@ -52,9 +52,11 @@ if ( ! defined( 'ABSPATH' ) ) {
       <div class="ptc-foot">
         <div class="ptc-ln"><span>Subtotal</span><span id="ptcSubtotal"><span class="ptc-sk ptc-sk-amt"></span></span></div>
         <div class="ptc-ln" id="ptcDiscountLn" hidden><span>Discount</span><span id="ptcDiscount"></span></div>
+        <?php // Paint & Trim promo fee — the extra 10% off paint/trim, shown as its own line. ?>
+        <div class="ptc-ln" id="ptcPaintFeeLn" hidden><span>Extra 10% paint &amp; trim</span><span id="ptcPaintFee"></span></div>
         <?php // Paint & Trim promo upsell — shown by mini-cart.js only when the cart has a
               // promo-eligible building with no paint/trim added. href is set to that product. ?>
-        <a class="pt-cart-paint" id="ptcPaintUpsell" href="#" hidden><span>Add paint &amp; trim — extra 10% off</span><span class="pt-cart-paint-add">Add &rsaquo;</span></a>
+        <a class="pt-cart-paint" id="ptcPaintUpsell" href="#" hidden><span class="pt-cart-paint-lab">Add paint &amp; trim — extra 10% off</span><span class="pt-cart-paint-add">Add &rsaquo;</span></a>
         <div class="ptc-ln"><span>Delivery</span><span>Calculated at checkout</span></div>
         <div class="ptc-tot"><span class="l">Total</span><span class="v" id="ptcTotal"><span class="ptc-sk ptc-sk-amt"></span></span></div>
         <div class="ptc-vat" id="ptcVat"></div>

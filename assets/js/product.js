@@ -148,13 +148,14 @@
     var PAINTTRIM=(typeof window!=='undefined' && window.PT_PAINT_TRIM)||false;
     var PTPCT=(typeof window!=='undefined' && typeof window.PT_PAINT_TRIM_PCT==='number' && window.PT_PAINT_TRIM_PCT>0) ? window.PT_PAINT_TRIM_PCT : 10;
     function ptPromo(n){ n=Number(n)||0; return disc(n) - n*PTPCT/100; }  // display discount, then PTPCT% of the original
-    // Cart upsell deep-link: ?pt_paint=1 opens + scrolls to the Paint Colour step once built.
-    var wantPaintStep=false; try{ wantPaintStep=/[?&]pt_paint=1\b/.test(location.search); }catch(e){}
+    // Cart upsell deep-link: ?pt_paint=paint|trim opens + scrolls to that step once built.
+    var wantStep='', stepOpened=false; try{ var _m=location.search.match(/[?&]pt_paint=(\w+)/); if(_m) wantStep=(_m[1]==='trim')?'trim':'paint'; }catch(e){}
     function openPaintStep(){
-      if(!elRows) return;
+      if(!elRows||!wantStep) return;
+      var re=(wantStep==='trim')?/trim/i:/paint/i;
       var rows=elRows.querySelectorAll('.cfg-row');
       for(var i=0;i<rows.length;i++){ var lab=rows[i].querySelector('.lab');
-        if(lab && /paint/i.test(lab.textContent||'')){ rows[i].classList.add('open');
+        if(lab && re.test(lab.textContent||'')){ rows[i].classList.add('open');
           try{ rows[i].scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){ try{ rows[i].scrollIntoView(); }catch(e2){} } return; } }
     }
 
@@ -634,10 +635,10 @@
       var shelfPill=isFreeShelf(opt)?'<div class="opt-badges"><span class="opt-badge opt-badge--promo-weekend"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-2.3a3 3 0 00-5.7-2 3 3 0 00-5.7 2H4a1 1 0 00-1 1v3.5h8V8h2v3.5h8V8a1 1 0 00-1-1zM9 7a1 1 0 110-2c.7 0 1.2.8 1.4 2H9zm6 0h-1.4c.2-1.2.7-2 1.4-2a1 1 0 110 2zM4 13h7v9H5a1 1 0 01-1-1v-8zm9 0h7v8a1 1 0 01-1 1h-6v-9z"/></svg>Free this weekend</span></div>':'';
       // Paint & Trim promo: green corner pill (top-right) on each priced colour option.
       var paintPill=(PAINTTRIM && colour && opt.price>0)?'<div class="opt-badges opt-badges--tr"><span class="opt-badge opt-badge--promo-weekend"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 7h-2.2A3 3 0 0 0 12 4.4 3 3 0 0 0 6.2 7H4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h7V7h2v5h7a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM9 7a1 1 0 1 1 1-1v1H9zm6 0h-1V6a1 1 0 1 1 1 1zM4 13v7a1 1 0 0 0 1 1h6v-8H4zm9 8h6a1 1 0 0 0 1-1v-7h-7v8z"/></svg>Week deal</span></div>':'';
-      // Paint & Trim promo: outlined red "Save £X" tag (was − now, whole £) — bottom-right of
-      // the swatch so it can't clip or change card height (the price area is only 150px wide).
+      // Paint & Trim promo: "Save £X" (was − now, whole £) — the text; shown at the top-right
+      // of the sale price in the price branch below.
       var paintSave=(PAINTTRIM && colour && opt.price>0)?(round60(opt.price)-round60(ptPromo(opt.price))):0;
-      var savePill=(paintSave>0)?'<span class="pt-save">Save £'+paintSave.toLocaleString('en-GB')+'</span>':'';
+      var savePill=(paintSave>0)?('Save £'+paintSave.toLocaleString('en-GB')):'';
       var img;
       if(group===sizeCid){
         // SIZE cards: hold a loading skeleton until this size's OWN image is fetched
@@ -647,7 +648,7 @@
         var imEl=opt.img?'<img class="opt-im" src="'+esc(opt.img)+'" alt="'+esc(label)+'">':'';
         img='<div class="im loading">'+imEl+'<span class="im-skel skel-box" aria-hidden="true"></span>'+tins+edit+fastPill+'</div>';
       } else {
-        img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+edit+shelfPill+paintPill+savePill+'</div>':'<div class="im ph">'+tins+edit+shelfPill+paintPill+savePill+'</div>';
+        img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+edit+shelfPill+paintPill+'</div>':'<div class="im ph">'+tins+edit+shelfPill+paintPill+'</div>';
       }
       var badge4w=(colour&&isNone)?'<span class="badge4w">⚠ Paint within 4 weeks!*</span>':'';
       // every price shows the discounted value when a campaign is live; £0 / "Included"
@@ -667,9 +668,9 @@
       else if(PAINTTRIM && colour && opt.price>0){
         // Paint & Trim promo: priced colour option shows its original struck through next
         // to the promo price (display discount + an extra PTPCT%); counts in discTotal().
-        // The "Save £X" tag is rendered as an in-card image overlay (savePill) — the 150px
-        // overflow:hidden cards would clip a tag placed to the right of the price.
-        price='<span class="was">'+fmt(opt.price)+'</span><span class="now">'+fmt(ptPromo(opt.price))+'</span>';
+        // Outlined-red "Save £X" (was − now, whole £) at the TOP-RIGHT of the sale price.
+        price='<span class="was">'+fmt(opt.price)+'</span><span class="now">'+fmt(ptPromo(opt.price))
+          +(savePill?('<span class="pt-save">'+savePill+'</span>'):'')+'</span>';
       }
       else { price=fmtDisc(opt.price); }
       var sizeAttrs=(group===sizeCid) ? ' data-val="'+esc(label)+'"'+(isBestSize(opt.name)?' data-best="1"':'') : '';
@@ -872,8 +873,8 @@
       elRows.insertAdjacentHTML('beforeend',html);
       components.forEach(function(c){ if(c.id===sizeCid) return; if(sel[c.id]!=null){ var m=meta[sel[c.id]]; setSelLabel('sel-'+c.key, m?m.name:('#'+sel[c.id])); } });
       recalc();
-      // Deep-link from the cart upsell (?pt_paint=1): open + scroll to the Paint Colour step.
-      if(wantPaintStep){ wantPaintStep=false; setTimeout(openPaintStep,60); }
+      // Deep-link from the cart upsell (?pt_paint=…): open + scroll to that step once.
+      if(wantStep && !stepOpened){ stepOpened=true; setTimeout(openPaintStep,60); }
     }
 
     // Re-filter option cards IN PLACE after a selection changes (keeps the accordion

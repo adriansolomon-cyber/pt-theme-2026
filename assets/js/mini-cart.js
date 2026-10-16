@@ -188,23 +188,29 @@
   function paintUpsell(items) {
     var el = $('#ptcPaintUpsell'); if (!el) return;
     if (!window.PT_PAINT_TRIM) { el.hidden = true; return; }
-    var target = null;
+    var target = null, needPaint = false, needTrim = false;
     (items || []).forEach(function (it) {
       if (target) return;
-      var data = it.item_data || [], hasComp = false, chosen = false;
+      var data = it.item_data || [], hasPaint = false, paintSet = false, hasTrim = false, trimSet = false;
       data.forEach(function (d) {
         var k = String(d.key || d.name || '').toLowerCase();
-        if (/paint|trim/.test(k)) {
-          hasComp = true;
-          var v = String(d.value || '').replace(/<[^>]*>/g, '').trim().toLowerCase();
-          if (v && v !== 'none' && v !== '–' && v !== '—' && v !== '-') chosen = true;
-        }
+        var v = String(d.value || '').replace(/<[^>]*>/g, '').trim().toLowerCase();
+        var set = !!(v && v !== 'none' && v !== '–' && v !== '—' && v !== '-');
+        if (/paint/.test(k)) { hasPaint = true; if (set) paintSet = true; }
+        else if (/trim/.test(k)) { hasTrim = true; if (set) trimSet = true; }
       });
-      if (hasComp && !chosen) target = it;
+      var mp = hasPaint && !paintSet, mt = hasTrim && !trimSet;
+      if (mp || mt) { target = it; needPaint = mp; needTrim = mt; }
     });
+    var lab = el.querySelector('.pt-cart-paint-lab');
     if (target && target.permalink) {
+      // Wording reflects what's still missing (both / trim only / paint only).
+      if (lab) lab.textContent = (needPaint && needTrim) ? 'Add paint & trim — extra 10% off'
+        : needTrim ? 'Add colour trim — extra 10% off'
+        : 'Add paint — extra 10% off';
+      var step = (needTrim && !needPaint) ? 'trim' : 'paint';
       var u = target.permalink;
-      el.href = u + (u.indexOf('?') > -1 ? '&' : '?') + 'pt_paint=1#configure';
+      el.href = u + (u.indexOf('?') > -1 ? '&' : '?') + 'pt_paint=' + step + '#configure';
       el.hidden = false;
     } else {
       el.hidden = true;
@@ -226,6 +232,14 @@
     var disc = parseInt(t.total_discount, 10) || 0, dln = $('#ptcDiscountLn');
     if (dln) dln.hidden = !(disc > 0);
     if (disc > 0) setText('#ptcDiscount', '−' + money(withTax(t.total_discount, t.total_discount_tax), t));
+    // Paint & Trim promo — the extra 10% is a cart fee (not a coupon), so show it on its own line.
+    var fees = cart.fees || [], pf = null;
+    for (var fi = 0; fi < fees.length; fi++) { if (/paint|trim/i.test(fees[fi].name || '')) { pf = fees[fi]; break; } }
+    var pfln = $('#ptcPaintFeeLn');
+    if (pfln) {
+      if (pf && pf.totals) { setText('#ptcPaintFee', '−' + money(Math.abs(withTax(pf.totals.total, pf.totals.total_tax)), t)); pfln.hidden = false; }
+      else pfln.hidden = true;
+    }
     paintUpsell(items);
     renderCoupons(cart.coupons || []);
   }
