@@ -106,6 +106,17 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
               <span class="getb-pc"><span class="getb-pct">%</span><span class="getb-off">Off</span></span>
             </div>
             <div class="getb-ranges">All Building Ranges</div>
+            <?php // Week/Weekend deal (Paint & Colour Trim) coupon — campaign-gated; inside the dark panel. ?>
+            <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?>
+            <div class="getb-cpn">
+              <span class="getb-cpn-num">+<?php echo (int) $pt_pt_pct; ?><sup>%</sup></span>
+              <span class="getb-cpn-div"></span>
+              <span class="getb-cpn-txt">
+                <span class="getb-cpn-tag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-2.2A3 3 0 0 0 12 4.4 3 3 0 0 0 6.2 7H4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h7V7h2v5h7a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM9 7a1 1 0 1 1 1-1v1H9zm6 0h-1V6a1 1 0 1 1 1 1zM4 13v7a1 1 0 0 0 1 1h6v-8H4zm9 8h6a1 1 0 0 0 1-1v-7h-7v8z"/></svg><?php echo esc_html( function_exists( 'pt_paint_trim_tag_label' ) ? pt_paint_trim_tag_label() : 'Week deal' ); ?></span>
+                <span class="getb-cpn-main">Extra off paint &amp; trim</span>
+              </span>
+            </div>
+            <?php endif; ?>
           </div>
           <?php if ( 'table' === $pt_slide['type'] ) : ?>
           <div class="getb-ptable">
@@ -145,16 +156,6 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
                 <span class="getb-burst-off">Off all</span>
               </div>
             </div>
-            <?php // Week deal (Paint & Colour Trim) — green companion burst, paired with the red one. ?>
-            <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?>
-            <div class="getb-burst getb-burst--pt">
-              <div class="getb-burst-in">
-                <span class="getb-burst-save">Extra</span>
-                <span class="getb-burst-pct"><?php echo (int) $pt_pt_pct; ?>%</span>
-                <span class="getb-burst-off">paint &amp; trim</span>
-              </div>
-            </div>
-            <?php endif; ?>
           </div>
           <div class="getb-thumbs" data-slab>
             <?php foreach ( $pt_slide['thumbs'] as $pt_t ) : ?>

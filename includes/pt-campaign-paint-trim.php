@@ -82,6 +82,40 @@ function pt_paint_trim_end_timestamp() {
 }
 
 /**
+ * Whether the promo window includes a Saturday or Sunday — drives the "Weekend deal"
+ * vs "Week deal" tag so the wording tracks the configured dates, not a hard-coded string.
+ *
+ * @return bool
+ */
+function pt_paint_trim_window_spans_weekend() {
+	try {
+		$tz    = new DateTimeZone( 'Europe/London' );
+		$start = new DateTime( PT_PAINT_TRIM_START, $tz );
+		$end   = new DateTime( PT_PAINT_TRIM_END, $tz );
+	} catch ( \Exception $e ) {
+		return false;
+	}
+	if ( $end < $start ) {
+		return false;
+	}
+	// Walk each calendar day in the window (bounded to 31 iterations).
+	$day = new DateTime( $start->format( 'Y-m-d' ), $tz );
+	for ( $i = 0; $i < 31 && $day <= $end; $i++ ) {
+		if ( (int) $day->format( 'N' ) >= 6 ) { // 6 = Sat, 7 = Sun
+			return true;
+		}
+		$day->modify( '+1 day' );
+	}
+	return false;
+}
+
+/** Short deal tag: "Weekend deal" when the window spans a weekend, else "Week deal" (filterable). */
+function pt_paint_trim_tag_label() {
+	$label = pt_paint_trim_window_spans_weekend() ? 'Weekend deal' : 'Week deal';
+	return (string) apply_filters( 'pt_paint_trim_tag_label', $label );
+}
+
+/**
  * Apply the paint/trim 10% discount as a VAT-correct negative fee.
  *
  * For each composite container in the cart, find child options whose COMPONENT is a
