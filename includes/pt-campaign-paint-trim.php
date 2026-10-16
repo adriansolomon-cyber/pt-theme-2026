@@ -154,3 +154,73 @@ function pt_paint_trim_fee( $cart ) {
 	}
 }
 add_action( 'woocommerce_cart_calculate_fees', 'pt_paint_trim_fee' );
+
+/** The promo message shown in the banner (filterable). */
+function pt_paint_trim_message() {
+	$pct = (int) round( pt_paint_trim_pct() );
+	return (string) apply_filters(
+		'pt_paint_trim_message',
+		'Extra ' . $pct . '% off Paint Colour &amp; Colour Trim — on top of your current discount.'
+	);
+}
+
+/**
+ * Live "offer ends in …" countdown markup (filled by the footer ticker). Reuses the
+ * weekend deal's .pt-wkcountdown styling/ticker; the ticker hides implausibly-distant
+ * ends (placeholder dates) so an unscheduled promo never shows a silly countdown.
+ */
+function pt_paint_trim_countdown_html() {
+	$ts = pt_paint_trim_end_timestamp();
+	if ( ! $ts ) {
+		return '';
+	}
+	return '<div class="pt-wkcountdown" data-ends="' . (int) $ts . '" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.6 3.3 1.9-.9 1.5L11 13V7h2z"/></svg> Offer ends in <b class="pt-wkcd-t">—</b></div>';
+}
+
+/** The Paint & Trim promo banner (message + countdown). Empty when the promo is off. */
+function pt_paint_trim_banner_html() {
+	if ( ! pt_paint_trim_campaign_active() ) {
+		return '';
+	}
+	$pct = (int) round( pt_paint_trim_pct() );
+	return '<section class="pt-ptbanner" aria-label="Paint &amp; Trim offer"><div class="wrap">'
+		. '<div class="pt-ptbanner-card">'
+		. '<span class="pt-ptbanner-badge"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 3 7v6c0 5 3.8 8.4 9 9 5.2-.6 9-4 9-9V7l-9-5z"/></svg>Extra ' . $pct . '% OFF</span>'
+		. '<span class="pt-ptbanner-msg">' . wp_kses_post( pt_paint_trim_message() ) . '</span>'
+		. pt_paint_trim_countdown_html()
+		. '</div></div></section>';
+}
+
+/**
+ * One-second ticker that fills every .pt-wkcountdown on the page. Only emitted while the
+ * promo is active, and a no-op if the weekend deal already printed its own identical
+ * ticker (guarded by window.__ptCountdownTicker). Hides ends more than ~400 days out so
+ * a placeholder/unscheduled window shows no countdown.
+ */
+add_action(
+	'wp_footer',
+	static function () {
+		if ( ! pt_paint_trim_campaign_active() ) {
+			return;
+		}
+		?>
+<script>
+(function(){
+  if(window.__ptCountdownTicker) return; window.__ptCountdownTicker=1;
+  function fmt(ms){ if(ms<0)ms=0; var s=Math.floor(ms/1000),d=Math.floor(s/86400);s-=d*86400;
+    var h=Math.floor(s/3600);s-=h*3600;var m=Math.floor(s/60);s-=m*60;
+    return (d>0?d+'d ':'')+h+'h '+m+'m '+s+'s'; }
+  function tick(){ var now=Date.now();
+    document.querySelectorAll('.pt-wkcountdown[data-ends]').forEach(function(el){
+      var ends=parseInt(el.getAttribute('data-ends'),10)*1000;
+      if(isNaN(ends)||ends-now<=0||(ends-now)>400*86400000){ el.hidden=true; return; }
+      var t=el.querySelector('.pt-wkcd-t'); if(t) t.textContent=fmt(ends-now); el.hidden=false;
+    });
+  }
+  tick(); setInterval(tick,1000);
+})();
+</script>
+		<?php
+	},
+	50
+);

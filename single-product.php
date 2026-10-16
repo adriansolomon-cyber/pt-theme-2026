@@ -244,6 +244,14 @@ if ( $pt_pb_on && '' !== $pt_pb_img ) :
 </div></section>
 <?php endif; ?>
 
+<?php
+// Paint & Trim promo strip (message + live countdown) — shows only while the campaign is
+// active (public window, or admins in preview). Self-contained; empty otherwise.
+if ( function_exists( 'pt_paint_trim_banner_html' ) ) {
+	echo pt_paint_trim_banner_html(); // phpcs:ignore WordPress.Security.EscapeOutput -- built safe in the module
+}
+?>
+
 <!-- ===================== EXPLORE PREMIUM RANGES (below the price pill) ===================== -->
 <?php if ( $pt_show( 'show_ranges', false ) ) { get_template_part( 'template-parts/product-ranges' ); } ?>
 
