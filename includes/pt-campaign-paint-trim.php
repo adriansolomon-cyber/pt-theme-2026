@@ -155,13 +155,15 @@ function pt_paint_trim_fee( $cart ) {
 }
 add_action( 'woocommerce_cart_calculate_fees', 'pt_paint_trim_fee' );
 
-/** The promo message shown in the banner (filterable). */
-function pt_paint_trim_message() {
+/** The promo pill label (filterable). */
+function pt_paint_trim_label() {
 	$pct = (int) round( pt_paint_trim_pct() );
-	return (string) apply_filters(
-		'pt_paint_trim_message',
-		'Extra ' . $pct . '% off Paint Colour &amp; Colour Trim — on top of your current discount.'
-	);
+	return (string) apply_filters( 'pt_paint_trim_label', 'Extra ' . $pct . '% off Paint &amp; Colour Trim' );
+}
+
+/** The promo pill — a charcoal label sitting inside the yellow sale box (like the shelf pill). */
+function pt_paint_trim_badge_html() {
+	return '<span class="pt-wkbadge pt-ptbadge"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 3 7v6c0 5 3.8 8.4 9 9 5.2-.6 9-4 9-9V7l-9-5z"/></svg>' . pt_paint_trim_label() . '</span>';
 }
 
 /**
@@ -182,18 +184,12 @@ function pt_paint_trim_countdown_html() {
 	return '<div class="pt-wkcountdown" data-ends="' . (int) $ts . '" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.6 3.3 1.9-.9 1.5L11 13V7h2z"/></svg> Offer ends in <b class="pt-wkcd-t">—</b></div>';
 }
 
-/** The Paint & Trim promo banner (message + countdown). Empty when the promo is off. */
-function pt_paint_trim_banner_html() {
+/** The paint/trim promo label + countdown, to drop INSIDE a yellow sale box. */
+function pt_paint_trim_box_inner_html() {
 	if ( ! pt_paint_trim_campaign_active() ) {
 		return '';
 	}
-	$pct = (int) round( pt_paint_trim_pct() );
-	return '<section class="pt-ptbanner" aria-label="Paint &amp; Trim offer"><div class="wrap">'
-		. '<div class="pt-ptbanner-card">'
-		. '<span class="pt-ptbanner-badge"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 3 7v6c0 5 3.8 8.4 9 9 5.2-.6 9-4 9-9V7l-9-5z"/></svg>Extra ' . $pct . '% OFF</span>'
-		. '<span class="pt-ptbanner-msg">' . wp_kses_post( pt_paint_trim_message() ) . '</span>'
-		. pt_paint_trim_countdown_html()
-		. '</div></div></section>';
+	return pt_paint_trim_badge_html() . pt_paint_trim_countdown_html();
 }
 
 /**

@@ -244,14 +244,6 @@ if ( $pt_pb_on && '' !== $pt_pb_img ) :
 </div></section>
 <?php endif; ?>
 
-<?php
-// Paint & Trim promo strip (message + live countdown) — shows only while the campaign is
-// active (public window, or admins in preview). Self-contained; empty otherwise.
-if ( function_exists( 'pt_paint_trim_banner_html' ) ) {
-	echo pt_paint_trim_banner_html(); // phpcs:ignore WordPress.Security.EscapeOutput -- built safe in the module
-}
-?>
-
 <!-- ===================== EXPLORE PREMIUM RANGES (below the price pill) ===================== -->
 <?php if ( $pt_show( 'show_ranges', false ) ) { get_template_part( 'template-parts/product-ranges' ); } ?>
 
@@ -397,6 +389,7 @@ if ( $pt_theme_data && '' !== $pt_theme_data['banner_image'] ) : ?>
         <?php echo pt_shelf_weekend_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
         <?php echo function_exists( 'pt_shelf_countdown_html' ) ? pt_shelf_countdown_html() : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
         <?php endif; ?>
+        <?php echo function_exists( 'pt_paint_trim_box_inner_html' ) ? pt_paint_trim_box_inner_html() : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
       </div>
       <?php endif; ?>
       <?php // Grandmaster 16mm cladding free-upgrade banner (mockup 4C) — grandmaster products while the wall campaign runs. ?>
@@ -408,6 +401,7 @@ if ( $pt_theme_data && '' !== $pt_theme_data['banner_image'] ) : ?>
         <?php echo pt_shelf_weekend_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
         <?php echo function_exists( 'pt_shelf_countdown_html' ) ? pt_shelf_countdown_html() : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
         <?php endif; ?>
+        <?php echo function_exists( 'pt_paint_trim_box_inner_html' ) ? pt_paint_trim_box_inner_html() : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
       </div>
       <?php endif; ?>
       <?php
@@ -419,6 +413,14 @@ if ( $pt_theme_data && '' !== $pt_theme_data['banner_image'] ) : ?>
           echo pt_shelf_weekend_box_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup.
       }
       ?>
+      <?php // Paint & Trim promo — standalone yellow box when NO other sale box is shown. ?>
+      <?php if ( ! $pt_other_box && function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?>
+      <div class="pt-prodsale-box">
+        <div class="pt-prodsale-head"><?php echo pt_paint_trim_label(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?></div>
+        <div class="pt-prodsale-note">Applied automatically at checkout — no code needed.</div>
+        <?php echo pt_paint_trim_countdown_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
+      </div>
+      <?php endif; ?>
       <?php // Range toggle (Option 1) — redirect to the matched step-up target ?>
       <?php if ( $pt_su && $pt_show( 'show_range_toggle', false ) ) : ?>
       <div class="rangesw">
