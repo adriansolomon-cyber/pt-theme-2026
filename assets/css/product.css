@@ -863,13 +863,6 @@
     font-size:10px;padding:3px 8px;line-height:1.2;box-shadow:var(--e1)}
 }
 
-/* 5. Mobile: feature row 3 + 2 (the base uses grid-auto-flow:column with mf-cols spanning
-   2 rows, so switch to row flow + single-row cells for the columns to actually wrap). */
-@media (max-width:600px){
-  .pt-mainfeat{grid-template-columns:repeat(3,1fr);grid-auto-flow:row;grid-template-rows:none;row-gap:12px}
-  .pt-mainfeat .mf-col{grid-row:auto;grid-template-rows:auto}
-}
-
 /* ===================== Paint & Trim promo — extra visibility ===================== */
 /* Only existing theme tokens + the deal green (#00FE6C) and sale red (#C0392B). */
 .cfg-gallery{ position:relative; }
