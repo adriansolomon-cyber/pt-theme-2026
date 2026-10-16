@@ -182,6 +182,35 @@
     couponMsg('');
   }
 
+  // Paint & Trim promo upsell line — shown only while the promo is active AND the cart has
+  // a building whose Paint Colour / Colour Trim steps are still "None". "Add ›" links to that
+  // product with ?pt_paint=1#configure, which opens the Paint step there (see product.js).
+  function paintUpsell(items) {
+    var el = $('#ptcPaintUpsell'); if (!el) return;
+    if (!window.PT_PAINT_TRIM) { el.hidden = true; return; }
+    var target = null;
+    (items || []).forEach(function (it) {
+      if (target) return;
+      var data = it.item_data || [], hasComp = false, chosen = false;
+      data.forEach(function (d) {
+        var k = String(d.key || d.name || '').toLowerCase();
+        if (/paint|trim/.test(k)) {
+          hasComp = true;
+          var v = String(d.value || '').replace(/<[^>]*>/g, '').trim().toLowerCase();
+          if (v && v !== 'none' && v !== '–' && v !== '—' && v !== '-') chosen = true;
+        }
+      });
+      if (hasComp && !chosen) target = it;
+    });
+    if (target && target.permalink) {
+      var u = target.permalink;
+      el.href = u + (u.indexOf('?') > -1 ? '&' : '?') + 'pt_paint=1#configure';
+      el.hidden = false;
+    } else {
+      el.hidden = true;
+    }
+  }
+
   // Update badge + count + subtotal/total/VAT/discount + coupons from a cart object,
   // WITHOUT touching the item list — so one line can be removed surgically (see the
   // remove handler) and the totals refreshed without re-rendering the other items.
@@ -197,6 +226,7 @@
     var disc = parseInt(t.total_discount, 10) || 0, dln = $('#ptcDiscountLn');
     if (dln) dln.hidden = !(disc > 0);
     if (disc > 0) setText('#ptcDiscount', '−' + money(withTax(t.total_discount, t.total_discount_tax), t));
+    paintUpsell(items);
     renderCoupons(cart.coupons || []);
   }
 

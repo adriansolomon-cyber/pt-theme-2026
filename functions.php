@@ -213,7 +213,9 @@ add_action(
 			wp_add_inline_script(
 				'pt-mini-cart',
 				'window.wcStoreApiNonce=' . wp_json_encode( wp_create_nonce( 'wc_store_api' ) ) . ';'
-					. 'window.PT_CART_INCL_TAX=' . ( 'incl' === get_option( 'woocommerce_tax_display_cart' ) ? 'true' : 'false' ) . ';',
+					. 'window.PT_CART_INCL_TAX=' . ( 'incl' === get_option( 'woocommerce_tax_display_cart' ) ? 'true' : 'false' ) . ';'
+					// Paint & Trim promo (site-wide): the drawer upsell line uses this.
+					. 'window.PT_PAINT_TRIM=' . ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ? 'true' : 'false' ) . ';',
 				'before'
 			);
 		}

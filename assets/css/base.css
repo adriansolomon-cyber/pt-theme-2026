@@ -277,6 +277,11 @@ a{ color:inherit; }
 .ptc-a svg{ width:16px; height:16px; flex:0 0 auto; color:#2a8f57; }
 .ptc-foot{ border-top:1px solid rgba(33,30,36,.1); padding:16px 22px 20px; background:#fff; }
 .ptc-ln{ display:flex; justify-content:space-between; font-size:.86rem; font-weight:300; color:#6E6A74; margin-bottom:5px; }
+/* Paint & Trim promo upsell line in the drawer (shown by mini-cart.js when eligible). */
+.pt-cart-paint{ display:flex; justify-content:space-between; gap:8px; align-items:center; text-decoration:none; background:var(--paper,#F5F5F5); color:var(--ink,#211E24); border-left:4px solid var(--ink,#211E24); border-radius:8px; padding:7px 10px; margin:6px 0; font-size:13px; font-weight:600; }
+.pt-cart-paint[hidden]{ display:none; }
+.pt-cart-paint .pt-cart-paint-add{ font-weight:800; white-space:nowrap; }
+@media(hover:hover){ .pt-cart-paint:hover{ background:#ececec; } }
 .ptc-tot{ display:flex; align-items:baseline; justify-content:space-between; margin:8px 0 3px; }
 .ptc-tot .l{ font-size:1rem; font-weight:700; }
 .ptc-tot .v{ font-size:1.5rem; font-weight:700; }

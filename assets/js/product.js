@@ -148,6 +148,15 @@
     var PAINTTRIM=(typeof window!=='undefined' && window.PT_PAINT_TRIM)||false;
     var PTPCT=(typeof window!=='undefined' && typeof window.PT_PAINT_TRIM_PCT==='number' && window.PT_PAINT_TRIM_PCT>0) ? window.PT_PAINT_TRIM_PCT : 10;
     function ptPromo(n){ n=Number(n)||0; return disc(n) - n*PTPCT/100; }  // display discount, then PTPCT% of the original
+    // Cart upsell deep-link: ?pt_paint=1 opens + scrolls to the Paint Colour step once built.
+    var wantPaintStep=false; try{ wantPaintStep=/[?&]pt_paint=1\b/.test(location.search); }catch(e){}
+    function openPaintStep(){
+      if(!elRows) return;
+      var rows=elRows.querySelectorAll('.cfg-row');
+      for(var i=0;i<rows.length;i++){ var lab=rows[i].querySelector('.lab');
+        if(lab && /paint/i.test(lab.textContent||'')){ rows[i].classList.add('open');
+          try{ rows[i].scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){ try{ rows[i].scrollIntoView(); }catch(e2){} } return; } }
+    }
 
     // --- runtime state ---
     var product=null, components=[], sizeCid=null, wallCid=null, colourCids={}, scenarios={}, meta={}, sel={}, sizeId=null, curPid=null, pendingSize=null;
@@ -863,6 +872,8 @@
       elRows.insertAdjacentHTML('beforeend',html);
       components.forEach(function(c){ if(c.id===sizeCid) return; if(sel[c.id]!=null){ var m=meta[sel[c.id]]; setSelLabel('sel-'+c.key, m?m.name:('#'+sel[c.id])); } });
       recalc();
+      // Deep-link from the cart upsell (?pt_paint=1): open + scroll to the Paint Colour step.
+      if(wantPaintStep){ wantPaintStep=false; setTimeout(openPaintStep,60); }
     }
 
     // Re-filter option cards IN PLACE after a selection changes (keeps the accordion
