@@ -844,15 +844,16 @@
 /* 2. Space between option name and price */
 .opt-card .nm{margin-bottom:10px}
 
-/* 3. "Extra £X" – top-right of sale price, anchored to the price's RIGHT edge and lifted into
-   the name→price gap (rule 2), so the longer "Extra £.." label stays inside the 150px card. */
+/* 3. "Extra £X" – top-right of sale price (same position as the amendment). */
 .opt-card .pr .now{position:relative;display:inline-block}
-.opt-card .pr .now .pt-save{position:absolute;right:0;top:-10px;
+.opt-card .pr:has(.pt-save) .was{margin-right:5px}
+.opt-card .pr .now .pt-save{position:absolute;left:calc(100% + 2px);top:-8px;
   font-size:8.5px;font-weight:700;line-height:1.3;letter-spacing:-.1px;white-space:nowrap;
   padding:0 3px;border-radius:999px;color:#C0392B;border:1px solid #C0392B;background:transparent}
 .opt-card:has(.pt-save){container-type:inline-size}
-@container (max-width:150px){
-  .opt-card .pr .now .pt-save{font-size:8px;padding:0 2px;letter-spacing:-.2px}
+@container (max-width:170px){
+  .opt-card .pr:has(.pt-save) .was{margin-right:4px}
+  .opt-card .pr .now .pt-save{font-size:8px;padding:0 2px;letter-spacing:-.2px;left:calc(100% + 1px)}
 }
 
 /* 4. Mobile: chip as a tab on the hero price pill */
