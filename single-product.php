@@ -171,6 +171,7 @@ get_header();
     if ( $pt_show( 'show_specs' ) ) { echo '<a href="#specs">Specs</a>'; }
     if ( $pt_show( 'show_faq' ) ) { echo '<a href="#faq">FAQ</a>'; }
   ?></nav>
+  <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?><span class="pt-paint-chip pt-paint-chip--nav">+10% off paint</span><?php endif; ?>
   <button class="buy customize-btn">Customise &amp; buy</button>
 </div>
 
@@ -191,6 +192,7 @@ get_header();
   <?php endif; ?>
   <div class="pricepill">
     <span class="pl"><b><?php echo wp_kses_post( $pt_from ); ?></b></span>
+    <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?><span class="pt-paint-chip">+10% off paint</span><?php endif; ?>
     <button class="go customize-btn">Customise &amp; buy</button>
   </div>
 </div></header>
@@ -307,6 +309,10 @@ if ( $pt_theme_data && '' !== $pt_theme_data['banner_image'] ) : ?>
         <?php
         // Double Glazing feature badge (fixed ID list) — top-right over the gallery.
         echo function_exists( 'pt_double_glazing_badge_html' ) ? pt_double_glazing_badge_html( $pt_pid, 'cfg-dgbadge' ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in helper
+        // Paint & Trim promo — small "+10% OFF PAINT" label under the FREE badge.
+        if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) {
+            echo '<span class="pt-paint-gal">+10% OFF PAINT</span>';
+        }
         ?>
         <div class="cfg-disc" id="cfgDisc">
           <button class="cfg-disc-btn" type="button" aria-label="Image disclaimer" aria-expanded="false">i</button>
@@ -329,6 +335,10 @@ if ( $pt_theme_data && '' !== $pt_theme_data['banner_image'] ) : ?>
           <?php while ( have_rows( 'main_features', $pt_pid ) ) : the_row(); ?>
             <div class="mf-col"><h4><?php echo wp_kses_post( get_sub_field( 'heading' ) ); ?></h4><p><?php echo wp_kses_post( get_sub_field( 'subheading' ) ); ?></p></div>
           <?php endwhile; ?>
+          <?php // Paint & Trim promo — extra feature column (no icon). ?>
+          <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?>
+            <div class="mf-col"><h4>EXTRA 10% OFF</h4><p>paint &amp; colour trim</p></div>
+          <?php endif; ?>
         </div>
       <?php endif; ?>
 
