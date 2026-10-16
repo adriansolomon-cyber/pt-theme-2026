@@ -26,9 +26,26 @@ JS flag). When the window is closed, nothing renders for the public; admins
 | 5 | **Hero price-pill chip** | Next to the main price pill in the sticky header | `.pt-paint-chip` |
 | 6 | **Cart-drawer fee line + upsell** | Mini-cart drawer | `#ptcPaintFeeLn` (the saving line, read from `cart.fees`) + `#ptcPaintUpsell` (deep-link to the step) |
 | 7 | **Category sale-banner pill + countdown** | All 4 category sale banners | `.pt-wkbadge` + `.pt-wkcountdown` (category.css) |
+| 8 | **Homepage hero coupon** | Inside the dark `.getb-panel` under "ALL BUILDING RANGES", on every GET20 (`.getb`) sale slide | `.getb-cpn` (dashed ticket w/ side notches; `front-page.php` + self-contained CSS in home.css) |
+| 9 | **Homepage building-type card pill** | Top-left of each `.range-card` in "Find your space" | `$pt_pt_pill` (`front-page.php`); self-contained `.range-card .pt-wkbadge` CSS in home.css |
+| 10 | **Top announcement strip** | Appended to the GET20 `.pt-annmsg` message (not a separate rotating slide) | `header.php`, gated inline |
 
 All pills carry the **"moving shade" shimmer** (`@keyframes pt-shine`, applied via `::after`,
-off under `prefers-reduced-motion`).
+off under `prefers-reduced-motion`). The homepage surfaces (8–10) load **only** base.css +
+home.css, which don't carry the shared `.pt-wkbadge`/shimmer rules — so each homepage surface
+ships **self-contained** styling (its own pill look + `pt-shine` keyframe) in home.css.
+
+### Tag wording is settings-driven (don't hard-code "Weekend")
+The short tag reads **"Weekend deal"** when the promo window spans a Sat/Sun, else **"Week deal"** —
+from `pt_paint_trim_tag_label()` (walks `PT_PAINT_TRIM_START/END`; filter `pt_paint_trim_tag_label`).
+Used by the hero coupon tag and the announcement strip. A new week deal reuses this helper rather
+than printing a fixed string.
+
+### Hero checkout parity
+The checkout fee (`pt_paint_trim_fee()`) rounds **per colour option exactly like the configurator's
+"Save £X"** — `round60(after site discount) − round60(after the extra %)` on the VAT-INCLUSIVE price,
+then converted back to ex-VAT for the taxable fee so the displayed line is a whole £ (−£6, not −£6.30)
+and the config total == checkout total.
 
 ### What we deliberately dropped
 Two surfaces were built then removed as too much — **do not add them back** for a standard
@@ -53,6 +70,10 @@ Reuse these — a week deal must look consistent with the last one.
   (`.pt-prodsale-box .pt-ptbadge`) so it reads against the yellow box. Category pills stay green.
 - **Shimmer:** `@keyframes pt-shine` + the shared `::after` rule listing every pill class
   (product.css ~L880). Add any new promo pill class to that selector list to get the shimmer.
+- **Hero coupon (`.getb-cpn`):** a dashed-border ticket with punched side notches, inside the dark
+  `.getb-panel`. `+<pct>%` in `--accent`, a dashed divider, then the green `.getb-cpn-tag` + the
+  `.getb-cpn-main` line. Notches are filled `--charcoal` to match the panel — **if the panel colour
+  changes, change the notch fill with it.** On every GET20 slide; centred, `width:max-content`.
 
 ---
 
