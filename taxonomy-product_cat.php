@@ -216,6 +216,10 @@ get_header();
     <div class="pt-getsale-sub">all <?php echo esc_html( $pt_name ); ?> — while stocks last</div>
     <span class="pt-getsale-chip">Shop the deal — code <b><?php echo esc_html( $pt_get_code ); ?></b> <span class="a">→</span></span>
     <div class="pt-getsale-trust">FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*</div>
+    <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?>
+    <div style="margin-top:14px;"><?php echo pt_paint_trim_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?></div>
+    <?php echo pt_paint_trim_countdown_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
+    <?php endif; ?>
   </aside>
   <?php endif; ?>
 
@@ -229,6 +233,10 @@ get_header();
     <?php if ( function_exists( 'pt_shelf_campaign_active' ) && pt_shelf_campaign_active() ) : ?>
     <div style="margin-top:14px;"><?php echo pt_shelf_weekend_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?></div>
     <?php endif; ?>
+    <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?>
+    <div style="margin-top:14px;"><?php echo pt_paint_trim_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?></div>
+    <?php echo pt_paint_trim_countdown_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
+    <?php endif; ?>
   </aside>
   <?php endif; ?>
 
@@ -239,6 +247,10 @@ get_header();
     <div class="pt-catsale-sub">the Grandmaster range — while stocks last</div>
     <a class="pt-catsale-chip" href="<?php echo esc_url( home_url( '/grandmaster/' ) ); ?>">Shop the deal — code <b>GM20</b> <span class="a">→</span></a>
     <div class="pt-catsale-trust">FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*</div>
+    <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?>
+    <div style="margin-top:14px;"><?php echo pt_paint_trim_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?></div>
+    <?php echo pt_paint_trim_countdown_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
+    <?php endif; ?>
   </aside>
   <?php endif; ?>
 
@@ -251,6 +263,10 @@ get_header();
     <div class="pt-catsale-trust">FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*</div>
     <?php if ( function_exists( 'pt_shelf_campaign_active' ) && pt_shelf_campaign_active() ) : ?>
     <div style="margin-top:14px;"><?php echo pt_shelf_weekend_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?></div>
+    <?php endif; ?>
+    <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?>
+    <div style="margin-top:14px;"><?php echo pt_paint_trim_badge_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?></div>
+    <?php echo pt_paint_trim_countdown_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static internal markup. ?>
     <?php endif; ?>
   </aside>
   <?php endif; ?>
