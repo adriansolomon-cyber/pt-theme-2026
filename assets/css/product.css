@@ -236,6 +236,8 @@
   .cfg-summary .addbtn{ display:block; width:100%; border:none; cursor:pointer; font-family:var(--font); font-weight:700; background:var(--accent); color:var(--ink); font-size:1rem; padding:15px; border-radius:12px; margin-top:14px; transition:transform .2s var(--ease); }
   .cfg-summary .addbtn:active{ transform:scale(.985); }
   .cfg-summary .fineprint{ font-size:.68rem; font-weight:300; color:var(--txt-soft); margin-top:12px; }
+  .cfg-summary .cfg-finance-note{ font-size:.68rem; font-weight:300; line-height:1.4; color:var(--txt-soft); margin:2px 0 12px; }
+  .cfg-summary .cfg-finance-note[hidden]{ display:none; }
 
   /* ---------------- HIGHLIGHTS (hybrid: swipe → 4-col grid) ---------------- */
   .rail{ display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x mandatory; scroll-padding-inline:14px; -webkit-overflow-scrolling:touch; touch-action:pan-x; padding:4px 14px 18px; margin:0 -20px; scrollbar-width:none; }

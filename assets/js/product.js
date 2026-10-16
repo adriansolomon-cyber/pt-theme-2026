@@ -225,6 +225,15 @@
     function round60(n){ n=Number(n)||0; var f=Math.floor(n); return (n-f>=0.6-1e-9)?f+1:f; }
     function fmt(n){ return '£'+round60(n).toLocaleString('en-GB')+'.00'; }
     function fmtm(n){ return '£'+round60(n).toLocaleString('en-GB'); }
+    // Humm finance — amortised monthly payment, 16.99% APR over 60 months (5 yrs).
+    // Ported verbatim from the live theTimber calc; principal = the price the customer
+    // actually pays (the discounted total). Filterable via window.PT_FINANCE.
+    var HUMM=(typeof window!=='undefined'&&window.PT_FINANCE)||{};
+    var HUMM_APR=(typeof HUMM.apr==='number')?HUMM.apr:0.1699;
+    var HUMM_N=(typeof HUMM.months==='number')?HUMM.months:60;
+    function hummMonthly(principal){ principal=Number(principal)||0; if(principal<=0) return 0;
+      var r=Math.pow(1+HUMM_APR,1/12)-1; return principal*(r*Math.pow(1+r,HUMM_N))/(Math.pow(1+r,HUMM_N)-1); }
+    function fmtHumm(n){ n=Number(n)||0; return '£'+n.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}); }
     function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
     // --- campaign display discount (visual only; the real money-off is the auto-applied
@@ -934,7 +943,8 @@
     function recalc(){
       var t=total();
       var payBtn=document.querySelector('.cfg-summary .ptoggle .on'); var pay=payBtn?payBtn.dataset.pay:'cash';
-      if(elPrice) elPrice.innerHTML = pay==='finance' ? fmtm(discTotal()/120)+' <small>/mo over 120 months*</small>' : fmtDiscTotal();
+      if(elPrice) elPrice.innerHTML = pay==='finance' ? fmtHumm(hummMonthly(discTotal()))+' <small>/mo with Humm · '+HUMM_N+' months*</small>' : fmtDiscTotal();
+      var finNote=document.getElementById('cfgFinanceNote'); if(finNote) finNote.hidden=(pay!=='finance');
       var bb=document.querySelector('.buybar .p'); if(bb) bb.innerHTML=fmtDiscTotal()+' <small>FREE DELIVERY*</small>';
       if(elAdd) elAdd.disabled=(sizeId==null);
       if(elDeliv && sizeId!=null) elDeliv.textContent='Ready to add · '+(scenarios[sizeId]?scenarios[sizeId].name:'');

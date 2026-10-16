@@ -474,14 +474,13 @@ if ( $pt_theme_data && '' !== $pt_theme_data['banner_image'] ) : ?>
           <?php // Shown in place of the line above when a fast-delivery size is selected (product.js). ?>
           <div class="cfg-di cfg-fastline" id="cfgFastLine" hidden><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg><span class="cfg-fastline-t"><b>Dispatched within 48 hours</b><small>Order by 12pm · in stock at Parry Works · choose your delivery date at checkout</small></span></div>
         </div>
-        <!-- FINANCE HIDDEN (re-enable when a finance provider is in place):
         <div class="ptoggle"><button class="on" data-pay="cash">Cash</button><button data-pay="finance">Finance</button></div>
-        -->
         <div class="price" id="cfgPrice">£4,461.00</div>
         <div class="pvat">inc. VAT</div>
         <?php if ( $pt_disc_pct > 0 ) : ?>
         <div class="cfg-coupon"><span class="ck" aria-hidden="true">✓</span> <?php if ( '' !== $pt_disc_code ) : ?>Code <b><?php echo esc_html( $pt_disc_code ); ?></b> applied — <?php endif; ?><?php echo (int) round( $pt_disc_pct ); ?>% off your whole order</div>
         <?php endif; ?>
+        <p class="cfg-finance-note" id="cfgFinanceNote" hidden>Monthly figure is for illustration only. Finance is provided by Humm, subject to status and affordability checks; the representative example and full terms are shown during application.</p>
         <button class="addbtn cfgadd" id="cfgAdd" disabled>Add to basket</button>
         <p class="fineprint">Prices as per the live configurator. Paint/trim swatch colours are indicative approximations.</p>
       </div>
