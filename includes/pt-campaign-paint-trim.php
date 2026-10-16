@@ -21,13 +21,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Public window. PLACEHOLDER — far future so NO customer sees it yet; admins preview
-// regardless. Set these to the real promo dates to schedule the public go-live.
+// Public window (Europe/London). LIVE this weekend: Fri 16 Oct → Sun 18 Oct 2026.
+// To take the promo public again later, set these to the new dates; to park it
+// (admin-preview only) put them back to a far-future placeholder.
 if ( ! defined( 'PT_PAINT_TRIM_START' ) ) {
-	define( 'PT_PAINT_TRIM_START', '2099-01-01 00:00:00' );
+	define( 'PT_PAINT_TRIM_START', '2026-10-16 00:00:00' );
 }
 if ( ! defined( 'PT_PAINT_TRIM_END' ) ) {
-	define( 'PT_PAINT_TRIM_END', '2099-01-02 23:59:59' );
+	define( 'PT_PAINT_TRIM_END', '2026-10-18 23:59:59' );
 }
 
 /** The discount percentage off paint/trim options (filterable). */
