@@ -171,7 +171,6 @@ get_header();
     if ( $pt_show( 'show_specs' ) ) { echo '<a href="#specs">Specs</a>'; }
     if ( $pt_show( 'show_faq' ) ) { echo '<a href="#faq">FAQ</a>'; }
   ?></nav>
-  <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?><span class="pt-paint-chip pt-paint-chip--nav">+10% off paint</span><?php endif; ?>
   <button class="buy customize-btn">Customise &amp; buy</button>
 </div>
 
@@ -192,7 +191,7 @@ get_header();
   <?php endif; ?>
   <div class="pricepill">
     <span class="pl"><b><?php echo wp_kses_post( $pt_from ); ?></b></span>
-    <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?><span class="pt-paint-chip">+10% off paint</span><?php endif; ?>
+    <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?><span class="pt-paint-chip">Extra 10%</span><?php endif; ?>
     <button class="go customize-btn">Customise &amp; buy</button>
   </div>
 </div></header>
