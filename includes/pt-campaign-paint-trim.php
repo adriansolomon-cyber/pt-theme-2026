@@ -163,7 +163,7 @@ function pt_paint_trim_label() {
 
 /** The promo pill — a charcoal label sitting inside the yellow sale box (like the shelf pill). */
 function pt_paint_trim_badge_html() {
-	return '<span class="pt-wkbadge pt-ptbadge"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 3 7v6c0 5 3.8 8.4 9 9 5.2-.6 9-4 9-9V7l-9-5z"/></svg>' . pt_paint_trim_label() . '</span>';
+	return '<span class="pt-wkbadge pt-ptbadge"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 7h-2.2A3 3 0 0 0 12 4.4 3 3 0 0 0 6.2 7H4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h7V7h2v5h7a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM9 7a1 1 0 1 1 1-1v1H9zm6 0h-1V6a1 1 0 1 1 1 1zM4 13v7a1 1 0 0 0 1 1h6v-8H4zm9 8h6a1 1 0 0 0 1-1v-7h-7v8z"/></svg>' . pt_paint_trim_label() . '</span>';
 }
 
 /**
