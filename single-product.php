@@ -474,7 +474,10 @@ if ( $pt_theme_data && '' !== $pt_theme_data['banner_image'] ) : ?>
           <?php // Shown in place of the line above when a fast-delivery size is selected (product.js). ?>
           <div class="cfg-di cfg-fastline" id="cfgFastLine" hidden><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg><span class="cfg-fastline-t"><b>Dispatched within 48 hours</b><small>Order by 12pm · in stock at Parry Works · choose your delivery date at checkout</small></span></div>
         </div>
+        <?php // Finance (Humm) — hidden for now; flip the filter to true to re-enable the Cash/Finance toggle. ?>
+        <?php if ( apply_filters( 'pt_finance_enabled', false ) ) : ?>
         <div class="ptoggle"><button class="on" data-pay="cash">Cash</button><button data-pay="finance">Finance</button></div>
+        <?php endif; ?>
         <div class="price" id="cfgPrice">£4,461.00</div>
         <div class="pvat">inc. VAT</div>
         <?php if ( $pt_disc_pct > 0 ) : ?>
@@ -964,7 +967,9 @@ if ( $pt_theme_data && '' !== $pt_theme_data['banner_image'] ) : ?>
   <details class="faq-item"><summary>Do I need a base?</summary><div class="ans">Yes — all garden buildings must be assembled on a solid, level foundation. Our purpose-made Eze Base provides a solid, level foundation with minimal groundwork; ask us to add it to your order. Assembling on an unsuitable foundation may invalidate your warranty.</div></details>
   <details class="faq-item"><summary>Is it difficult to assemble?</summary><div class="ans">No. The panels arrive pre-assembled and pre-insulated and fit through a standard doorway. We recommend two people with basic DIY tools, and every building comes with clear, illustrated instructions. Prefer not to build it? Add our assembly service at checkout.</div></details>
   <details class="faq-item"><summary>How is it delivered?</summary><div class="ans">Kerbside, by lorry or van. You choose a preferred delivery date at checkout and we do our best to meet it — at busier times we may need to agree an alternative date with you, and we'll keep you informed throughout. Please ensure there's clear access in front of your property on the delivery date.</div></details>
+  <?php if ( apply_filters( 'pt_finance_enabled', false ) ) : ?>
   <details class="faq-item"><summary>Can I pay monthly / is finance available?</summary><div class="ans">Yes — you can spread the cost with finance provided by <b>Humm</b>. Use the <b>Finance</b> toggle in the configurator to see an indicative monthly payment for your chosen build. To apply, add your building to the basket, proceed to checkout and choose the finance option; you'll then be redirected to Humm to complete a short application. All finance is subject to status and affordability checks, and your exact rate, repayment term and any deposit are confirmed by Humm during the application. The monthly figures shown on our site are for illustration only.</div></details>
+  <?php endif; ?>
   <?php if ( $pt_has_rows( 'pt_faqs' ) ) : ?>
     <?php while ( have_rows( 'pt_faqs', $pt_pid ) ) : the_row(); ?>
       <details class="faq-item"><summary><?php echo wp_kses_post( get_sub_field( 'question' ) ); ?></summary><div class="ans"><?php echo wp_kses_post( get_sub_field( 'answer' ) ); ?></div></details>
