@@ -638,7 +638,7 @@
       // Paint & Trim promo: "Save £X" = the EXTRA 10% saving only (discounted price − final),
       // i.e. what the paint promo takes off on top of the order discount — not the 20%+10% total.
       var paintSave=(PAINTTRIM && colour && opt.price>0)?(round60(disc(opt.price))-round60(ptPromo(opt.price))):0;
-      var savePill=(paintSave>0)?('Save £'+paintSave.toLocaleString('en-GB')):'';
+      var savePill=(paintSave>0)?('Extra £'+paintSave.toLocaleString('en-GB')):'';
       var img;
       if(group===sizeCid){
         // SIZE cards: hold a loading skeleton until this size's OWN image is fetched
