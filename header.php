@@ -292,6 +292,10 @@ if ( function_exists( 'auto_voucher_enabled' ) && auto_voucher_enabled() ) : ?>
   <div class="pt-annstrip-track">
     <span class="pt-annmsg is-on"><span class="pt-anndot" aria-hidden="true"></span><b>FACTORY DIRECT</b> — best price guaranteed, straight from the maker.</span>
     <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>20% OFF</b> your whole order — code <b><?php echo function_exists( 'av_get_display_voucher_code' ) ? esc_html( av_get_display_voucher_code() ) : ''; ?></b> applied automatically.</span>
+    <?php // Week deal (Paint & Colour Trim) — campaign-gated; stacks on the site-wide discount. ?>
+    <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?>
+    <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>EXTRA <?php echo function_exists( 'pt_paint_trim_pct' ) ? (int) round( pt_paint_trim_pct() ) : 10; ?>% OFF</b> paint &amp; colour trim — this week only.</span>
+    <?php endif; ?>
     <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>FREE DELIVERY</b> on selected postcodes* — on our own vehicles, direct to you.</span>
     <span class="pt-annmsg"><span class="pt-anndot" aria-hidden="true"></span><b>25-YEAR ANTI-ROT GUARANTEE*</b> — on every pressure-treated building we make.</span>
   </div>
