@@ -103,6 +103,14 @@
   .range-card::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,0) 38%,rgba(0,0,0,.62)); pointer-events:none; }
   .range-badge{ position:absolute; top:12px; right:12px; z-index:2; padding:6px 12px; border-radius:999px; background:var(--accent,#FFFF00); color:#111; font-weight:800; font-size:.72rem; letter-spacing:.03em; line-height:1; text-transform:uppercase; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.22); }
   @media(max-width:679px){ .range-badge{ top:10px; right:10px; padding:5px 10px; font-size:.62rem; } }
+  /* Week-deal (paint & trim) pill — top-left, mirrors the 20% OFF badge. Self-contained:
+     home.css doesn't load the product/category pill styles, so the look + shimmer live here. */
+  .range-card .pt-wkbadge{ position:absolute; top:12px; left:12px; z-index:2; display:inline-flex; align-items:center; gap:6px; max-width:calc(100% - 24px); padding:5px 10px; border-radius:999px; background:#00FE6C; color:#211E24; font-family:var(--font); font-weight:800; font-size:.62rem; line-height:1.15; letter-spacing:.02em; text-transform:none; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.22); overflow:hidden; }
+  .range-card .pt-wkbadge svg{ width:13px; height:13px; flex:0 0 auto; fill:currentColor; }
+  .range-card .pt-wkbadge::after{ content:""; position:absolute; top:0; bottom:0; left:0; width:38%; z-index:1; pointer-events:none; background:linear-gradient(100deg,transparent 0%,rgba(255,255,255,.5) 50%,transparent 100%); transform:translateX(-160%) skewX(-18deg); animation:pt-shine 3.8s ease-in-out infinite; }
+  @keyframes pt-shine{ 0%{ transform:translateX(-160%) skewX(-18deg); } 24%,100%{ transform:translateX(320%) skewX(-18deg); } }
+  @media(prefers-reduced-motion:reduce){ .range-card .pt-wkbadge::after{ display:none; animation:none; } }
+  @media(max-width:679px){ .range-card .pt-wkbadge{ top:10px; left:10px; padding:4px 8px; font-size:.55rem; gap:5px; } .range-card .pt-wkbadge svg{ width:11px; height:11px; } }
   .range-card .glass{ position:absolute; left:12px; right:12px; bottom:12px; z-index:1; padding:14px 16px; border-radius:14px; background:rgba(255,255,255,.16); backdrop-filter:blur(16px) saturate(150%); -webkit-backdrop-filter:blur(16px) saturate(150%); border:1px solid rgba(255,255,255,.3); box-shadow:0 8px 24px rgba(0,0,0,.16); }
   .rfoot{ margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .rfoot .rprice{ font-weight:700; color:#fff; font-size:.9rem; white-space:nowrap; }

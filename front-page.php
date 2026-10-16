@@ -36,6 +36,13 @@ $pt_get_tag   = ( $pt_get_on && $pt_get_pct > 0 ) ? '<span class="tag y">' . (in
 $pt_get_hero  = ( $pt_get_on && $pt_get_pct > 0 )
 	? '<span class="pshero-offer"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M20 7h-2.2A3 3 0 0 0 12 4.4 3 3 0 0 0 6.2 7H4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h7V7h2v5h7a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM9 7a1 1 0 1 1 1-1v1H9zm6 0h-1V6a1 1 0 1 1 1 1zM4 13v7a1 1 0 0 0 1 1h6v-8H4zm9 8h6a1 1 0 0 0 1-1v-7h-7v8z"/></svg>' . (int) $pt_get_pct . '% OFF your whole order!</span>'
 	: '';
+// Week-deal (Paint & Colour Trim) pill — a compact green pill shown top-left of each
+// building-type card, mirroring the top-right "20% OFF" badge. Campaign-gated (admin
+// preview under the placeholder window); self-contained styling lives in home.css.
+$pt_pt_pct    = ( function_exists( 'pt_paint_trim_pct' ) ) ? (int) round( pt_paint_trim_pct() ) : 10;
+$pt_pt_pill   = ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() )
+	? '<span class="pt-wkbadge pt-ptbadge"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 7h-2.2A3 3 0 0 0 12 4.4 3 3 0 0 0 6.2 7H4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h7V7h2v5h7a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM9 7a1 1 0 1 1 1-1v1H9zm6 0h-1V6a1 1 0 1 1 1 1zM4 13v7a1 1 0 0 0 1 1h6v-8H4zm9 8h6a1 1 0 0 0 1-1v-7h-7v8z"/></svg>Extra ' . $pt_pt_pct . '% off paint &amp; trim</span>'
+	: '';
 $pt_hobbyist  = esc_url( home_url( '/hobbyist/' ) );
 $pt_grandm    = esc_url( home_url( '/grandmaster/' ) );
 $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE DELIVERY ON SELECTED POSTCODES*';
@@ -212,31 +219,37 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
   <div class="range-grid">
     <a class="range-card" href="<?php echo $pt_offices; ?>">
       <?php echo $pt_get_badge; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?>
+      <?php echo $pt_pt_pill; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?>
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/office_1x.webp" alt="Project Timber garden office" loading="lazy">
       <div class="glass"><h3>Garden Offices</h3><p class="d">Work from home, year-round.</p><div class="rfoot"><span class="rprice">From £3,972</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
     <a class="range-card" href="<?php echo esc_url( home_url( '/summerhouses/' ) ); ?>">
       <?php echo $pt_get_badge; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?>
+      <?php echo $pt_pt_pill; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?>
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/summerhouse_1x.webp" alt="Project Timber summerhouse" loading="lazy">
       <div class="glass"><h3>Summerhouses</h3><p class="d">Slow down, enjoy the garden.</p><div class="rfoot"><span class="rprice">From £903</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
     <a class="range-card" href="<?php echo esc_url( home_url( '/garden-workshops/' ) ); ?>">
       <?php echo $pt_get_badge; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?>
+      <?php echo $pt_pt_pill; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?>
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/grandmaster_workshop_1x.webp" alt="Project Timber garden workshop" loading="lazy">
       <div class="glass"><h3>Garden Workshops</h3><p class="d">Space for every project.</p><div class="rfoot"><span class="rprice">From £935</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
     <a class="range-card" href="<?php echo esc_url( home_url( '/garden-sheds/' ) ); ?>">
       <?php echo $pt_get_badge; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?>
+      <?php echo $pt_pt_pill; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?>
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/shed_1x.webp" alt="Project Timber garden shed" loading="lazy">
       <div class="glass"><h3>Garden Sheds</h3><p class="d">Tough, secure storage.</p><div class="rfoot"><span class="rprice">From £741</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
     <a class="range-card" href="<?php echo esc_url( home_url( '/insulated-garden-buildings/' ) ); ?>">
       <?php echo $pt_get_badge; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?>
+      <?php echo $pt_pt_pill; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?>
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/insulated_garden_building_1x.webp" alt="Project Timber insulated garden building" loading="lazy">
       <div class="glass"><h3>Insulated Garden Buildings</h3><p class="d">Comfort in every season.</p><div class="rfoot"><span class="rprice">From £2,446</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
     <a class="range-card" href="<?php echo esc_url( home_url( '/greenhouses/' ) ); ?>">
       <?php echo $pt_get_badge; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?>
+      <?php echo $pt_pt_pill; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?>
       <img src="https://www.projecttimber.com/wp-content/uploads/2026/07/greenhouse_1x.webp" alt="Project Timber greenhouse" loading="lazy">
       <div class="glass"><h3>Greenhouses</h3><p class="d">Grow more, all year round.</p><div class="rfoot"><span class="rprice">From £897</span><span class="more">See more <span class="a">→</span></span></div></div>
     </a>
