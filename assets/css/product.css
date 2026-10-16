@@ -849,7 +849,7 @@
 .opt-card .pr:has(.pt-save) .was{margin-right:5px}
 .opt-card .pr .now .pt-save{position:absolute;left:calc(100% + 2px);top:-8px;
   font-size:8.5px;font-weight:700;line-height:1.3;letter-spacing:-.1px;white-space:nowrap;
-  padding:0 3px;border-radius:999px;color:#C0392B;border:1px solid #C0392B;background:transparent}
+  padding:0 4px;border-radius:999px;color:#C0392B;border:1px solid #C0392B;background:transparent}
 .opt-card:has(.pt-save){container-type:inline-size}
 @container (max-width:170px){
   .opt-card .pr:has(.pt-save) .was{margin-right:4px}
