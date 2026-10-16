@@ -171,6 +171,11 @@ function pt_paint_trim_message() {
  */
 function pt_paint_trim_countdown_html() {
 	$ts = pt_paint_trim_end_timestamp();
+	// Admin preview with no live window yet (placeholder dates) — show a sample 2-day
+	// countdown so the visual can be reviewed. A real public window shows its real end.
+	if ( ! pt_paint_trim_window_open() && current_user_can( 'manage_woocommerce' ) ) {
+		$ts = time() + 2 * DAY_IN_SECONDS;
+	}
 	if ( ! $ts ) {
 		return '';
 	}
