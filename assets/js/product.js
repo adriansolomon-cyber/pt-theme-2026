@@ -622,6 +622,8 @@
       // Free shelf campaign: the --promo-weekend "Free this weekend" badge on the 3ft
       // Shelf Stack option card (design: pt-option-badges-implementation).
       var shelfPill=isFreeShelf(opt)?'<div class="opt-badges"><span class="opt-badge opt-badge--promo-weekend"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-2.3a3 3 0 00-5.7-2 3 3 0 00-5.7 2H4a1 1 0 00-1 1v3.5h8V8h2v3.5h8V8a1 1 0 00-1-1zM9 7a1 1 0 110-2c.7 0 1.2.8 1.4 2H9zm6 0h-1.4c.2-1.2.7-2 1.4-2a1 1 0 110 2zM4 13h7v9H5a1 1 0 01-1-1v-8zm9 0h7v8a1 1 0 01-1 1h-6v-9z"/></svg>Free this weekend</span></div>':'';
+      // Paint & Trim promo: green corner pill (top-right) on each priced colour option.
+      var paintPill=(PAINTTRIM && colour && opt.price>0)?'<div class="opt-badges opt-badges--tr"><span class="opt-badge opt-badge--promo-weekend"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 3 7v6c0 5 3.8 8.4 9 9 5.2-.6 9-4 9-9V7l-9-5z"/></svg>Week deal</span></div>':'';
       var img;
       if(group===sizeCid){
         // SIZE cards: hold a loading skeleton until this size's OWN image is fetched
@@ -631,7 +633,7 @@
         var imEl=opt.img?'<img class="opt-im" src="'+esc(opt.img)+'" alt="'+esc(label)+'">':'';
         img='<div class="im loading">'+imEl+'<span class="im-skel skel-box" aria-hidden="true"></span>'+tins+edit+fastPill+'</div>';
       } else {
-        img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+edit+shelfPill+'</div>':'<div class="im ph">'+tins+edit+shelfPill+'</div>';
+        img=opt.img?'<div class="im"><img src="'+esc(opt.img)+'" alt="'+esc(label)+'">'+tins+edit+shelfPill+paintPill+'</div>':'<div class="im ph">'+tins+edit+shelfPill+paintPill+'</div>';
       }
       var badge4w=(colour&&isNone)?'<span class="badge4w">⚠ Paint within 4 weeks!*</span>':'';
       // every price shows the discounted value when a campaign is live; £0 / "Included"
