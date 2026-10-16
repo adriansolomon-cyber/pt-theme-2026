@@ -308,10 +308,6 @@ if ( $pt_theme_data && '' !== $pt_theme_data['banner_image'] ) : ?>
         <?php
         // Double Glazing feature badge (fixed ID list) — top-right over the gallery.
         echo function_exists( 'pt_double_glazing_badge_html' ) ? pt_double_glazing_badge_html( $pt_pid, 'cfg-dgbadge' ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in helper
-        // Paint & Trim promo — small "+10% OFF PAINT" label under the FREE badge.
-        if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) {
-            echo '<span class="pt-paint-gal">+10% OFF PAINT</span>';
-        }
         ?>
         <div class="cfg-disc" id="cfgDisc">
           <button class="cfg-disc-btn" type="button" aria-label="Image disclaimer" aria-expanded="false">i</button>

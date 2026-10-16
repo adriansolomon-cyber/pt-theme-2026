@@ -872,10 +872,7 @@
 
 /* ===================== Paint & Trim promo — extra visibility ===================== */
 /* Only existing theme tokens + the deal green (#00FE6C) and sale red (#C0392B). */
-/* #2 Gallery "+10% OFF PAINT" label, under the FREE / Double Glazing badge. */
 .cfg-gallery{ position:relative; }
-.cfg-gallery .pt-paint-gal{ position:absolute; left:12px; top:62px; z-index:5; background:var(--ink); color:var(--accent); font-weight:800; font-size:11px; line-height:1; letter-spacing:.04em; text-transform:uppercase; padding:5px 7px; border-radius:4px; }
-.cfg-gallery .pt-paint-gal[hidden]{ display:none; }
 /* #4 Paint Colour step info banner (above the note). */
 .pt-paint-banner{ background:var(--paper); color:var(--txt); border-left:4px solid var(--ink); border-radius:10px; padding:10px 12px; margin:0 0 12px; font-size:13px; line-height:1.4; }
 .pt-paint-banner b{ color:var(--ink); font-weight:800; }
