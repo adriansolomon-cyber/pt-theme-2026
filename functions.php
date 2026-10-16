@@ -112,6 +112,11 @@ require_once get_stylesheet_directory() . '/includes/pt-campaign-wall-upgrade.ph
 // window.PT_SHELF_UPGRADE (product.js SHELFUP); checkout side in the module.
 require_once get_stylesheet_directory() . '/includes/pt-campaign-free-shelf.php';
 
+// Paint & Trim promo — 10% off Paint Colour / Colour Trim options, on top of any live
+// discount, all products, date-gated + admin preview. Configurator side via
+// window.PT_PAINT_TRIM (product.js PAINTTRIM); checkout negative fee in the module.
+require_once get_stylesheet_directory() . '/includes/pt-campaign-paint-trim.php';
+
 // Keep unpaid Revolut orders as "pending payment" — the gateway auto-cancels them
 // on payment cancel/expiry; we chase payment via links, so revert those cancels.
 require_once get_stylesheet_directory() . '/includes/pt-revolut-keep-pending.php';
@@ -307,6 +312,11 @@ add_action(
 					&& pt_shelf_campaign_active()
 					&& ! ( function_exists( 'pt_shelf_product_is_insulated' ) && pt_shelf_product_is_insulated( get_queried_object_id() ) );
 
+				// Paint & Trim promo: an extra % off Paint Colour / Colour Trim options (all
+				// products). Configurator shows/charges the reduction; checkout nets it out.
+				$pt_paint_trim     = function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active();
+				$pt_paint_trim_pct = ( $pt_paint_trim && function_exists( 'pt_paint_trim_pct' ) ) ? (float) pt_paint_trim_pct() : 0;
+
 				// Admin/editor edit-button base URL (wp-admin/post.php). Only exposed to
 				// users who can edit this product; product.js appends ?post=<size>&action=edit.
 				$pt_admin_edit = current_user_can( 'edit_post', get_queried_object_id() )
@@ -326,7 +336,9 @@ add_action(
 					. 'window.PT_ADMIN_EDIT=' . wp_json_encode( $pt_admin_edit ) . ';'
 					. 'window.PT_SPEC_IMAGES=' . wp_json_encode( (object) $pt_spec_imgs ) . ';'
 					. 'window.PT_WALL_UPGRADE=' . wp_json_encode( (bool) $pt_wall_upgrade ) . ';'
-					. 'window.PT_SHELF_UPGRADE=' . wp_json_encode( (bool) $pt_shelf_upgrade ) . ';',
+					. 'window.PT_SHELF_UPGRADE=' . wp_json_encode( (bool) $pt_shelf_upgrade ) . ';'
+					. 'window.PT_PAINT_TRIM=' . wp_json_encode( (bool) $pt_paint_trim ) . ';'
+					. 'window.PT_PAINT_TRIM_PCT=' . wp_json_encode( (float) $pt_paint_trim_pct ) . ';',
 					'before'
 				);
 			}

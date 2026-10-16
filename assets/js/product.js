@@ -141,8 +141,16 @@
     var SHELFUP=(typeof window!=='undefined' && window.PT_SHELF_UPGRADE)||false;
     function isFreeShelf(o){ if(!SHELFUP||!o) return false; var n=String(o.name||''); return /3\s*ft/i.test(n) && /shelf/i.test(n) && /4\s*shel/i.test(n); }
 
+    // Paint & Trim promo: an extra % off Paint Colour / Colour Trim options, ON TOP of the
+    // global display discount (disc()). PT_PAINT_TRIM / PT_PAINT_TRIM_PCT are set server-side
+    // only when the campaign is active. ptPromo() matches the checkout negative fee (PTPCT%
+    // of the option's REAL price), so configurator and checkout stay in step. No-op when off.
+    var PAINTTRIM=(typeof window!=='undefined' && window.PT_PAINT_TRIM)||false;
+    var PTPCT=(typeof window!=='undefined' && typeof window.PT_PAINT_TRIM_PCT==='number' && window.PT_PAINT_TRIM_PCT>0) ? window.PT_PAINT_TRIM_PCT : 10;
+    function ptPromo(n){ n=Number(n)||0; return disc(n) - n*PTPCT/100; }  // display discount, then PTPCT% of the original
+
     // --- runtime state ---
-    var product=null, components=[], sizeCid=null, wallCid=null, scenarios={}, meta={}, sel={}, sizeId=null, curPid=null, pendingSize=null;
+    var product=null, components=[], sizeCid=null, wallCid=null, colourCids={}, scenarios={}, meta={}, sel={}, sizeId=null, curPid=null, pendingSize=null;
     // rawScenarios: the individual composite scenarios (each a map cid -> [allowed option ids]),
     // used to FILTER downstream options by prior selections (Material -> Front Window, etc.).
     // `scenarios` (merged per size) still drives the size list + prefetch. Empty => no filtering.
@@ -640,6 +648,11 @@
         // next to £0.00; it counts as £0 in the total (see total()/discTotal()).
         price=(opt.price>0) ? ('<span class="was">'+fmt(opt.price)+'</span><span class="free">'+fmt(0)+'</span>') : fmt(0);
       }
+      else if(PAINTTRIM && colour && opt.price>0){
+        // Paint & Trim promo: priced colour option shows its original struck through next
+        // to the promo price (display discount + an extra PTPCT%); counts in discTotal().
+        price='<span class="was">'+fmt(opt.price)+'</span><span class="now">'+fmt(ptPromo(opt.price))+'</span>';
+      }
       else { price=fmtDisc(opt.price); }
       var sizeAttrs=(group===sizeCid) ? ' data-val="'+esc(label)+'"'+(isBestSize(opt.name)?' data-best="1"':'') : '';
       return '<div class="opt-card'+(selected?' sel':'')+'" data-group="'+esc(group)+'" data-opt="'+opt.id+'"'+sizeAttrs+'>'+img+badge4w+
@@ -832,7 +845,8 @@
         var colour=isColourComp(c);
         var cards=opts.map(function(o){ return cardHTML(c.id,o,o.id===sel[c.id],colour); }).join('');
         var badge=(WALLUP && c.key==='wall') ? '<span class="freeup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Cladding upgrade</span>'
-          : ( (SHELFUP && opts.some(isFreeShelf)) ? '<span class="freeup freeup-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-2.3a3 3 0 00-5.7-2 3 3 0 00-5.7 2H4a1 1 0 00-1 1v3.5h8V8h2v3.5h8V8a1 1 0 00-1-1zM9 7a1 1 0 110-2c.7 0 1.2.8 1.4 2H9zm6 0h-1.4c.2-1.2.7-2 1.4-2a1 1 0 110 2zM4 13h7v9H5a1 1 0 01-1-1v-8zm9 0h7v8a1 1 0 01-1 1h-6v-9z"/></svg>Free shelf option available</span>' : '' );
+          : ( (SHELFUP && opts.some(isFreeShelf)) ? '<span class="freeup freeup-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-2.3a3 3 0 00-5.7-2 3 3 0 00-5.7 2H4a1 1 0 00-1 1v3.5h8V8h2v3.5h8V8a1 1 0 00-1-1zM9 7a1 1 0 110-2c.7 0 1.2.8 1.4 2H9zm6 0h-1.4c.2-1.2.7-2 1.4-2a1 1 0 110 2zM4 13h7v9H5a1 1 0 01-1-1v-8zm9 0h7v8a1 1 0 01-1 1h-6v-9z"/></svg>Free shelf option available</span>'
+            : ( (PAINTTRIM && colour && opts.some(function(o){ return o.price>0; })) ? '<span class="freeup"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 3 7v6c0 5 3.8 8.4 9 9 5.2-.6 9-4 9-9V7l-9-5z"/></svg>'+PTPCT+'% off</span>' : '' ) );
         html+=rowHTML(idx,c.title,'sel-'+c.key,c.id,'',cards,stepNote(c),badge);
       });
       elRows.insertAdjacentHTML('beforeend',html);
@@ -872,16 +886,20 @@
     // ~£1 ("sum of rounded parts ≠ rounded sum"), which made the config read £1 under
     // the checkout total. Mirror the per-component rounding here so they match.
     function discTotal(){
-      if(!(DISC>0)) return total();
+      if(!(DISC>0) && !PAINTTRIM) return total();
       var t=0;
-      for(var cid in sel){ if(WALLUP && wallCid && cid===wallCid) continue; var m=meta[sel[cid]]; if(m){ if(isFreeShelf(m)) continue; t+=round60(disc(m.price)); } }
+      for(var cid in sel){ if(WALLUP && wallCid && cid===wallCid) continue; var m=meta[sel[cid]]; if(m){ if(isFreeShelf(m)) continue;
+        // Paint/trim promo options take the extra PTPCT% (on top of the display discount).
+        if(PAINTTRIM && colourCids[cid] && m.price>0){ t+=round60(ptPromo(m.price)); }
+        else { t+=round60(disc(m.price)); }
+      } }
       return t;
     }
     // Total-price display: raw whole-£ "was" struck through + the per-component
     // discounted "now" (matches checkout). Plain total when no campaign is live.
     function fmtDiscTotal(){
       var raw=total();
-      if(!(DISC>0) || !(raw>0)) return fmt(raw);
+      if((!(DISC>0) && !PAINTTRIM) || !(raw>0)) return fmt(raw);
       return '<span class="was">'+fmt(raw)+'</span><span class="now">'+fmt(discTotal())+'</span>';
     }
     function siteOrigin(){ if(product && product.permalink){ try{ return new URL(product.permalink).origin; }catch(e){} } return baseUrl(); }
@@ -928,6 +946,8 @@
       // Resolve the wall component id once (for the free-upgrade campaign).
       wallCid=(components.filter(function(c){ return c.key==='wall'; })[0]||{}).id||null;
       if(wallCid!=null) wallCid=String(wallCid);
+      // Paint Colour / Colour Trim component ids — the paint & trim promo targets these.
+      colourCids={}; components.forEach(function(c){ if(isColourComp(c)) colourCids[String(c.id)]=1; });
       if(elName) elName.textContent=(product&&product.name)||('Product '+pid);
       galleryBase=parentGalleryList();
       if(elImg && parentLead()) elImg.src=parentLead();
