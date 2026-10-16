@@ -137,14 +137,32 @@ function pt_paint_trim_fee( $cart ) {
 			if ( ! pt_paint_trim_is_colour_title( $title ) ) {
 				continue;
 			}
-			// Read the option's REAL price fresh, ex VAT for a taxable fee.
+			// Read the option's REAL price fresh. The configurator discounts the
+			// VAT-INCLUSIVE price and rounds each option to whole £ (round60); mirror
+			// that here so the checkout fee matches the configurator, then convert back
+			// to ex VAT for the taxable fee — WC re-adds the VAT, so the DISPLAYED amount
+			// lands on the rounded whole-£ figure (e.g. −£6, not −£6.30).
 			$fresh = wc_get_product( $items[ $ckey ]['data']->get_id() );
 			if ( ! $fresh ) {
 				continue;
 			}
-			$ex = (float) wc_get_price_excluding_tax( $fresh );
-			if ( $ex > 0 ) {
-				$discount_ex += $ex * ( $pct / 100 ) * $pqty;
+			$ex   = (float) wc_get_price_excluding_tax( $fresh );
+			$incl = (float) wc_get_price_including_tax( $fresh );
+			if ( $incl <= 0 ) {
+				continue;
+			}
+			// Per-option extra saving = round60(after site discount) − round60(after the
+			// extra paint/trim %), on the VAT-inclusive price — identical to the
+			// configurator's "Save £X" so the config total and checkout total agree.
+			$site_pct = ( is_object( $parent ) && function_exists( 'pt_product_discount_pct' ) ) ? (float) pt_product_discount_pct( $parent->get_id() ) : 0.0;
+			$disc_p   = $incl * ( 1 - $site_pct / 100 );
+			$promo_p  = $disc_p - $incl * ( $pct / 100 );
+			$r_disc   = function_exists( 'pt_round_price_60' ) ? (float) pt_round_price_60( $disc_p ) : (float) round( $disc_p );
+			$r_promo  = function_exists( 'pt_round_price_60' ) ? (float) pt_round_price_60( $promo_p ) : (float) round( $promo_p );
+			$fee_incl = max( 0.0, $r_disc - $r_promo ) * $pqty;
+			if ( $fee_incl > 0 ) {
+				$rate         = ( $ex > 0 ) ? ( $incl / $ex ) : 1.2; // ≈1.20 for standard-rated; back out VAT for the taxable fee
+				$discount_ex += ( $rate > 0 ) ? ( $fee_incl / $rate ) : $fee_incl;
 			}
 		}
 	}
