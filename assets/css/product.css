@@ -766,10 +766,7 @@
 .pt-wkcountdown b{ font-weight:800; font-variant-numeric:tabular-nums; }
 .pt-wkcountdown[hidden]{ display:none; } /* keep the hidden attribute working despite the display rule above */
 
-/* Paint & Trim sale-box pill — charcoal with white text + green gift icon (product page
-   only; the category banner pills keep the green .pt-wkbadge via category.css). */
-.pt-prodsale-box .pt-ptbadge{ background:var(--charcoal); color:var(--white); box-shadow:none; }
-.pt-prodsale-box .pt-ptbadge svg{ color:#00FE6C; fill:#00FE6C; }
+/* Paint & Trim sale-box pill restyle lives in the amendment block at the end of this file. */
 /* Standalone weekend promo box — when no other sale box is shown. */
 .pt-wkbox{ background:var(--accent); border-radius:12px; padding:18px 20px; margin-bottom:16px; }
 .pt-wkbox .pt-wkbadge{ margin-top:0; }
@@ -839,6 +836,40 @@
    child stretch the whole column (and the page). Allow these to shrink. */
 .cfg-grid, .cfg-preview{ min-width:0; }
 
+/* ===================== Paint & Trim promo — amendment block (final) ===================== */
+/* 1. Sale box pill – charcoal */
+.pt-prodsale-box .pt-ptbadge{background:var(--charcoal);color:var(--white);box-shadow:none}
+.pt-prodsale-box .pt-ptbadge svg{color:#00FE6C;fill:#00FE6C}
+
+/* 2. Space between option name and price */
+.opt-card .nm{margin-bottom:10px}
+
+/* 3. "Save £X" – top-right of sale price */
+.opt-card .pr .now{position:relative;display:inline-block}
+.opt-card .pr:has(.pt-save) .was{margin-right:5px}
+.opt-card .pr .now .pt-save{position:absolute;left:calc(100% + 2px);top:-8px;
+  font-size:8.5px;font-weight:700;line-height:1.3;letter-spacing:-.1px;white-space:nowrap;
+  padding:0 3px;border-radius:999px;color:#C0392B;border:1px solid #C0392B;background:transparent}
+.opt-card:has(.pt-save){container-type:inline-size}
+@container (max-width:170px){
+  .opt-card .pr:has(.pt-save) .was{margin-right:4px}
+  .opt-card .pr .now .pt-save{font-size:8px;padding:0 2px;letter-spacing:-.2px;left:calc(100% + 1px)}
+}
+
+/* 4. Mobile: chip as a tab on the hero price pill */
+@media (max-width:480px){
+  .pricepill{position:relative}
+  .pricepill .pt-paint-chip{display:inline-flex;position:absolute;top:-10px;left:22px;margin:0;
+    font-size:10px;padding:3px 8px;line-height:1.2;box-shadow:var(--e1)}
+}
+
+/* 5. Mobile: feature row 3 + 2 (the base uses grid-auto-flow:column with mf-cols spanning
+   2 rows, so switch to row flow + single-row cells for the columns to actually wrap). */
+@media (max-width:600px){
+  .pt-mainfeat{grid-template-columns:repeat(3,1fr);grid-auto-flow:row;grid-template-rows:none;row-gap:12px}
+  .pt-mainfeat .mf-col{grid-row:auto;grid-template-rows:auto}
+}
+
 /* ===================== Paint & Trim promo — extra visibility ===================== */
 /* Only existing theme tokens + the deal green (#00FE6C) and sale red (#C0392B). */
 /* #2 Gallery "+10% OFF PAINT" label, under the FREE / Double Glazing badge. */
@@ -851,22 +882,9 @@
 /* #5 Paint/Trim row tag — charcoal + white text + green gift icon (scoped to .freeup-pt). */
 .cfg-head .freeup-pt{ background:var(--charcoal); color:var(--white); }
 .cfg-head .freeup-pt svg{ color:#00FE6C; fill:#00FE6C; }
-/* #6 "Save £X" outlined-red tag — top-right of the sale price. Anchored to the price's
-   RIGHT edge (not left:100%) so it stays inside the 150px overflow:hidden card at any price;
-   out of flow, so card height is unchanged. */
-.opt-card .pr .now{ position:relative; display:inline-block; }
-.opt-card .pr .now .pt-save{ position:absolute; right:0; top:-9px; font-size:9px; font-weight:700; line-height:1.3; white-space:nowrap; padding:0 4px; border-radius:999px; color:#C0392B; border:1px solid #C0392B; background:transparent; }
+/* #6 "Save £X" tag styling lives in the amendment block at the end of this file. */
 /* #7 "+10% off paint" chips next to Customise & buy. */
 .pt-paint-chip{ display:inline-flex; align-items:center; margin-right:8px; background:var(--charcoal); color:var(--white); font-weight:700; font-size:12px; padding:5px 10px; border-radius:999px; white-space:nowrap; }
 .subnav .pt-paint-chip--nav{ display:none; }
 @media(min-width:860px){ .subnav .pt-paint-chip--nav{ display:inline-flex; margin-left:auto; } }
-/* Hide the hero price-pill chip on phones — it pushed "Customise & buy" off-screen. */
-@media(max-width:480px){ .pricepill .pt-paint-chip{ display:none; } }
-/* 5-column feature row (promo on) wraps to 3 + 2 on phones instead of cramming into one row.
-   Drop the container-query containment + cqi fonts here and use a plain 3-col grid. */
-@media(max-width:600px){
-  .pt-mainfeat--pt{ container-type:normal; grid-auto-flow:row; grid-template-columns:1fr 1fr 1fr; grid-template-rows:none; grid-auto-rows:auto; gap:12px 8px; }
-  .pt-mainfeat--pt .mf-col{ grid-row:auto; grid-template-rows:auto; min-width:0; }
-  .pt-mainfeat--pt .mf-col h4{ font-size:11px; }
-  .pt-mainfeat--pt .mf-col p{ font-size:10px; }
-}
+/* Mobile chip + feature-row mobile rules live in the amendment block at the end of this file. */
