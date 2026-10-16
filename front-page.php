@@ -107,6 +107,10 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
             </div>
             <div class="getb-ranges">All Building Ranges</div>
           </div>
+          <?php // Week deal (Paint & Colour Trim) — campaign-gated pill, stacks on the 20%. ?>
+          <?php if ( '' !== $pt_pt_pill ) : ?>
+          <div class="getb-ptrow"><?php echo $pt_pt_pill; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?></div>
+          <?php endif; ?>
           <?php if ( 'table' === $pt_slide['type'] ) : ?>
           <div class="getb-ptable">
             <span class="pt-sp"></span>
