@@ -635,10 +635,10 @@
       var shelfPill=isFreeShelf(opt)?'<div class="opt-badges"><span class="opt-badge opt-badge--promo-weekend"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-2.3a3 3 0 00-5.7-2 3 3 0 00-5.7 2H4a1 1 0 00-1 1v3.5h8V8h2v3.5h8V8a1 1 0 00-1-1zM9 7a1 1 0 110-2c.7 0 1.2.8 1.4 2H9zm6 0h-1.4c.2-1.2.7-2 1.4-2a1 1 0 110 2zM4 13h7v9H5a1 1 0 01-1-1v-8zm9 0h7v8a1 1 0 01-1 1h-6v-9z"/></svg>Free this weekend</span></div>':'';
       // Paint & Trim promo: green corner pill (top-right) on each priced colour option.
       var paintPill=(PAINTTRIM && colour && opt.price>0)?'<div class="opt-badges opt-badges--tr"><span class="opt-badge opt-badge--promo-weekend"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 7h-2.2A3 3 0 0 0 12 4.4 3 3 0 0 0 6.2 7H4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h7V7h2v5h7a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM9 7a1 1 0 1 1 1-1v1H9zm6 0h-1V6a1 1 0 1 1 1 1zM4 13v7a1 1 0 0 0 1 1h6v-8H4zm9 8h6a1 1 0 0 0 1-1v-7h-7v8z"/></svg>Week deal</span></div>':'';
-      // Paint & Trim promo: "Save £X" = the EXTRA 10% saving only (discounted price − final),
-      // i.e. what the paint promo takes off on top of the order discount — not the 20%+10% total.
-      var paintSave=(PAINTTRIM && colour && opt.price>0)?(round60(disc(opt.price))-round60(ptPromo(opt.price))):0;
-      var savePill=(paintSave>0)?('Extra £'+paintSave.toLocaleString('en-GB')):'';
+      // Paint & Trim promo: "Save £X" = the TOTAL saving (was − now, whole £), matching the
+      // struck original and the final price on the card (e.g. £283 → £198 = Save £85).
+      var paintSave=(PAINTTRIM && colour && opt.price>0)?(round60(opt.price)-round60(ptPromo(opt.price))):0;
+      var savePill=(paintSave>0)?('Save £'+paintSave.toLocaleString('en-GB')):'';
       var img;
       if(group===sizeCid){
         // SIZE cards: hold a loading skeleton until this size's OWN image is fetched
