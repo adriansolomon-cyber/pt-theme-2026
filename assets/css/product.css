@@ -766,9 +766,8 @@
 .pt-wkcountdown b{ font-weight:800; font-variant-numeric:tabular-nums; }
 .pt-wkcountdown[hidden]{ display:none; } /* keep the hidden attribute working despite the display rule above */
 
-/* Paint & Trim promo pill — a charcoal variant of the green shelf pill; sits inside the
-   yellow sale box (or as its own box head). The .pt-wkcountdown below it reads on yellow. */
-.pt-ptbadge{ background:var(--charcoal,#3B333D); color:#fff; }
+/* Paint & Trim promo pill reuses the green .pt-wkbadge mockup design (sale-banners-mockup:
+   "Weekend Only Deal" pill) — no colour override, so it matches that green pill exactly. */
 /* Standalone weekend promo box — when no other sale box is shown. */
 .pt-wkbox{ background:var(--accent); border-radius:12px; padding:18px 20px; margin-bottom:16px; }
 .pt-wkbox .pt-wkbadge{ margin-top:0; }
