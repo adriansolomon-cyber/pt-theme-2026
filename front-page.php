@@ -107,10 +107,6 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
             </div>
             <div class="getb-ranges">All Building Ranges</div>
           </div>
-          <?php // Week deal (Paint & Colour Trim) — campaign-gated pill, stacks on the 20%. ?>
-          <?php if ( '' !== $pt_pt_pill ) : ?>
-          <div class="getb-ptrow"><?php echo $pt_pt_pill; // phpcs:ignore WordPress.Security.EscapeOutput -- static internal markup ?></div>
-          <?php endif; ?>
           <?php if ( 'table' === $pt_slide['type'] ) : ?>
           <div class="getb-ptable">
             <span class="pt-sp"></span>
@@ -149,6 +145,16 @@ $pt_trustline = 'FREE PRESSURE TREATMENT · 25 YEAR ANTI-ROT GUARANTEE · FREE D
                 <span class="getb-burst-off">Off all</span>
               </div>
             </div>
+            <?php // Week deal (Paint & Colour Trim) — green companion burst, paired with the red one. ?>
+            <?php if ( function_exists( 'pt_paint_trim_campaign_active' ) && pt_paint_trim_campaign_active() ) : ?>
+            <div class="getb-burst getb-burst--pt">
+              <div class="getb-burst-in">
+                <span class="getb-burst-save">Extra</span>
+                <span class="getb-burst-pct"><?php echo (int) $pt_pt_pct; ?>%</span>
+                <span class="getb-burst-off">paint &amp; trim</span>
+              </div>
+            </div>
+            <?php endif; ?>
           </div>
           <div class="getb-thumbs" data-slab>
             <?php foreach ( $pt_slide['thumbs'] as $pt_t ) : ?>
